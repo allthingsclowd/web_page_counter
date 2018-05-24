@@ -1,10 +1,10 @@
-# golang_web_page_counter
-Golang webpage counter application server using two redis clustered backend servers and a nginx web-proxy frontend server. Traditional 3 tier application model.
+# Web Page Counter - Golang, Redis & Nginx
+Golang webpage counter application server using two redis backend servers (master-slave config) and a nginx web-proxy frontend server. Traditional 3 tier application model.
 
 ![image](https://user-images.githubusercontent.com/9472095/40512492-eadca63a-5f9a-11e8-89cc-392ad30c9cf7.png)
 
 ## Purpose
-This repository was created to familiarise myself with Vagrant and infrastructure environment creation
+This repository was created to familiarise myself with Vagrant files
 
 ## Installation
 Simply clone this repository, source the environment variables file (var.env) and then build the vagrant environment as follows:
