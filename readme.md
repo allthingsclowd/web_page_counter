@@ -17,7 +17,11 @@ vagrant up
 This takes about 8 minutes to complete on a MacBook Pro.
 
 ## Verification
-The nginx web frontend is mapped to port 9090 on the local machine. Simply open a browser and point to http://localhost:9090  or
+The nginx web frontend is mapped to port 9090 on the local machine. Simply open a browser and point to http://localhost:9090  
+
+![image](https://user-images.githubusercontent.com/9472095/40511389-6ec338d2-5f97-11e8-8796-a68d6d2268fd.png)
+
+or
 
 ``` bash
 $ curl localhost:9090
