@@ -11,8 +11,8 @@ import (
 
 var templates *template.Template
 var client *redis.Client
-const redisMaster = os.Getenv("REDIS_MASTER_IP") + ":" + os.Getenv("REDIS_HOST_PORT")
-const redisPassword = os.Getenv("REDIS_MASTER_PASSWORD")
+var redisMaster = os.Getenv("REDIS_MASTER_IP") + ":" + os.Getenv("REDIS_HOST_PORT")
+var redisPassword = os.Getenv("REDIS_MASTER_PASSWORD")
 
 func main() {
 	client = redis.NewClient(&redis.Options{
