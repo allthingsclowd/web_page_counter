@@ -8,7 +8,7 @@ fi
 touch /var/vagrant_go_base
 sudo apt-get update && \
     sudo apt-get upgrade -y && \
-    sudo apt-get install -y git
+    sudo apt-get install -y git=1:2.7.4-0ubuntu1.3
 mkdir -p /tmp/go_src
 pushd /tmp/go_src
 wget -nv https://dl.google.com/go/go1.10.2.linux-amd64.tar.gz
