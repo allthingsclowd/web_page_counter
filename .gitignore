@@ -3,4 +3,5 @@
 
 # Unignore all with extensions
 !*.*
+!Vagrantfile
 
