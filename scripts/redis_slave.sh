@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+source /usr/local/bootstrap/var.env
 
 # Idempotency hack - if this file exists don't run the rest of the script
 if [ -f "/var/vagrant_redis_slave" ]; then
@@ -6,7 +7,7 @@ if [ -f "/var/vagrant_redis_slave" ]; then
 fi
 
 touch /var/vagrant_redis_slave
-sudo mv slave.redis.conf /etc/redis/redis.conf
+sudo cp /usr/local/bootstrap/conf/slave.redis.conf /etc/redis/redis.conf
 sudo chown redis:redis /etc/redis/redis.conf
 sudo chmod 640 /etc/redis/redis.conf
 echo "requirepass $REDIS_SLAVE_PASSWORD" | sudo tee -a /etc/redis/redis.conf
