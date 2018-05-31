@@ -1,5 +1,18 @@
 Vagrant.configure("2") do |config|
 
+    ENV['REDIS_MASTER_NAME']||="redis01"
+    ENV['REDIS_MASTER_IP']||="192.168.2.200"
+    ENV['REDIS_SLAVE_NAME']||="redis02"
+    ENV['REDIS_SLAVE_IP']||="192.168.2.201"
+    ENV['GO_DEV_IP']||="192.168.2.100"
+    ENV['GO_DEV_NAME']||="godev01"
+    ENV['GO_GUEST_PORT']||="8080"
+    ENV['GO_HOST_PORT']||="8080"
+    ENV['NGINX_NAME']||="web01"
+    ENV['NGINX_IP']||="192.168.2.250"
+    ENV['NGINX_GUEST_PORT']||="9090"
+    ENV['NGINX_HOST_PORT']||="9090"
+
     #global mountpount for our code
     config.vm.synced_folder ".", "/usr/local/bootstrap"
     config.vm.box = "cbednarski/ubuntu-1604"
@@ -19,8 +32,8 @@ Vagrant.configure("2") do |config|
     end
     
     config.vm.define "godev01" do |devsvr|
-        devsvr.vm.network "private_network", ip: ENV['GO_DEV_IP']
         devsvr.vm.hostname = ENV['GO_DEV_NAME']
+        devsvr.vm.network "private_network", ip: ENV['GO_DEV_IP']
         devsvr.vm.network "forwarded_port", guest: ENV['GO_GUEST_PORT'], host: ENV['GO_HOST_PORT']
         devsvr.vm.provision "shell", path: "scripts/go_init.sh"
         devsvr.vm.provision "shell", path: "scripts/go_vagrant_user.sh"
