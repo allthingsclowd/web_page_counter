@@ -87,6 +87,17 @@ $ curl localhost:8080
 </body>
 </html>
 ```
+## TODO
+### A
+- Build own box using packer with above scripts
+- Upload to vagrantcloud
+- Update Vagrant file to consume the new box
+### B
+- Add TravisCI for Go APP
+### C
+- Add a Consul(1) server 
+- Check git2consul to have vars.env as consul K/V
+
 
 
 
