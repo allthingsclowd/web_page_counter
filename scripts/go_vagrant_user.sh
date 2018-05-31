@@ -16,7 +16,7 @@ echo "export GOPATH=$HOME/code/go" >> $HOME/.bash_profile
 source $HOME/.bash_profile
 go get $GO_REPOSITORY
 echo $GOPATH/src/$GO_REPOSITORY
-cd $GOPATH/src/$GO_REPOSITORY/app
+cd $GOPATH/src/$GO_REPOSITORY
 go build main.go
 ./main &
 
