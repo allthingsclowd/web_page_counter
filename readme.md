@@ -97,6 +97,8 @@ $ curl localhost:8080
 ### C
 - Add a Consul(1) server 
 - Check git2consul to have vars.env as consul K/V
+### D
+- Metrics: Consul KV versus Vault KV - test with 100-1000 entries
 
 
 
