@@ -13,9 +13,21 @@ Vagrant.configure("2") do |config|
     ENV['NGINX_GUEST_PORT']||="9090"
     ENV['NGINX_HOST_PORT']||="9090"
 
-    #global mountpount for our code
+    #global config
     config.vm.synced_folder ".", "/usr/local/bootstrap"
     config.vm.box = "cbednarski/ubuntu-1604"
+
+    config.vm.provider "virtualbox" do |v|
+        v.memory = 1024
+        v.cpus = 1
+    end
+
+    config.vm.define "consul01" do |consul01|
+        consul01.vm.hostname = "consul01"
+        consul01.vm.network "private_network", ip: "192.168.2.11"
+        consul01.vm.provision "shell", path: "scripts/consul.sh", run: "always"
+        consul01.vm.network "forwarded_port", guest: 8500, host: 8500
+    end
 
     config.vm.define "redis01" do |redis01|
         redis01.vm.hostname = ENV['REDIS_MASTER_NAME']
