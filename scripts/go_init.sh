@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+source /usr/local/bootstrap/var.env
 
 # Idempotency hack - if this file exists don't run the rest of the script
 if [ -f "/var/vagrant_go_base" ]; then
