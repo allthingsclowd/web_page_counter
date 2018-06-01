@@ -14,8 +14,10 @@ Vagrant.configure("2") do |config|
     ENV['NGINX_HOST_PORT']||="9090"
 
     #global config
+    config.vm.synced_folder ".", "/vagrant"
     config.vm.synced_folder ".", "/usr/local/bootstrap"
     config.vm.box = "cbednarski/ubuntu-1604"
+    config.vm.provision "shell", path: "scripts/consul.sh", run: "always"
 
     config.vm.provider "virtualbox" do |v|
         v.memory = 1024
@@ -25,7 +27,6 @@ Vagrant.configure("2") do |config|
     config.vm.define "consul01" do |consul01|
         consul01.vm.hostname = "consul01"
         consul01.vm.network "private_network", ip: "192.168.2.11"
-        consul01.vm.provision "shell", path: "scripts/consul.sh", run: "always"
         consul01.vm.network "forwarded_port", guest: 8500, host: 8500
     end
 
