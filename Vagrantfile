@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
     #global config
     config.vm.synced_folder ".", "/vagrant"
     config.vm.synced_folder ".", "/usr/local/bootstrap"
-    config.vm.box = "cbednarski/ubuntu-1604"
+    config.vm.box = "allthingscloud/go-counter-demo"
     config.vm.provision "shell", path: "scripts/consul.sh", run: "always"
 
     config.vm.provider "virtualbox" do |v|
