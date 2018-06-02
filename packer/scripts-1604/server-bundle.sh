@@ -21,4 +21,5 @@ which /usr/local/go &>/dev/null || {
     tar -C /usr/local -xzf go1.10.2.linux-amd64.tar.gz
     popd
     rm -rf /tmp/go_src
+    echo "export PATH=$PATH:/usr/local/go/bin" >> /etc/profile
 }

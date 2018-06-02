@@ -7,8 +7,6 @@ if [ -f "/var/vagrant_web_server" ]; then
 fi
 
 touch /var/vagrant_web_server
-sudo apt-get update
-sudo apt-get install -y nginx=1.10.3-0ubuntu0.16.04.2
 sudo rm /etc/nginx/sites-enabled/default
 sudo cp /usr/local/bootstrap/conf/nginx.conf /etc/nginx/sites-available/default
 sed -i 's/GO_DEV_IP/'"$GO_DEV_IP"'/' /etc/nginx/sites-available/default
