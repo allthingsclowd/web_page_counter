@@ -48,7 +48,6 @@ Vagrant.configure("2") do |config|
         devsvr.vm.hostname = ENV['GO_DEV_NAME']
         devsvr.vm.network "private_network", ip: ENV['GO_DEV_IP']
         devsvr.vm.network "forwarded_port", guest: ENV['GO_GUEST_PORT'], host: ENV['GO_HOST_PORT']
-        devsvr.vm.provision "shell", path: "scripts/go_init.sh"
         devsvr.vm.provision "shell", path: "scripts/go_vagrant_user.sh"
     end
 
