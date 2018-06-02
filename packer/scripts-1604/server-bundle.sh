@@ -23,3 +23,8 @@ which /usr/local/go &>/dev/null || {
     rm -rf /tmp/go_src
     echo "export PATH=$PATH:/usr/local/go/bin" >> /etc/profile
 }
+
+# Reboot with the new kernel
+echo "Server Bundles Installed - Reboot"
+shutdown -r now
+sleep 60
