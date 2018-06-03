@@ -41,7 +41,6 @@
         ],
         "boot_wait": "5s",
         "disk_size": "{{user `disk_size`}}",
-        "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
         "guest_os_type": "Ubuntu_64",
         "headless": "{{user `headless`}}",
         "http_directory": "http",
@@ -93,24 +92,12 @@
       },
       {
         "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
-        "script": "scripts-1604/server-bundle.sh",
-        "type": "shell",
-        "expect_disconnect": true
-      },
-      {
-        "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
         "script": "scripts-1604/vagrant.sh",
         "type": "shell"
       },
       {
         "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
         "script": "scripts-1604/remove-old-vbox.sh",
-        "type": "shell",
-        "expect_disconnect": true
-      },
-      {
-        "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
-        "script": "scripts-1604/virtualbox.sh",
         "type": "shell",
         "expect_disconnect": true
       },
