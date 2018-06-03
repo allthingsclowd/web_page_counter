@@ -8,7 +8,7 @@ apt-get -y install build-essential linux-headers-$(uname -r)
 service virtualbox-ose-guest-utils stop
 rmmod vboxguest
 apt-get purge -y virtualbox-ose-guest-x11 virtualbox-ose-guest-dkms virtualbox-ose-guest-utils
-apt-get install -y dkms
+apt-get install -y dkms virtualbox-guest-dkms linux-headers-virtual
 
 echo 'Added this reboot as test'
 shutdown -r now
