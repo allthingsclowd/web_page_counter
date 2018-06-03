@@ -88,10 +88,10 @@ $ curl localhost:8080
 </html>
 ```
 ## TODO
-### A
+~~### A
 - Build own box using packer with above scripts
 - Upload to vagrantcloud
-- Update Vagrant file to consume the new box
+- Update Vagrant file to consume the new box~~
 ### B
 - Add TravisCI for Go APP
 ### C
