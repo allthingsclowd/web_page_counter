@@ -1,3 +1,5 @@
+![https://travis-ci.org/allthingsclowd/golang_web_page_counter.svg?branch=master](https://travis-ci.org/allthingsclowd/golang_web_page_counter.svg?branch=master)
+
 # Web Page Counter - Golang, Redis & Nginx
 Golang webpage counter application server using two redis backend servers (master-slave config) and a nginx web-proxy frontend server. Traditional 3 tier application model.
 
