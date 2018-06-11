@@ -92,6 +92,14 @@ $ curl localhost:8080
 
 ## TODO
 
+### Refactor
+- Remove scripts from Packer and link back to repo master scripts, use SCRIPTS feature
+- Add 'manual' test scripts to TravisCI
+   - source env file
+   - over write variables for local redis 
+   - use `curl` to verify app returns http 200 & exit 0
+   - use `lynx --dump` to capture counter updates between refreshes
+
 ### A
 - Add TravisCI for Go APP
 
