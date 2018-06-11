@@ -90,12 +90,8 @@ $ curl localhost:8080
 </html>
 ```
 ## TODO
-~~### A
-- Build own box using packer with above scripts
-- Upload to vagrantcloud
-- Update Vagrant file to consume the new box~~
-### B
-- Add TravisCI for Go APP
+
+
 ### C
 - Add a Consul(1) server 
 - Check git2consul to have vars.env as consul K/V
@@ -105,5 +101,10 @@ $ curl localhost:8080
 - Metrics: Consul KV versus Vault KV - test with 100-1000 entries
 
 
-
-
+## Done
+### A
+- Build own box using packer with above scripts
+- Upload to vagrantcloud
+- Update Vagrant file to consume the new box
+### B
+- Add TravisCI for Go APP
