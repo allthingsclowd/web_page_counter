@@ -86,7 +86,10 @@
     "provisioners": [
       {
         "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
-        "scripts": ["scripts-1604/packages.sh", "scripts-1604/vagrant.sh", "scripts-1604/remove-old-vbox.sh", "scripts-1604/virtualbox_cleanup.sh"],
+        "scripts": ["../scripts/packer_install_base_packages.sh", 
+          "../scripts/packer_configure_vagrant_user.sh", 
+          "../scripts/packer_remove_old_vbox.sh", 
+          "../scripts/packer_virtualbox_cleanup.sh"],
         "type": "shell",
         "expect_disconnect": true
       }
