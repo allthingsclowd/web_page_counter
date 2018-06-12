@@ -93,7 +93,6 @@ $ curl localhost:8080
 ## TODO
 
 ### Refactor
-- Remove scripts from Packer and link back to repo master scripts, use SCRIPTS feature
 - Add 'manual' test scripts to TravisCI
    - source env file
    - over write variables for local redis 
@@ -117,4 +116,5 @@ $ curl localhost:8080
 - Upload to vagrantcloud
 - Update Vagrant file to consume the new box
 - Add a Consul(1) server 
+- Remove scripts from Packer and link back to repo master scripts, use SCRIPTS feature
 
