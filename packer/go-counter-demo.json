@@ -86,25 +86,9 @@
     "provisioners": [
       {
         "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
-        "script": "scripts-1604/packages.sh",
+        "scripts": ["scripts-1604/packages.sh", "scripts-1604/vagrant.sh", "scripts-1604/remove-old-vbox.sh", "scripts-1604/virtualbox_cleanup.sh"],
         "type": "shell",
         "expect_disconnect": true
-      },
-      {
-        "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
-        "script": "scripts-1604/vagrant.sh",
-        "type": "shell"
-      },
-      {
-        "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
-        "script": "scripts-1604/remove-old-vbox.sh",
-        "type": "shell",
-        "expect_disconnect": true
-      },
-      {
-        "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
-        "script": "scripts-1604/virtualbox_cleanup.sh",
-        "type": "shell"
       }
     ],
     "post-processors": [
