@@ -12,8 +12,6 @@ before_script:
   - bash source var.env
 
 env:
-  - REDIS_MASTER_IP=0.0.0.0
-  - REDIS_HOST_PORT=6379
-  - REDIS_MASTER_PASSWORD=""
+  - REDIS_MASTER_IP=0.0.0.0 REDIS_HOST_PORT=6379 REDIS_MASTER_PASSWORD=""
 script:
       - bash scripts/travis_run_Go_app.sh
