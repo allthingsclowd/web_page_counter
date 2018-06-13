@@ -20,3 +20,4 @@ script:
       - export REDIS_HOST_PORT=6379
       - export REDIS_MASTER_PASSWORD=""
       - bash scripts/travis_run_Go_app.sh
+      
