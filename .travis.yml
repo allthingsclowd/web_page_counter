@@ -11,7 +11,7 @@ go:
       
 before_script:
       - pushd packer
-      - [ "${TRAVIS_BRANCH}" = "master" ] && packer validate go-counter-demo.json
+      - [ "$TRAVIS_PULL_REQUEST" = "false" ] && packer validate go-counter-demo.json
       - popd
       
 script:
@@ -20,4 +20,3 @@ script:
       - export REDIS_HOST_PORT=6379
       - export REDIS_MASTER_PASSWORD=""
       - bash scripts/travis_run_Go_app.sh
-      
