@@ -13,7 +13,9 @@ install:
       - wget https://releases.hashicorp.com/packer/1.2.2/packer_1.2.2_linux_amd64.zip -O /var/tmp/packer.zip
       - unzip -d /var/tmp /var/tmp/packer.zip
 script:
-      - /var/tmp/packer validate packer/go-counter-demo.json
+      - pushd packer
+      - /var/tmp/packer validate go-counter-demo.json
+      - popd
       - source ./var.env
       - export REDIS_MASTER_IP=0.0.0.0
       - export REDIS_HOST_PORT=6379
