@@ -9,14 +9,14 @@ addons:
 go:
   - "1.10"
       
-install:
-      - pushd packer
-      - [ "$TRAVIS_PULL_REQUEST" = "false" ] && packer validate go-counter-demo.json
-      - popd
+before_script:
+  - pushd packer
+  - [ "$TRAVIS_PULL_REQUEST" = "false" ] && packer validate go-counter-demo.json
+  - popd
       
 script:
-      - source ./var.env
-      - export REDIS_MASTER_IP=0.0.0.0
-      - export REDIS_HOST_PORT=6379
-      - export REDIS_MASTER_PASSWORD=""
-      - bash scripts/travis_run_Go_app.sh
+  - source ./var.env
+  - export REDIS_MASTER_IP=0.0.0.0
+  - export REDIS_HOST_PORT=6379
+  - export REDIS_MASTER_PASSWORD=""
+  - bash scripts/travis_run_Go_app.sh
