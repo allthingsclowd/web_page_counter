@@ -9,10 +9,10 @@ addons:
 go:
   - "1.10"
       
-before_script:
-  - pushd packer
-  - [ "$TRAVIS_PULL_REQUEST" = "false" ] && packer validate go-counter-demo.json
-  - popd
+# before_script:
+#   - pushd packer
+#   - [ "$TRAVIS_PULL_REQUEST" = "false" ] && packer validate go-counter-demo.json
+#   - popd
       
 script:
   - source ./var.env
