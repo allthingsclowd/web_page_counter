@@ -7,3 +7,12 @@ addons:
 
 go:
   - "1.10"
+
+
+before_script:
+  - bash source var.env
+
+env:
+  - 
+script:
+      - bash scripts/travis_run_Go_app.sh
