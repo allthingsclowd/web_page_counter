@@ -9,7 +9,7 @@ addons:
 go:
   - "1.10"
       
-before_script:
+install:
       - pushd packer
       - [ "$TRAVIS_PULL_REQUEST" = "false" ] && packer validate go-counter-demo.json
       - popd
