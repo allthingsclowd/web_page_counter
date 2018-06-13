@@ -13,6 +13,7 @@ source $HOME/.bash_profile
 go get $GO_REPOSITORY
 echo $GOPATH/src/$GO_REPOSITORY
 cd $GOPATH/src/$GO_REPOSITORY
+go get ./...
 go build main.go
 ./main &
 
