@@ -4,6 +4,7 @@ addons:
   apt:
     packages:
       - redis-server
+      - lynx
 
 go:
   - "1.10"
