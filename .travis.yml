@@ -8,14 +8,13 @@ addons:
 
 go:
   - "1.10"
- 
-install:
-      - wget https://releases.hashicorp.com/packer/1.2.2/packer_1.2.2_linux_amd64.zip -O /var/tmp/packer.zip
-      - unzip -d /var/tmp /var/tmp/packer.zip
-script:
+      
+before_script:
       - pushd packer
-      - /var/tmp/packer validate go-counter-demo.json
+      - [ "${TRAVIS_BRANCH}" = "master" ] && packer validate go-counter-demo.json
       - popd
+      
+script:
       - source ./var.env
       - export REDIS_MASTER_IP=0.0.0.0
       - export REDIS_HOST_PORT=6379
