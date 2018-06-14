@@ -11,7 +11,7 @@ go:
       
 before_script:
   - pushd packer
-  - [ ${VAGRANT_CLOUD_TOKEN} ] && packer validate template.json
+  - if [ $VAGRANT_CLOUD_TOKEN ] ; then packer validate template.json ; fi
   - popd
        
 script:
