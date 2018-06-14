@@ -11,12 +11,11 @@ go:
       
 before_script:
   - pushd packer
-  - packer validate go-counter-demo.json
+  - if [ $VAGRANT_CLOUD_TOKEN ] ; then packer validate template.json ; fi
   - popd
-      
+       
 script:
   - source ./var.env
   - export REDIS_MASTER_IP=0.0.0.0
-  - export REDIS_HOST_PORT=6379
   - export REDIS_MASTER_PASSWORD=""
-  - bash scripts/travis_run_Go_app.sh
+  - bash scripts/travis_run_go_app.sh
