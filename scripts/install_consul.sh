@@ -12,13 +12,15 @@ if [[ "${HOSTNAME}" =~ "consul" ]]; then
     sleep 1
     # upload vars to consul kv
 
+    wget -O /var/tmp/var.env https://raw.githubusercontent.com/allthingsclowd/golang_web_page_counter/master/var.env
+
     while read a b; do
       k=${b%%=*}
       v=${b##*=}
 
       consul kv put $k $v
 
-    done < ../var.env
+    done < /var/tmp/var.env
 
   }
 else
