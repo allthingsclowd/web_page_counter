@@ -10,6 +10,7 @@ if [[ "${HOSTNAME}" =~ "consul" ]]; then
   /usr/local/bin/consul members 2>/dev/null || {
     /usr/local/bin/consul agent -server -ui -client=0.0.0.0 -bind=${IP} -data-dir=/usr/local/consul -bootstrap-expect=1 >/vagrant/consul_${HOSTNAME}.log &
     sleep 1
+    # upload vars to consul kv
   }
 else
   echo agent
