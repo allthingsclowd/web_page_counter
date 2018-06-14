@@ -1,5 +1,6 @@
 Vagrant.configure("2") do |config|
 
+    #override global variables to fit Vagrant setup
     ENV['REDIS_MASTER_NAME']||="masterredis01"
     ENV['REDIS_MASTER_IP']||="192.168.2.200"
     ENV['REDIS_SLAVE_NAME']||="slaveredis02"
@@ -46,7 +47,7 @@ Vagrant.configure("2") do |config|
         devsvr.vm.hostname = ENV['GO_DEV_NAME']
         devsvr.vm.network "private_network", ip: ENV['GO_DEV_IP']
         devsvr.vm.network "forwarded_port", guest: ENV['GO_GUEST_PORT'], host: ENV['GO_HOST_PORT']
-        devsvr.vm.provision "shell", path: "scripts/install_Go_app.sh"
+        devsvr.vm.provision "shell", path: "scripts/install_go_app.sh"
     end
 
     config.vm.define "web01" do |web01|
