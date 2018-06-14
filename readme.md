@@ -93,7 +93,7 @@ $ curl localhost:8080
 ## TODO
 
 ### Refactor
-- Nan
+- None
 
 ### A
 - Add TravisCI for Go APP
