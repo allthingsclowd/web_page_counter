@@ -93,18 +93,14 @@ $ curl localhost:8080
 ## TODO
 
 ### Refactor
-- None
 
 ### A
-- Add TravisCI for Go APP
-
-### B
 - Check git2consul to have vars.env as consul K/V
 
-### C
+### B
 - Add a Vault (1) server
 
-### D
+### C
 - Metrics: Consul KV versus Vault KV - test with 100-1000 entries
 
 ## Done
@@ -119,3 +115,4 @@ $ curl localhost:8080
    - over write variables for local redis 
    - use `curl` to verify app returns http 200 & exit 0
    - use `lynx --dump` to capture counter updates between refreshes
+   - Add TravisCI for Go APP
