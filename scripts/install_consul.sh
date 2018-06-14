@@ -11,6 +11,15 @@ if [[ "${HOSTNAME}" =~ "consul" ]]; then
     /usr/local/bin/consul agent -server -ui -client=0.0.0.0 -bind=${IP} -data-dir=/usr/local/consul -bootstrap-expect=1 >/vagrant/consul_${HOSTNAME}.log &
     sleep 1
     # upload vars to consul kv
+
+    while read a b; do
+      k=${b%%=*}
+      v=${b##*=}
+
+      consul kv put $k $v
+
+    done < ../var.env
+
   }
 else
   echo agent
