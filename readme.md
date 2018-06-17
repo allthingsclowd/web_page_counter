@@ -95,12 +95,9 @@ $ curl localhost:8080
 ### Refactor
 
 ### A
-- Check git2consul to have vars.env as consul K/V
-
-### B
 - Add a Vault (1) server
 
-### C
+### B
 - Metrics: Consul KV versus Vault KV - test with 100-1000 entries
 
 ## Done
@@ -116,3 +113,6 @@ $ curl localhost:8080
    - use `curl` to verify app returns http 200 & exit 0
    - use `lynx --dump` to capture counter updates between refreshes
    - Add TravisCI for Go APP
+   
+- scripted added to read in var.env and upload to consul
+- main.go modified to use consul for variables when it's present
