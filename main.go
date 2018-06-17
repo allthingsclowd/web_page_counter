@@ -7,14 +7,20 @@ import (
 	"html/template"
 	"github.com/go-redis/redis"
 	"os"
+	"fmt"
+	"strings"
+	consulapi "github.com/hashicorp/consul/api"
 )
 
 var templates *template.Template
 var client *redis.Client
-var redisMaster = os.Getenv("REDIS_MASTER_IP") + ":" + os.Getenv("REDIS_HOST_PORT")
-var redisPassword = os.Getenv("REDIS_MASTER_PASSWORD")
+var redisMaster string
+var redisPassword string
+
 
 func main() {
+	redisMaster, redisPassword = redis_init()
+
 	client = redis.NewClient(&redis.Options{
 		Addr:     redisMaster,
 		Password: redisPassword,
@@ -39,10 +45,48 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Failed to increment page counter: %v. Check the Redis service is running", err)
 	}
 
-	//pagehits := client.Get("pagehits")
-
 	templates.ExecuteTemplate(w, "index.html", pagehits)
 	
 }
 
+func redis_init() (string, string) {
+	
+	var Master strings.Builder
+	var Password string
+	
+	config := consulapi.DefaultConfig()
+    config.Address = "127.0.0.1:8500"
+	consul, err := consulapi.NewClient(config)
+
+	kv := consul.KV()
+
+	redisMasterkvp, _, err := kv.Get("development/REDIS_MASTER_IP", nil)
+	if err != nil {
+		fmt.Println(err)
+		Master.WriteString(os.Getenv("REDIS_MASTER_IP"))
+	} else {
+		Master.WriteString(string(redisMasterkvp.Value))
+	}
+
+	Master.WriteString(":")
+
+	redisPortkvp, _, err := kv.Get("development/REDIS_HOST_PORT", nil)
+	if err != nil {
+		fmt.Println(err)
+		Master.WriteString(os.Getenv("REDIS_HOST_PORT"))
+	} else {
+		Master.WriteString(string(redisPortkvp.Value))
+	}
+
+	redisPasswordkvp, _, err := kv.Get("development/REDIS_MASTER_PASSWORD", nil)
+	if err != nil {
+		fmt.Println(err)
+		Password = os.Getenv("REDIS_MASTER_PASSWORD")
+	} else {
+		Password = string(redisPasswordkvp.Value)
+	}
+
+	return Master.String(), Password
+
+}
 
