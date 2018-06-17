@@ -9,7 +9,7 @@ import (
 	"os"
 	"fmt"
 	"strings"
-	consulapi "github.com/hashicorp/consul/api"
+	"github.com/hashicorp/consul/api"
 )
 
 var templates *template.Template
@@ -54,15 +54,18 @@ func redis_init() (string, string) {
 	var Master strings.Builder
 	var Password string
 	
-	config := consulapi.DefaultConfig()
-    config.Address = "127.0.0.1:8500"
-	consul, err := consulapi.NewClient(config)
+	// Get a new client
+	client, err := api.NewClient(api.DefaultConfig())
+	if err !=nil {
+		log.Fatalf("Failed to contact consul - Please ensure both local agent and remote server are running : e.g. consul members >> %v", err)
+	}
 
-	kv := consul.KV()
+	// Get a handle to the KV API
+    kv := client.KV()
 
 	redisMasterkvp, _, err := kv.Get("development/REDIS_MASTER_IP", nil)
 	if err != nil {
-		fmt.Println(err)
+		log.Printf("Failed to read key value <development/REDIS_MASTER_IP> - Please ensure key value exists : e.g. consul kv get development/REDIS_MASTER_IP >> %v", err)
 		Master.WriteString(os.Getenv("REDIS_MASTER_IP"))
 	} else {
 		Master.WriteString(string(redisMasterkvp.Value))
@@ -73,7 +76,7 @@ func redis_init() (string, string) {
 
 	redisPortkvp, _, err := kv.Get("development/REDIS_HOST_PORT", nil)
 	if err != nil {
-		fmt.Println(err)
+		log.Printf("Failed to read key value <development/REDIS_HOST_PORT> - Please ensure key value exists : e.g. consul kv get development/REDIS_HOST_PORT >> %v", err)
 		Master.WriteString(os.Getenv("REDIS_HOST_PORT"))
 	} else {
 		Master.WriteString(string(redisPortkvp.Value))
@@ -82,7 +85,7 @@ func redis_init() (string, string) {
 
 	redisPasswordkvp, _, err := kv.Get("development/REDIS_MASTER_PASSWORD", nil)
 	if err != nil {
-		fmt.Println(err)
+		log.Printf("Failed to read key value <development/REDIS_MASTER_PASSWORD> - Please ensure key value exists : e.g. consul kv get development/REDIS_MASTER_PASSWORD >> %v", err)
 		Password = os.Getenv("REDIS_MASTER_PASSWORD")
 	} else {
 		Password = string(redisPasswordkvp.Value)

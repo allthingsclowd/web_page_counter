@@ -9,7 +9,7 @@ if [[ "${HOSTNAME}" =~ "consul" ]]; then
   echo server
   /usr/local/bin/consul members 2>/dev/null || {
     /usr/local/bin/consul agent -server -ui -client=0.0.0.0 -bind=${IP} -data-dir=/usr/local/consul -bootstrap-expect=1 >/vagrant/consul_${HOSTNAME}.log &
-    sleep 1
+    sleep 5
     # upload vars to consul kv
 
     wget -O /var/tmp/var.env https://raw.githubusercontent.com/allthingsclowd/golang_web_page_counter/master/var.env
@@ -27,7 +27,7 @@ else
   echo agent
   /usr/local/bin/consul members 2>/dev/null || {
     /usr/local/bin/consul agent -bind=${IP} -data-dir=/usr/local/consul -join=192.168.2.11 >/vagrant/consul_${HOSTNAME}.log &
-    sleep 1
+    sleep 10
   }
 fi
     
