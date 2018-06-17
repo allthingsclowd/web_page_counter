@@ -18,7 +18,7 @@ if [[ "${HOSTNAME}" =~ "consul" ]]; then
       k=${b%%=*}
       v=${b##*=}
 
-      consul kv put $k $v
+      consul kv put "development/$k" $v
 
     done < /var/tmp/var.env
 
