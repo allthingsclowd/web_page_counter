@@ -66,6 +66,7 @@ func redis_init() (string, string) {
 		Master.WriteString(os.Getenv("REDIS_MASTER_IP"))
 	} else {
 		Master.WriteString(string(redisMasterkvp.Value))
+		fmt.Println(string(redisMasterkvp.Value))
 	}
 
 	Master.WriteString(":")
@@ -76,6 +77,7 @@ func redis_init() (string, string) {
 		Master.WriteString(os.Getenv("REDIS_HOST_PORT"))
 	} else {
 		Master.WriteString(string(redisPortkvp.Value))
+		fmt.Println(string(redisPortkvp.Value))
 	}
 
 	redisPasswordkvp, _, err := kv.Get("development/REDIS_MASTER_PASSWORD", nil)
@@ -84,6 +86,7 @@ func redis_init() (string, string) {
 		Password = os.Getenv("REDIS_MASTER_PASSWORD")
 	} else {
 		Password = string(redisPasswordkvp.Value)
+		fmt.Println(string(redisPasswordkvp.Value))
 	}
 
 	return Master.String(), Password
