@@ -32,3 +32,11 @@ else
 fi
     
 echo consul started
+
+# NOTES to SELF
+# verifiy via api
+# root@godev01:~# curl http://localhost:8500/v1/kv/development/GO_DEV_IP | jq '.[]["Value"]' | base64 -di
+#
+# verify via cli
+# root@godev01:~# consul kv get development/GO_DEV_IP
+# 192.168.2.100
