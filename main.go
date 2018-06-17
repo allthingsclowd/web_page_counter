@@ -57,6 +57,7 @@ func redis_init() (string, string) {
 	config := consulapi.DefaultConfig()
     config.Address = "127.0.0.1:8500"
 	consul, err := consulapi.NewClient(config)
+	if err !=nil {}
 
 	kv := consul.KV()
 
