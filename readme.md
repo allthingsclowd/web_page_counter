@@ -95,7 +95,7 @@ $ curl localhost:8080
 ### Refactor
 
 ### A
-- Add a Vault (1) server
+- Configure Policy for Vault
 
 ### B
 - Metrics: Consul KV versus Vault KV - test with 100-1000 entries
@@ -116,3 +116,4 @@ $ curl localhost:8080
    
 - scripted added to read in var.env and upload to consul
 - main.go modified to use consul for variables when it's present
+- Add a Vault (1) server
