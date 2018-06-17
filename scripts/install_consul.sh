@@ -27,7 +27,7 @@ else
   echo agent
   /usr/local/bin/consul members 2>/dev/null || {
     /usr/local/bin/consul agent -bind=${IP} -data-dir=/usr/local/consul -join=192.168.2.11 >/vagrant/consul_${HOSTNAME}.log &
-    sleep 1
+    sleep 3
   }
 fi
     
