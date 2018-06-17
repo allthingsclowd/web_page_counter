@@ -15,5 +15,6 @@ echo $GOPATH/src/$GO_REPOSITORY
 cd $GOPATH/src/$GO_REPOSITORY
 go get ./...
 go build main.go
+echo "run go app"
 ./main &
 
