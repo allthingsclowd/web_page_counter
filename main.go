@@ -19,7 +19,7 @@ var redisPassword string
 
 
 func main() {
-	redisMaster, redisPassword = redis_init()
+	redisPassword, redisMaster = redis_init()
 
 	client = redis.NewClient(&redis.Options{
 		Addr:     redisMaster,
