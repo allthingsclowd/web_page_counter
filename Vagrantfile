@@ -13,6 +13,10 @@ Vagrant.configure("2") do |config|
     ENV['NGINX_IP']||="192.168.2.250"
     ENV['NGINX_GUEST_PORT']||="9090"
     ENV['NGINX_HOST_PORT']||="9090"
+    ENV['VAULT_NAME']||="vault01"
+    ENV['VAULT_IP']||="192.168.2.10"
+    ENV['CONSUL_NAME']||="consul01"
+    ENV['CONSUL_IP']||="192.168.2.11"
 
     #global config
     config.vm.synced_folder ".", "/vagrant"
@@ -26,9 +30,15 @@ Vagrant.configure("2") do |config|
     end
 
     config.vm.define "consul01" do |consul01|
-        consul01.vm.hostname = "consul01"
-        consul01.vm.network "private_network", ip: "192.168.2.11"
+        consul01.vm.hostname = ENV['CONSUL_NAME']
+        consul01.vm.network "private_network", ip: ENV['CONSUL_IP']
         consul01.vm.network "forwarded_port", guest: 8500, host: 8500
+    end
+
+    config.vm.define "vault01" do |vault01|
+        vault01.vm.hostname = ENV['VAULT_NAME']
+        vault01.vm.network "private_network", ip: ENV['VAULT_IP']
+        vault01.vm.provision :shell, path: "scripts/install_vault.sh"
     end
 
     config.vm.define "redis01" do |redis01|
