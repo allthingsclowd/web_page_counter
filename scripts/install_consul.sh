@@ -40,11 +40,11 @@ if [[ "${HOSTNAME}" =~ "consul" ]] || [ "${TRAVIS}" == "true" ]; then
   sudo cp -r ${SERVICE_DEFS_DIR} /etc
 
   # ensure all scripts are executable for consul health checks
-  pushd CONSUL_SCRIPTS
+  pushd ${CONSUL_SCRIPTS}
   for file in `ls`;
-  do
-  sudo chmod +x $file
-  done
+    do
+      sudo chmod +x $file
+    done
   popd
   
 
