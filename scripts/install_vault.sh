@@ -19,7 +19,8 @@ killall vault &>/dev/null
 consul kv delete -recurse vault
 
 /usr/local/bin/vault server  -dev -dev-listen-address=192.168.2.10:8200 -config=/usr/local/bootstrap/conf/vault.hcl >/vagrant/vault_${HOSTNAME}.log &
-sleep 1
+sleep 3
 VAULT_ADDR='http://192.168.2.10:8200' vault kv put secret/hello value=world
 VAULT_ADDR='http://192.168.2.10:8200' vault kv get secret/hello
+
 echo vault started
