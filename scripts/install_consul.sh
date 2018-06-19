@@ -32,29 +32,20 @@ if [[ "${HOSTNAME}" =~ "consul" ]] || [ "${TRAVIS}" == "true" ]; then
   if [ "${TRAVIS}" == "true" ]; then
     SERVICE_DEFS_DIR="conf/consul.d"
     CONSUL_SCRIPTS="scripts"
-  else
-    SERVICE_DEFS_DIR="/usr/local/bootstrap/conf/consul.d"
-    CONSUL_SCRIPTS="/usr/local/bootstrap/scripts"
+    # copy a consul service definition directory
+    sudo cp -r ${SERVICE_DEFS_DIR} /etc
+    # ensure all scripts are executable for consul health checks
+    pushd ${CONSUL_SCRIPTS}
+    for file in `ls`;
+      do
+        sudo chmod +x $file
+      done
+    popd
   fi
 
-  # copy a consul service definition directory
-  sudo cp -r ${SERVICE_DEFS_DIR} /etc
-
-  # ensure all scripts are executable for consul health checks
-  pushd ${CONSUL_SCRIPTS}
-  for file in `ls`;
-    do
-      sudo chmod +x $file
-    done
-  popd
-  
-
   /usr/local/bin/consul members 2>/dev/null || {
-    #if [ "${TRAVIS}" == "false" ]; then
       sudo /usr/local/bin/consul agent -server -ui -client=0.0.0.0 -bind=${IP} -config-dir=/etc/consul.d -enable-script-checks=true -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
-    #else
-    #  sudo /usr/local/bin/consul agent -server -ui -client=0.0.0.0 -bind=${IP} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
-    #fi
+    
     sleep 5
     # upload vars to consul kv
 
@@ -77,7 +68,6 @@ else
   }
 fi
     
-
 # NOTES to SELF
 # verifiy via api
 # root@godev01:~# curl http://localhost:8500/v1/kv/development/GO_DEV_IP | jq '.[]["Value"]' | base64 -di
