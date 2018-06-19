@@ -57,5 +57,7 @@ fi
 # root@godev01:~# consul kv get development/GO_DEV_IP
 # 192.168.2.100
 
-cat ${LOG}
+#display consul logs on travis
+[ "${TRAVIS}" == "true" ] && cat ${LOG}
+
 echo consul started
