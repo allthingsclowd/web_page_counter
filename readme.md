@@ -1,5 +1,8 @@
 ![https://travis-ci.org/allthingsclowd/golang_web_page_counter.svg?branch=master](https://travis-ci.org/allthingsclowd/golang_web_page_counter.svg?branch=master)
 
+# 
+What - Why | How
+
 # Web Page Counter - Golang, Redis & Nginx
 Golang webpage counter application server using two redis backend servers (master-slave config) and a nginx web-proxy frontend server. Traditional 3 tier application model.
 
@@ -96,7 +99,20 @@ $ curl localhost:8080
 
 ### A
 - Register Redis on Consul
+What - Why | How
+
+What: Register the redis service on consul
+Why: So the GOApp can connect dynamically (discover) the service
+
+How: Check ping, write a dummy k/v, read the dummy k/v
+
 - Register Go App in Consul
+
+What:
+
+Why:
+
+How:
 
 ### B
 - Make goAPP use consul to find redis port and ip
