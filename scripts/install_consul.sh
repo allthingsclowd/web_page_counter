@@ -25,7 +25,7 @@ fi
 if [[ "${HOSTNAME}" =~ "consul" ]] || [ "${TRAVIS}" == "true" ]; then
   echo server
   /usr/local/bin/consul members 2>/dev/null || {
-    /usr/local/bin/consul agent -server -ui -client=0.0.0.0 -bind=${IP} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
+    sudo /usr/local/bin/consul agent -server -ui -client=0.0.0.0 -bind=${IP} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
     sleep 5
     # upload vars to consul kv
 
@@ -57,4 +57,5 @@ fi
 # root@godev01:~# consul kv get development/GO_DEV_IP
 # 192.168.2.100
 
+cat ${LOG}
 echo consul started
