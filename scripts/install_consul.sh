@@ -28,10 +28,12 @@ fi
 # check for consul hostname or travis => server
 if [[ "${HOSTNAME}" =~ "consul" ]] || [ "${TRAVIS}" == "true" ]; then
   echo server
+  AGENT_CONFIG=""
 
   if [ "${TRAVIS}" == "true" ]; then
     SERVICE_DEFS_DIR="conf/consul.d"
     CONSUL_SCRIPTS="scripts"
+    AGENT_CONFIG="-config-dir=/etc/consul.d -enable-script-checks=true"
     # copy a consul service definition directory
     sudo cp -r ${SERVICE_DEFS_DIR} /etc
     # ensure all scripts are executable for consul health checks
@@ -44,7 +46,8 @@ if [[ "${HOSTNAME}" =~ "consul" ]] || [ "${TRAVIS}" == "true" ]; then
   fi
 
   /usr/local/bin/consul members 2>/dev/null || {
-      sudo /usr/local/bin/consul agent -server -ui -client=0.0.0.0 -bind=${IP} -config-dir=/etc/consul.d -enable-script-checks=true -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
+
+      sudo /usr/local/bin/consul agent -server -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
     
     sleep 5
     # upload vars to consul kv
