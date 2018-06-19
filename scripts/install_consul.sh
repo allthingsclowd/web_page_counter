@@ -10,13 +10,13 @@ else
   LOG="consul.log"
 fi
 
-which /usr/local/bin/consul &>/dev/null || {
+[ -f /usr/local/bin/consul ] &>/dev/null || {
     pushd /usr/local/bin
     [ -f consul_1.1.0_linux_amd64.zip ] || {
-        wget https://releases.hashicorp.com/consul/1.1.0/consul_1.1.0_linux_amd64.zip
+        sudo wget https://releases.hashicorp.com/consul/1.1.0/consul_1.1.0_linux_amd64.zip
     }
-    unzip consul_1.1.0_linux_amd64.zip
-    chmod +x consul
+    sudo unzip consul_1.1.0_linux_amd64.zip
+    sudo chmod +x consul
     popd
 }
 
