@@ -1,0 +1,21 @@
+{
+    "service": {
+      "name": "goapp",
+      "tags": ["primary"],
+      "address": "",
+      "meta": {
+        "meta": "The GoApp Service"
+      },
+      "port": 8080,
+      "enable_tag_override": false,
+      "check": {
+        "id": "api",
+        "name": "HTTP API on port 8080",
+        "http": "http://192.168.2.100:8080/",
+        "tls_skip_verify": true,
+        "method": "GET",
+        "interval": "10s",
+        "timeout": "1s"
+      }
+    }
+  }
