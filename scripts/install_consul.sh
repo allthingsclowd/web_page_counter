@@ -11,6 +11,10 @@ else
   LOG="consul.log"
 fi
 
+if [ "${TRAVIS}" == "true" ]; then
+IP=${IP:-127.0.0.1}
+fi
+
 [ -f /usr/local/bin/consul ] &>/dev/null || {
     pushd /usr/local/bin
     [ -f consul_1.1.0_linux_amd64.zip ] || {
