@@ -28,7 +28,7 @@ if [[ "${HOSTNAME}" =~ "consul" ]]; then
 else
   echo agent
   /usr/local/bin/consul members 2>/dev/null || {
-    /usr/local/bin/consul agent -bind=${IP} -data-dir=/usr/local/consul -join=${CONSUL_IP} >/vagrant/consul_${HOSTNAME}.log &
+    /usr/local/bin/consul agent -client=0.0.0.0 -bind=${IP} -data-dir=/usr/local/consul -join=${CONSUL_IP} >/vagrant/consul_${HOSTNAME}.log &
     sleep 10
   }
 fi
