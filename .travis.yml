@@ -1,5 +1,7 @@
 language: go
 
+sudo: required
+
 addons:
   apt:
     packages:
@@ -13,9 +15,12 @@ before_script:
   - pushd packer
   - if [ $VAGRANT_CLOUD_TOKEN ] ; then packer validate template.json ; fi
   - popd
+  - bash scripts/install_consul.sh
        
 script:
   - source ./var.env
-  - export REDIS_MASTER_IP=0.0.0.0
+  - export REDIS_MASTER_IP=127.0.0.1
   - export REDIS_MASTER_PASSWORD=""
+  - consul kv put "development/REDIS_MASTER_IP" "127.0.0.1"
+  - consul kv put "development/REDIS_MASTER_PASSWORD" ""
   - bash scripts/travis_run_go_app.sh

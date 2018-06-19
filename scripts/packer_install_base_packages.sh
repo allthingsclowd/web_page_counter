@@ -12,16 +12,6 @@ update-grub
 
 apt-get install -y wget unzip git redis-server nginx
 
-which /usr/local/bin/consul &>/dev/null || {
-    pushd /usr/local/bin
-    [ -f consul_1.1.0_linux_amd64.zip ] || {
-        wget https://releases.hashicorp.com/consul/1.1.0/consul_1.1.0_linux_amd64.zip
-    }
-    unzip consul_1.1.0_linux_amd64.zip
-    chmod +x consul
-    popd
-}
-
 which /usr/local/go &>/dev/null || {
     mkdir -p /tmp/go_src
     pushd /tmp/go_src
