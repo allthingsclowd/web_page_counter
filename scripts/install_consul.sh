@@ -43,7 +43,11 @@ if [[ "${HOSTNAME}" =~ "consul" ]] || [ "${TRAVIS}" == "true" ]; then
   fi
 
   /usr/local/bin/consul members 2>/dev/null || {
-    sudo /usr/local/bin/consul agent -server -ui -client=0.0.0.0 -bind=${IP} -config-dir=/etc/consul.d -enable-script-checks=true -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
+    if [ "${TRAVIS}" == "true" ]; then
+      sudo /usr/local/bin/consul agent -server -ui -client=0.0.0.0 -bind=${IP} -config-dir=/etc/consul.d -enable-script-checks=true -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
+    else
+      sudo /usr/local/bin/consul agent -server -ui -client=0.0.0.0 -bind=${IP} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
+    fi
     sleep 5
     # upload vars to consul kv
 
