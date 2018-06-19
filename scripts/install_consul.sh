@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
+source /usr/local/bootstrap/var.env
 
 IFACE=`route -n | awk '$1 == "192.168.2.0" {print $8}'`
 CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.2" {print $2}'`
 IP=${CIDR%%/24}
-IP=${IP:-127.0.0.1}
 
 if [ -d /vagrant ]; then
   LOG="/vagrant/consul_${HOSTNAME}.log"
