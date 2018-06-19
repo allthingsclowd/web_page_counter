@@ -29,8 +29,18 @@ fi
 if [[ "${HOSTNAME}" =~ "consul" ]] || [ "${TRAVIS}" == "true" ]; then
   echo server
 
+  
   # copy a consul service definition directory
   sudo cp -r /usr/local/bootstrap/conf/consul.d /etc
+
+  # ensure all scripts are executable for consul health checks
+  pushd /vagrant/scripts
+  for file in `ls`;
+  do
+   sudo chmod +x $file
+  done
+  popd
+
 
 
   
