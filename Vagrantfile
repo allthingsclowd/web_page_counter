@@ -38,7 +38,8 @@ Vagrant.configure("2") do |config|
     config.vm.define "vault01" do |vault01|
         vault01.vm.hostname = ENV['VAULT_NAME']
         vault01.vm.network "private_network", ip: ENV['VAULT_IP']
-        vault01.vm.provision :shell, path: "scripts/install_vault.sh"
+        vault01.vm.network "forwarded_port", guest: 8200, host: 8200
+        vault01.vm.provision :shell, path: "scripts/install_vault.sh", run: "always"
     end
 
     config.vm.define "redis01" do |redis01|
