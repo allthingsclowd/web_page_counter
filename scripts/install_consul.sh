@@ -29,13 +29,14 @@ fi
 if [[ "${HOSTNAME}" =~ "consul" ]] || [ "${TRAVIS}" == "true" ]; then
   echo server
 
-  if [ "${TRAVIS}" == "false" ]; then
-    SERVICE_DEFS_DIR="/usr/local/bootstrap/conf/consul.d"
-    CONSUL_SCRIPTS="/usr/local/bootstrap/scripts"
-  else
+  if [ "${TRAVIS}" == "true" ]; then
     SERVICE_DEFS_DIR="conf/consul.d"
     CONSUL_SCRIPTS="scripts"
+  else
+    SERVICE_DEFS_DIR="/usr/local/bootstrap/conf/consul.d"
+    CONSUL_SCRIPTS="/usr/local/bootstrap/scripts"
   fi
+
   # copy a consul service definition directory
   sudo cp -r ${SERVICE_DEFS_DIR} /etc
 
