@@ -28,6 +28,12 @@ fi
 # check for consul hostname or travis => server
 if [[ "${HOSTNAME}" =~ "consul" ]] || [ "${TRAVIS}" == "true" ]; then
   echo server
+
+  # copy a consul service definition directory
+  sudo cp -r /usr/local/bootstrap/conf/consul.d /etc
+
+
+  
   /usr/local/bin/consul members 2>/dev/null || {
     sudo /usr/local/bin/consul agent -server -ui -client=0.0.0.0 -bind=${IP} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
     sleep 5
