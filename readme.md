@@ -95,9 +95,17 @@ $ curl localhost:8080
 ### Refactor
 
 ### A
-- Configure Policy for Vault
+- Register Redis on Consul
+- Register Go App in Consul
 
 ### B
+- Make goAPP use consul to find redis port and ip
+- Make nginx use consul to populate the conf file (consul-template)
+
+### C
+- Update Travis to new requirements
+
+### D
 - Metrics: Consul KV versus Vault KV - test with 100-1000 entries
 
 ## Done
