@@ -6,8 +6,8 @@ IFACE=`route -n | awk '$1 == "192.168.2.0" {print $8}'`
 CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.2" {print $2}'`
 IP=${CIDR%%/24}
 
-# check for consul hostname => server
-if [[ "${HOSTNAME}" =~ "consul" ]]; then
+# check for consul hostname or travis => server
+if [[ "${HOSTNAME}" =~ "consul" ]] || [ "${TRAVIS}" == "true" ]; then
   echo server
   /usr/local/bin/consul members 2>/dev/null || {
     /usr/local/bin/consul agent -server -ui -client=0.0.0.0 -bind=${IP} -data-dir=/usr/local/consul -bootstrap-expect=1 >/vagrant/consul_${HOSTNAME}.log &
@@ -33,7 +33,6 @@ else
   }
 fi
     
-echo consul started
 
 # NOTES to SELF
 # verifiy via api
@@ -42,3 +41,5 @@ echo consul started
 # verify via cli
 # root@godev01:~# consul kv get development/GO_DEV_IP
 # 192.168.2.100
+
+echo consul started
