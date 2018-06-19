@@ -57,7 +57,11 @@ fi
 # root@godev01:~# consul kv get development/GO_DEV_IP
 # 192.168.2.100
 
-#display consul logs on travis
-[ "${TRAVIS}" == "true" ] && cat ${LOG}
+# if on travis
+if [ "${TRAVIS}" == "true" ];then
+  consul kv put "development/REDIS_MASTER_IP" "127.0.0.1"
+  #display consul logs on travis
+  cat ${LOG}
+fi
 
 echo consul started
