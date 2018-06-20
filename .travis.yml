@@ -12,6 +12,7 @@ go:
   - "1.10"
       
 before_script:
+  - sudo rsync -az ${TRAVIS_BUILD_DIR}/ /usr/local/bootstrap/
   - pushd packer
   - if [ $VAGRANT_CLOUD_TOKEN ] ; then packer validate template.json ; fi
   - popd
