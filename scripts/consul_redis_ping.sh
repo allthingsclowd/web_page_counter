@@ -5,7 +5,16 @@ set -e
 
 echo "running client ping test"
 
-RESULT=`redis-cli -h ${REDIS_MASTER_IP} -p ${REDIS_HOST_PORT} -a ${REDIS_MASTER_PASSWORD} ping`
+# check for redis hostname => master
+if [[ "${HOSTNAME}" =~ "master" ]]; then
+    TESTIP=${REDIS_MASTER_IP}
+    TESTPASSWORD=${REDIS_MASTER_PASSWORD}
+else
+    TESTIP=${REDIS_SLAVE_IP}
+    TESTPASSWORD=${REDIS_SLAVE_PASSWORD}
+fi
+
+RESULT=`redis-cli -h ${TESTIP} -p ${REDIS_HOST_PORT} -a ${TESTPASSWORD} ping`
 
 if [ "$RESULT" == "PONG" ]; then
     echo 'Success Redis Ping resulted in '$RESULT

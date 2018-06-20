@@ -20,22 +20,16 @@ touch /var/vagrant_redis
 echo "$REDIS_MASTER_IP     $REDIS_MASTER_NAME" >> /etc/hosts
 echo "$REDIS_SLAVE_IP     $REDIS_SLAVE_NAME" >> /etc/hosts
 
+ # copy a consul service definition directory
+ sudo mkdir -p /etc/consul.d
+
 # check for redis hostname => master
 if [[ "${HOSTNAME}" =~ "master" ]]; then
  sudo cp /usr/local/bootstrap/conf/master.redis.conf /etc/redis/redis.conf
  sudo chown redis:redis /etc/redis/redis.conf
  sudo chmod 640 /etc/redis/redis.conf
  echo "requirepass $REDIS_MASTER_PASSWORD" | sudo tee -a /etc/redis/redis.conf
-
- # copy a consul service definition directory
- sudo mkdir -p /etc/consul.d
  sudo cp -p /usr/local/bootstrap/conf/consul.d/redis.json /etc/consul.d/redis.json
- # lets kill past instance
- sudo killall consul &>/dev/null
- sleep 5
- # start restart with config dir
- sudo /usr/local/bin/consul agent -client=0.0.0.0 -bind=${IP} -config-dir=/etc/consul.d -enable-script-checks=true -data-dir=/usr/local/consul -join=${CONSUL_IP} >${LOG} &
-
 else 
  sudo cp /usr/local/bootstrap/conf/slave.redis.conf /etc/redis/redis.conf
  sudo chown redis:redis /etc/redis/redis.conf
@@ -44,6 +38,13 @@ else
  echo "slaveof $REDIS_MASTER_IP 6379" | \
     sudo tee -a /etc/redis/redis.conf
  echo "masterauth $REDIS_MASTER_PASSWORD" | sudo tee -a /etc/redis/redis.conf
+ sudo cp -p /usr/local/bootstrap/conf/consul.d/redis.json /etc/consul.d/redisSlave.json
 fi
 
 sudo systemctl restart redis-server
+
+# lets kill past instance
+ sudo killall consul &>/dev/null
+ sleep 5
+ # start restart with config dir
+ sudo /usr/local/bin/consul agent -client=0.0.0.0 -bind=${IP} -config-dir=/etc/consul.d -enable-script-checks=true -data-dir=/usr/local/consul -join=${CONSUL_IP} >${LOG} &
