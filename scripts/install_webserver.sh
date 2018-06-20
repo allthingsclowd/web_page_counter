@@ -31,7 +31,7 @@ sudo /usr/local/bin/consul-template \
 
 # copy a consul service definition directory
  sudo mkdir -p /etc/consul.d
- sudo cp -p /usr/local/bootstrap/conf/consul.d/goapp.json /etc/consul.d/webtier.json
+ sudo cp -p /usr/local/bootstrap/conf/consul.d/webtier.json /etc/consul.d/webtier.json
  # lets kill past instance
  sudo killall consul &>/dev/null
  sleep 5

@@ -38,7 +38,7 @@ else
  echo "slaveof $REDIS_MASTER_IP 6379" | \
     sudo tee -a /etc/redis/redis.conf
  echo "masterauth $REDIS_MASTER_PASSWORD" | sudo tee -a /etc/redis/redis.conf
- sudo cp -p /usr/local/bootstrap/conf/consul.d/redis.json /etc/consul.d/redisSlave.json
+ sudo cp -p /usr/local/bootstrap/conf/consul.d/redisSlave.json /etc/consul.d/redisSlave.json
 fi
 
 sudo systemctl restart redis-server
