@@ -1,16 +1,16 @@
 package main
 
 import (
-	"fmt"
-	"github.com/go-redis/redis"
-	"github.com/gorilla/mux"
-	"github.com/hashicorp/consul/api"
-	"html/template"
 	"log"
 	"net/http"
+	"github.com/gorilla/mux"
+	"html/template"
+	"github.com/go-redis/redis"
 	"os"
-	"strconv"
+	"fmt"
 	"strings"
+	"github.com/hashicorp/consul/api"
+	"strconv"
 )
 
 var templates *template.Template
@@ -18,15 +18,16 @@ var client *redis.Client
 var redisMaster string
 var redisPassword string
 
+
 func main() {
 	redisMaster, redisPassword = redis_init()
 
 	client = redis.NewClient(&redis.Options{
 		Addr:     redisMaster,
 		Password: redisPassword,
-		DB:       0, // use default DB
+		DB:       0,  // use default DB
 	})
-
+	
 	_, err := client.Ping().Result()
 	if err != nil {
 		log.Fatalf("Failed to ping Redis: %v. Check the Redis service is running", err)
@@ -46,22 +47,22 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	templates.ExecuteTemplate(w, "index.html", pagehits)
-
+	
 }
 
 func redis_init() (string, string) {
-
+	
 	var Master strings.Builder
 	var Password string
-
+	
 	// Get a new client
 	client, err := api.NewClient(api.DefaultConfig())
-	if err != nil {
+	if err !=nil {
 		log.Fatalf("Failed to contact consul - Please ensure both local agent and remote server are running : e.g. consul members >> %v", err)
 	}
 
 	// Get a handle to the KV API
-	kv := client.KV()
+    kv := client.KV()
 
 	redisPasswordkvp, _, err := kv.Get("development/REDIS_MASTER_PASSWORD", nil)
 	if err != nil {
@@ -88,3 +89,4 @@ func redis_init() (string, string) {
 	return Master.String(), Password
 
 }
+
