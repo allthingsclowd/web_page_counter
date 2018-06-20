@@ -52,16 +52,13 @@ if [[ "${HOSTNAME}" =~ "consul" ]] || [ "${TRAVIS}" == "true" ]; then
     sleep 5
     # upload vars to consul kv
 
-    wget -O /var/tmp/var.env https://raw.githubusercontent.com/allthingsclowd/golang_web_page_counter/master/var.env
-
     while read a b; do
       k=${b%%=*}
       v=${b##*=}
 
       consul kv put "development/$k" $v
 
-    done < /var/tmp/var.env
-
+    done < /usr/local/bootstrap/var.env
   }
 else
   echo agent
