@@ -96,6 +96,10 @@ $ curl localhost:8080
 ## TODO
 
 ### Refactor
+- if golang app can't reach redis or any other error return a zero
+- update golang consul healthcheck to expect number > 0
+- update golang app to have a /health to provide the status of it's services
+
 
 ### A
 - Register Redis on Consul
