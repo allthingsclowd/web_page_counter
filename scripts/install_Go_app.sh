@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 source /usr/local/bootstrap/var.env
 
+# may add this to base image in future
+sudo apt-get install -y lynx
+
 IFACE=`route -n | awk '$1 == "192.168.2.0" {print $8}'`
 CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.2" {print $2}'`
 IP=${CIDR%%/24}
