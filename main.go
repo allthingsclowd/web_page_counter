@@ -7,86 +7,132 @@ import (
 	"html/template"
 	"github.com/go-redis/redis"
 	"os"
-	"fmt"
 	"strings"
 	"github.com/hashicorp/consul/api"
 	"strconv"
 )
 
 var templates *template.Template
-var client *redis.Client
+var redisClient *redis.Client
 var redisMaster string
 var redisPassword string
-
+var goapphealth = "GOOD"
+var consulClient *api.Client
 
 func main() {
-	redisMaster, redisPassword = redis_init()
+	redisMaster, redisPassword = redisInit()
 
-	client = redis.NewClient(&redis.Options{
-		Addr:     redisMaster,
-		Password: redisPassword,
-		DB:       0,  // use default DB
-	})
-	
-	_, err := client.Ping().Result()
-	if err != nil {
-		log.Fatalf("Failed to ping Redis: %v. Check the Redis service is running", err)
+	if (redisMaster == "0") || (redisPassword == "0") {
+
+		log.Printf("Check the Consul service is running")
+		goapphealth = "NOTGOOD"
+
+	} else {
+
+		redisClient = redis.NewClient(&redis.Options{
+			Addr:     redisMaster,
+			Password: redisPassword,
+			DB:       0,  // use default DB
+		})
+		
+		_, err := redisClient.Ping().Result()
+		if err != nil {
+			log.Printf("Failed to ping Redis: %v. Check the Redis service is running", err)
+			goapphealth="NOTGOOD"
+		}
 	}
-
 	templates = template.Must(template.ParseGlob("templates/*.html"))
 	r := mux.NewRouter()
 	r.HandleFunc("/", indexHandler).Methods("GET")
+	r.HandleFunc("/health", healthHandler).Methods("GET")
 	http.Handle("/", r)
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":8080", r)
+	
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	pagehits, err := client.Incr("pagehits").Result()
+	pagehits, err := redisClient.Incr("pagehits").Result()
 	if err != nil {
-		log.Fatalf("Failed to increment page counter: %v. Check the Redis service is running", err)
+		log.Printf("Failed to increment page counter: %v. Check the Redis service is running", err)
+		goapphealth="REDIS PAGECOUNT FAILURE"
+		pagehits = 0
 	}
 
 	templates.ExecuteTemplate(w, "index.html", pagehits)
 	
 }
 
-func redis_init() (string, string) {
+func healthHandler(w http.ResponseWriter, r *http.Request) {
 	
-	var Master strings.Builder
-	var Password string
+	templates.ExecuteTemplate(w, "health.html", goapphealth)
 	
-	// Get a new client
-	client, err := api.NewClient(api.DefaultConfig())
-	if err !=nil {
-		log.Fatalf("Failed to contact consul - Please ensure both local agent and remote server are running : e.g. consul members >> %v", err)
-	}
+}
 
+func getConsulKV(consulClient api.Client, key string) string {
+	
 	// Get a handle to the KV API
-    kv := client.KV()
+	kv := consulClient.KV()
 
-	redisPasswordkvp, _, err := kv.Get("development/REDIS_MASTER_PASSWORD", nil)
+	consulKey := "development/"+key
+
+	appVar, _, err := kv.Get(consulKey, nil)
 	if err != nil {
-		log.Printf("Failed to read key value <development/REDIS_MASTER_PASSWORD> - Please ensure key value exists : e.g. consul kv get development/REDIS_MASTER_PASSWORD >> %v", err)
-		Password = os.Getenv("REDIS_MASTER_PASSWORD")
-	} else {
-		Password = string(redisPasswordkvp.Value)
-		fmt.Println(string(redisPasswordkvp.Value))
+		log.Printf("Failed to read key value %v - Please ensure key value exists in consul : e.g. consul kv get %v >> %v",key,key, err)
+		appVar, ok := os.LookupEnv(key)
+		if ok {
+			return appVar
+		}
+		log.Printf("Failed to read environment variable %v - Please ensure %v variable is set >> %v",key,key, err)
+		return "FAIL"
+
 	}
 
-	// get handle to catalog service api
-	sd := client.Catalog()
+	return string(appVar.Value)
+}
 
-	redisService, _, err := sd.Service("redis", "primary", nil)
+func getConsulSVC(consulClient api.Client, key string) string {
+	
+	var serviceDetail strings.Builder
+	// get handle to catalog service api
+	sd := consulClient.Catalog()
+
+	myService, _, err := sd.Service(key, "", nil)
 	if err != nil {
 		log.Printf("Failed to discover Redis Service : e.g. curl http://localhost:8500/v1/catalog/service/redis >> %v", err)
-	} else {
-		Master.WriteString(string(redisService[0].Address))
-		Master.WriteString(":")
-		Master.WriteString(strconv.Itoa(redisService[0].ServicePort))
-		fmt.Println(Master.String())
+		return "0"
 	}
+	serviceDetail.WriteString(string(myService[0].Address))
+	serviceDetail.WriteString(":")
+	serviceDetail.WriteString(strconv.Itoa(myService[0].ServicePort))
 
-	return Master.String(), Password
+	return serviceDetail.String()
+}
+	
+
+func redisInit() (string, string) {
+	
+	var redisService string
+	var redisPassword string
+	
+	// Get a new client
+	consulClient, err := api.NewClient(api.DefaultConfig())
+	if err !=nil {
+		log.Printf("Failed to contact consul - Please ensure both local agent and remote server are running : e.g. consul members >> %v", err)
+		return "0", "0"
+	}
+	redisPassword = getConsulKV(*consulClient, "REDIS_MASTER_PASSWORD")
+	redisService = getConsulSVC(*consulClient, "redis")
+	if redisService == "0" {
+		var serviceDetail strings.Builder
+		redisHost := getConsulKV(*consulClient, "REDIS_MASTER_IP")
+		redisPort := getConsulKV(*consulClient, "REDIS_HOST_PORT")
+		serviceDetail.WriteString(redisHost)
+		serviceDetail.WriteString(":")
+		serviceDetail.WriteString(redisPort)
+		redisService = serviceDetail.String()
+	}
+	
+	return redisService, redisPassword
 
 }
 
