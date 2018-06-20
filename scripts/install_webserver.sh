@@ -31,10 +31,6 @@ sudo rm -f /etc/nginx/sites-enabled/default
     popd
 }
 
-sudo /usr/local/bin/consul-template \
-     -consul-addr=$CONSUL_IP:8500 \
-     -template "/usr/local/bootstrap/conf/nginx.ctpl:/etc/nginx/conf.d/goapp.conf:service nginx reload" &
-
 # copy a consul service definition directory
  sudo mkdir -p /etc/consul.d
  sudo cp -p /usr/local/bootstrap/conf/consul.d/webtier.json /etc/consul.d/webtier.json
@@ -43,3 +39,9 @@ sudo /usr/local/bin/consul-template \
  sleep 5
  # start restart with config dir
  sudo /usr/local/bin/consul agent -client=0.0.0.0 -bind=${IP} -config-dir=/etc/consul.d -enable-script-checks=true -data-dir=/usr/local/consul -join=${CONSUL_IP} >${LOG} &
+ sleep 5
+
+ sudo /usr/local/bin/consul-template \
+     -consul-addr=$CONSUL_IP:8500 \
+     -template "/usr/local/bootstrap/conf/nginx.ctpl:/etc/nginx/conf.d/goapp.conf:service nginx reload" &
+     
