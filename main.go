@@ -99,7 +99,7 @@ func getConsulSVC(consulClient api.Client, key string) string {
 	myService, _, err := sd.Service(key, "", nil)
 	if err != nil {
 		log.Printf("Failed to discover Redis Service : e.g. curl http://localhost:8500/v1/catalog/service/redis >> %v", err)
-		return "0:0"
+		return "0"
 	}
 	serviceDetail.WriteString(string(myService[0].Address))
 	serviceDetail.WriteString(":")
@@ -122,7 +122,7 @@ func redisInit() (string, string) {
 	}
 	redisPassword = getConsulKV(*consulClient, "REDIS_MASTER_PASSWORD")
 	redisService = getConsulSVC(*consulClient, "redis")
-	if redisService == "0:0" {
+	if redisService == "0" {
 		var serviceDetail strings.Builder
 		redisHost := getConsulKV(*consulClient, "REDIS_MASTER_IP")
 		redisPort := getConsulKV(*consulClient, "REDIS_HOST_PORT")
