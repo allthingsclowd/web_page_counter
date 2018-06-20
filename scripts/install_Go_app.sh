@@ -26,8 +26,6 @@ source $HOME/.bash_profile
 go get $GO_REPOSITORY
 echo $GOPATH/src/$GO_REPOSITORY
 cd $GOPATH/src/$GO_REPOSITORY
-go get ./...
-go build main.go
 
 # copy a consul service definition directory
  sudo mkdir -p /etc/consul.d
@@ -39,5 +37,7 @@ go build main.go
  sudo /usr/local/bin/consul agent -client=0.0.0.0 -bind=${IP} -config-dir=/etc/consul.d -enable-script-checks=true -data-dir=/usr/local/consul -join=${CONSUL_IP} >${LOG} &
  sleep 5
 
+go get ./...
+go build main.go
 echo "$PWD - about to run go app"
 ./main >/vagrant/go_app_start_up_${HOSTNAME}.log &
