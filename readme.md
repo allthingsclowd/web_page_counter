@@ -126,16 +126,16 @@ $ curl localhost:8080
 * update goapp to have a /health to provide the status of it's services (text only)
    * GOOD
    * NOTGOOD
-* Register Redis on Consul
-   What: Register the redis service on consul
-   Why: So the GOApp can connect dynamically (discover) the service
-
-   How: Check ping, write a dummy k/v, read the dummy k/v
-* Register Go App in Consul
-   What: Register the goapp service on consul
-   Why: So the webtier (NGINX) can connect dynamically (discover) the service
-
-   How: Check the website is up & the /health url returns GOOD
-      * update goapp consul healthcheck to expect GOOD/NOTGOOD
-* Make readme pretty (again)
-* Make goAPP use consul to find redis port and ip
+* Register Redis on Consul  
+   What: Register the redis service on consul  
+   Why: So the GOApp can connect dynamically (discover) the service  
+  
+   How: Check ping, write a dummy k/v, read the dummy k/v  
+* Register Go App in Consul  
+   What: Register the goapp service on consul  
+   Why: So the webtier (NGINX) can connect dynamically (discover) the service  
+  
+   How: Check the website is up & the /health url returns GOOD  
+      * update goapp consul healthcheck to expect GOOD/NOTGOOD  
+* Make readme pretty (again)  
+* Make goAPP use consul to find redis port and ip  
