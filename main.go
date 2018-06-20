@@ -56,7 +56,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Failed to increment page counter: %v. Check the Redis service is running", err)
 		goapphealth="REDIS PAGECOUNT FAILURE"
-		templates.ExecuteTemplate(w, "index.html", 0)
+		pagehits = 0
 	}
 
 	templates.ExecuteTemplate(w, "index.html", pagehits)
