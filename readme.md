@@ -96,9 +96,14 @@ $ curl localhost:8080
 ## TODO
 
 ### Refactor
-- if golang app can't reach redis or any other error return a zero
-- update golang consul healthcheck to expect number > 0
-- update golang app to have a /health to provide the status of it's services
+- Make readme pretty
+- if consul is not up - fallback to var.env values
+
+- update golang app to have a /health to provide the status of it's services (text only)
+ - GOOD
+ - NOTGOOD
+- update golang consul healthcheck to expect GOOD/NOTGOOD
+
 
 
 ### A
@@ -145,3 +150,4 @@ How:
 - scripted added to read in var.env and upload to consul
 - main.go modified to use consul for variables when it's present
 - Add a Vault (1) server
+- if golang app can't reach redis or any other error return a zero
