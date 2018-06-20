@@ -15,17 +15,22 @@ else
 fi
 
 # Idempotency hack - if this file exists don't run the rest of the script
-if [ -f "$HOME/.vagrant_go_user" ]; then
+if [ -f "$HOME/vagrant_go_user" ]; then
     exit 0
 fi
 
-touch $HOME/.vagrant_go_user
-mkdir -p ~/code/go/src
-echo "export GOPATH=$HOME/code/go" >> $HOME/.bash_profile
-source $HOME/.bash_profile
+touch $HOME/vagrant_go_user
+mkdir -p $HOME/code/go/src
+echo "export GOPATH=$HOME/code/go" >> $HOME/.profile
+source $HOME/.profile
 go get $GO_REPOSITORY
 echo $GOPATH/src/$GO_REPOSITORY
 cd $GOPATH/src/$GO_REPOSITORY
+go get ./...
+go build main.go
+echo "${PWD} - about to run go app"
+./main >/vagrant/go_app_start_up_${HOSTNAME}.log &
+echo " app should be started"
 
 # copy a consul service definition directory
  sudo mkdir -p /etc/consul.d
@@ -35,10 +40,4 @@ cd $GOPATH/src/$GO_REPOSITORY
  sleep 5
  # start restart with config dir
  sudo /usr/local/bin/consul agent -client=0.0.0.0 -bind=${IP} -config-dir=/etc/consul.d -enable-script-checks=true -data-dir=/usr/local/consul -join=${CONSUL_IP} >${LOG} &
- sleep 15
-
-go get ./...
-go build main.go
-echo "$PWD - about to run go app"
-./main >/vagrant/go_app_start_up_${HOSTNAME}.log &
-echo " app should be started"
+ 
