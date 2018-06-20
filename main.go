@@ -41,6 +41,7 @@ func main() {
 			goapphealth="NOTGOOD"
 		}
 	}
+	
 	templates = template.Must(template.ParseGlob("templates/*.html"))
 	r := mux.NewRouter()
 	r.HandleFunc("/", indexHandler).Methods("GET")
@@ -54,17 +55,24 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	pagehits, err := redisClient.Incr("pagehits").Result()
 	if err != nil {
 		log.Printf("Failed to increment page counter: %v. Check the Redis service is running", err)
-		goapphealth="REDIS PAGECOUNT FAILURE"
+		goapphealth="NOTGOOD"
 		pagehits = 0
 	}
 
-	templates.ExecuteTemplate(w, "index.html", pagehits)
+	pageErr := templates.ExecuteTemplate(w, "index.html", pagehits)
+	if pageErr != nil {
+		log.Printf("Failed to Load Application Status Page: %v", pageErr)
+	}
 	
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 	
-	templates.ExecuteTemplate(w, "health.html", goapphealth)
+	log.Printf("Application Status: %v", goapphealth)
+	err := templates.ExecuteTemplate(w, "health.html", goapphealth)
+	if err != nil {
+		log.Printf("Failed to Load Application Status Page: %v", err)
+	}
 	
 }
 
@@ -108,7 +116,6 @@ func getConsulSVC(consulClient api.Client, key string) string {
 	return serviceDetail.String()
 }
 	
-
 func redisInit() (string, string) {
 	
 	var redisService string
