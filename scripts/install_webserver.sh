@@ -7,12 +7,20 @@ if [ -f "/var/vagrant_web_server" ]; then
 fi
 
 touch /var/vagrant_web_server
-sudo rm /etc/nginx/sites-enabled/default
-sudo cp /usr/local/bootstrap/conf/nginx.conf /etc/nginx/sites-available/default
-sed -i 's/GO_DEV_IP/'"$GO_DEV_IP"'/' /etc/nginx/sites-available/default
-sed -i 's/GO_DEV_GUEST_PORT/'"$GO_GUEST_PORT"'/' /etc/nginx/sites-available/default
-sed -i 's/NGINX_GUEST_PORT/'"$NGINX_GUEST_PORT"'/' /etc/nginx/sites-available/default
-sudo chmod 777 /etc/nginx/sites-available/default
-sudo chown root:root /etc/nginx/sites-available/default
-sudo ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-sudo service nginx reload
+
+# remove nginx default website
+sudo rm -f /etc/nginx/sites-enabled/default
+
+[ -f /usr/local/bin/consul-template ] &>/dev/null || {
+    pushd /usr/local/bin
+    [ -f consul-template_0.19.5_linux_amd64.zip ] || {
+        sudo wget https://releases.hashicorp.com/consul-template/0.19.5/consul-template_0.19.5_linux_amd64.zip
+    }
+    sudo unzip consul-template_0.19.5_linux_amd64.zip
+    sudo chmod +x consul-template
+    popd
+}
+
+sudo /usr/local/bin/consul-template \
+     -consul-addr=$CONSUL_IP:8500 \
+     -template "/usr/local/bootstrap/conf/nginx.ctpl:/etc/nginx/conf.d/goapp.conf:service nginx reload" &
