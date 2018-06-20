@@ -96,58 +96,46 @@ $ curl localhost:8080
 ## TODO
 
 ### Refactor
-- Make readme pretty
-- if consul is not up - fallback to var.env values
-
-- update golang app to have a /health to provide the status of it's services (text only)
- - GOOD
- - NOTGOOD
-- update golang consul healthcheck to expect GOOD/NOTGOOD
-
-
 
 ### A
-- Register Redis on Consul
-What - Why | How
-
-What: Register the redis service on consul
-Why: So the GOApp can connect dynamically (discover) the service
-
-How: Check ping, write a dummy k/v, read the dummy k/v
-
-- Register Go App in Consul
-
-What:
-
-Why:
-
-How:
+* Make nginx use consul to populate the conf file (consul-template)
 
 ### B
-- Make goAPP use consul to find redis port and ip
-- Make nginx use consul to populate the conf file (consul-template)
+* Update Travis to new requirements
 
 ### C
-- Update Travis to new requirements
-
-### D
-- Metrics: Consul KV versus Vault KV - test with 100-1000 entries
+* Metrics: Consul KV versus Vault KV - test with 100-1000 entries
 
 ## Done
-- Build own box using packer with above scripts
-- Upload to vagrantcloud
-- Update Vagrant file to consume the new box
-- Add a Consul(1) server 
-- Remove scripts from Packer and link back to repo master scripts, use SCRIPTS feature
+* Build own box using packer with above scripts
+* Upload to vagrantcloud
+* Update Vagrant file to consume the new box
+* Add a Consul(1) server 
+* Remove scripts from Packer and link back to repo master scripts, use SCRIPTS feature
+* Add 'manual' test scripts to TravisCI
+   * source env file
+   * over write variables for local redis 
+   * use `curl` to verify app returns http 200 & exit 0
+   * use `lynx --dump` to capture counter updates between refreshes
+   * Add TravisCI for Go APP
+* scripted added to read in var.env and upload to consul
+* main.go modified to use consul for variables when it's present
+* Add a Vault (1) server
+* if golang app can't reach redis or any other error return a zero
+* if consul is not up - fallback to var.env values
+* update goapp to have a /health to provide the status of it's services (text only)
+   * GOOD
+   * NOTGOOD
+* Register Redis on Consul
+   What: Register the redis service on consul
+   Why: So the GOApp can connect dynamically (discover) the service
 
-- Add 'manual' test scripts to TravisCI
-   - source env file
-   - over write variables for local redis 
-   - use `curl` to verify app returns http 200 & exit 0
-   - use `lynx --dump` to capture counter updates between refreshes
-   - Add TravisCI for Go APP
-   
-- scripted added to read in var.env and upload to consul
-- main.go modified to use consul for variables when it's present
-- Add a Vault (1) server
-- if golang app can't reach redis or any other error return a zero
+   How: Check ping, write a dummy k/v, read the dummy k/v
+* Register Go App in Consul
+   What: Register the goapp service on consul
+   Why: So the webtier (NGINX) can connect dynamically (discover) the service
+
+   How: Check the website is up & the /health url returns GOOD
+      * update goapp consul healthcheck to expect GOOD/NOTGOOD
+* Make readme pretty (again)
+* Make goAPP use consul to find redis port and ip
