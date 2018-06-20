@@ -89,11 +89,10 @@ func redisInit() (string, string) {
 		log.Printf("Failed to read key value <development/REDIS_MASTER_PASSWORD> - Please ensure key value exists : e.g. consul kv get development/REDIS_MASTER_PASSWORD >> %v", err)
 		Password = os.Getenv("REDIS_MASTER_PASSWORD")
 		return "0", "0"
-	} else {
-		Password = string(redisPasswordkvp.Value)
-		fmt.Println(string(redisPasswordkvp.Value))
 	}
-
+	Password = string(redisPasswordkvp.Value)
+	fmt.Println(string(redisPasswordkvp.Value))
+	
 	// get handle to catalog service api
 	sd := client.Catalog()
 
