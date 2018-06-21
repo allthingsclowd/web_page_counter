@@ -97,9 +97,6 @@ $ curl localhost:8080
 
 ### Refactor
 
-### A
-* Make nginx use consul to populate the conf file (consul-template)
-
 ### B
 * Update Travis to new requirements
 
@@ -139,3 +136,4 @@ $ curl localhost:8080
       * update goapp consul healthcheck to expect GOOD/NOTGOOD  
 * Make readme pretty (again)  
 * Make goAPP use consul to find redis port and ip  
+* Make nginx use consul to populate the conf file (consul-template)
