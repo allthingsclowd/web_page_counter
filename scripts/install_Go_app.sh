@@ -2,7 +2,7 @@
 source /usr/local/bootstrap/var.env
 
 # may add this to base image in future
-sudo apt-get install -y lynx
+apt-get install -y lynx
 
 IFACE=`route -n | awk '$1 == "192.168.2.0" {print $8}'`
 CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.2" {print $2}'`
@@ -31,13 +31,14 @@ go build main.go
 echo "${PWD} - about to run go app"
 ./main >/vagrant/go_app_start_up_${HOSTNAME}.log &
 echo " app should be started"
+sleep 20
 
 # copy a consul service definition directory
- sudo mkdir -p /etc/consul.d
- sudo cp -p /usr/local/bootstrap/conf/consul.d/goapp.json /etc/consul.d/goapp.json
+ mkdir -p /etc/consul.d
+ cp -p /usr/local/bootstrap/conf/consul.d/goapp.json /etc/consul.d/goapp.json
  # lets kill past instance
- sudo killall consul &>/dev/null
+ killall consul &>/dev/null
  sleep 5
  # start restart with config dir
- sudo /usr/local/bin/consul agent -client=0.0.0.0 -bind=${IP} -config-dir=/etc/consul.d -enable-script-checks=true -data-dir=/usr/local/consul -join=${CONSUL_IP} >${LOG} &
+ /usr/local/bin/consul agent -client=0.0.0.0 -bind=${IP} -config-dir=/etc/consul.d -enable-script-checks=true -data-dir=/usr/local/consul -join=${CONSUL_IP} >${LOG} &
  
