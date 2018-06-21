@@ -19,8 +19,8 @@ fi
 touch ${HOME}/vagrant_go_user
 SOURCE=${HOME}/code/go/src/github.com/allthingsclowd/golang_web_page_counter
 mkdir -p ${SOURCE}
-echo "export GOPATH=${HOME}/code/go" >> ${HOME}/.profile
-source $HOME/.profile
+echo "export GOPATH=${HOME}/code/go" >> ${HOME}/.bashrc
+source $HOME/.bashrc
 cp -r /vagrant/. ${SOURCE}
 cd ${SOURCE}
 go get ./...
