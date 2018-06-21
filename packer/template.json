@@ -6,7 +6,7 @@
     "build_memory": "1024",
     "cpu_cores": "1",
     "memory": "512",
-    "disk_size": "4960",
+    "disk_size": "49600",
     "headless": "true",
     "iso_checksum": "737ae7041212c628de5751d15c3016058b0e833fdc32e7420209b76ca3d0a535",
     "iso_checksum_type": "sha256",
