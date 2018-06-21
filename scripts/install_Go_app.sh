@@ -20,15 +20,15 @@ if [ -f "$HOME/vagrant_go_user" ]; then
 fi
 
 touch $HOME/vagrant_go_user
-mkdir -p $HOME/code/go/src
+SOURCE=$HOME/code/go/src/github.com/allthingsclowd/golang_web_page_counter
+mkdir -p $SOURCE
 echo "export GOPATH=$HOME/code/go" >> $HOME/.profile
 source $HOME/.profile
-go get $GO_REPOSITORY
-echo $GOPATH/src/$GO_REPOSITORY
-cd $GOPATH/src/$GO_REPOSITORY
+cp -r /vagrant/. $SOURCE
+cd $SOURCE
 go get ./...
 go build main.go
-echo "${PWD} - about to run go app"
+echo "about to run go app"
 ./main >/vagrant/go_app_start_up_${HOSTNAME}.log &
 echo " app should be started"
 sleep 20
