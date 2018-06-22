@@ -16,26 +16,24 @@ if [ -f "${HOME}/vagrant_go_user" ]; then
     exit 0
 fi
 
-touch ${HOME}/vagrant_go_user
-SOURCE=${HOME}/code/go/src/github.com/allthingsclowd/golang_web_page_counter
-mkdir -p ${SOURCE}
-echo "export GOPATH=${HOME}/code/go" >> ${HOME}/.bashrc
-source $HOME/.bashrc
-cp -r /vagrant/. ${SOURCE}
-cd ${SOURCE}
-go get ./...
+export GOPATH=$HOME/gopath
+export PATH=$HOME/gopath/bin:$PATH
+mkdir -p $HOME/gopath/src/github.com/allthingsclowd/golang_web_page_counter
+cp -r /usr/local/bootstrap/. $HOME/gopath/src/github.com/allthingsclowd/golang_web_page_counter/
+cd $HOME/gopath/src/github.com/allthingsclowd/golang_web_page_counter
+go get -t -v ./...
 go build main.go
-echo "about to run go app"
-sleep 20
-./main >/vagrant/go_app_start_up_${HOSTNAME}.log &
-echo " app should be started"
+./main >/vagrant/goapp_${HOSTNAME}.log &
+
+echo "debug delay - sleep 5"
+sleep 5
 
 # copy a consul service definition directory
- mkdir -p /etc/consul.d
- cp -p /usr/local/bootstrap/conf/consul.d/goapp.json /etc/consul.d/goapp.json
- # lets kill past instance
- killall consul &>/dev/null
- sleep 5
- # start restart with config dir
- /usr/local/bin/consul agent -client=0.0.0.0 -bind=${IP} -config-dir=/etc/consul.d -enable-script-checks=true -data-dir=/usr/local/consul -join=${CONSUL_IP} >${LOG} &
- 
+mkdir -p /etc/consul.d
+cp -p /usr/local/bootstrap/conf/consul.d/goapp.json /etc/consul.d/goapp.json
+# lets kill past instance
+killall consul &>/dev/null
+sleep 5
+# start restart with config dir
+/usr/local/bin/consul agent -client=0.0.0.0 -bind=${IP} -config-dir=/etc/consul.d -enable-script-checks=true -data-dir=/usr/local/consul -join=${CONSUL_IP} >${LOG} &
+

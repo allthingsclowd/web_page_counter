@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 	"github.com/gorilla/mux"
 	"html/template"
@@ -24,7 +24,7 @@ func main() {
 
 	if (redisMaster == "0") || (redisPassword == "0") {
 
-		log.Printf("Check the Consul service is running")
+		fmt.Printf("Check the Consul service is running \n")
 		goapphealth = "NOTGOOD"
 
 	} else {
@@ -37,7 +37,7 @@ func main() {
 		
 		_, err := redisClient.Ping().Result()
 		if err != nil {
-			log.Printf("Failed to ping Redis: %v. Check the Redis service is running", err)
+			fmt.Printf("Failed to ping Redis: %v. Check the Redis service is running \n", err)
 			goapphealth="NOTGOOD"
 		}
 	}
@@ -54,24 +54,25 @@ func main() {
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	pagehits, err := redisClient.Incr("pagehits").Result()
 	if err != nil {
-		log.Printf("Failed to increment page counter: %v. Check the Redis service is running", err)
+		fmt.Printf("Failed to increment page counter: %v. Check the Redis service is running \n", err)
 		goapphealth="NOTGOOD"
 		pagehits = 0
 	}
+	fmt.Printf("Successfully updated page counter to: %v \n", pagehits)
 
 	pageErr := templates.ExecuteTemplate(w, "index.html", pagehits)
 	if pageErr != nil {
-		log.Printf("Failed to Load Application Status Page: %v", pageErr)
+		fmt.Printf("Failed to Load Application Status Page: %v \n", pageErr)
 	}
 	
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 	
-	log.Printf("Application Status: %v", goapphealth)
+	fmt.Printf("Application Status: %v \n", goapphealth)
 	err := templates.ExecuteTemplate(w, "health.html", goapphealth)
 	if err != nil {
-		log.Printf("Failed to Load Application Status Page: %v", err)
+		fmt.Printf("Failed to Load Application Status Page: %v \n", err)
 	}
 	
 }
@@ -85,12 +86,12 @@ func getConsulKV(consulClient api.Client, key string) string {
 
 	appVar, _, err := kv.Get(consulKey, nil)
 	if err != nil {
-		log.Printf("Failed to read key value %v - Please ensure key value exists in consul : e.g. consul kv get %v >> %v",key,key, err)
+		fmt.Printf("Failed to read key value %v - Please ensure key value exists in consul : e.g. consul kv get %v >> %v \n",key,key, err)
 		appVar, ok := os.LookupEnv(key)
 		if ok {
 			return appVar
 		}
-		log.Printf("Failed to read environment variable %v - Please ensure %v variable is set >> %v",key,key, err)
+		fmt.Printf("Failed to read environment variable %v - Please ensure %v variable is set >> %v \n",key,key, err)
 		return "FAIL"
 
 	}
@@ -106,7 +107,7 @@ func getConsulSVC(consulClient api.Client, key string) string {
 
 	myService, _, err := sd.Service(key, "", nil)
 	if err != nil {
-		log.Printf("Failed to discover Redis Service : e.g. curl http://localhost:8500/v1/catalog/service/redis >> %v", err)
+		fmt.Printf("Failed to discover Redis Service : e.g. curl http://localhost:8500/v1/catalog/service/redis >> %v \n", err)
 		return "0"
 	}
 	serviceDetail.WriteString(string(myService[0].Address))
@@ -124,7 +125,7 @@ func redisInit() (string, string) {
 	// Get a new client
 	consulClient, err := api.NewClient(api.DefaultConfig())
 	if err !=nil {
-		log.Printf("Failed to contact consul - Please ensure both local agent and remote server are running : e.g. consul members >> %v", err)
+		fmt.Printf("Failed to contact consul - Please ensure both local agent and remote server are running : e.g. consul members >> %v \n", err)
 		return "0", "0"
 	}
 	redisPassword = getConsulKV(*consulClient, "REDIS_MASTER_PASSWORD")
