@@ -66,7 +66,7 @@ func main() {
 	var portDetail strings.Builder
 
 	if listenerCount > 1 {
-		for i:=initialAppPort+listenerCount;i+1>initialAppPort; i-- {
+		for i:=initialAppPort+listenerCount;i>initialAppPort+1; i-- {
 			go func(i int) {
 				fmt.Printf("Launching initial webserver on port %d",i)
 				portDetail.Reset()
