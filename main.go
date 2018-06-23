@@ -20,6 +20,9 @@ var goapphealth = "GOOD"
 var consulClient *api.Client
 
 func main() {
+
+
+
 	redisMaster, redisPassword = redisInit()
 
 	if (redisMaster == "0") || (redisPassword == "0") {
@@ -41,13 +44,44 @@ func main() {
 			goapphealth="NOTGOOD"
 		}
 	}
+
+
 	
 	templates = template.Must(template.ParseGlob("templates/*.html"))
 	r := mux.NewRouter()
 	r.HandleFunc("/", indexHandler).Methods("GET")
 	r.HandleFunc("/health", healthHandler).Methods("GET")
 	http.Handle("/", r)
-	http.ListenAndServe(":8080", r)
+
+	// Get a new Consul client
+	consulClient, err := api.NewClient(api.DefaultConfig())
+	if err !=nil {
+		fmt.Printf("Failed to contact consul - Please ensure both local agent and remote server are running : e.g. consul members >> %v \n", err)
+		goapphealth="NOTGOOD"
+	}
+
+	listenerCount, err:= strconv.Atoi(getConsulKV(*consulClient, "LISTENER_COUNT"))
+	initialAppPort, err:= strconv.Atoi(getConsulKV(*consulClient, "GO_HOST_PORT"))
+	
+	var portDetail strings.Builder
+
+	if listenerCount > 1 {
+		for i:=initialAppPort+listenerCount;i+1>initialAppPort; i-- {
+			go func(i int) {
+				fmt.Printf("Launching initial webserver on port %d",i)
+				portDetail.Reset()
+				portDetail.WriteString(":")
+				portDetail.WriteString(strconv.Itoa(i))
+				http.ListenAndServe(portDetail.String(), r)
+			}(i)
+
+		}
+		initialAppPort++
+	} 
+	portDetail.Reset()
+	portDetail.WriteString(":")
+	portDetail.WriteString(strconv.Itoa(initialAppPort))
+	http.ListenAndServe(portDetail.String(), r)
 	
 }
 
@@ -122,12 +156,13 @@ func redisInit() (string, string) {
 	var redisService string
 	var redisPassword string
 	
-	// Get a new client
+	// Get a new Consul client
 	consulClient, err := api.NewClient(api.DefaultConfig())
 	if err !=nil {
 		fmt.Printf("Failed to contact consul - Please ensure both local agent and remote server are running : e.g. consul members >> %v \n", err)
-		return "0", "0"
+		goapphealth="NOTGOOD"
 	}
+
 	redisPassword = getConsulKV(*consulClient, "REDIS_MASTER_PASSWORD")
 	redisService = getConsulSVC(*consulClient, "redis")
 	if redisService == "0" {
