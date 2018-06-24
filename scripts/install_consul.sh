@@ -31,11 +31,14 @@ if [[ "${HOSTNAME}" =~ "consul" ]] || [ "${TRAVIS}" == "true" ]; then
   AGENT_CONFIG=""
 
   if [ "${TRAVIS}" == "true" ]; then
-    SERVICE_DEFS_DIR="conf/consul.d"
-    CONSUL_SCRIPTS="scripts"
+    COUNTER=0
+    HOSTURL="http://${IP}:808${COUNTER}/health"
+    /usr/local/bootstrap/scripts/consul_build_go_app_service.sh /usr/local/bootstrap/conf/consul.d/goapp.json /etc/consul.d/goapp${COUNTER}.json $HOSTURL 808${COUNTER}
+    #SERVICE_DEFS_DIR="conf/consul.d"
+    #CONSUL_SCRIPTS="scripts"
     AGENT_CONFIG="-config-dir=/etc/consul.d -enable-script-checks=true"
     # copy a consul service definition directory
-    sudo cp -r ${SERVICE_DEFS_DIR} /etc
+    # sudo cp -r ${SERVICE_DEFS_DIR} /etc
     # ensure all scripts are executable for consul health checks
     pushd ${CONSUL_SCRIPTS}
     for file in `ls`;
