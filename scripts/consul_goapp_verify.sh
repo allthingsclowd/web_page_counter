@@ -5,7 +5,7 @@ set -e
 
 echo "running consul goapp client health test"
 app_health="NOTGOOD"
-app_health=`lynx --dump http://$GO_DEV_IP:$GO_HOST_PORT/health`
+app_health=`lynx --dump $1`
 echo $app_health
 
 if [ ${app_health} == "GOOD" ]; then
