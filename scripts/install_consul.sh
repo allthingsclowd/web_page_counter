@@ -31,9 +31,10 @@ if [[ "${HOSTNAME}" =~ "consul" ]] || [ "${TRAVIS}" == "true" ]; then
   AGENT_CONFIG=""
 
   if [ "${TRAVIS}" == "true" ]; then
+    sudo mkdir -p /etc/consul.d
     COUNTER=0
     HOSTURL="http://${IP}:808${COUNTER}/health"
-    /usr/local/bootstrap/scripts/consul_build_go_app_service.sh /usr/local/bootstrap/conf/consul.d/goapp.json /etc/consul.d/goapp${COUNTER}.json $HOSTURL 808${COUNTER}
+    sudo /usr/local/bootstrap/scripts/consul_build_go_app_service.sh /usr/local/bootstrap/conf/consul.d/goapp.json /etc/consul.d/goapp${COUNTER}.json $HOSTURL 808${COUNTER}
     #SERVICE_DEFS_DIR="conf/consul.d"
     CONSUL_SCRIPTS="scripts"
     AGENT_CONFIG="-config-dir=/etc/consul.d -enable-script-checks=true"
