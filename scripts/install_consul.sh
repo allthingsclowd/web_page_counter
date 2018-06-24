@@ -35,7 +35,7 @@ if [[ "${HOSTNAME}" =~ "consul" ]] || [ "${TRAVIS}" == "true" ]; then
     HOSTURL="http://${IP}:808${COUNTER}/health"
     /usr/local/bootstrap/scripts/consul_build_go_app_service.sh /usr/local/bootstrap/conf/consul.d/goapp.json /etc/consul.d/goapp${COUNTER}.json $HOSTURL 808${COUNTER}
     #SERVICE_DEFS_DIR="conf/consul.d"
-    #CONSUL_SCRIPTS="scripts"
+    CONSUL_SCRIPTS="scripts"
     AGENT_CONFIG="-config-dir=/etc/consul.d -enable-script-checks=true"
     # copy a consul service definition directory
     # sudo cp -r ${SERVICE_DEFS_DIR} /etc
