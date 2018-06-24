@@ -30,7 +30,24 @@ sleep 5
 
 # copy a consul service definition directory
 mkdir -p /etc/consul.d
-cp -p /usr/local/bootstrap/conf/consul.d/goapp.json /etc/consul.d/goapp.json
+chmod +x /usr/local/bootstrap/scripts/consul_build_go_app_service.sh
+apt install -y jq
+
+if [ $LISTENER_COUNT -gt 1 ]; then
+  COUNTER=1
+  let LISTENER_COUNT++
+
+  while [ $COUNTER -lt $LISTENER_COUNT ]; do
+    HOSTURL="http://${IP}:808${COUNTER}/health"
+    /usr/local/bootstrap/scripts/consul_build_go_app_service.sh /usr/local/bootstrap/conf/consul.d/goapp.json /etc/consul.d/goapp${COUNTER}.json $HOSTURL 808${COUNTER}
+    let COUNTER=COUNTER+1 
+  done
+else
+  COUNTER=0
+  HOSTURL="http://${IP}:808${COUNTER}/health"
+  /usr/local/bootstrap/scripts/consul_build_go_app_service.sh /usr/local/bootstrap/conf/consul.d/goapp.json /etc/consul.d/goapp${COUNTER}.json $HOSTURL 808${COUNTER}
+fi
+
 # lets kill past instance
 killall consul &>/dev/null
 sleep 5

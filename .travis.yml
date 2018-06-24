@@ -7,6 +7,7 @@ addons:
     packages:
       - redis-server
       - lynx
+      - jq
 
 go:
   - "1.10"
