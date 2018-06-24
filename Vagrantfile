@@ -7,8 +7,8 @@ Vagrant.configure("2") do |config|
     ENV['REDIS_SLAVE_IP']||="192.168.2.201"
     ENV['GO_DEV_IP']||="192.168.2.100"
     ENV['GO_DEV_NAME']||="godev01"
-    ENV['GO_GUEST_PORT']||="8080"
-    ENV['GO_HOST_PORT']||="8080"
+    ENV['GO_GUEST_PORT']||="808"
+    ENV['GO_HOST_PORT']||="808"
     ENV['NGINX_NAME']||="web01"
     ENV['NGINX_IP']||="192.168.2.250"
     ENV['NGINX_GUEST_PORT']||="9090"
@@ -17,6 +17,10 @@ Vagrant.configure("2") do |config|
     ENV['VAULT_IP']||="192.168.2.10"
     ENV['CONSUL_NAME']||="consul01"
     ENV['CONSUL_IP']||="192.168.2.11"
+    ENV['LISTENER_COUNT']||="3"
+    ENV['SERVER_COUNT']||="2"
+    
+    no_of_go_servers=ENV['SERVER_COUNT']
 
     #global config
     config.vm.synced_folder ".", "/vagrant"
@@ -53,12 +57,14 @@ Vagrant.configure("2") do |config|
         redis02.vm.network "private_network", ip: ENV['REDIS_SLAVE_IP']
         redis02.vm.provision :shell, path: "scripts/install_redis.sh"
     end
-    
-    config.vm.define "godev01" do |devsvr|
-        devsvr.vm.hostname = ENV['GO_DEV_NAME']
-        devsvr.vm.network "private_network", ip: ENV['GO_DEV_IP']
-        devsvr.vm.network "forwarded_port", guest: ENV['GO_GUEST_PORT'], host: ENV['GO_HOST_PORT']
-        devsvr.vm.provision "shell", path: "scripts/install_go_app.sh"
+
+    (1..2).each do |i|
+        config.vm.define "godev0#{i}" do |devsvr|
+            devsvr.vm.hostname = "godev0#{i}"
+            devsvr.vm.network "private_network", ip: "192.168.2.10#{i}"
+            devsvr.vm.network "forwarded_port", guest: "808#{i}", host: "808#{i}"
+            devsvr.vm.provision "shell", path: "scripts/install_go_app.sh"
+        end
     end
 
     config.vm.define "web01" do |web01|
