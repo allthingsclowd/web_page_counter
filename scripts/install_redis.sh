@@ -42,9 +42,4 @@ else
 fi
 
 sudo systemctl restart redis-server
-
-# lets kill past instance
- sudo killall consul &>/dev/null
- sleep 5
- # start restart with config dir
- sudo /usr/local/bin/consul agent -client=0.0.0.0 -bind=${IP} -config-dir=/etc/consul.d -enable-script-checks=true -data-dir=/usr/local/consul -join=${CONSUL_IP} >${LOG} &
+sudo killall -1 consul

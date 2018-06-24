@@ -15,6 +15,13 @@ if [ "${TRAVIS}" == "true" ]; then
 IP=${IP:-127.0.0.1}
 fi
 
+PKG="wget unzip"
+which ${PKG} &>/dev/null || {
+  export DEBIAN_FRONTEND=noninteractive
+  apt-get update
+  apt-get install -y ${PKG}
+}
+
 [ -f /usr/local/bin/consul ] &>/dev/null || {
     pushd /usr/local/bin
     [ -f consul_1.1.0_linux_amd64.zip ] || {
@@ -25,15 +32,15 @@ fi
     popd
 }
 
+AGENT_CONFIG="-config-dir=/etc/consul.d -enable-script-checks=true"
+mkdir -p /etc/consul.d
 # check for consul hostname or travis => server
 if [[ "${HOSTNAME}" =~ "consul" ]] || [ "${TRAVIS}" == "true" ]; then
   echo server
-  AGENT_CONFIG=""
 
   if [ "${TRAVIS}" == "true" ]; then
     SERVICE_DEFS_DIR="conf/consul.d"
     CONSUL_SCRIPTS="scripts"
-    AGENT_CONFIG="-config-dir=/etc/consul.d -enable-script-checks=true"
     # copy a consul service definition directory
     sudo cp -r ${SERVICE_DEFS_DIR} /etc
     # ensure all scripts are executable for consul health checks
@@ -63,7 +70,7 @@ if [[ "${HOSTNAME}" =~ "consul" ]] || [ "${TRAVIS}" == "true" ]; then
 else
   echo agent
   /usr/local/bin/consul members 2>/dev/null || {
-    /usr/local/bin/consul agent -client=0.0.0.0 -bind=${IP} -data-dir=/usr/local/consul -join=${CONSUL_IP} >${LOG} &
+    /usr/local/bin/consul agent -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -join=${CONSUL_IP} >${LOG} &
     sleep 10
   }
 fi
