@@ -25,7 +25,7 @@ mv /etc/consul.d/updated-goapp.json $2
 cat $2
 
 JSONARG="{
-            \"args\": [\"/usr/local/bootstrap/scripts/consul_goapp_verify.sh ${3}\"],
+            \"args\": [\"/usr/local/bootstrap/scripts/consul_goapp_verify.sh\", \"${3}\"],
             \"interval\": \"10s\"
         }"
 
@@ -36,8 +36,8 @@ mv /etc/consul.d/updated-goapp.json $2
 cat $2
 
 JSONARG="{
-        \"id\": \"api\",
-        \"name\": \"HTTP REQUEST\",
+        \"id\": \"api_$4\",
+        \"name\": \"HTTP REQUEST $4\",
         \"http\": \"${3}\",
         \"tls_skip_verify\": true,
         \"method\": \"GET\",
