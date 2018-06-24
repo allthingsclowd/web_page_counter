@@ -1,27 +1,14 @@
 {
     "service": {
-      "name": "goapp",
-      "tags": ["primary"],
+      "name": "PUT_SERVICE_NAME_HERE",
+      "tags": [],
       "address": "",
       "meta": {
         "meta": "The GoApp Service"
       },
-      "port": 8080,
+      "port": "REPLACE_WITH_PORT",
       "enable_tag_override": false,
       "checks": [
-        {
-          "id": "api",
-          "name": "HTTP API on port 8080",
-          "http": "http://192.168.2.100:8080/health",
-          "tls_skip_verify": true,
-          "method": "GET",
-          "interval": "10s",
-          "timeout": "1s"
-        },
-        {
-            "args": ["/usr/local/bootstrap/scripts/consul_goapp_verify.sh"],
-            "interval": "10s"
-        }
       ]
     }
   }
