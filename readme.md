@@ -98,22 +98,12 @@ $ curl localhost:8080
 ### Refactor
 
 ### A
-* Modify existing goapp to listen and respond on 3 ports -8081, 8082, 8083 (3 x gorountines)
-* If running on travis only create a single listener on port 8080
-* Update Consul service healthcheck to accomodate new changes
-* Update NGINX Consul-template to receive updates
-* Update Travis to new requirements
-
-### B
-* Repeat all of the above with a 2nd instance of the goapp server
-
-### C
 * Introduce Datadog to monitor each worker/port
 
-### D
+### B
 * Investigate Datadog logging
 
-### E
+### C
 * Use Consul KV as a temporary cache whilst Redis server is unavailable
 * Metrics: Consul KV versus Vault KV - test with 100-1000 entries
 
@@ -151,3 +141,10 @@ $ curl localhost:8080
 * Make readme pretty (again)  
 * Make goAPP use consul to find redis port and ip  
 * Make nginx use consul to populate the conf file (consul-template)
+* Modify existing goapp to listen and respond on 3 ports -8081, 8082, 8083 (3 x gorountines)
+* If running on travis only create a single listener on port 8080
+* Update Consul service healthcheck to accomodate new changes
+* Update NGINX Consul-template to receive updates
+* Update Travis to new requirements
+* Repeat all of the above with a 2nd instance of the goapp server
+
