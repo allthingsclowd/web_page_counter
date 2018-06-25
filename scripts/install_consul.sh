@@ -22,6 +22,7 @@ which ${PKG} &>/dev/null || {
   apt-get install -y ${PKG}
 }
 
+# check consul binary
 [ -f /usr/local/bin/consul ] &>/dev/null || {
     pushd /usr/local/bin
     [ -f consul_1.1.0_linux_amd64.zip ] || {
@@ -29,6 +30,17 @@ which ${PKG} &>/dev/null || {
     }
     sudo unzip consul_1.1.0_linux_amd64.zip
     sudo chmod +x consul
+    popd
+}
+
+# check consul-template binary
+[ -f /usr/local/bin/consul-template ] &>/dev/null || {
+    pushd /usr/local/bin
+    [ -f consul-template_0.19.5_linux_amd64.zip ] || {
+        sudo wget https://releases.hashicorp.com/consul-template/0.19.5/consul-template_0.19.5_linux_amd64.zip
+    }
+    sudo unzip consul-template_0.19.5_linux_amd64.zip
+    sudo chmod +x consul-template
     popd
 }
 
