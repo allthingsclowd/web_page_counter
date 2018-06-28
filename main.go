@@ -10,6 +10,7 @@ import (
 	"strings"
 	"github.com/hashicorp/consul/api"
 	"strconv"
+	"flag"
 )
 
 var templates *template.Template
@@ -20,9 +21,11 @@ var goapphealth = "GOOD"
 var consulClient *api.Client
 
 func main() {
-
-
-
+	// set the port that the goapp will listen on - defaults to 8080
+	
+	portPtr := flag.Int("port", 8080, "Default's to port 8080. Use -port=nnnn to use listen on an alternate port.")
+	flag.Parse()
+	fmt.Printf("Incoming port number: %s \n", strconv.Itoa(*portPtr))
 	redisMaster, redisPassword = redisInit()
 
 	if (redisMaster == "0") || (redisPassword == "0") {
@@ -46,41 +49,16 @@ func main() {
 	}
 
 
-	
+	var portDetail strings.Builder
+	portDetail.WriteString(":")
+	portDetail.WriteString(strconv.Itoa(*portPtr))
+	fmt.Printf("Incoming port number: %s \n", portDetail.String())
+
 	templates = template.Must(template.ParseGlob("templates/*.html"))
 	r := mux.NewRouter()
 	r.HandleFunc("/", indexHandler).Methods("GET")
 	r.HandleFunc("/health", healthHandler).Methods("GET")
 	http.Handle("/", r)
-
-	// Get a new Consul client
-	consulClient, err := api.NewClient(api.DefaultConfig())
-	if err !=nil {
-		fmt.Printf("Failed to contact consul - Please ensure both local agent and remote server are running : e.g. consul members >> %v \n", err)
-		goapphealth="NOTGOOD"
-	}
-
-	listenerCount, err:= strconv.Atoi(getConsulKV(*consulClient, "LISTENER_COUNT"))
-	initialAppPort, err:= strconv.Atoi(getConsulKV(*consulClient, "GO_HOST_PORT"))
-	
-	var portDetail strings.Builder
-
-	if listenerCount > 1 {
-		for i:=initialAppPort+listenerCount;i>initialAppPort+1; i-- {
-			go func(i int) {
-				fmt.Printf("Launching initial webserver on port %d",i)
-				portDetail.Reset()
-				portDetail.WriteString(":")
-				portDetail.WriteString(strconv.Itoa(i))
-				http.ListenAndServe(portDetail.String(), r)
-			}(i)
-
-		}
-		initialAppPort++
-	} 
-	portDetail.Reset()
-	portDetail.WriteString(":")
-	portDetail.WriteString(strconv.Itoa(initialAppPort))
 	http.ListenAndServe(portDetail.String(), r)
 	
 }

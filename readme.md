@@ -97,6 +97,15 @@ $ curl localhost:8080
 
 ### Refactor
 
+* 3 IPs per godev machine main.go using ip1:8080, ip2:8080, ip3:8080
+* WRONG: Modify existing goapp to listen and respond on 3 ports -8081, 8082, 8083 (3 x gorountines)
+ 3 separate main.go instances on the one server
+* If running on travis only create a single listener on port 8080
+* Update Consul service healthcheck to accomodate new changes
+* Update NGINX Consul-template to receive updates
+* Update Travis to new requirements
+* Repeat all of the above with a 2nd instance of the goapp server
+
 ### A
 * Introduce Datadog to monitor each worker/port
 
@@ -141,10 +150,6 @@ $ curl localhost:8080
 * Make readme pretty (again)  
 * Make goAPP use consul to find redis port and ip  
 * Make nginx use consul to populate the conf file (consul-template)
-* Modify existing goapp to listen and respond on 3 ports -8081, 8082, 8083 (3 x gorountines)
-* If running on travis only create a single listener on port 8080
-* Update Consul service healthcheck to accomodate new changes
-* Update NGINX Consul-template to receive updates
-* Update Travis to new requirements
-* Repeat all of the above with a 2nd instance of the goapp server
+* 
+
 
