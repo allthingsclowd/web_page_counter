@@ -23,7 +23,8 @@ cp -r /usr/local/bootstrap/. $HOME/gopath/src/github.com/allthingsclowd/golang_w
 cd $HOME/gopath/src/github.com/allthingsclowd/golang_web_page_counter
 go get -t -v ./...
 go build main.go
-./main >/vagrant/goapp_${HOSTNAME}.log &
+echo $1
+./main -port=$1 >>/vagrant/goapp_${HOSTNAME}.log &
 
 echo "debug delay - sleep 5"
 sleep 5
