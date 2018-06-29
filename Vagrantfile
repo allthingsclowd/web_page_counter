@@ -5,8 +5,6 @@ Vagrant.configure("2") do |config|
     ENV['REDIS_MASTER_IP']||="192.168.2.200"
     ENV['REDIS_SLAVE_NAME']||="slaveredis02"
     ENV['REDIS_SLAVE_IP']||="192.168.2.201"
-    ENV['GO_DEV_IP']||="192.168.2.100"
-    ENV['GO_DEV_NAME']||="godev01"
     ENV['GO_GUEST_PORT']||="808"
     ENV['GO_HOST_PORT']||="808"
     ENV['NGINX_NAME']||="web01"
@@ -20,8 +18,6 @@ Vagrant.configure("2") do |config|
     ENV['LISTENER_COUNT']||="3"
     ENV['SERVER_COUNT']||="2"
     
-    no_of_go_servers=ENV['SERVER_COUNT']
-
     #global config
     config.vm.synced_folder ".", "/vagrant"
     config.vm.synced_folder ".", "/usr/local/bootstrap"
