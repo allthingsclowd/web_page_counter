@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 source /usr/local/bootstrap/var.env
 
+# Idempotency hack - if this file exists don't run the rest of the script
+if [ -f "/var/vagrant_web_server" ]; then
+   exit 0
+fi
+
+touch /var/vagrant_web_server
+
 # remove nginx default website
 sudo rm -f /etc/nginx/sites-enabled/default
 
