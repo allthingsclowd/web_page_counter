@@ -60,7 +60,7 @@ func main() {
 	portDetail.WriteString(targetIP)
 	portDetail.WriteString(":")
 	portDetail.WriteString(targetPort)
-	fmt.Printf("Incoming port number: %s \n", portDetail.String())
+	fmt.Printf("URL: %s \n", portDetail.String())
 
 	templates = template.Must(template.ParseGlob("templates/*.html"))
 	r := mux.NewRouter()
