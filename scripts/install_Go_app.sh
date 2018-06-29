@@ -32,7 +32,7 @@ go build main.go
 echo $1
 DEFAULTPORT=0
 if [ `echo $IFACES | wc -w` -gt 1 ]; then
-  DEFAULTPORT=1
+  # DEFAULTPORT=1
   for interface in $IFACES;
   do
     CIDR=`ip addr show $interface | awk '$2 ~ "192.168.2" {print $2}'`
@@ -40,7 +40,7 @@ if [ `echo $IFACES | wc -w` -gt 1 ]; then
     ./main -port=808$DEFAULTPORT -ip=$IFACEIP >>/vagrant/goapp_${HOSTNAME}.log &
     HOSTURL="http://${IFACEIP}:808${DEFAULTPORT}/health"
     /usr/local/bootstrap/scripts/consul_build_go_app_service.sh /usr/local/bootstrap/conf/consul.d/goapp.json /etc/consul.d/goapp808${DEFAULTPORT}.json $HOSTURL 808${DEFAULTPORT}
-    let DEFAULTPORT++
+    # let DEFAULTPORT++
   done
 else
   ./main -port=808$DEFAULTPORT -ip=$IP >>/vagrant/goapp_${HOSTNAME}.log &
