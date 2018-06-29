@@ -61,11 +61,12 @@ Vagrant.configure("2") do |config|
     (1..2).each do |i|
         config.vm.define "godev0#{i}" do |devsvr|
             devsvr.vm.hostname = "godev0#{i}"
-            devsvr.vm.network "private_network", ip: "192.168.2.10#{i}"
             (1..3).each do |p|
-                devsvr.vm.provision "shell", path: "scripts/install_go_app.sh", args: "808#{p}"
                 devsvr.vm.network "forwarded_port", guest: "808#{p}", host: "8#{i}8#{p}"
+                devsvr.vm.network "private_network", ip: "192.168.2.1#{i}#{p}"
+                
             end
+            devsvr.vm.provision "shell", path: "scripts/install_go_app.sh"
         end
     end
 

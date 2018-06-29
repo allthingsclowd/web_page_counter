@@ -19,13 +19,20 @@ var redisMaster string
 var redisPassword string
 var goapphealth = "GOOD"
 var consulClient *api.Client
+var targetPort string
+var targetIP string
+var thisServer string
 
 func main() {
 	// set the port that the goapp will listen on - defaults to 8080
 	
 	portPtr := flag.Int("port", 8080, "Default's to port 8080. Use -port=nnnn to use listen on an alternate port.")
+	ipPtr := flag.String("ip", "127.0.0.1", "Default's to 127.0.0.1")
 	flag.Parse()
-	fmt.Printf("Incoming port number: %s \n", strconv.Itoa(*portPtr))
+	targetPort = strconv.Itoa(*portPtr)
+	targetIP = *ipPtr
+	thisServer, _= os.Hostname()
+	fmt.Printf("Incoming port number: %s \n", targetPort)
 	redisMaster, redisPassword = redisInit()
 
 	if (redisMaster == "0") || (redisPassword == "0") {
@@ -50,8 +57,9 @@ func main() {
 
 
 	var portDetail strings.Builder
+	portDetail.WriteString(targetIP)
 	portDetail.WriteString(":")
-	portDetail.WriteString(strconv.Itoa(*portPtr))
+	portDetail.WriteString(targetPort)
 	fmt.Printf("Incoming port number: %s \n", portDetail.String())
 
 	templates = template.Must(template.ParseGlob("templates/*.html"))
@@ -71,7 +79,9 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		pagehits = 0
 	}
 	fmt.Printf("Successfully updated page counter to: %v \n", pagehits)
-
+	w.Header().Set("PageCountServer", thisServer)
+	w.Header().Set("PageCountServer", targetPort)
+	w.Header().Set("PageCountPort", targetPort)
 	pageErr := templates.ExecuteTemplate(w, "index.html", pagehits)
 	if pageErr != nil {
 		fmt.Printf("Failed to Load Application Status Page: %v \n", pageErr)
@@ -82,6 +92,9 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 	
 	fmt.Printf("Application Status: %v \n", goapphealth)
+	w.Header().Set("PageCountServer", thisServer)
+	w.Header().Set("PageCountServer", targetPort)
+	w.Header().Set("PageCountPort", targetPort)
 	err := templates.ExecuteTemplate(w, "health.html", goapphealth)
 	if err != nil {
 		fmt.Printf("Failed to Load Application Status Page: %v \n", err)
