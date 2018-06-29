@@ -39,12 +39,12 @@ if [ `echo $IFACES | wc -w` -gt 1 ]; then
     IFACEIP=${CIDR%%/24}
     ./main -port=808$DEFAULTPORT -ip=$IFACEIP >>/vagrant/goapp_${HOSTNAME}.log &
     HOSTURL="http://${IFACEIP}:808${DEFAULTPORT}/health"
-    /usr/local/bootstrap/scripts/consul_build_go_app_service.sh /usr/local/bootstrap/conf/consul.d/goapp.json /etc/consul.d/goapp808${DEFAULTPORT}.json $HOSTURL 808${DEFAULTPORT}
+    /usr/local/bootstrap/scripts/consul_build_go_app_service.sh /usr/local/bootstrap/conf/consul.d/goapp.json /etc/consul.d/goapp_${IFACEIP}.json $HOSTURL 808${DEFAULTPORT} ${interface}
     # let DEFAULTPORT++
   done
 else
   ./main -port=808$DEFAULTPORT -ip=$IP >>/vagrant/goapp_${HOSTNAME}.log &
-  /usr/local/bootstrap/scripts/consul_build_go_app_service.sh /usr/local/bootstrap/conf/consul.d/goapp.json /etc/consul.d/goapp808${DEFAULTPORT}.json $HOSTURL 808${DEFAULTPORT}
+  /usr/local/bootstrap/scripts/consul_build_go_app_service.sh /usr/local/bootstrap/conf/consul.d/goapp.json /etc/consul.d/goapp_${IP}.json $HOSTURL 808${DEFAULTPORT} ${IFACE}
 fi
 
 sleep 5

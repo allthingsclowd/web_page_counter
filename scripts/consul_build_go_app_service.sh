@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-echo $1 $2 $3 $4
-jq ".service.name = \"goapp_$4\"" $1 > /etc/consul.d/updated-goapp.json
+echo $1 $2 $3 $4 $5
+jq ".service.name = \"goapp_$5\"" $1 > /etc/consul.d/updated-goapp.json
 
 #cat /etc/consul.d/updated-goapp.json
 
