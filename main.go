@@ -10,6 +10,7 @@ import (
 	"strings"
 	"github.com/hashicorp/consul/api"
 	"strconv"
+	"flag"
 )
 
 var templates *template.Template
@@ -18,11 +19,20 @@ var redisMaster string
 var redisPassword string
 var goapphealth = "GOOD"
 var consulClient *api.Client
+var targetPort string
+var targetIP string
+var thisServer string
 
 func main() {
-
-
-
+	// set the port that the goapp will listen on - defaults to 8080
+	
+	portPtr := flag.Int("port", 8080, "Default's to port 8080. Use -port=nnnn to use listen on an alternate port.")
+	ipPtr := flag.String("ip", "127.0.0.1", "Default's to 127.0.0.1")
+	flag.Parse()
+	targetPort = strconv.Itoa(*portPtr)
+	targetIP = *ipPtr
+	thisServer, _= os.Hostname()
+	fmt.Printf("Incoming port number: %s \n", targetPort)
 	redisMaster, redisPassword = redisInit()
 
 	if (redisMaster == "0") || (redisPassword == "0") {
@@ -46,41 +56,17 @@ func main() {
 	}
 
 
-	
+	var portDetail strings.Builder
+	portDetail.WriteString(targetIP)
+	portDetail.WriteString(":")
+	portDetail.WriteString(targetPort)
+	fmt.Printf("URL: %s \n", portDetail.String())
+
 	templates = template.Must(template.ParseGlob("templates/*.html"))
 	r := mux.NewRouter()
 	r.HandleFunc("/", indexHandler).Methods("GET")
 	r.HandleFunc("/health", healthHandler).Methods("GET")
 	http.Handle("/", r)
-
-	// Get a new Consul client
-	consulClient, err := api.NewClient(api.DefaultConfig())
-	if err !=nil {
-		fmt.Printf("Failed to contact consul - Please ensure both local agent and remote server are running : e.g. consul members >> %v \n", err)
-		goapphealth="NOTGOOD"
-	}
-
-	listenerCount, err:= strconv.Atoi(getConsulKV(*consulClient, "LISTENER_COUNT"))
-	initialAppPort, err:= strconv.Atoi(getConsulKV(*consulClient, "GO_HOST_PORT"))
-	
-	var portDetail strings.Builder
-
-	if listenerCount > 1 {
-		for i:=initialAppPort+listenerCount;i>initialAppPort+1; i-- {
-			go func(i int) {
-				fmt.Printf("Launching initial webserver on port %d",i)
-				portDetail.Reset()
-				portDetail.WriteString(":")
-				portDetail.WriteString(strconv.Itoa(i))
-				http.ListenAndServe(portDetail.String(), r)
-			}(i)
-
-		}
-		initialAppPort++
-	} 
-	portDetail.Reset()
-	portDetail.WriteString(":")
-	portDetail.WriteString(strconv.Itoa(initialAppPort))
 	http.ListenAndServe(portDetail.String(), r)
 	
 }
@@ -93,7 +79,9 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		pagehits = 0
 	}
 	fmt.Printf("Successfully updated page counter to: %v \n", pagehits)
-
+	w.Header().Set("PageCountIP", targetIP)
+	w.Header().Set("PageCountServer", thisServer)
+	w.Header().Set("PageCountPort", targetPort)
 	pageErr := templates.ExecuteTemplate(w, "index.html", pagehits)
 	if pageErr != nil {
 		fmt.Printf("Failed to Load Application Status Page: %v \n", pageErr)
@@ -104,6 +92,9 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 	
 	fmt.Printf("Application Status: %v \n", goapphealth)
+	w.Header().Set("PageCountIP", targetIP)
+	w.Header().Set("PageCountServer", thisServer)
+	w.Header().Set("PageCountPort", targetPort)
 	err := templates.ExecuteTemplate(w, "health.html", goapphealth)
 	if err != nil {
 		fmt.Printf("Failed to Load Application Status Page: %v \n", err)

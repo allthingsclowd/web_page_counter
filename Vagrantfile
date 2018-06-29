@@ -35,12 +35,12 @@ Vagrant.configure("2") do |config|
         consul01.vm.network "forwarded_port", guest: 8500, host: 8500
     end
 
-    config.vm.define "vault01" do |vault01|
-        vault01.vm.hostname = ENV['VAULT_NAME']
-        vault01.vm.network "private_network", ip: ENV['VAULT_IP']
-        vault01.vm.network "forwarded_port", guest: 8200, host: 8200
-        vault01.vm.provision :shell, path: "scripts/install_vault.sh", run: "always"
-    end
+ #   config.vm.define "vault01" do |vault01|
+ #       vault01.vm.hostname = ENV['VAULT_NAME']
+ #       vault01.vm.network "private_network", ip: ENV['VAULT_IP']
+ #       vault01.vm.network "forwarded_port", guest: 8200, host: 8200
+ #       vault01.vm.provision :shell, path: "scripts/install_vault.sh", run: "always"
+ #   end
 
     config.vm.define "redis01" do |redis01|
         redis01.vm.hostname = ENV['REDIS_MASTER_NAME']
@@ -48,17 +48,16 @@ Vagrant.configure("2") do |config|
         redis01.vm.provision :shell, path: "scripts/install_redis.sh"
     end
     
-    config.vm.define "redis02" do |redis02|
-        redis02.vm.hostname = ENV['REDIS_SLAVE_NAME']
-        redis02.vm.network "private_network", ip: ENV['REDIS_SLAVE_IP']
-        redis02.vm.provision :shell, path: "scripts/install_redis.sh"
-    end
 
     (1..2).each do |i|
         config.vm.define "godev0#{i}" do |devsvr|
             devsvr.vm.hostname = "godev0#{i}"
-            devsvr.vm.network "private_network", ip: "192.168.2.10#{i}"
-            devsvr.vm.network "forwarded_port", guest: "808#{i}", host: "808#{i}"
+            (1..3).each do |p|
+                
+                #devsvr.vm.network "private_network", ip: "192.168.2.1#{i}#{p}"
+                devsvr.vm.network "private_network", ip: "192.168.2.#{100+i*10+p}"
+
+            end
             devsvr.vm.provision "shell", path: "scripts/install_go_app.sh"
         end
     end
