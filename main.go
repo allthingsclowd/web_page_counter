@@ -79,8 +79,8 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		pagehits = 0
 	}
 	fmt.Printf("Successfully updated page counter to: %v \n", pagehits)
+	w.Header().Set("PageCountIP", targetIP)
 	w.Header().Set("PageCountServer", thisServer)
-	w.Header().Set("PageCountServer", targetPort)
 	w.Header().Set("PageCountPort", targetPort)
 	pageErr := templates.ExecuteTemplate(w, "index.html", pagehits)
 	if pageErr != nil {
@@ -92,8 +92,8 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 	
 	fmt.Printf("Application Status: %v \n", goapphealth)
+	w.Header().Set("PageCountIP", targetIP)
 	w.Header().Set("PageCountServer", thisServer)
-	w.Header().Set("PageCountServer", targetPort)
 	w.Header().Set("PageCountPort", targetPort)
 	err := templates.ExecuteTemplate(w, "health.html", goapphealth)
 	if err != nil {
