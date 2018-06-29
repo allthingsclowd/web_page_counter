@@ -51,9 +51,9 @@ mkdir -p /etc/consul.d
 
 export GOPATH=$HOME/gopath
 export PATH=$HOME/gopath/bin:$PATH
-mkdir -p $HOME/gopath/src/github.com/allthingsclowd/golang_web_page_counter
-cp -r /usr/local/bootstrap/. $HOME/gopath/src/github.com/allthingsclowd/golang_web_page_counter/
-cd $HOME/gopath/src/github.com/allthingsclowd/golang_web_page_counter
+mkdir -p $HOME/gopath/src/github.com/allthingsclowd/web_page_counter
+cp -r /usr/local/bootstrap/. $HOME/gopath/src/github.com/allthingsclowd/web_page_counter/
+cd $HOME/gopath/src/github.com/allthingsclowd/web_page_counter
 go get -t -v ./...
 go build main.go
 
