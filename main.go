@@ -55,7 +55,6 @@ func main() {
 		}
 	}
 
-
 	var portDetail strings.Builder
 	portDetail.WriteString(targetIP)
 	portDetail.WriteString(":")
@@ -70,6 +69,8 @@ func main() {
 	http.ListenAndServe(portDetail.String(), r)
 	
 }
+
+
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	pagehits, err := redisClient.Incr("pagehits").Result()
@@ -169,4 +170,5 @@ func redisInit() (string, string) {
 	return redisService, redisPassword
 
 }
+
 
