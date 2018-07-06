@@ -39,17 +39,17 @@ func getMetrics(filename string) []DDMetric {
     return c
 }
 
-func updateDataDogGuage(myMetricValue int, myNameSpace string, myFile string) bool {
+func updateDataDogGuagefromFile(myNameSpace string, myTag string, myFile string) bool {
 	// get a pointer to the datadog agent
 	ddClient, err := statsd.New("127.0.0.1:8125")
     if err != nil {
-		fmt.Printf("Failed to contact DataDog Client: %v. Check the DataDog client is installed and running \n", err)
+		fmt.Printf("Failed to contact DataDog Agent: %v. Check the DataDog agent is installed and running \n", err)
 		return false
     }
     // prefix every metric with the app name
     ddClient.Namespace = myNameSpace
     // send bananas as a tag with every metric
-    ddClient.Tags = append(ddClient.Tags, "pagecounter")
+    ddClient.Tags = append(ddClient.Tags, myTag)
     
     // read metrics in from json file
     metrics := getMetrics(myFile)
@@ -59,11 +59,27 @@ func updateDataDogGuage(myMetricValue int, myNameSpace string, myFile string) bo
     //    fmt.Println(m.BackendCount)
    // }
 
-    // grab the first metric
+    // grab the first metric - only expecting one in the array returned
 	fmt.Println(metrics[0].BackendCount)
 	
-	err = ddClient.Gauge("backend_guage", 4, nil, 1)
-	err = ddClient.("backend_guage", 4, nil, 1)
+    err = ddClient.Gauge(myTag, float64(metrics[0].BackendCount), nil, 1)
+    
+    return true
+}
 
-    fmt.Println(toJSON(metrics))
+func incrementDataDogCounter(myNameSpace string, myCounter string) bool {
+	// get a pointer to the datadog agent
+	ddClient, err := statsd.New("127.0.0.1:8125")
+    if err != nil {
+		fmt.Printf("Failed to contact DataDog Agent: %v. Check the DataDog agent is installed and running \n", err)
+		return false
+    }
+    // prefix every metric with the app name
+    ddClient.Namespace = myNameSpace
+    // send bananas as a tag with every metric
+    ddClient.Tags = append(ddClient.Tags, myCounter)
+	
+    err = ddClient.Incr(myCounter, nil, 1)
+    
+    return true
 }
