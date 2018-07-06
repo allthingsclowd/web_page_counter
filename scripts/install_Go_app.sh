@@ -36,10 +36,10 @@ create_consul_healthcheck() {
 
 }
 
-# Idempotency hack - if this file exists don't run the rest of the script
-if [ -f "${HOME}/vagrant_go_user" ]; then
-    exit 0
-fi
+# # Idempotency hack - if this file exists don't run the rest of the script
+# if [ -f "${HOME}/vagrant_go_user" ]; then
+#     exit 0
+# fi
 
 source /usr/local/bootstrap/var.env
 
