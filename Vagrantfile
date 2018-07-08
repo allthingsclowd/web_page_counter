@@ -17,6 +17,7 @@ Vagrant.configure("2") do |config|
     ENV['CONSUL_IP']||="192.168.2.11"
     ENV['LISTENER_COUNT']||="3"
     ENV['SERVER_COUNT']||="2"
+    ENV['DD_API_KEY']||="DON'T FORGET TO SET ME FROM CLI PRIOR TO DEPLOYMENT"
     
     #global config
     config.vm.synced_folder ".", "/vagrant"
@@ -53,11 +54,9 @@ Vagrant.configure("2") do |config|
         config.vm.define "godev0#{i}" do |devsvr|
             devsvr.vm.hostname = "godev0#{i}"
             (1..3).each do |p|
-                
-                #devsvr.vm.network "private_network", ip: "192.168.2.1#{i}#{p}"
                 devsvr.vm.network "private_network", ip: "192.168.2.#{100+i*10+p}"
-
             end
+            devsvr.vm.provision "shell", path: "scripts/install_dd_agent.sh", env: {"DD_API_KEY" => ENV['DD_API_KEY']}
             devsvr.vm.provision "shell", path: "scripts/install_go_app.sh"
         end
     end
@@ -66,6 +65,7 @@ Vagrant.configure("2") do |config|
         web01.vm.hostname = ENV['NGINX_NAME']
         web01.vm.network "private_network", ip: ENV['NGINX_IP']
         web01.vm.network "forwarded_port", guest: ENV['NGINX_GUEST_PORT'], host: ENV['NGINX_HOST_PORT']
+        web01.vm.provision "shell", path: "scripts/install_dd_agent.sh"
         web01.vm.provision :shell, path: "scripts/install_webserver.sh"
    end
 
