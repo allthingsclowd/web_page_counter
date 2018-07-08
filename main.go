@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/consul/api"
 	"strconv"
 	"flag"
-	"github.com/allthingsclowd/web_page_counter/datadog"
+	datadog "github.com/allthingsclowd/datadoghelper"
 )
 
 var templates *template.Template
