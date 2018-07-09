@@ -18,9 +18,6 @@ sudo rm -f /etc/nginx/sites-enabled/default
 sudo mkdir -p /etc/consul.d
 sudo cp -p /usr/local/bootstrap/conf/consul.d/webtier.json /etc/consul.d/webtier.json
 
-# initialize backend service count
-/usr/local/bootstrap/scripts/updateBackendCount.sh
-
 # make consul reload conf
 sudo killall -1 consul
 
