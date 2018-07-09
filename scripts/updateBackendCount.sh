@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+sudo service nginx reload &
 
 SERVICES=`consul catalog services | grep goapp`
 HEALTHYNODELIST=`curl http://localhost:8500/v1/health/state/passing | jq -r '.[] | select(.CheckID=="serfHealth") | .Node'`
@@ -32,6 +33,5 @@ else
     echo "Updates in progess"
     sudo jq ".[0].backendCount = $SERVICECOUNT" /usr/local/bootstrap/conf/metric.json > /usr/local/datadog/metricupdate.json
     sudo mv /usr/local/datadog/metricupdate.json /usr/local/datadog/metric.json
-    sudo service nginx reload
     sudo /usr/local/bin/updateDDGuage -file=/usr/local/datadog/metric.json
 fi
