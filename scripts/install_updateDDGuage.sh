@@ -10,8 +10,8 @@ go get github.com/allthingsclowd/updateDDGuage
 cd $HOME/gopath/src/github.com/allthingsclowd/updateDDGuage
 cp metric.json /usr/local/datadog/.
 go build -o updateDDGuage main.go
-chmod +x updateDDGuage
-cp updateDDGuage /usr/local/bin/.
+sudo chmod +x updateDDGuage
+sudo cp updateDDGuage /usr/local/bin/.
 
 
 
