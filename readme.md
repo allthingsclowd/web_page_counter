@@ -1,4 +1,4 @@
-![https://travis-ci.org/allthingsclowd/golang_web_page_counter.svg?branch=master](https://travis-ci.org/allthingsclowd/golang_web_page_counter.svg?branch=master)
+![https://travis-ci.org/allthingsclowd/web_page_counter.svg?branch=master](https://travis-ci.org/allthingsclowd/web_page_counter.svg?branch=master)
 
 # 
 What - Why | How
