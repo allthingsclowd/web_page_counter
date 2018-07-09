@@ -30,8 +30,8 @@ if [ $CURRENTSC -eq $SERVICECOUNT ]; then
     exit 0
 else
     echo "Updates in progess"
-    jq ".[0].backendCount = $SERVICECOUNT" /usr/local/bootstrap/conf/metric.json > /usr/local/datadog/metricupdate.json
-    mv /usr/local/datadog/metricupdate.json /usr/local/datadog/metric.json
-    service nginx reload
-    /usr/local/bin/updateDDGuage -file=/usr/local/datadog/metric.json
+    sudo jq ".[0].backendCount = $SERVICECOUNT" /usr/local/bootstrap/conf/metric.json > /usr/local/datadog/metricupdate.json
+    sudo mv /usr/local/datadog/metricupdate.json /usr/local/datadog/metric.json
+    sudo service nginx reload
+    sudo /usr/local/bin/updateDDGuage -file=/usr/local/datadog/metric.json
 fi
