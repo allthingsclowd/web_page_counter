@@ -1,12 +1,25 @@
 #!/usr/bin/env bash
 
 SERVICES=`consul catalog services | grep goapp`
+HEALTHYNODELIST=`curl http://localhost:8500/v1/health/state/passing | jq -r '.[] | select(.CheckID=="serfHealth") | .Node'`
 
 SERVICECOUNT=0
+
+# loop through the list of targeted services
 for backend in $SERVICES;
 do 
-    BCOUNT=`consul catalog nodes -service=$backend  | awk '{count++} ;END{print count-1}'`;
-    SERVICECOUNT=$(($SERVICECOUNT+$BCOUNT))
+    SERVICENODELIST=`consul catalog nodes -service=$backend  | awk 'NR > 1{count++; print $1}'`
+    # loop through all the healthy nodes
+    for healthynode in $HEALTHYNODELIST;
+    do
+        # loop through the service nodes to see if they're healthy - consul returns previous state of service before node died :()
+        for servicenode in $SERVICENODELIST;
+        do
+            if [ $servicenode = $healthynode ]; then
+                SERVICECOUNT=$(($SERVICECOUNT+1))
+            fi
+        done
+    done
 done
 echo "Total Backends: " $SERVICECOUNT;
 
