@@ -24,4 +24,4 @@ sudo killall -1 consul
 sudo /usr/local/bin/consul-template \
      -consul-addr=$CONSUL_IP:8500 \
      -template "/usr/local/bootstrap/conf/nginx.ctpl:/etc/nginx/conf.d/goapp.conf:/usr/local/bootstrap/scripts/updateBackendCount.sh" &
-     
+   
