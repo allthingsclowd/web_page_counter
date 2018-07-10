@@ -36,10 +36,10 @@ create_consul_healthcheck() {
 
 }
 
-# Idempotency hack - if this file exists don't run the rest of the script
-if [ -f "${HOME}/vagrant_go_user" ]; then
-    exit 0
-fi
+# # Idempotency hack - if this file exists don't run the rest of the script
+# if [ -f "${HOME}/vagrant_go_user" ]; then
+#     exit 0
+# fi
 
 source /usr/local/bootstrap/var.env
 
@@ -65,7 +65,7 @@ if [ `echo ${IFACES} | wc -w` -gt 1 ]; then
   do
     CIDR=`ip addr show ${INTERFACE} | awk '$2 ~ "192.168.2" {print $2}'`
     IFACEIP=${CIDR%%/24}
-    ./main -port=808${DEFAULTPORT} -ip=${IFACEIP} >>/vagrant/goapp_${HOSTNAME}.log &
+    ./main -port=808${DEFAULTPORT} -ip=${IFACEIP} >/vagrant/goapp_${HOSTNAME}_${IFACEIP}.log &
     HOSTURL="http://${IFACEIP}:808${DEFAULTPORT}/health"
     create_consul_healthcheck /usr/local/bootstrap/conf/consul.d/goapp.json \
                               /etc/consul.d/goapp_${IFACEIP}.json \
@@ -76,7 +76,7 @@ if [ `echo ${IFACES} | wc -w` -gt 1 ]; then
   done
 else
   IP=${IP:-127.0.0.1}
-  ./main -port=808${DEFAULTPORT} -ip=${IP} >>/vagrant/goapp_${HOSTNAME}.log &
+  ./main -port=808${DEFAULTPORT} -ip=${IP} >/vagrant/goapp_${HOSTNAME}_${IP}.log &
     create_consul_healthcheck /usr/local/bootstrap/conf/consul.d/goapp.json \
                               /etc/consul.d/goapp_${IP}.json \
                               $HOSTURL \
