@@ -25,10 +25,10 @@ which ${PKG} &>/dev/null || {
 # check consul binary
 [ -f /usr/local/bin/consul ] &>/dev/null || {
     pushd /usr/local/bin
-    [ -f consul_1.1.0_linux_amd64.zip ] || {
-        sudo wget https://releases.hashicorp.com/consul/1.1.0/consul_1.1.0_linux_amd64.zip
+    [ -f consul_1.2.0_linux_amd64.zip ] || {
+        sudo wget https://releases.hashicorp.com/consul/1.2.0/consul_1.2.0_linux_amd64.zip
     }
-    sudo unzip consul_1.1.0_linux_amd64.zip
+    sudo unzip consul_1.2.0_linux_amd64.zip
     sudo chmod +x consul
     popd
 }
@@ -47,7 +47,7 @@ which ${PKG} &>/dev/null || {
 AGENT_CONFIG="-config-dir=/etc/consul.d -enable-script-checks=true"
 mkdir -p /etc/consul.d
 # check for consul hostname or travis => server
-if [[ "${HOSTNAME}" =~ "consul" ]] || [ "${TRAVIS}" == "true" ]; then
+if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
   echo server
 
   if [ "${TRAVIS}" == "true" ]; then
@@ -87,7 +87,7 @@ if [[ "${HOSTNAME}" =~ "consul" ]] || [ "${TRAVIS}" == "true" ]; then
 else
   echo agent
   /usr/local/bin/consul members 2>/dev/null || {
-    /usr/local/bin/consul agent -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -join=${CONSUL_IP} >${LOG} &
+    /usr/local/bin/consul agent -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -join=${LEADER_IP} >${LOG} &
     sleep 10
   }
 fi
