@@ -97,13 +97,7 @@ $ curl localhost:8080
 
 ### Refactor
 
-### A
-* Introduce Datadog to monitor each worker/port
-
-### B
-* Investigate Datadog logging
-
-### C
+### D
 * Use Consul KV as a temporary cache whilst Redis server is unavailable
 * Metrics: Consul KV versus Vault KV - test with 100-1000 entries
 
@@ -149,5 +143,14 @@ $ curl localhost:8080
 * Update NGINX Consul-template to receive updates
 * Update Travis to new requirements
 * Repeat all of the above with a 2nd instance of the goapp server
+* Sign up for Datadog trial account using a gmail alias e.g. <bob@gmail.com> becomes <bob+datadogtrial@gmail.com>
+* Install DDog Agent on the Macbook and test using Guages & Counters
+* Update application to submit datadog pagecount counter once redis has been successfully updated
+* Add datadog guage that reports on the number of available goapp services
+* Remove redis02 and vault servers - not required yet!
+* Create another Datadog Test Account for the 5 servers
+* Install datadog agent on all servers
+* Update consul-template nginx routine to include goapp service guage routine
+
 
 
