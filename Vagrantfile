@@ -24,6 +24,7 @@ Vagrant.configure("2") do |config|
     config.vm.synced_folder ".", "/usr/local/bootstrap"
     config.vm.box = "allthingscloud/go-counter-demo"
     config.vm.provision "shell", path: "scripts/install_consul.sh", run: "always"
+    config.vm.provision "shell", path: "scripts/install_dd_agent.sh", env: {"DD_API_KEY" => ENV['DD_API_KEY']}
 
     config.vm.provider "virtualbox" do |v|
         v.memory = 1024
@@ -56,7 +57,6 @@ Vagrant.configure("2") do |config|
             (1..3).each do |p|
                 devsvr.vm.network "private_network", ip: "192.168.2.#{100+i*10+p}"
             end
-            devsvr.vm.provision "shell", path: "scripts/install_dd_agent.sh", env: {"DD_API_KEY" => ENV['DD_API_KEY']}
             devsvr.vm.provision "shell", path: "scripts/install_go_app.sh"
         end
     end
