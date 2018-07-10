@@ -8,6 +8,9 @@ fi
 
 touch /var/vagrant_web_server
 
+# potentially add jq to base image
+sudo apt-get install -y jq
+
 # remove nginx default website
 sudo rm -f /etc/nginx/sites-enabled/default
 
@@ -20,5 +23,5 @@ sudo killall -1 consul
 
 sudo /usr/local/bin/consul-template \
      -consul-addr=$CONSUL_IP:8500 \
-     -template "/usr/local/bootstrap/conf/nginx.ctpl:/etc/nginx/conf.d/goapp.conf:service nginx reload" &
-     
+     -template "/usr/local/bootstrap/conf/nginx.ctpl:/etc/nginx/conf.d/goapp.conf:/usr/local/bootstrap/scripts/updateBackendCount.sh" &
+   

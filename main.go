@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/consul/api"
 	"strconv"
 	"flag"
+	datadog "github.com/allthingsclowd/datadoghelper"
 )
 
 var templates *template.Template
@@ -55,7 +56,6 @@ func main() {
 		}
 	}
 
-
 	var portDetail strings.Builder
 	portDetail.WriteString(targetIP)
 	portDetail.WriteString(":")
@@ -71,6 +71,8 @@ func main() {
 	
 }
 
+
+
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	pagehits, err := redisClient.Incr("pagehits").Result()
 	if err != nil {
@@ -79,9 +81,18 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		pagehits = 0
 	}
 	fmt.Printf("Successfully updated page counter to: %v \n", pagehits)
+	dataDog := datadog.UpdateDataDogGuagefromValue("pageCounter", "totalPageHits", float64(pagehits))
+	if !dataDog {
+		fmt.Printf("Failed to set datadog guage.")
+	}
+	dataDog = datadog.IncrementDataDogCounter("pageCounter", "currentPageHits")
+	if !dataDog {
+		fmt.Printf("Failed to set datadog counter.")
+	}
 	w.Header().Set("PageCountIP", targetIP)
 	w.Header().Set("PageCountServer", thisServer)
 	w.Header().Set("PageCountPort", targetPort)
+	 
 	pageErr := templates.ExecuteTemplate(w, "index.html", pagehits)
 	if pageErr != nil {
 		fmt.Printf("Failed to Load Application Status Page: %v \n", pageErr)
@@ -169,4 +180,5 @@ func redisInit() (string, string) {
 	return redisService, redisPassword
 
 }
+
 
