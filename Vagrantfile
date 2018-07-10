@@ -13,8 +13,8 @@ Vagrant.configure("2") do |config|
     ENV['NGINX_HOST_PORT']||="9090"
     ENV['VAULT_NAME']||="vault01"
     ENV['VAULT_IP']||="192.168.2.10"
-    ENV['CONSUL_NAME']||="consul01"
-    ENV['CONSUL_IP']||="192.168.2.11"
+    ENV['LEADER_NAME']||="leader01"
+    ENV['LEADER_IP']||="192.168.2.11"
     ENV['LISTENER_COUNT']||="3"
     ENV['SERVER_COUNT']||="2"
     ENV['DD_API_KEY']||="DON'T FORGET TO SET ME FROM CLI PRIOR TO DEPLOYMENT"
@@ -31,18 +31,12 @@ Vagrant.configure("2") do |config|
         v.cpus = 1
     end
 
-    config.vm.define "consul01" do |consul01|
-        consul01.vm.hostname = ENV['CONSUL_NAME']
-        consul01.vm.network "private_network", ip: ENV['CONSUL_IP']
-        consul01.vm.network "forwarded_port", guest: 8500, host: 8500
+    config.vm.define "leader01" do |leader01|
+        leader01.vm.hostname = ENV['LEADER_NAME']
+        leader01.vm.provision "shell", path: "scripts/install_nomad.sh", run: "always"
+        leader01.vm.network "private_network", ip: ENV['LEADER_IP']
+        leader01.vm.network "forwarded_port", guest: 8500, host: 8500
     end
-
- #   config.vm.define "vault01" do |vault01|
- #       vault01.vm.hostname = ENV['VAULT_NAME']
- #       vault01.vm.network "private_network", ip: ENV['VAULT_IP']
- #       vault01.vm.network "forwarded_port", guest: 8200, host: 8200
- #       vault01.vm.provision :shell, path: "scripts/install_vault.sh", run: "always"
- #   end
 
     config.vm.define "redis01" do |redis01|
         redis01.vm.hostname = ENV['REDIS_MASTER_NAME']
@@ -57,6 +51,7 @@ Vagrant.configure("2") do |config|
             (1..3).each do |p|
                 devsvr.vm.network "private_network", ip: "192.168.2.#{100+i*10+p}"
             end
+            devsvr.vm.provision "shell", path: "scripts/install_nomad.sh", run: "always"
             devsvr.vm.provision "shell", path: "scripts/install_go_app.sh"
         end
     end
