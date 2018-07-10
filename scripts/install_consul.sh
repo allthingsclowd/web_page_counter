@@ -47,7 +47,7 @@ which ${PKG} &>/dev/null || {
 AGENT_CONFIG="-config-dir=/etc/consul.d -enable-script-checks=true"
 mkdir -p /etc/consul.d
 # check for consul hostname or travis => server
-if [[ "${HOSTNAME}" =~ "consul" ]] || [ "${TRAVIS}" == "true" ]; then
+if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
   echo server
 
   if [ "${TRAVIS}" == "true" ]; then
