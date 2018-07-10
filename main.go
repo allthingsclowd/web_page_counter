@@ -81,6 +81,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		pagehits = 0
 	}
 	fmt.Printf("Successfully updated page counter to: %v \n", pagehits)
+	goapphealth="GOOD"
 	dataDog := datadog.UpdateDataDogGuagefromValue("pageCounter", "totalPageHits", float64(pagehits))
 	if !dataDog {
 		fmt.Printf("Failed to set datadog guage.")
