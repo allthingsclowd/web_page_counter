@@ -6,10 +6,10 @@ IP=${CIDR%%/24}
 
 which /usr/local/bin/vault &>/dev/null || {
     pushd /usr/local/bin
-    [ -f vault_0.10.2_linux_amd64.zip ] || {
-        wget https://releases.hashicorp.com/vault/0.10.2/vault_0.10.2_linux_amd64.zip
+    [ -f vault_0.10.3_linux_amd64.zip ] || {
+        wget https://releases.hashicorp.com/vault/0.10.3/vault_0.10.3_linux_amd64.zip
     }
-    unzip vault_0.10.2_linux_amd64.zip
+    unzip vault_0.10.3_linux_amd64.zip
     chmod +x vault
     popd
 }
