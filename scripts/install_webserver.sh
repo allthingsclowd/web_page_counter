@@ -15,12 +15,12 @@ sudo cp -p /usr/local/bootstrap/conf/consul.d/webtier.json /etc/consul.d/webtier
 
 # make consul reload conf
 sudo killall -1 consul
-sudo killall -9 consul-template
+sudo killall -9 consul-template &>/dev/null
 
 sleep 2
 
 sudo /usr/local/bin/consul-template \
-     -consul-addr=$CONSUL_IP:8500 \
+     -consul-addr=${LEADER_IP}:8500 \
      -template "/usr/local/bootstrap/conf/nginx.ctpl:/etc/nginx/conf.d/goapp.conf:/usr/local/bootstrap/scripts/updateBackendCount.sh" &
    
 sleep 1
