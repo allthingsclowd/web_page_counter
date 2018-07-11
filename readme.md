@@ -97,6 +97,10 @@ $ curl localhost:8080
 
 ### Refactor
 
+### A
+* Rollback to a single network ip on the vagrantfile
+
+
 ### D
 * Use Consul KV as a temporary cache whilst Redis server is unavailable
 * Metrics: Consul KV versus Vault KV - test with 100-1000 entries
