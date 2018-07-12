@@ -45,7 +45,7 @@ Vagrant.configure("2") do |config|
     end
     
 
-    (1..2).each do |i|
+    (1..1).each do |i|
         config.vm.define "godev0#{i}" do |devsvr|
             devsvr.vm.hostname = "godev0#{i}"
             devsvr.vm.network "private_network", ip: "192.168.2.#{100+i*10}"
@@ -58,7 +58,7 @@ Vagrant.configure("2") do |config|
         web01.vm.hostname = ENV['NGINX_NAME']
         web01.vm.network "private_network", ip: ENV['NGINX_IP']
         web01.vm.network "forwarded_port", guest: ENV['NGINX_GUEST_PORT'], host: ENV['NGINX_HOST_PORT']
-        web01.vm.provision :shell, path: "scripts/install_webserver.sh" 
+        web01.vm.provision :shell, path: "scripts/install_webserver.sh"
    end
 
 end
