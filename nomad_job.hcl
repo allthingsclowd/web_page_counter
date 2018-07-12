@@ -1,27 +1,27 @@
 job "peach" {
     datacenters = ["dc1"]
     type        = "service"
-    task "example" {
+    group "example" {
+      count = 5
+      task "example" {
         driver = "raw_exec"
         config {
             command = "/bin/bash"
-            args = ["-c","cd /usr/local/page_counter;./main -ip=0.0.0.0"]
+            args = ["-c","cd /usr/local/page_counter;./main -port=${NOMAD_PORT_http} -ip=0.0.0.0"]
         }
         resources {
-          cpu    = 200
-          memory = 600
+          cpu    = 20
+          memory = 60
           network {
-            port "http" {
-              static = "8080"
-            }
+            port "http" {}
           }
         }
 
 
         service {
-          name = "goapp"
+          name = "goapp-${NOMAD_PORT_http}"
           port = "http"
         }
-
+      }
     }
 }
