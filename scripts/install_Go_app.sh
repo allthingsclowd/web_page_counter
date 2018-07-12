@@ -57,35 +57,7 @@ cd $HOME/gopath/src/github.com/allthingsclowd/web_page_counter
 go get -t -v ./...
 go build main.go
 
-DEFAULTPORT=0
-IFACES=`route -n | awk '$1 == "192.168.2.0" {print $8}'`
-# if the host has more than one interface on the target subnet loop through them all
-if [ `echo ${IFACES} | wc -w` -gt 1 ]; then
-  for INTERFACE in ${IFACES};
-  do
-    CIDR=`ip addr show ${INTERFACE} | awk '$2 ~ "192.168.2" {print $2}'`
-    IFACEIP=${CIDR%%/24}
-    ./main -port=808${DEFAULTPORT} -ip=${IFACEIP} >/vagrant/goapp_${HOSTNAME}_${IFACEIP}.log &
-    HOSTURL="http://${IFACEIP}:808${DEFAULTPORT}/health"
-    create_consul_healthcheck /usr/local/bootstrap/conf/consul.d/goapp.json \
-                              /etc/consul.d/goapp_${IFACEIP}.json \
-                              $HOSTURL \
-                              808${DEFAULTPORT} \
-                              ${INTERFACE} \
-                              ${IFACEIP}
-  done
-else
-  IP=${IP:-127.0.0.1}
-  ./main -port=808${DEFAULTPORT} -ip=${IP} >/vagrant/goapp_${HOSTNAME}_${IP}.log &
-    create_consul_healthcheck /usr/local/bootstrap/conf/consul.d/goapp.json \
-                              /etc/consul.d/goapp_${IP}.json \
-                              $HOSTURL \
-                              808${DEFAULTPORT} \
-                              "loopback" \
-                              ${IP}
-    $HOSTURL 808${DEFAULTPORT} ${IFACE}
-fi
+mkdir -p /usr/local/page_counter
+cp -ap main templates /usr/local/page_counter
 
-# restart consul to load the new configs
-killall -1 consul &>/dev/null
-
+nomad job run /usr/local/bootstrap/nomad_job.hcl
