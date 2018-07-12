@@ -29,18 +29,21 @@ grep NOMAD_ADDR ~/.bash_profile &>/dev/null || {
   echo export NOMAD_ADDR=http://${IP}:4646 | tee -a ~/.bash_profile
 }
 
+mkdir -p /etc/nomad.d
+
 # check for nomad hostname => server
 if [[ "${HOSTNAME}" =~ "leader" ]]; then
 
   NOMAD_ADDR=http://${IP}:4646 /usr/local/bin/nomad agent-info 2>/dev/null || {
-    /usr/local/bin/nomad agent -server -bind=${IP} -data-dir=/usr/local/nomad -bootstrap-expect=1 > ${LOG} &
+    /usr/local/bin/nomad agent -server -bind=${IP} -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/etc/nomad.d > ${LOG} &
     sleep 1
   }
 
 else
 
   NOMAD_ADDR=http://${IP}:4646 /usr/local/bin/nomad agent-info 2>/dev/null || {
-    /usr/local/bin/nomad agent -client -bind=${IP} -data-dir=/usr/local/nomad -join=192.168.2.11 > ${LOG} &
+    cp -ap /usr/local/bootstrap/conf/nomad.d/client.hcl /etc/nomad.d/
+    /usr/local/bin/nomad agent -client -bind=${IP} -data-dir=/usr/local/nomad -join=192.168.2.11 -config=/etc/nomad.d > ${LOG} &
     sleep 1
   }
 
