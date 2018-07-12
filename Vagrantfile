@@ -45,7 +45,7 @@ Vagrant.configure("2") do |config|
     end
     
 
-    (1..1).each do |i|
+    (1..2).each do |i|
         config.vm.define "godev0#{i}" do |devsvr|
             devsvr.vm.hostname = "godev0#{i}"
             devsvr.vm.network "private_network", ip: "192.168.2.#{100+i*10}"
