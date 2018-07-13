@@ -96,11 +96,14 @@ $ curl localhost:8080
 ## TODO
 
 ### Refactor
+* Add tag that includes port details to ddog metric
+* Add service checks/tests to nomad job
+* Move all logs to `/vagrant/logs/`
+
 
 ### A
-* Rollback to a single network ip on the vagrantfile
-* Don't execute the goapp upon installation - nomad will be used to do this later
-* Write a nomad job using the raw_exec driver (NOT DOCKER) to launch the application ONCE on any node
+* Move Redis Password into VAULT KV
+
 
 
 ### D
@@ -157,6 +160,9 @@ $ curl localhost:8080
 * Create another Datadog Test Account for the 5 servers
 * Install datadog agent on all servers
 * Update consul-template nginx routine to include goapp service guage routine
+* Rollback to a single network ip on the vagrantfile
+* Don't execute the goapp upon installation - nomad will be used to do this later
+* Write a nomad job using the raw_exec driver (NOT DOCKER) to launch the application ONCE on any node
 
 
 
