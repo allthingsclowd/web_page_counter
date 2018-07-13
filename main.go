@@ -28,7 +28,8 @@ func main() {
 	// set the port that the goapp will listen on - defaults to 8080
 	
 	portPtr := flag.Int("port", 8080, "Default's to port 8080. Use -port=nnnn to use listen on an alternate port.")
-	ipPtr := flag.String("ip", "127.0.0.1", "Default's to 127.0.0.1")
+	ipPtr := flag.String("ip", "0.0.0.0", "Default's to all interfaces by using 0.0.0.0")
+	templatePtr := flag.String("templates", "templates/*.html", "Default's to templates/*.html -templates=????")
 	flag.Parse()
 	targetPort = strconv.Itoa(*portPtr)
 	targetIP = *ipPtr
@@ -62,7 +63,7 @@ func main() {
 	portDetail.WriteString(targetPort)
 	fmt.Printf("URL: %s \n", portDetail.String())
 
-	templates = template.Must(template.ParseGlob("templates/*.html"))
+	templates = template.Must(template.ParseGlob(*templatePtr))
 	r := mux.NewRouter()
 	r.HandleFunc("/", indexHandler).Methods("GET")
 	r.HandleFunc("/health", healthHandler).Methods("GET")
@@ -181,5 +182,3 @@ func redisInit() (string, string) {
 	return redisService, redisPassword
 
 }
-
-
