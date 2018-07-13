@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -x
 
 source /usr/local/bootstrap/var.env
 
@@ -22,6 +23,14 @@ which nomad &>/dev/null || {
   wget https://releases.hashicorp.com/nomad/0.8.4/nomad_0.8.4_linux_amd64.zip
   unzip nomad_0.8.4_linux_amd64.zip
   chmod +x nomad
+  popd
+}
+
+which http-echo &>/dev/null || {
+  pushd /usr/local/bin
+  wget https://github.com/hashicorp/http-echo/releases/download/v0.2.3/http-echo_0.2.3_linux_amd64.zip
+  unzip http-echo_0.2.3_linux_amd64.zip
+  chmod +x http-echo
   popd
 }
 
