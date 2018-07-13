@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -x
+
 source /usr/local/bootstrap/var.env
 
 # Idempotency hack - if this file exists don't run the rest of the script

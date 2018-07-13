@@ -8,7 +8,8 @@ import (
 	"github.com/go-redis/redis"
 	"os"
 	"strings"
-	"github.com/hashicorp/consul/api"
+	consul "github.com/hashicorp/consul/api"
+	vault "github.com/hashicorp/vault/api"
 	"strconv"
 	"flag"
 	datadog "github.com/allthingsclowd/datadoghelper"
@@ -115,7 +116,36 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	
 }
 
-func getConsulKV(consulClient api.Client, key string) string {
+func getVaultKV(vaultKey string) string {
+	
+	// Get a new Consul client
+	consulClient, err := consul.NewClient(consul.DefaultConfig())
+	if err !=nil {
+		fmt.Printf("Failed to contact consul - Please ensure both local agent and remote server are running : e.g. consul members >> %v \n", err)
+		goapphealth="NOTGOOD"
+	}
+
+	vaultToken := getConsulKV(*consulClient, "VAULT_TOKEN")
+	vaultAddress := getConsulKV(*consulClient, "VAULT_ADDR")
+
+	// Get a handle to the Vault Secret KV API
+	vaultClient, err := vault.NewClient(&vault.Config{
+		Address: vaultAddress,
+	})
+
+	vaultClient.SetToken(vaultToken)
+
+	vaultSecret, err := vaultClient.Logical().Read(vaultKey)
+	if err != nil {
+		fmt.Printf("Failed to read VAULT key value %v - Please ensure the secret value exists in VAULT : e.g. vault kv get %v >> %v \n",err)
+		return "FAIL"
+	}
+	fmt.Printf("secret %s -> %v", vaultKey, vaultSecret)
+	return "Test"
+}
+
+
+func getConsulKV(consulClient consul.Client, key string) string {
 	
 	// Get a handle to the KV API
 	kv := consulClient.KV()
@@ -137,7 +167,7 @@ func getConsulKV(consulClient api.Client, key string) string {
 	return string(appVar.Value)
 }
 
-func getConsulSVC(consulClient api.Client, key string) string {
+func getConsulSVC(consulClient consul.Client, key string) string {
 	
 	var serviceDetail strings.Builder
 	// get handle to catalog service api
@@ -161,7 +191,7 @@ func redisInit() (string, string) {
 	var redisPassword string
 	
 	// Get a new Consul client
-	consulClient, err := api.NewClient(api.DefaultConfig())
+	consulClient, err := consul.NewClient(consul.DefaultConfig())
 	if err !=nil {
 		fmt.Printf("Failed to contact consul - Please ensure both local agent and remote server are running : e.g. consul members >> %v \n", err)
 		goapphealth="NOTGOOD"
