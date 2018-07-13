@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -x
+
 source /usr/local/bootstrap/var.env
 
 IFACE=`route -n | awk '$1 == "192.168.2.0" {print $8;exit}'`

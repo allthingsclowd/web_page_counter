@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -x
+
 source /usr/local/bootstrap/var.env
 
 which jq &>/dev/null || {
