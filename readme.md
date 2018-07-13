@@ -96,6 +96,7 @@ $ curl localhost:8080
 ## TODO
 
 ### Refactor
+* Add tag that includes port details to ddog metric
 * Add service checks/tests to nomad job
 * Move all logs to `/vagrant/logs/`
 
