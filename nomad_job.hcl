@@ -7,7 +7,7 @@ job "peach" {
         driver = "raw_exec"
         config {
             command = "/bin/bash"
-            args = ["-c","cd /usr/local/page_counter;./main -port=${NOMAD_PORT_http} -ip=0.0.0.0"]
+            args = ["-c","/usr/local/bin/webcounter -port=${NOMAD_PORT_http} -ip=0.0.0.0 -templates=/usr/local/bin/templates/*.html"]
         }
         resources {
           cpu    = 20
