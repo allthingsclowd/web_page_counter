@@ -99,6 +99,8 @@ $ curl localhost:8080
 
 ### A
 * Rollback to a single network ip on the vagrantfile
+* Don't execute the goapp upon installation - nomad will be used to do this later
+* Write a nomad job using the raw_exec driver (NOT DOCKER) to launch the application ONCE on any node
 
 
 ### D
