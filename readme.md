@@ -7,6 +7,13 @@ What - Why | How
 Golang webpage counter application server using two redis backend servers (master-slave config) and a nginx web-proxy frontend server. Traditional 3 tier application model.
 
 
+![79d03a47-3912-4649-9ead-e5caf4a356d4](https://user-images.githubusercontent.com/9472095/42727318-6679a0da-879c-11e8-813d-43c73208c25b.png)
+
+
+![0dc20014-3036-44e5-aa43-0bddc3e5df7a](https://user-images.githubusercontent.com/9472095/42727319-66902a26-879c-11e8-8241-b68414eaffab.jpeg)
+
+
+
 
 ## Purpose
 This repository was created to familiarise myself with Vagrant files
