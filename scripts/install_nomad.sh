@@ -8,7 +8,7 @@ CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.2" {print $2}'`
 IP=${CIDR%%/24}
 
 if [ -d /vagrant ]; then
-  LOG="/vagrant/nomad_${HOSTNAME}.log"
+  LOG="/vagrant/logs/nomad_${HOSTNAME}.log"
 else
   LOG="nomad.log"
 fi
