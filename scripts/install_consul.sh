@@ -47,7 +47,7 @@ which ${PKG} &>/dev/null || {
 }
 
 AGENT_CONFIG="-config-dir=/etc/consul.d -enable-script-checks=true"
-mkdir -p /etc/consul.d
+sudo mkdir -p /etc/consul.d
 # check for consul hostname or travis => server
 if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
   echo server
@@ -56,7 +56,7 @@ if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
     sudo mkdir -p /etc/consul.d
     COUNTER=0
     HOSTURL="http://${IP}:808${COUNTER}/health"
-    sudo /usr/local/bootstrap/scripts/consul_build_go_app_service.sh /usr/local/bootstrap/conf/consul.d/goapp.json /etc/consul.d/goapp${COUNTER}.json $HOSTURL 808${COUNTER}
+    # sudo /usr/local/bootstrap/scripts/consul_build_go_app_service.sh /usr/local/bootstrap/conf/consul.d/goapp.json /etc/consul.d/goapp${COUNTER}.json $HOSTURL 808${COUNTER}
     sudo cp /usr/local/bootstrap/conf/consul.d/redis.json /etc/consul.d/redis.json
     #SERVICE_DEFS_DIR="conf/consul.d"
     CONSUL_SCRIPTS="scripts"
