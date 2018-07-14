@@ -12,7 +12,6 @@ import (
 	vault "github.com/hashicorp/vault/api"
 	"strconv"
 	"flag"
-	datadog "github.com/allthingsclowd/datadoghelper"
 	"github.com/DataDog/datadog-go/statsd"
 )
 
