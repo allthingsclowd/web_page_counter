@@ -17,4 +17,4 @@ killall webcounter &>/dev/null
 cp webcounter /usr/local/bin/.
 cp -r /usr/local/bootstrap/templates /usr/local/bin/.
 
-nomad job run /usr/local/bootstrap/nomad_job.hcl
+#nomad job run /usr/local/bootstrap/nomad_job.hcl
