@@ -18,6 +18,7 @@ before_script:
   - if [ $VAGRANT_CLOUD_TOKEN ] ; then packer validate template.json ; fi
   - popd
   - bash scripts/install_consul.sh
+  - bash scripts/install_vault.sh
        
 script:
   - source ./var.env
@@ -27,4 +28,6 @@ script:
   - consul kv put "development/REDIS_MASTER_IP" "127.0.0.1"
   - consul kv put "development/REDIS_MASTER_PASSWORD" ""
   - consul kv put "development/LISTENER_COUNT" "1"
+  - sudo VAULT_ADDR=http://127.0.0.1:8200 vault kv put secret/development/REDIS_MASTER_PASSWORD value=""
+  - sudo VAULT_ADDR=http://127.0.0.1:8200 vault status
   - bash scripts/travis_run_go_app.sh

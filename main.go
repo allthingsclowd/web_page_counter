@@ -8,7 +8,8 @@ import (
 	"github.com/go-redis/redis"
 	"os"
 	"strings"
-	"github.com/hashicorp/consul/api"
+	consul "github.com/hashicorp/consul/api"
+	vault "github.com/hashicorp/vault/api"
 	"strconv"
 	"flag"
 	datadog "github.com/allthingsclowd/datadoghelper"
@@ -19,7 +20,7 @@ var redisClient *redis.Client
 var redisMaster string
 var redisPassword string
 var goapphealth = "GOOD"
-var consulClient *api.Client
+var consulClient *consul.Client
 var targetPort string
 var targetIP string
 var thisServer string
@@ -115,7 +116,41 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	
 }
 
-func getConsulKV(consulClient api.Client, key string) string {
+func getVaultKV(vaultKey string) string {
+	
+	// Get a new Consul client
+	consulClient, err := consul.NewClient(consul.DefaultConfig())
+	if err !=nil {
+		fmt.Printf("Failed to contact consul - Please ensure both local agent and remote server are running : e.g. consul members >> %v \n", err)
+		goapphealth="NOTGOOD"
+	}
+
+	vaultToken := getConsulKV(*consulClient, "VAULT_TOKEN")
+	vaultAddress := getConsulKV(*consulClient, "VAULT_ADDR")
+
+	// Get a handle to the Vault Secret KV API
+	vaultClient, err := vault.NewClient(&vault.Config{
+		Address: vaultAddress,
+	})
+
+	vaultClient.SetToken(vaultToken)
+
+	completeKeyPath := "secret/data/development/"+vaultKey
+
+	vaultSecret, err := vaultClient.Logical().Read(completeKeyPath)
+	if err != nil {
+		fmt.Printf("Failed to read VAULT key value %v - Please ensure the secret value exists in VAULT : e.g. vault kv get %v >> %v \n",vaultKey,vaultKey,err)
+		return "FAIL"
+	}
+
+	result := vaultSecret.Data["data"].(map[string]interface{})["value"]
+	//fmt.Printf("secret data.value %s -> %v \n", vaultKey, result)
+
+	return result.(string)
+}
+
+
+func getConsulKV(consulClient consul.Client, key string) string {
 	
 	// Get a handle to the KV API
 	kv := consulClient.KV()
@@ -137,7 +172,7 @@ func getConsulKV(consulClient api.Client, key string) string {
 	return string(appVar.Value)
 }
 
-func getConsulSVC(consulClient api.Client, key string) string {
+func getConsulSVC(consulClient consul.Client, key string) string {
 	
 	var serviceDetail strings.Builder
 	// get handle to catalog service api
@@ -161,13 +196,13 @@ func redisInit() (string, string) {
 	var redisPassword string
 	
 	// Get a new Consul client
-	consulClient, err := api.NewClient(api.DefaultConfig())
+	consulClient, err := consul.NewClient(consul.DefaultConfig())
 	if err !=nil {
 		fmt.Printf("Failed to contact consul - Please ensure both local agent and remote server are running : e.g. consul members >> %v \n", err)
 		goapphealth="NOTGOOD"
 	}
 
-	redisPassword = getConsulKV(*consulClient, "REDIS_MASTER_PASSWORD")
+	redisPassword = getVaultKV("REDIS_MASTER_PASSWORD")
 	redisService = getConsulSVC(*consulClient, "redis")
 	if redisService == "0" {
 		var serviceDetail strings.Builder
