@@ -20,7 +20,7 @@ var redisClient *redis.Client
 var redisMaster string
 var redisPassword string
 var goapphealth = "GOOD"
-var consulClient *api.Client
+var consulClient *consul.Client
 var targetPort string
 var targetIP string
 var thisServer string
@@ -135,13 +135,18 @@ func getVaultKV(vaultKey string) string {
 
 	vaultClient.SetToken(vaultToken)
 
-	vaultSecret, err := vaultClient.Logical().Read(vaultKey)
+	completeKeyPath := "secret/data/development/"+vaultKey
+
+	vaultSecret, err := vaultClient.Logical().Read(completeKeyPath)
 	if err != nil {
-		fmt.Printf("Failed to read VAULT key value %v - Please ensure the secret value exists in VAULT : e.g. vault kv get %v >> %v \n",err)
+		fmt.Printf("Failed to read VAULT key value %v - Please ensure the secret value exists in VAULT : e.g. vault kv get %v >> %v \n",vaultKey,vaultKey,err)
 		return "FAIL"
 	}
-	fmt.Printf("secret %s -> %v", vaultKey, vaultSecret)
-	return "Test"
+
+	result := vaultSecret.Data["data"].(map[string]interface{})["value"]
+	//fmt.Printf("secret data.value %s -> %v \n", vaultKey, result)
+
+	return result.(string)
 }
 
 
@@ -197,7 +202,7 @@ func redisInit() (string, string) {
 		goapphealth="NOTGOOD"
 	}
 
-	redisPassword = getConsulKV(*consulClient, "REDIS_MASTER_PASSWORD")
+	redisPassword = getVaultKV("REDIS_MASTER_PASSWORD")
 	redisService = getConsulSVC(*consulClient, "redis")
 	if redisService == "0" {
 		var serviceDetail strings.Builder
