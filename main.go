@@ -12,7 +12,7 @@ import (
 	vault "github.com/hashicorp/vault/api"
 	"strconv"
 	"flag"
-	datadog "github.com/allthingsclowd/datadoghelper"
+	"github.com/DataDog/datadog-go/statsd"
 )
 
 var templates *template.Template
@@ -73,8 +73,6 @@ func main() {
 	
 }
 
-
-
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	pagehits, err := redisClient.Incr("pagehits").Result()
 	if err != nil {
@@ -84,11 +82,11 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Printf("Successfully updated page counter to: %v \n", pagehits)
 	goapphealth="GOOD"
-	dataDog := datadog.UpdateDataDogGuagefromValue("pageCounter", "totalPageHits", float64(pagehits))
+	dataDog := updateDataDogGuagefromValue("pageCounter", "totalPageHits", float64(pagehits))
 	if !dataDog {
 		fmt.Printf("Failed to set datadog guage.")
 	}
-	dataDog = datadog.IncrementDataDogCounter("pageCounter", "currentPageHits")
+	dataDog = incrementDataDogCounter("pageCounter", "currentPageHits")
 	if !dataDog {
 		fmt.Printf("Failed to set datadog counter.")
 	}
@@ -216,4 +214,57 @@ func redisInit() (string, string) {
 	
 	return redisService, redisPassword
 
+}
+
+// UpdateDataDogGuagefromValue takes a namespace, guage name and guage value as input parameters
+// It sends the supplied guage value as it's dd guage value
+// to the local datadog agent
+func updateDataDogGuagefromValue(myNameSpace string, myGuage string, myValue float64) bool {
+	// get a pointer to the datadog agent
+    ddClient, err := statsd.New("127.0.0.1:8125")
+    defer ddClient.Close()
+    if err != nil {
+		fmt.Printf("Failed to contact DataDog Agent: %v. Check the DataDog agent is installed and running \n", err)
+		return false
+    }
+    // prefix every metric with the app name
+    ddClient.Namespace = myNameSpace
+    // send a tag with every metric
+	ddClient.Tags = append(ddClient.Tags, myGuage)
+	ddClient.Tags = append(ddClient.Tags, targetPort)
+    
+    // send value to DataDog agent
+    err = ddClient.Gauge(myGuage, myValue, nil, 1)
+    if err != nil {
+		fmt.Printf("Failed to send new Guage value to DataDog Agent: %v. Check the DataDog agent is installed and running \n", err)
+		return false
+    }
+    
+    return true
+}
+
+// IncrementDataDogCounter takes a namespace and counter name as input parameters
+// It sends an increment request to the supplied counter
+// to the local datadog agent
+func incrementDataDogCounter(myNameSpace string, myCounter string) bool {
+	// get a pointer to the datadog agent
+    ddClient, err := statsd.New("127.0.0.1:8125")
+    defer ddClient.Close()
+    if err != nil {
+		fmt.Printf("Failed to contact DataDog Agent: %v. Check the DataDog agent is installed and running \n", err)
+		return false
+    }
+    // prefix every metric with the app name
+    ddClient.Namespace = myNameSpace
+    // send a tag with every metric
+	ddClient.Tags = append(ddClient.Tags, myCounter)
+	ddClient.Tags = append(ddClient.Tags, targetPort)
+	
+    err = ddClient.Incr(myCounter, nil, 1)
+    if err != nil {
+		fmt.Printf("Failed to send counter increment to DataDog Agent: %v. Check the DataDog agent is installed and running \n", err)
+		return false
+    }
+    
+    return true
 }
