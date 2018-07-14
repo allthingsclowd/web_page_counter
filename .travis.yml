@@ -28,5 +28,6 @@ script:
   - consul kv put "development/REDIS_MASTER_IP" "127.0.0.1"
   - consul kv put "development/REDIS_MASTER_PASSWORD" ""
   - consul kv put "development/LISTENER_COUNT" "1"
-  - vault kv put secret/development/REDIS_MASTER_PASSWORD value=""
+  - sudo vault kv put secret/development/REDIS_MASTER_PASSWORD value=""
+  - sudo vault status
   - bash scripts/travis_run_go_app.sh
