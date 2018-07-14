@@ -2,7 +2,7 @@ job "peach" {
     datacenters = ["dc1"]
     type        = "service"
     group "example" {
-      count = 5
+      count = 6
       task "example" {
         driver = "raw_exec"
         config {
