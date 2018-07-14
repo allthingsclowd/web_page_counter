@@ -1,26 +1,24 @@
 ![https://travis-ci.org/allthingsclowd/web_page_counter.svg?branch=master](https://travis-ci.org/allthingsclowd/web_page_counter.svg?branch=master)
 
-# 
-What - Why | How
 
-# Web Page Counter - Golang, Redis & Nginx
-Golang webpage counter application server using two redis backend servers (master-slave config) and a nginx web-proxy frontend server. Traditional 3 tier application model.
+# Web Page Counter
+## An Introduction the new style of Cloud Infrastructure using HASHICORP's - PACKER, VAGRANT, CONSUL, NOMAD & VAGRANT
+
+These tools free up developers to focus on application development whilst giving operations teams a secure, flexible, scalable and governed infrastructure. These tools satisfy the most demanding cloud native applications of today but can still easily integrate with, deploy and manage traditional applications too.
+
+The application used is a simple GOLANG web page counter. (I'm not a dev so be gentle) It can easily be replaced with another app and is not the focus of this repository - please focus on the features and capabilities that the HASHICORP toolset provides.
+
+The webpage counter application uses a redis backend server, nginx web-proxy frontend server and a server that runs consul server, nomad server, and vault server. Clearly not a production setup.
 
 
 ![0dc20014-3036-44e5-aa43-0bddc3e5df7a](https://user-images.githubusercontent.com/9472095/42727319-66902a26-879c-11e8-8241-b68414eaffab.jpeg)
-
-
-
-
-## Purpose
-This repository was created to familiarise myself with Vagrant files
 
 ## Installation
 Simply clone this repository, source the environment variables file (var.env) and then build the vagrant environment as follows:
 
 ``` bash
-git clone git@github.com:allthingsclowd/golang_web_page_counter.git
-cd golang_web_page_counter
+git clone git@github.com:allthingsclowd/web_page_counter.git
+cd web_page_counter
 source var.env
 vagrant up
 ```
@@ -87,7 +85,7 @@ $ curl localhost:8080
 <html>
 <body>
 
-<h2 title="Golang Counter">Golang Webpage Counter
+<h2 title="Webpage Counter">Webpage Counter
    
     <div style=color:blue>7</div>
     </h2>
