@@ -231,7 +231,8 @@ func updateDataDogGuagefromValue(myNameSpace string, myGuage string, myValue flo
     // prefix every metric with the app name
     ddClient.Namespace = myNameSpace
     // send a tag with every metric
-    ddClient.Tags = append(ddClient.Tags, myGuage)
+	ddClient.Tags = append(ddClient.Tags, myGuage)
+	ddClient.Tags = append(ddClient.Tags, targetPort)
     
     // send value to DataDog agent
     err = ddClient.Gauge(myGuage, myValue, nil, 1)
@@ -257,7 +258,8 @@ func incrementDataDogCounter(myNameSpace string, myCounter string) bool {
     // prefix every metric with the app name
     ddClient.Namespace = myNameSpace
     // send a tag with every metric
-    ddClient.Tags = append(ddClient.Tags, myCounter)
+	ddClient.Tags = append(ddClient.Tags, myCounter)
+	ddClient.Tags = append(ddClient.Tags, targetPort)
 	
     err = ddClient.Incr(myCounter, nil, 1)
     if err != nil {
