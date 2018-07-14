@@ -82,11 +82,11 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Printf("Successfully updated page counter to: %v \n", pagehits)
 	goapphealth="GOOD"
-	dataDog := updateDataDogGuagefromValue("pageCounter", "totalPageHits", float64(pagehits))
+	dataDog := updateDataDogGuagefromValue("WebCounter", targetPort, "TotalPageHits", float64(pagehits))
 	if !dataDog {
 		fmt.Printf("Failed to set datadog guage.")
 	}
-	dataDog = incrementDataDogCounter("pageCounter", "currentPageHits")
+	dataDog = incrementDataDogCounter("WebCounter", targetPort, "PageHits")
 	if !dataDog {
 		fmt.Printf("Failed to set datadog counter.")
 	}
@@ -219,7 +219,7 @@ func redisInit() (string, string) {
 // UpdateDataDogGuagefromValue takes a namespace, guage name and guage value as input parameters
 // It sends the supplied guage value as it's dd guage value
 // to the local datadog agent
-func updateDataDogGuagefromValue(myNameSpace string, myGuage string, myValue float64) bool {
+func updateDataDogGuagefromValue(myNameSpace string, myTag string, myGuage string, myValue float64) bool {
 	// get a pointer to the datadog agent
     ddClient, err := statsd.New("127.0.0.1:8125")
     defer ddClient.Close()
@@ -230,8 +230,7 @@ func updateDataDogGuagefromValue(myNameSpace string, myGuage string, myValue flo
     // prefix every metric with the app name
     ddClient.Namespace = myNameSpace
     // send a tag with every metric
-	ddClient.Tags = append(ddClient.Tags, myGuage)
-	ddClient.Tags = append(ddClient.Tags, targetPort)
+	ddClient.Tags = append(ddClient.Tags, "port:"+myTag)
     
     // send value to DataDog agent
     err = ddClient.Gauge(myGuage, myValue, nil, 1)
@@ -246,7 +245,7 @@ func updateDataDogGuagefromValue(myNameSpace string, myGuage string, myValue flo
 // IncrementDataDogCounter takes a namespace and counter name as input parameters
 // It sends an increment request to the supplied counter
 // to the local datadog agent
-func incrementDataDogCounter(myNameSpace string, myCounter string) bool {
+func incrementDataDogCounter(myNameSpace string, myTag string, myCounter string) bool {
 	// get a pointer to the datadog agent
     ddClient, err := statsd.New("127.0.0.1:8125")
     defer ddClient.Close()
@@ -257,8 +256,7 @@ func incrementDataDogCounter(myNameSpace string, myCounter string) bool {
     // prefix every metric with the app name
     ddClient.Namespace = myNameSpace
     // send a tag with every metric
-	ddClient.Tags = append(ddClient.Tags, myCounter)
-	ddClient.Tags = append(ddClient.Tags, targetPort)
+	ddClient.Tags = append(ddClient.Tags, "port:"+myTag)
 	
     err = ddClient.Incr(myCounter, nil, 1)
     if err != nil {
