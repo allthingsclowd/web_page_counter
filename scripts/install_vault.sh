@@ -18,22 +18,22 @@ fi
 which /usr/local/bin/vault &>/dev/null || {
     pushd /usr/local/bin
     [ -f vault_0.10.3_linux_amd64.zip ] || {
-        wget https://releases.hashicorp.com/vault/0.10.3/vault_0.10.3_linux_amd64.zip
+        sudo wget https://releases.hashicorp.com/vault/0.10.3/vault_0.10.3_linux_amd64.zip
     }
-    unzip vault_0.10.3_linux_amd64.zip
-    chmod +x vault
+    sudo unzip vault_0.10.3_linux_amd64.zip
+    sudo chmod +x vault
     popd
 }
 
 #vault
 
 #lets kill past instance
-killall vault &>/dev/null
+sudo killall vault &>/dev/null
 
 #lets delete old consul storage
-consul kv delete -recurse vault
+sudo consul kv delete -recurse vault
 
-/usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/usr/local/bootstrap/conf/vault.hcl &> ${LOG} &
+sudo /usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/usr/local/bootstrap/conf/vault.hcl &> ${LOG} &
 sleep 3
 VAULT_ADDR="http://${IP}:8200" vault kv put secret/hello value=world
 VAULT_ADDR="http://${IP}:8200" vault kv get secret/hello
