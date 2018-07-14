@@ -5,6 +5,7 @@ What - Why | How
 
 # Web Page Counter - Golang, Redis & Nginx
 Golang webpage counter application server using two redis backend servers (master-slave config) and a nginx web-proxy frontend server. Traditional 3 tier application model.
+![7ceda71b-03b7-4e16-a6e0-1a59e0a30623](https://user-images.githubusercontent.com/9472095/42727268-5bde90d2-879b-11e8-8b08-637e421e6b66.png)
 
 ![image](https://user-images.githubusercontent.com/9472095/40512492-eadca63a-5f9a-11e8-89cc-392ad30c9cf7.png)
 
@@ -37,7 +38,7 @@ $ curl localhost:9090
 <html>
 <body>
 
-<h2 title="Golang Counter">Golang Webpage Counter
+<h2 title="Webpage Counter">Webpage Counter
    
     <div style=color:blue>6</div>
     </h2>
