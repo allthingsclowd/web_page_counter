@@ -44,7 +44,7 @@ echo vault started
 export VAULT_ADDR=`cat -v ${LOG} | grep -i '$ export' | awk 'BEGIN {FS="="}{ print $2}'| tr -d \'`
 export VAULT_TOKEN=`cat -v ${LOG} | grep -i 'Root Token:' | awk 'BEGIN {FS=":"}{ print $2}'| tr -d " "`
 VAULT_REDIS_PASSWORD=`cat -v /usr/local/bootstrap/var.env | grep -i 'export REDIS_MASTER_PASSWORD' | awk 'BEGIN {FS="="}{ print $2}'`
-sudo vault kv put secret/development/REDIS_MASTER_PASSWORD value=${VAULT_REDIS_PASSWORD}
+sudo VAULT_ADDR="http://${IP}:8200" vault kv put secret/development/REDIS_MASTER_PASSWORD value=${VAULT_REDIS_PASSWORD}
 consul kv put "development/VAULT_ADDR" ${VAULT_ADDR}
 consul kv put "development/VAULT_TOKEN" ${VAULT_TOKEN}
 
