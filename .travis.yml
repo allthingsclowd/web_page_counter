@@ -18,6 +18,7 @@ before_script:
   - if [ $VAGRANT_CLOUD_TOKEN ] ; then packer validate template.json ; fi
   - popd
   - bash scripts/install_consul.sh
+  - bash scripts/install_vault.sh
        
 script:
   - source ./var.env
