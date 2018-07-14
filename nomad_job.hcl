@@ -21,6 +21,12 @@ job "peach" {
         service {
           name = "goapp-${NOMAD_PORT_http}"
           port = "http"
+          check {
+            type     = "http"
+            path     = "/health"
+            interval = "10s"
+            timeout  = "2s"
+          }
         }
       }
     }
