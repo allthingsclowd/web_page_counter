@@ -11,6 +11,10 @@ else
   LOG="consul.log"
 fi
 
+if [ "${TRAVIS}" == "true" ]; then
+IP=${IP:-127.0.0.1}
+fi
+
 which /usr/local/bin/vault &>/dev/null || {
     pushd /usr/local/bin
     [ -f vault_0.10.3_linux_amd64.zip ] || {
