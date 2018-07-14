@@ -22,6 +22,7 @@ job "peach" {
           name = "goapp-${NOMAD_PORT_http}"
           port = "http"
           check {
+            name     = "http-check-goapp-${NOMAD_PORT_http}"
             type     = "http"
             path     = "/health"
             interval = "10s"
@@ -29,7 +30,7 @@ job "peach" {
           }
           check {
             type     = "script"
-            name     = "api-check"
+            name     = "api-check-goapp-${NOMAD_PORT_http}"
             command  = "/usr/local/bin/consul_goapp_verify.sh"
             args     = ["http://127.0.0.1:${NOMAD_PORT_http}/health"]
             interval = "60s"
