@@ -55,9 +55,10 @@ $ curl localhost:9090
 $ vagrant status
 Current machine states:
 
+leader01                   running (virtualbox)
 redis01                   running (virtualbox)
-redis02                   running (virtualbox)
 godev01                   running (virtualbox)
+godev02                   running (virtualbox)
 web01                     running (virtualbox)
 
 This environment represents multiple VMs. The VMs are all listed
@@ -76,7 +77,7 @@ OK
 "hello"
 127.0.0.1:6379>
  ```
- Redis master server is good, now to check the slave server (redis02) just repeat the steps shown above. Instead of setting foo simply read it back to verify it has synced across from the master.
+ Redis master server is good.
 
   - The application server is also port mapped to the host on 8080 so we can by-pass the nginx proxy server by calling this port directly
   ``` bash
@@ -98,17 +99,12 @@ $ curl localhost:8080
 ## TODO
 
 ### Refactor
-* Add tag that includes port details to ddog metric
-* Add service checks/tests to nomad job
-* Move all logs to `/vagrant/logs/`
 
 
 ### A
-* Move Redis Password into VAULT KV
 
 
-
-### D
+### Stretch Goals
 * Use Consul KV as a temporary cache whilst Redis server is unavailable
 * Metrics: Consul KV versus Vault KV - test with 100-1000 entries
 
@@ -165,6 +161,10 @@ $ curl localhost:8080
 * Rollback to a single network ip on the vagrantfile
 * Don't execute the goapp upon installation - nomad will be used to do this later
 * Write a nomad job using the raw_exec driver (NOT DOCKER) to launch the application ONCE on any node
+* Add tag that includes port details to ddog metric
+* Add service checks/tests to nomad job
+* Move all logs to `/vagrant/logs/`
+* Move Redis Password into VAULT KV
 
 
 
