@@ -25,14 +25,16 @@ which /usr/local/bin/vault &>/dev/null || {
     popd
 }
 
-#vault
-
 #lets kill past instance
 sudo killall vault &>/dev/null
 
 #lets delete old consul storage
 sudo consul kv delete -recurse vault
 
+#delete old token if present
+[ -f /usr/local/bootstrap/.vault-token ] && sudo rm /usr/local/bootstrap/.vault-token
+
+#start vault
 sudo /usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/usr/local/bootstrap/conf/vault.hcl &> ${LOG} &
 echo vault started
 sleep 3
@@ -48,6 +50,3 @@ sudo chmod ugo+r /usr/local/bootstrap/.vault-token
 VAULT_REDIS_PASSWORD=`cat -v /usr/local/bootstrap/var.env | grep -i 'export REDIS_MASTER_PASSWORD' | awk 'BEGIN {FS="="}{ print $2}'`
 sudo VAULT_ADDR="http://${IP}:8200" vault kv put secret/development/REDIS_MASTER_PASSWORD value=${VAULT_REDIS_PASSWORD}
 sudo VAULT_ADDR="http://${IP}:8200" vault kv get secret/development/REDIS_MASTER_PASSWORD
-
-consul kv put "development/VAULT_TOKEN" "`cat /usr/local/bootstrap/.vault-token`"
-consul kv get "development/VAULT_TOKEN"
