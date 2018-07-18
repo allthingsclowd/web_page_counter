@@ -102,6 +102,7 @@ $ curl localhost:8080
 
 
 ### A
+* Move Redis Password into VAULT KV
 
 
 ### Stretch Goals
@@ -164,7 +165,7 @@ $ curl localhost:8080
 * Add tag that includes port details to ddog metric
 * Add service checks/tests to nomad job
 * Move all logs to `/vagrant/logs/`
-* Move Redis Password into VAULT KV
+
 
 
 
