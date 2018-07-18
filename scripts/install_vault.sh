@@ -34,17 +34,16 @@ sudo killall vault &>/dev/null
 sudo consul kv delete -recurse vault
 
 sudo /usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/usr/local/bootstrap/conf/vault.hcl &> ${LOG} &
+echo vault started
+sudo cp ~/.vault-token /usr/local/bootstrap/.vault-token
 sleep 3
 sudo VAULT_ADDR="http://${IP}:8200" vault kv put secret/hello value=world
 sudo VAULT_ADDR="http://${IP}:8200" vault kv get secret/hello
 
-echo vault started
 
-#don't do this in production - hack for lazy dev only!!!!!
-export VAULT_ADDR=`cat -v ${LOG} | grep -i '$ export' | awk 'BEGIN {FS="="}{ print $2}'| tr -d \'`
-export VAULT_TOKEN=`cat -v ${LOG} | grep -i 'Root Token:' | awk 'BEGIN {FS=":"}{ print $2}'| tr -d " "`
+export VAULT_TOKEN=`cat /usr/local/bootstrap/.vault-token`
 VAULT_REDIS_PASSWORD=`cat -v /usr/local/bootstrap/var.env | grep -i 'export REDIS_MASTER_PASSWORD' | awk 'BEGIN {FS="="}{ print $2}'`
 sudo VAULT_ADDR="http://${IP}:8200" vault kv put secret/development/REDIS_MASTER_PASSWORD value=${VAULT_REDIS_PASSWORD}
+
 consul kv put "development/VAULT_ADDR" ${VAULT_ADDR}
 consul kv put "development/VAULT_TOKEN" ${VAULT_TOKEN}
-
