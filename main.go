@@ -129,8 +129,8 @@ func getVaultKV(vaultKey string) string {
 	if err != nil {
 		fmt.Print(err)
 	}
-
 	vaultToken := string(vaultTokenFile)
+
 	vaultIP := getConsulKV(*consulClient, "LEADER_IP")
 	vaultAddress := "http://" + vaultIP + ":8200"
 
@@ -145,12 +145,11 @@ func getVaultKV(vaultKey string) string {
 
 	vaultSecret, err := vaultClient.Logical().Read(completeKeyPath)
 	if err != nil {
-		fmt.Printf("Failed to read VAULT key value %v - Please ensure the secret value exists in VAULT : e.g. vault kv get %v >> %v \n", vaultKey, vaultKey, err)
+		fmt.Printf("Failed to read VAULT key value %v - Please ensure the secret value exists in VAULT : e.g. vault kv get %v >> %v \n", vaultKey, completeKeyPath, err)
 		return "FAIL"
 	}
 
 	result := vaultSecret.Data["data"].(map[string]interface{})["value"]
-	//fmt.Printf("secret data.value %s -> %v \n", vaultKey, result)
 
 	return result.(string)
 }

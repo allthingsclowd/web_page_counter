@@ -12,6 +12,8 @@ cd $HOME/gopath/src/github.com/allthingsclowd/web_page_counter
 go get -t -v ./...
 go build -o webcounter main.go
 chmod +x webcounter
+
+nomad job stop peach &>/dev/null
 killall webcounter &>/dev/null
 cp webcounter /usr/local/bin/.
 cp -r /usr/local/bootstrap/templates /usr/local/bin/.
