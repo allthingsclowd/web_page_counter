@@ -35,7 +35,7 @@ sudo consul kv delete -recurse vault
 
 sudo /usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/usr/local/bootstrap/conf/vault.hcl &> ${LOG} &
 echo vault started
-sudo cp /root/.vault-token /usr/local/bootstrap/.vault-token
+sudo cp ~/.vault-token /usr/local/bootstrap/.vault-token
 sleep 3
 sudo VAULT_ADDR="http://${IP}:8200" vault kv put secret/hello value=world
 sudo VAULT_ADDR="http://${IP}:8200" vault kv get secret/hello
