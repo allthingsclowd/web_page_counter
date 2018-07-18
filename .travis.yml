@@ -19,6 +19,7 @@ before_script:
   - popd
   - bash scripts/install_consul.sh
   - bash scripts/install_vault.sh
+  - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
        
 script:
   - source ./var.env
@@ -29,5 +30,6 @@ script:
   - consul kv put "development/REDIS_MASTER_PASSWORD" ""
   - consul kv put "development/LISTENER_COUNT" "1"
   - sudo VAULT_ADDR=http://127.0.0.1:8200 vault kv put secret/development/REDIS_MASTER_PASSWORD value=""
+  - sudo VAULT_ADDR=http://127.0.0.1:8200 vault kv get secret/development/REDIS_MASTER_PASSWORD
   - sudo VAULT_ADDR=http://127.0.0.1:8200 vault status
   - bash scripts/travis_run_go_app.sh
