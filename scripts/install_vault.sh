@@ -35,19 +35,21 @@ sudo consul kv delete -recurse vault
 
 sudo /usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/usr/local/bootstrap/conf/vault.hcl &> ${LOG} &
 echo vault started
-find / -name '.vault-token' -exec sudo cp {} /usr/local/bootstrap/.vault-token \;
 sleep 3
+
+#test vault kv works
 sudo VAULT_ADDR="http://${IP}:8200" vault kv put secret/hello value=world
 sudo VAULT_ADDR="http://${IP}:8200" vault kv get secret/hello
 
+#copy token to known location
+sudo find / -name '.vault-token' -exec sudo cp {} /usr/local/bootstrap/.vault-token \; 2>/dev/null
 
-export VAULT_TOKEN=`cat /usr/local/bootstrap/.vault-token`
 VAULT_REDIS_PASSWORD=`cat -v /usr/local/bootstrap/var.env | grep -i 'export REDIS_MASTER_PASSWORD' | awk 'BEGIN {FS="="}{ print $2}'`
 sudo VAULT_ADDR="http://${IP}:8200" vault kv put secret/development/REDIS_MASTER_PASSWORD value=${VAULT_REDIS_PASSWORD}
 sudo VAULT_ADDR="http://${IP}:8200" vault kv get secret/development/REDIS_MASTER_PASSWORD
 
-consul kv put "development/VAULT_ADDR" ${VAULT_ADDR}
-consul kv put "development/VAULT_TOKEN" ${VAULT_TOKEN}
+consul kv put "development/VAULT_ADDR" "http://${IP}:8200"
+consul kv put "development/VAULT_TOKEN" "`cat /usr/local/bootstrap/.vault-token`"
 
 consul kv get "development/VAULT_ADDR"
 consul kv get "development/VAULT_TOKEN"
