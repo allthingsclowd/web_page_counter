@@ -43,6 +43,7 @@ sudo VAULT_ADDR="http://${IP}:8200" vault kv get secret/hello
 
 #copy token to known location
 sudo find / -name '.vault-token' -exec sudo cp {} /usr/local/bootstrap/.vault-token \; 2>/dev/null
+sudo chmod ugo+r /usr/local/bootstrap/.vault-token
 
 VAULT_REDIS_PASSWORD=`cat -v /usr/local/bootstrap/var.env | grep -i 'export REDIS_MASTER_PASSWORD' | awk 'BEGIN {FS="="}{ print $2}'`
 sudo VAULT_ADDR="http://${IP}:8200" vault kv put secret/development/REDIS_MASTER_PASSWORD value=${VAULT_REDIS_PASSWORD}
