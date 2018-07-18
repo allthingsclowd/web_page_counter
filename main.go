@@ -1,18 +1,19 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"net/http"
-	"github.com/gorilla/mux"
 	"html/template"
-	"github.com/go-redis/redis"
+	"net/http"
 	"os"
+	"strconv"
 	"strings"
+
+	"github.com/DataDog/datadog-go/statsd"
+	"github.com/go-redis/redis"
+	"github.com/gorilla/mux"
 	consul "github.com/hashicorp/consul/api"
 	vault "github.com/hashicorp/vault/api"
-	"strconv"
-	"flag"
-	"github.com/DataDog/datadog-go/statsd"
 )
 
 var templates *template.Template
@@ -27,14 +28,14 @@ var thisServer string
 
 func main() {
 	// set the port that the goapp will listen on - defaults to 8080
-	
+
 	portPtr := flag.Int("port", 8080, "Default's to port 8080. Use -port=nnnn to use listen on an alternate port.")
 	ipPtr := flag.String("ip", "0.0.0.0", "Default's to all interfaces by using 0.0.0.0")
 	templatePtr := flag.String("templates", "templates/*.html", "Default's to templates/*.html -templates=????")
 	flag.Parse()
 	targetPort = strconv.Itoa(*portPtr)
 	targetIP = *ipPtr
-	thisServer, _= os.Hostname()
+	thisServer, _ = os.Hostname()
 	fmt.Printf("Incoming port number: %s \n", targetPort)
 	redisMaster, redisPassword = redisInit()
 
@@ -48,13 +49,13 @@ func main() {
 		redisClient = redis.NewClient(&redis.Options{
 			Addr:     redisMaster,
 			Password: redisPassword,
-			DB:       0,  // use default DB
+			DB:       0, // use default DB
 		})
-		
+
 		_, err := redisClient.Ping().Result()
 		if err != nil {
 			fmt.Printf("Failed to ping Redis: %v. Check the Redis service is running \n", err)
-			goapphealth="NOTGOOD"
+			goapphealth = "NOTGOOD"
 		}
 	}
 
@@ -70,18 +71,18 @@ func main() {
 	r.HandleFunc("/health", healthHandler).Methods("GET")
 	http.Handle("/", r)
 	http.ListenAndServe(portDetail.String(), r)
-	
+
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	pagehits, err := redisClient.Incr("pagehits").Result()
 	if err != nil {
 		fmt.Printf("Failed to increment page counter: %v. Check the Redis service is running \n", err)
-		goapphealth="NOTGOOD"
+		goapphealth = "NOTGOOD"
 		pagehits = 0
 	}
 	fmt.Printf("Successfully updated page counter to: %v \n", pagehits)
-	goapphealth="GOOD"
+	goapphealth = "GOOD"
 	dataDog := updateDataDogGuagefromValue("WebCounter", targetPort, "TotalPageHits", float64(pagehits))
 	if !dataDog {
 		fmt.Printf("Failed to set datadog guage.")
@@ -93,16 +94,16 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("PageCountIP", targetIP)
 	w.Header().Set("PageCountServer", thisServer)
 	w.Header().Set("PageCountPort", targetPort)
-	 
+
 	pageErr := templates.ExecuteTemplate(w, "index.html", pagehits)
 	if pageErr != nil {
 		fmt.Printf("Failed to Load Application Status Page: %v \n", pageErr)
 	}
-	
+
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
-	
+
 	fmt.Printf("Application Status: %v \n", goapphealth)
 	w.Header().Set("PageCountIP", targetIP)
 	w.Header().Set("PageCountServer", thisServer)
@@ -111,20 +112,21 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Printf("Failed to Load Application Status Page: %v \n", err)
 	}
-	
+
 }
 
 func getVaultKV(vaultKey string) string {
-	
+
 	// Get a new Consul client
 	consulClient, err := consul.NewClient(consul.DefaultConfig())
-	if err !=nil {
+	if err != nil {
 		fmt.Printf("Failed to contact consul - Please ensure both local agent and remote server are running : e.g. consul members >> %v \n", err)
-		goapphealth="NOTGOOD"
+		goapphealth = "NOTGOOD"
 	}
 
 	vaultToken := getConsulKV(*consulClient, "VAULT_TOKEN")
-	vaultAddress := getConsulKV(*consulClient, "VAULT_ADDR")
+	vaultIP := getConsulKV(*consulClient, "LEADER_IP")
+	vaultAddress := "http://" + vaultIP + ":8200"
 
 	// Get a handle to the Vault Secret KV API
 	vaultClient, err := vault.NewClient(&vault.Config{
@@ -133,11 +135,11 @@ func getVaultKV(vaultKey string) string {
 
 	vaultClient.SetToken(vaultToken)
 
-	completeKeyPath := "secret/data/development/"+vaultKey
+	completeKeyPath := "secret/data/development/" + vaultKey
 
 	vaultSecret, err := vaultClient.Logical().Read(completeKeyPath)
 	if err != nil {
-		fmt.Printf("Failed to read VAULT key value %v - Please ensure the secret value exists in VAULT : e.g. vault kv get %v >> %v \n",vaultKey,vaultKey,err)
+		fmt.Printf("Failed to read VAULT key value %v - Please ensure the secret value exists in VAULT : e.g. vault kv get %v >> %v \n", vaultKey, vaultKey, err)
 		return "FAIL"
 	}
 
@@ -147,22 +149,21 @@ func getVaultKV(vaultKey string) string {
 	return result.(string)
 }
 
-
 func getConsulKV(consulClient consul.Client, key string) string {
-	
+
 	// Get a handle to the KV API
 	kv := consulClient.KV()
 
-	consulKey := "development/"+key
+	consulKey := "development/" + key
 
 	appVar, _, err := kv.Get(consulKey, nil)
 	if err != nil {
-		fmt.Printf("Failed to read key value %v - Please ensure key value exists in consul : e.g. consul kv get %v >> %v \n",key,key, err)
+		fmt.Printf("Failed to read key value %v - Please ensure key value exists in consul : e.g. consul kv get %v >> %v \n", key, key, err)
 		appVar, ok := os.LookupEnv(key)
 		if ok {
 			return appVar
 		}
-		fmt.Printf("Failed to read environment variable %v - Please ensure %v variable is set >> %v \n",key,key, err)
+		fmt.Printf("Failed to read environment variable %v - Please ensure %v variable is set >> %v \n", key, key, err)
 		return "FAIL"
 
 	}
@@ -171,7 +172,7 @@ func getConsulKV(consulClient consul.Client, key string) string {
 }
 
 func getConsulSVC(consulClient consul.Client, key string) string {
-	
+
 	var serviceDetail strings.Builder
 	// get handle to catalog service api
 	sd := consulClient.Catalog()
@@ -187,17 +188,17 @@ func getConsulSVC(consulClient consul.Client, key string) string {
 
 	return serviceDetail.String()
 }
-	
+
 func redisInit() (string, string) {
-	
+
 	var redisService string
 	var redisPassword string
-	
+
 	// Get a new Consul client
 	consulClient, err := consul.NewClient(consul.DefaultConfig())
-	if err !=nil {
+	if err != nil {
 		fmt.Printf("Failed to contact consul - Please ensure both local agent and remote server are running : e.g. consul members >> %v \n", err)
-		goapphealth="NOTGOOD"
+		goapphealth = "NOTGOOD"
 	}
 
 	redisPassword = getVaultKV("REDIS_MASTER_PASSWORD")
@@ -211,7 +212,7 @@ func redisInit() (string, string) {
 		serviceDetail.WriteString(redisPort)
 		redisService = serviceDetail.String()
 	}
-	
+
 	return redisService, redisPassword
 
 }
@@ -221,25 +222,25 @@ func redisInit() (string, string) {
 // to the local datadog agent
 func updateDataDogGuagefromValue(myNameSpace string, myTag string, myGuage string, myValue float64) bool {
 	// get a pointer to the datadog agent
-    ddClient, err := statsd.New("127.0.0.1:8125")
-    defer ddClient.Close()
-    if err != nil {
+	ddClient, err := statsd.New("127.0.0.1:8125")
+	defer ddClient.Close()
+	if err != nil {
 		fmt.Printf("Failed to contact DataDog Agent: %v. Check the DataDog agent is installed and running \n", err)
 		return false
-    }
-    // prefix every metric with the app name
-    ddClient.Namespace = myNameSpace
-    // send a tag with every metric
+	}
+	// prefix every metric with the app name
+	ddClient.Namespace = myNameSpace
+	// send a tag with every metric
 	ddClient.Tags = append(ddClient.Tags, "port:"+myTag)
-    
-    // send value to DataDog agent
-    err = ddClient.Gauge(myGuage, myValue, nil, 1)
-    if err != nil {
+
+	// send value to DataDog agent
+	err = ddClient.Gauge(myGuage, myValue, nil, 1)
+	if err != nil {
 		fmt.Printf("Failed to send new Guage value to DataDog Agent: %v. Check the DataDog agent is installed and running \n", err)
 		return false
-    }
-    
-    return true
+	}
+
+	return true
 }
 
 // IncrementDataDogCounter takes a namespace and counter name as input parameters
@@ -247,22 +248,22 @@ func updateDataDogGuagefromValue(myNameSpace string, myTag string, myGuage strin
 // to the local datadog agent
 func incrementDataDogCounter(myNameSpace string, myTag string, myCounter string) bool {
 	// get a pointer to the datadog agent
-    ddClient, err := statsd.New("127.0.0.1:8125")
-    defer ddClient.Close()
-    if err != nil {
+	ddClient, err := statsd.New("127.0.0.1:8125")
+	defer ddClient.Close()
+	if err != nil {
 		fmt.Printf("Failed to contact DataDog Agent: %v. Check the DataDog agent is installed and running \n", err)
 		return false
-    }
-    // prefix every metric with the app name
-    ddClient.Namespace = myNameSpace
-    // send a tag with every metric
+	}
+	// prefix every metric with the app name
+	ddClient.Namespace = myNameSpace
+	// send a tag with every metric
 	ddClient.Tags = append(ddClient.Tags, "port:"+myTag)
-	
-    err = ddClient.Incr(myCounter, nil, 1)
-    if err != nil {
+
+	err = ddClient.Incr(myCounter, nil, 1)
+	if err != nil {
 		fmt.Printf("Failed to send counter increment to DataDog Agent: %v. Check the DataDog agent is installed and running \n", err)
 		return false
-    }
-    
-    return true
+	}
+
+	return true
 }

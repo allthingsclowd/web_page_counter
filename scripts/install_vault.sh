@@ -49,8 +49,5 @@ VAULT_REDIS_PASSWORD=`cat -v /usr/local/bootstrap/var.env | grep -i 'export REDI
 sudo VAULT_ADDR="http://${IP}:8200" vault kv put secret/development/REDIS_MASTER_PASSWORD value=${VAULT_REDIS_PASSWORD}
 sudo VAULT_ADDR="http://${IP}:8200" vault kv get secret/development/REDIS_MASTER_PASSWORD
 
-consul kv put "development/VAULT_ADDR" "http://${IP}:8200"
 consul kv put "development/VAULT_TOKEN" "`cat /usr/local/bootstrap/.vault-token`"
-
-consul kv get "development/VAULT_ADDR"
 consul kv get "development/VAULT_TOKEN"
