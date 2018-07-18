@@ -3,8 +3,12 @@ set -x
 
 source /usr/local/bootstrap/var.env
 
-# check goapp binary
+# copy vault token to known location if present
+[ -f /usr/local/bootstrap/.vault-token ] && {
+    sudo cp  /usr/local/bootstrap/.vault-token /root/.vault-token
+}
 
+# check goapp binary
 export GOPATH=$HOME/gopath
 export PATH=$HOME/gopath/bin:$PATH
 mkdir -p $HOME/gopath/src/github.com/allthingsclowd/web_page_counter
