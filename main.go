@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
@@ -124,7 +125,12 @@ func getVaultKV(vaultKey string) string {
 		goapphealth = "NOTGOOD"
 	}
 
-	vaultToken := getConsulKV(*consulClient, "VAULT_TOKEN")
+	vaultTokenFile, err := ioutil.ReadFile("/usr/local/bootstrap/.vault-token")
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	vaultToken := string(vaultTokenFile)
 	vaultIP := getConsulKV(*consulClient, "LEADER_IP")
 	vaultAddress := "http://" + vaultIP + ":8200"
 
