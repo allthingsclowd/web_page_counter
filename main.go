@@ -81,25 +81,28 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Failed to increment page counter: %v. Check the Redis service is running \n", err)
 		goapphealth = "NOTGOOD"
 		pagehits = 0
-	}
-	fmt.Printf("Successfully updated page counter to: %v \n", pagehits)
-	goapphealth = "GOOD"
-	dataDog := updateDataDogGuagefromValue("WebCounter", targetPort, "TotalPageHits", float64(pagehits))
-	if !dataDog {
-		fmt.Printf("Failed to set datadog guage.")
-	}
-	dataDog = incrementDataDogCounter("WebCounter", targetPort, "PageHits")
-	if !dataDog {
-		fmt.Printf("Failed to set datadog counter.")
-	}
-	w.Header().Set("PageCountIP", targetIP)
-	w.Header().Set("PageCountServer", thisServer)
-	w.Header().Set("PageCountPort", targetPort)
+	} else {
+		fmt.Printf("Successfully updated page counter to: %v \n", pagehits)
+		goapphealth = "GOOD"
+		dataDog := updateDataDogGuagefromValue("WebCounter", targetPort, "TotalPageHits", float64(pagehits))
+		if !dataDog {
+			fmt.Printf("Failed to set datadog guage.")
+		}
+		dataDog = incrementDataDogCounter("WebCounter", targetPort, "PageHits")
+		if !dataDog {
+			fmt.Printf("Failed to set datadog counter.")
+		}
+		w.Header().Set("PageCountIP", targetIP)
+		w.Header().Set("PageCountServer", thisServer)
+		w.Header().Set("PageCountPort", targetPort)
+	
+		pageErr := templates.ExecuteTemplate(w, "index.html", pagehits)
+		if pageErr != nil {
+			fmt.Printf("Failed to Load Application Status Page: %v \n", pageErr)
+		}
 
-	pageErr := templates.ExecuteTemplate(w, "index.html", pagehits)
-	if pageErr != nil {
-		fmt.Printf("Failed to Load Application Status Page: %v \n", pageErr)
 	}
+
 
 }
 
