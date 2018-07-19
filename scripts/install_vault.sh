@@ -44,7 +44,7 @@ sudo VAULT_ADDR="http://${IP}:8200" vault kv put secret/hello value=world
 sudo VAULT_ADDR="http://${IP}:8200" vault kv get secret/hello
 
 #copy token to known location
-sudo find / -name '.vault-token' -exec sudo cp {} /usr/local/bootstrap/.vault-token \; 2>/dev/null
+sudo find / -name '.vault-token' -exec cp {} /usr/local/bootstrap/.vault-token \; -quit
 sudo chmod ugo+r /usr/local/bootstrap/.vault-token
 
 #write in vault REDIS_MASTER_PASSWORD
