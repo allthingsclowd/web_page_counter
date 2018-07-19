@@ -99,6 +99,7 @@ $ curl localhost:8080
 ## TODO
 
 ### Refactor
+* Add UI ability to terminate current go-app service - facilitate quicker nomad demo - either add button to main page or create new endpoint feature
 
 
 ### A
