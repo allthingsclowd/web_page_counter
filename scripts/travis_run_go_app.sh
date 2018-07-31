@@ -4,8 +4,8 @@
 sleep 5
 
 go get ./...
-go build main.go
-./main &
+go build -o webcounter main.go
+./webcounter &
 
 page_hit_counter=`lynx --dump http://localhost:8080 | awk 'NR>2{ print $1 }'`
 echo $page_hit_counter
