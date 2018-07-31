@@ -18,5 +18,6 @@ killall webcounter &>/dev/null
 cp webcounter /usr/local/bin/.
 cp -r /usr/local/bootstrap/templates /usr/local/bin/.
 cp /usr/local/bootstrap/scripts/consul_goapp_verify.sh /usr/local/bin/.
+ls -al /home/travis/gopath/src/github.com/allthingsclowd/web_page_counter/webcounter
 
 nomad job run /usr/local/bootstrap/nomad_job.hcl
