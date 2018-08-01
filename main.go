@@ -71,6 +71,7 @@ func main() {
 	r.HandleFunc("/", indexHandler).Methods("GET")
 	r.HandleFunc("/health", healthHandler).Methods("GET")
 	r.HandleFunc("/crash", crashHandler).Methods("POST")
+	r.HandleFunc("/crash", indexHandler).Methods("GET")
 	http.Handle("/", r)
 	http.ListenAndServe(portDetail.String(), r)
 
