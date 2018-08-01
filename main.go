@@ -123,7 +123,7 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 func crashHandler(w http.ResponseWriter, r *http.Request) {
 	
 	goapphealth = "FORCEDCRASH"
-	http.Redirect(w, r, "/health", 302)
+	fmt.Printf("You Killed Me!!!!!! Application Status: %v \n", goapphealth)
 	os.Exit(1)
 
 }
