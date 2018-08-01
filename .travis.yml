@@ -26,9 +26,9 @@ script:
 - consul kv put "development/REDIS_MASTER_PASSWORD" ""
 - consul kv put "development/LISTENER_COUNT" "1"
 - consul kv put "development/LEADER_IP" "127.0.0.1"
-- sudo VAULT_ADDR=http://127.0.0.1:8200 vault kv put secret/development/REDIS_MASTER_PASSWORD
+- sudo VAULT_ADDR=http://127.0.0.1:8200 vault kv put secret/data/development/REDIS_MASTER_PASSWORD
   value=""
-- sudo VAULT_ADDR=http://127.0.0.1:8200 vault kv get secret/development/REDIS_MASTER_PASSWORD
+- sudo VAULT_ADDR=http://127.0.0.1:8200 vault kv get secret/data/development/REDIS_MASTER_PASSWORD
 - sudo VAULT_ADDR=http://127.0.0.1:8200 vault status
 - bash scripts/travis_run_go_app.sh
 deploy:
