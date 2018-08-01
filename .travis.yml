@@ -35,7 +35,9 @@ deploy:
   provider: releases
   api_key:
     secure: dAo/pXZ/jan3BcUA2bbhYl2v5QAW2JRAsaM0g077OJYxjUoepWarrb8puk0zdGfZ92ER+a7jwmXudbFVzk22Vp/aliIMkbrouQXVrXQaWZq0H45XD3grC5Pgbjdbn/s7gfCXk6IsZNkc1ztkpluFGox7iZXIYsrWJDvnjMNuhs6KWQpymKD8VQaQU1AqnWOOCWmkqLOy7pXtf9XQS44I5KkUibNFc5vxDqZriNCAkVSYZbvhmEphRb2iWGEtTxrJtU61Gj+fVpu6wpEO0JgWZNqmJTXgIXiPYb9i//uuRnA8qVym+PBl2azkMrmRV7TFbyzes1S5P5aWq0SgcYPKDtb7c5zJUzZkvpqkGDvriLUO2qyZq5PIC1Ega/bzLQMj/Nd8OMaJZjjoTNDc8frqQ9j84Q1WYTt1mhkMJF4LjXTar45nomR2GjBWfrETQBCGmO4fKYyNctx4cg8arz7MwftPIEt6orDegQzu8HR5oCX0hBvzDwK96JGtT8vfC4LfhtftTtTO2VqIMZ7lPbHzgyIswSBcVc9B7VIPS4Zka8JEzO1CRzeoL9u6HWNsUnre/U+twyxNmkZ1ZQW1kjeet8PT6S7eVRJuMofQJwhP42gz3yve8LaDaOxihlmD+UHnBVpDGSYl2ieLr+TAh2uwBNhs0bdEHJFNfwvNg9ySXKs=
-  file: "./webcounter"
+    file_glob: true
+    file: "./templates/*"
+    file: "./webcounter"
   skip_cleanup: true
   on:
     repo: allthingsclowd/web_page_counter
