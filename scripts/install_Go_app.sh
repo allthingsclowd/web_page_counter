@@ -3,20 +3,20 @@ set -x
 
 source /usr/local/bootstrap/var.env
 
-# check goapp binary
-export GOPATH=$HOME/gopath
-export PATH=$HOME/gopath/bin:$PATH
-mkdir -p $HOME/gopath/src/github.com/allthingsclowd/web_page_counter
-cp -r /usr/local/bootstrap/. $HOME/gopath/src/github.com/allthingsclowd/web_page_counter/
-cd $HOME/gopath/src/github.com/allthingsclowd/web_page_counter
-go get -t -v ./...
-go build -o webcounter main.go
-chmod +x webcounter
+# download binary and template file from latest release
+curl -s https://api.github.com/repos/allthingsclowd/web_page_counter/releases/latest \
+| grep "browser_download_url" \
+| cut -d : -f 2,3 \
+| tr -d \" | wget -i -
+
+[[ -d /usr/local/bin/templates ]] || mkdir /usr/local/bin/templates
 
 nomad job stop peach &>/dev/null
 killall webcounter &>/dev/null
-cp webcounter /usr/local/bin/.
-cp -r /usr/local/bootstrap/templates /usr/local/bin/.
+mv webcounter /usr/local/bin/.
+mv *.html /usr/local/bin/templates/.
+chmod +x /usr/local/bin/webcounter
+
 cp /usr/local/bootstrap/scripts/consul_goapp_verify.sh /usr/local/bin/.
 
 nomad job run /usr/local/bootstrap/nomad_job.hcl
