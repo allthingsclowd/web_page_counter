@@ -99,7 +99,7 @@ $ curl localhost:8080
 ## TODO
 
 ### Refactor
-* Add UI ability to terminate current go-app service - facilitate quicker nomad demo - either add button to main page or create new endpoint feature
+
 
 
 ### A
@@ -166,6 +166,10 @@ $ curl localhost:8080
 * Add tag that includes port details to ddog metric
 * Add service checks/tests to nomad job
 * Move all logs to `/vagrant/logs/`
+* Add UI ability to terminate current go-app service - facilitate quicker nomad demo - either add button to main page or create new endpoint feature
+* Add github templates
+* Add Travis Deployment on Tags
+* Update App deployment to use releases
 
 
 
