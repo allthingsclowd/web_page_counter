@@ -154,7 +154,7 @@ func getVaultKV(vaultKey string) string {
 
 	vaultClient.SetToken(vaultToken)
 
-	completeKeyPath := "secret/data/development/" + vaultKey
+	completeKeyPath := "secret/data/development"
 
 	vaultSecret, err := vaultClient.Logical().Read(completeKeyPath)
 	if err != nil {
@@ -162,7 +162,7 @@ func getVaultKV(vaultKey string) string {
 		return "FAIL"
 	}
 
-	result := vaultSecret.Data["data"].(map[string]interface{})["value"]
+	result := vaultSecret.Data["data"].(map[string]interface{})[vaultKey]
 
 	return result.(string)
 }

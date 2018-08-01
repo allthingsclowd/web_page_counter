@@ -3,16 +3,18 @@ source /usr/local/bootstrap/var.env
 
 set -e
 
-echo "running client ping test"
+# read redis database password from vault
+VAULT_TOKEN=`cat /usr/local/bootstrap/.vault-token`
+VAULT_ADDR="http://${LEADER_IP}:8200"
 
-# check for redis hostname => master
-if [[ "${HOSTNAME}" =~ "master" ]]; then
-    TESTIP=${REDIS_MASTER_IP}
-    TESTPASSWORD=${REDIS_MASTER_PASSWORD}
-else
-    TESTIP=${REDIS_SLAVE_IP}
-    TESTPASSWORD=${REDIS_SLAVE_PASSWORD}
-fi
+TESTIP=${REDIS_MASTER_IP}
+TESTPASSWORD=`curl \
+    --location \
+    --header "X-Vault-Token: ${VAULT_TOKEN}" \
+    ${VAULT_ADDR}/v1/secret/data/development \
+    | jq -r .data.data.REDIS_MASTER_PASSWORD`
+
+echo "running client ping test"
 
 RESULT=`redis-cli -h ${TESTIP} -p ${REDIS_HOST_PORT} -a ${TESTPASSWORD} ping`
 
