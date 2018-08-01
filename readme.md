@@ -104,11 +104,9 @@ $ curl localhost:8080
 
 ### A
 * Move Redis Password into VAULT KV
-
-
-### Stretch Goals
-* Use Consul KV as a temporary cache whilst Redis server is unavailable
-* Metrics: Consul KV versus Vault KV - test with 100-1000 entries
+* Add Vault App-Role to Application for Vault Access Method
+* Add DataDog event when crash occurs e.g. “app 8081 crashed”
+* Metrics: Consul KV versus Vault KV - test with 100-1000 entries: Simple bash script timed
 
 ## Done
 * Build own box using packer with above scripts
