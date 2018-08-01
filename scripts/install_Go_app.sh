@@ -9,10 +9,11 @@ curl -s https://api.github.com/repos/allthingsclowd/web_page_counter/releases/la
 | cut -d : -f 2,3 \
 | tr -d \" | wget -i -
 
+mkdir /usr/local/bin/templates
 nomad job stop peach &>/dev/null
 killall webcounter &>/dev/null
 cp webcounter /usr/local/bin/.
-cp *.html /usr/local/bin/templates.
+cp *.html /usr/local/bin/templates/.
 
 cp /usr/local/bootstrap/scripts/consul_goapp_verify.sh /usr/local/bin/.
 
