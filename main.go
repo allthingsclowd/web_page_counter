@@ -70,6 +70,7 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", indexHandler).Methods("GET")
 	r.HandleFunc("/health", healthHandler).Methods("GET")
+	r.HandleFunc("/crash", crashHandler).Methods("POST")
 	http.Handle("/", r)
 	http.ListenAndServe(portDetail.String(), r)
 
@@ -116,6 +117,14 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Printf("Failed to Load Application Status Page: %v \n", err)
 	}
+
+}
+
+func crashHandler(w http.ResponseWriter, r *http.Request) {
+	
+	goapphealth = "FORCEDCRASH"
+	http.Redirect(w, r, "/health", 302)
+	os.Exit(1)
 
 }
 
