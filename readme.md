@@ -100,13 +100,12 @@ $ curl localhost:8080
 
 ### Refactor
 
+### New Features
 
-
-### A
-* Move Redis Password into VAULT KV
-* Add Vault App-Role to Application for Vault Access Method
-* Add DataDog event when crash occurs e.g. “app 8081 crashed”
-* Metrics: Consul KV versus Vault KV - test with 100-1000 entries: Simple bash script timed
+* Move Redis Password into VAULT KV - demonstrates best practice of using centralised secret management vault
+* Add Vault App-Role to Application for Vault Access Method - demonstrates best practice of using centralised secret management vault
+* Add DataDog event when crash occurs e.g. “app 8081 crashed” - provides enhance reporting metrics
+* Metrics: Consul KV versus Vault KV. Test with 100-1000 entries. Simple bash script timed - see if there's a significant overhead when using vault as a KV over Consul KV.
 
 ## Done
 * Build own box using packer with above scripts
