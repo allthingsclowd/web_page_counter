@@ -25,24 +25,27 @@ which /usr/local/bin/vault &>/dev/null || {
     popd
 }
 
-#lets kill past instance
-sudo killall vault &>/dev/null
 
-#lets delete old consul storage
-sudo consul kv delete -recurse vault
+if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
+  #lets kill past instance
+  sudo killall vault &>/dev/null
 
-#delete old token if present
-[ -f /usr/local/bootstrap/.vault-token ] && sudo rm /usr/local/bootstrap/.vault-token
+  #lets delete old consul storage
+  sudo consul kv delete -recurse vault
 
-#start vault
-sudo /usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/usr/local/bootstrap/conf/vault.hcl &> ${LOG} &
-echo vault started
-sleep 3
+  #delete old token if present
+  [ -f /usr/local/bootstrap/.vault-token ] && sudo rm /usr/local/bootstrap/.vault-token
 
-#test vault kv works
-sudo VAULT_ADDR="http://${IP}:8200" vault kv put secret/hello value=world
-sudo VAULT_ADDR="http://${IP}:8200" vault kv get secret/hello
+  #start vault
+  sudo /usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/usr/local/bootstrap/conf/vault.hcl &> ${LOG} &
+  echo vault started
+  sleep 3
 
-#copy token to known location
-sudo find / -name '.vault-token' -exec cp {} /usr/local/bootstrap/.vault-token \; -quit
-sudo chmod ugo+r /usr/local/bootstrap/.vault-token
+  #test vault kv works
+  sudo VAULT_ADDR="http://${IP}:8200" vault kv put secret/hello value=world
+  sudo VAULT_ADDR="http://${IP}:8200" vault kv get secret/hello
+
+  #copy token to known location
+  sudo find / -name '.vault-token' -exec cp {} /usr/local/bootstrap/.vault-token \; -quit
+  sudo chmod ugo+r /usr/local/bootstrap/.vault-token
+fi
