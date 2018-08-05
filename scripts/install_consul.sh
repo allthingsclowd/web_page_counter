@@ -27,10 +27,10 @@ which ${PKG} &>/dev/null || {
 # check consul binary
 [ -f /usr/local/bin/consul ] &>/dev/null || {
     pushd /usr/local/bin
-    [ -f consul_1.2.1_linux_amd64.zip ] || {
-        sudo wget https://releases.hashicorp.com/consul/1.2.1/consul_1.2.1_linux_amd64.zip
+    [ -f consul_1.2.2_linux_amd64.zip ] || {
+        sudo wget https://releases.hashicorp.com/consul/1.2.2/consul_1.2.2_linux_amd64.zip
     }
-    sudo unzip consul_1.2.1_linux_amd64.zip
+    sudo unzip consul_1.2.2_linux_amd64.zip
     sudo chmod +x consul
     popd
 }
@@ -43,6 +43,17 @@ which ${PKG} &>/dev/null || {
     }
     sudo unzip consul-template_0.19.5_linux_amd64.zip
     sudo chmod +x consul-template
+    popd
+}
+
+# check envconsul binary
+[ -f /usr/local/bin/envconsul ] &>/dev/null || {
+    pushd /usr/local/bin
+    [ -f envconsul_0.7.3_linux_amd64.zip ] || {
+        sudo wget https://releases.hashicorp.com/envconsul/0.7.3/envconsul_0.7.3_linux_amd64.zip
+    }
+    sudo unzip envconsul_0.7.3_linux_amd64.zip
+    sudo chmod +x envconsul
     popd
 }
 
