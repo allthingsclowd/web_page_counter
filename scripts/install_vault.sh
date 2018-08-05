@@ -17,10 +17,10 @@ fi
 
 which /usr/local/bin/vault &>/dev/null || {
     pushd /usr/local/bin
-    [ -f vault_0.10.3_linux_amd64.zip ] || {
-        sudo wget https://releases.hashicorp.com/vault/0.10.3/vault_0.10.3_linux_amd64.zip
+    [ -f vault_0.10.0_linux_amd64.zip ] || {
+        sudo wget https://releases.hashicorp.com/vault/0.10.0/vault_0.10.0_linux_amd64.zip
     }
-    sudo unzip vault_0.10.3_linux_amd64.zip
+    sudo unzip vault_0.10.0_linux_amd64.zip
     sudo chmod +x vault
     popd
 }
@@ -39,13 +39,113 @@ if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
   #start vault
   sudo /usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/usr/local/bootstrap/conf/vault.hcl &> ${LOG} &
   echo vault started
-  sleep 3
-
-  #test vault kv works
-  sudo VAULT_ADDR="http://${IP}:8200" vault kv put secret/hello value=world
-  sudo VAULT_ADDR="http://${IP}:8200" vault kv get secret/hello
+  sleep 3 
 
   #copy token to known location
   sudo find / -name '.vault-token' -exec cp {} /usr/local/bootstrap/.vault-token \; -quit
   sudo chmod ugo+r /usr/local/bootstrap/.vault-token
+
+  # create admin & provisioner policies
+  tee provisioner_policy.hcl <<EOF
+  # Manage auth methods broadly across Vault
+  path "auth/*"
+  {
+    capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+  }
+
+  # List, create, update, and delete auth methods
+  path "sys/auth/*"
+  {
+    capabilities = ["create", "read", "update", "delete", "sudo"]
+  }
+
+  # List existing policies
+  path "sys/policy"
+  {
+    capabilities = ["read"]
+  }
+
+  # Create and manage ACL policies
+  path "sys/policy/*"
+  {
+    capabilities = ["create", "read", "update", "delete", "list"]
+  }
+
+  # List, create, update, and delete key/value secrets
+  path "secret/*"
+  {
+    capabilities = ["create", "read", "update", "delete", "list"]
+  }
+EOF
+  sudo VAULT_ADDR="http://${IP}:8200" vault policy write provisioner provisioner_policy.hcl
+
+  PROVISIONER_TOKEN=`sudo VAULT_ADDR="http://${IP}:8200" vault token create -policy=provisioner -field=token`
+  sudo echo ${PROVISIONER_TOKEN} > /usr/local/bootstrap/.provisioner-token
+  
+  # create admin & provisioner policies
+  tee /usr/local/bootstrap/conf/envconsul.hcl <<EOF
+  vault {
+    address = "http://vault.service.consul:8200"
+    token   = "${PROVISIONER_TOKEN}"
+    renew   = true
+  }
+EOF
+  sudo chmod ugo+r /usr/local/bootstrap/.provisioner-token
+
+  tee admin_policy.hcl <<EOF
+  # Manage auth methods broadly across Vault
+  path "auth/*"
+  {
+    capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+  }
+
+  # List, create, update, and delete auth methods
+  path "sys/auth/*"
+  {
+    capabilities = ["create", "read", "update", "delete", "sudo"]
+  }
+
+  # List existing policies
+  path "sys/policy"
+  {
+    capabilities = ["read"]
+  }
+
+  # Create and manage ACL policies broadly across Vault
+  path "sys/policy/*"
+  {
+    capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+  }
+
+  # List, create, update, and delete key/value secrets
+  path "secret/*"
+  {
+    capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+  }
+
+  # Manage and manage secret engines broadly across Vault.
+  path "sys/mounts/*"
+  {
+    capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+  }
+
+  # Read health checks
+  path "sys/health"
+  {
+    capabilities = ["read", "sudo"]
+  }
+EOF
+  sudo VAULT_ADDR="http://${IP}:8200" vault policy write admin admin_policy.hcl
+  
+  ADMIN_TOKEN=`sudo VAULT_ADDR="http://${IP}:8200" vault token create -policy=admin -field=token`
+
+    # Put Redis Password in Vault
+  sudo VAULT_ADDR="http://${IP}:8200" vault policy list
+  REDIS_MASTER_PASSWORD=`openssl rand -base64 32`
+  sudo VAULT_ADDR="http://${IP}:8200" vault login ${ADMIN_TOKEN}
+  sudo VAULT_ADDR="http://${IP}:8200" vault policy list
+  sudo VAULT_ADDR="http://${IP}:8200" vault kv put secret/development/redispassword value=${REDIS_MASTER_PASSWORD}
+  # sudo VAULT_ADDR="http://${IP}:8200" vault login ${PROVISIONER_TOKEN}
+  # sudo VAULT_ADDR="http://${IP}:8200" vault policy list
+  # sudo VAULT_ADDR="http://${IP}:8200" vault kv get secret/development/REDIS_MASTER_PASSWORD
 fi
