@@ -943,6 +943,6 @@ hz 10
 # big latency spikes.
 aof-rewrite-incremental-fsync yes
 maxmemory-policy noeviction
-{{- with secret "secret/development" }}
-requirepass "{{ .Data.REDIS_MASTER_PASSWORD }}"
+{{- with secret "secret/data/development/redispassword" }}
+requirepass "{{ .Data.data.value }}"
 {{- end}}
