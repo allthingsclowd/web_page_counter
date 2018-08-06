@@ -79,11 +79,17 @@ if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
   {
     capabilities = ["create", "read", "update", "delete", "list"]
   }
+
+  # List, create, update, and delete key/value secrets
+  path "kv/*"
+  {
+    capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+  }
 EOF
   sudo VAULT_ADDR="http://${IP}:8200" vault policy write provisioner provisioner_policy.hcl
 
   PROVISIONER_TOKEN=`sudo VAULT_ADDR="http://${IP}:8200" vault token create -policy=provisioner -field=token`
-  sudo echo ${PROVISIONER_TOKEN} > /usr/local/bootstrap/.provisioner-token
+  sudo echo -n ${PROVISIONER_TOKEN} > /usr/local/bootstrap/.provisioner-token
   
   # create admin & provisioner policies
   tee /usr/local/bootstrap/conf/envconsul.hcl <<EOF
@@ -126,6 +132,12 @@ EOF
     capabilities = ["create", "read", "update", "delete", "list", "sudo"]
   }
 
+  # List, create, update, and delete key/value secrets
+  path "kv/*"
+  {
+    capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+  }
+
   # Manage and manage secret engines broadly across Vault.
   path "sys/mounts/*"
   {
@@ -147,7 +159,7 @@ EOF
   REDIS_MASTER_PASSWORD=`openssl rand -base64 32`
   sudo VAULT_ADDR="http://${IP}:8200" vault login ${ADMIN_TOKEN}
   sudo VAULT_ADDR="http://${IP}:8200" vault policy list
-  sudo VAULT_ADDR="http://${IP}:8200" vault kv put secret/development/redispassword value=${REDIS_MASTER_PASSWORD}
+  sudo VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/redispassword value=${REDIS_MASTER_PASSWORD}
   # sudo VAULT_ADDR="http://${IP}:8200" vault login ${PROVISIONER_TOKEN}
   # sudo VAULT_ADDR="http://${IP}:8200" vault policy list
   # sudo VAULT_ADDR="http://${IP}:8200" vault kv get secret/development/REDIS_MASTER_PASSWORD

@@ -10,7 +10,7 @@ VAULT_TOKEN=`cat /usr/local/bootstrap/.provisioner-token`
 VAULT_ADDR="http://${LEADER_IP}:8200"
 
 TESTIP=${REDIS_MASTER_IP}
-TESTPASSWORD=`sudo VAULT_ADDR="http://${LEADER_IP}:8200" VAULT_TOKEN=${VAULT_TOKEN} vault kv get -field=value secret/development/redispassword`
+TESTPASSWORD=`sudo VAULT_ADDR="http://${LEADER_IP}:8200" VAULT_TOKEN=${VAULT_TOKEN} vault kv get -field=value kv/development/redispassword`
 
 redis-cli -h ${REDIS_MASTER_IP} -p ${REDIS_HOST_PORT} -a ${TESTPASSWORD} set mykey bananas
 
