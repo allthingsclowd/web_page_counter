@@ -3,3 +3,6 @@
 main
 .vault-token
 .provisioner-token
+.approle-id
+.secret-id
+.orchestrator-token

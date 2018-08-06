@@ -138,6 +138,20 @@ func getVaultKV(vaultKey string) string {
 		goapphealth = "NOTGOOD"
 	}
 
+	appRoleIDFile, err := ioutil.ReadFile("/usr/local/bootstrap/.approle-id")
+	if err != nil {
+		fmt.Print(err)
+	}
+	appRoleID := string(appRoleIDFile)
+	fmt.Printf("App-Role ID Returned : >> %v \n", appRoleID)	
+
+	secretIDTokenFile, err := ioutil.ReadFile("/usr/local/bootstrap/.orchestrator-token")
+	if err != nil {
+		fmt.Print(err)
+	}
+	secretIDToken := string(secretIDTokenFile)
+	fmt.Printf("SecretID Token Returned : >> %v \n", secretIDToken)
+
 	vaultTokenFile, err := ioutil.ReadFile("/usr/local/bootstrap/.provisioner-token")
 	if err != nil {
 		fmt.Print(err)
@@ -157,8 +171,41 @@ func getVaultKV(vaultKey string) string {
 		fmt.Printf("Failed to get VAULT client >> %v \n", err)
 		return "FAIL"
 	}
+	
+	vaultClient.SetToken(secretIDToken)
+	
+    resp, err := vaultClient.Logical().Write("/auth/approle/role/goapp/secret-id", nil)
+    if err != nil {
+		fmt.Printf("Failed to get Secret ID >> %v \n", err)
+		return "Failed"
+    }
+    if resp == nil {
+		fmt.Printf("Failed to get Secfret ID >> %v \n", err)
+		return "Failed"
+    }
 
-	vaultClient.SetToken(vaultToken)
+	
+
+	secretID := resp.Data["secret_id"].(string)
+	fmt.Printf("Secret ID Request Response : >> %v \n", secretID)
+
+	data := map[string]interface{}{
+        "role_id":   appRoleID,
+        "secret_id": secretID,
+    }
+    resp, err = vaultClient.Logical().Write("auth/approle/login", data)
+    if err != nil {
+		fmt.Printf("Failed to get VAULT client >> %v \n", err)
+		return "Failed"
+    }
+    if resp.Auth == nil {
+		fmt.Printf("Failed to get VAULT client >> %v \n", err)
+		return "Failed"
+    }
+
+	fmt.Printf("Secret Token Request Response : >> %v \n", resp.Data)
+
+	//vaultClient.SetToken(resp.Data["auth"])
 
 	completeKeyPath := "kv/development/" + vaultKey
 	fmt.Printf("Secret Key Path : >> %v \n", completeKeyPath)
