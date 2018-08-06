@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-set -e
+set -x
 
 source /usr/local/bootstrap/var.env
 
-# Idempotency hack - if this file exists don't run the rest of the script
-if [ -f "/var/vagrant_redis" ]; then
-    exit 0
-fi
+# # Idempotency hack - if this file exists don't run the rest of the script
+# if [ -f "/var/vagrant_redis" ]; then
+#     exit 0
+# fi
 
 # install this package in base image in the future
 which jq &>/dev/null || {
@@ -20,7 +20,6 @@ echo "${REDIS_MASTER_IP}     ${REDIS_MASTER_NAME}" >> /etc/hosts
 sudo VAULT_TOKEN=`cat /usr/local/bootstrap/.provisioner-token` VAULT_ADDR="http://${LEADER_IP}:8200" consul-template -template "/usr/local/bootstrap/conf/master.redis.ctpl:/etc/redis/redis.conf" -once
 sudo chown redis:redis /etc/redis/redis.conf
 sudo chmod 640 /etc/redis/redis.conf
-# echo "requirepass ${REDIS_MASTER_PASSWORD}" | sudo tee -a /etc/redis/redis.conf
 
 # copy a consul service definition directory
 sudo mkdir -p /etc/consul.d

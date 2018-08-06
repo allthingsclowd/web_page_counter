@@ -138,32 +138,39 @@ func getVaultKV(vaultKey string) string {
 		goapphealth = "NOTGOOD"
 	}
 
-	vaultTokenFile, err := ioutil.ReadFile("/usr/local/bootstrap/.vault-token")
+	vaultTokenFile, err := ioutil.ReadFile("/usr/local/bootstrap/.provisioner-token")
 	if err != nil {
 		fmt.Print(err)
 	}
 	vaultToken := string(vaultTokenFile)
+	fmt.Printf("Secret Token Returned : >> %v \n", vaultToken)
 
 	vaultIP := getConsulKV(*consulClient, "LEADER_IP")
 	vaultAddress := "http://" + vaultIP + ":8200"
+	fmt.Printf("Secret Store Address : >> %v \n", vaultAddress)
 
 	// Get a handle to the Vault Secret KV API
 	vaultClient, err := vault.NewClient(&vault.Config{
 		Address: vaultAddress,
 	})
+	if err != nil {
+		fmt.Printf("Failed to get VAULT client >> %v \n", err)
+		return "FAIL"
+	}
 
 	vaultClient.SetToken(vaultToken)
 
-	completeKeyPath := "secret/data/development"
+	completeKeyPath := "kv/development/" + vaultKey
+	fmt.Printf("Secret Key Path : >> %v \n", completeKeyPath)
 
 	vaultSecret, err := vaultClient.Logical().Read(completeKeyPath)
 	if err != nil {
 		fmt.Printf("Failed to read VAULT key value %v - Please ensure the secret value exists in VAULT : e.g. vault kv get %v >> %v \n", vaultKey, completeKeyPath, err)
 		return "FAIL"
 	}
-
-	result := vaultSecret.Data["data"].(map[string]interface{})[vaultKey]
-
+	fmt.Printf("Secret Returned : >> %v \n", vaultSecret.Data["value"])
+	result := vaultSecret.Data["value"]
+	fmt.Printf("Secret Result Returned : >> %v \n", result.(string))
 	return result.(string)
 }
 
@@ -219,7 +226,7 @@ func redisInit() (string, string) {
 		goapphealth = "NOTGOOD"
 	}
 
-	redisPassword = getVaultKV("REDIS_MASTER_PASSWORD")
+	redisPassword = getVaultKV("redispassword")
 	redisService = getConsulSVC(*consulClient, "redis")
 	if redisService == "0" {
 		var serviceDetail strings.Builder
