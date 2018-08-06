@@ -1,18 +1,14 @@
 #!/usr/bin/env bash
 source /usr/local/bootstrap/var.env
 
-set -e
+set -x
 
 # read redis database password from vault
-VAULT_TOKEN=`cat /usr/local/bootstrap/.vault-token`
+VAULT_TOKEN=`cat /usr/local/bootstrap/.provisioner-token`
 VAULT_ADDR="http://${LEADER_IP}:8200"
 
 TESTIP=${REDIS_MASTER_IP}
-TESTPASSWORD=`curl \
-    --location \
-    --header "X-Vault-Token: ${VAULT_TOKEN}" \
-    ${VAULT_ADDR}/v1/secret/data/development \
-    | jq -r .data.data.REDIS_MASTER_PASSWORD`
+TESTPASSWORD=`sudo VAULT_ADDR="http://${LEADER_IP}:8200" VAULT_TOKEN=${VAULT_TOKEN} vault kv get -field=value secret/development/redispassword`
 
 echo "running client ping test"
 
