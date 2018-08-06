@@ -105,7 +105,7 @@ $ curl localhost:8080
 ### New Features
 
 
-* Add Vault App-Role to Application for Vault Access Method - demonstrates best practice of using centralised secret management vault - time est: 4hrs
+* __Add Vault App-Role to Application__ for Vault Access Method - demonstrates best practice of using centralised secret management vault - time est: 4hrs
 * Add DataDog event when crash occurs e.g. “app 8081 crashed” - provides enhance reporting metrics - time est:2hrs
 * Metrics: Consul KV versus Vault KV. Test with 100-1000 entries. Simple bash script timed - see if there's a significant overhead when using vault as a KV over Consul KV. - time est: 4hrs
 
