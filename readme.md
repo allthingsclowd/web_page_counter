@@ -99,13 +99,7 @@ $ curl localhost:8080
 ## TODO
 
 ### Refactor
-* Backout the unauthorised architectural switch from Vault v1 Secrets to v2 Secrets (versioned)
-* UNDO :Move Redis Password into VAULT KV - demonstrates best practice of using centralised secret management vault - time 4 hrs
-* - modify vault installation to make binary accessable on all nodes
-* - install envconsul on all nodes
-* - auto-generate redis password on leader node and store in vault using vault client (binary)
-* - update redis installation to utilise envconsul to get redis password from vault
-* - revert main.go application to consume vault v1 secrets (unversioned)
+
 
 
 ### New Features
@@ -175,7 +169,13 @@ $ curl localhost:8080
 * Add github templates
 * Add Travis Deployment on Tags
 * Update App deployment to use releases
-
+* Backout the unauthorised architectural switch from Vault v1 Secrets to v2 Secrets (versioned)
+* UNDO :Move Redis Password into VAULT KV - demonstrates best practice of using centralised secret management vault - time 4 hrs
+* - modify vault installation to make binary accessable on all nodes
+* - install envconsul on all nodes
+* - auto-generate redis password on leader node and store in vault using vault client (binary)
+* - update redis installation to utilise envconsul to get redis password from vault
+* - revert main.go application to consume vault v1 secrets (unversioned)
 
 
 
