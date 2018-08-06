@@ -2,3 +2,4 @@
 *.log
 main
 .vault-token
+.provisioner-token
