@@ -3,10 +3,10 @@ set -x
 
 source /usr/local/bootstrap/var.env
 
-# # Idempotency hack - if this file exists don't run the rest of the script
-# if [ -f "/var/vagrant_redis" ]; then
-#     exit 0
-# fi
+# Idempotency hack - if this file exists don't run the rest of the script
+if [ -f "/var/vagrant_redis" ]; then
+    exit 0
+fi
 
 # install this package in base image in the future
 which jq &>/dev/null || {

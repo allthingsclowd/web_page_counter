@@ -71,8 +71,6 @@ if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
     sudo cp /usr/local/bootstrap/conf/consul.d/redis.json /etc/consul.d/redis.json
     #SERVICE_DEFS_DIR="conf/consul.d"
     CONSUL_SCRIPTS="scripts"
-    # copy a consul service definition directory
-    # sudo cp -r ${SERVICE_DEFS_DIR} /etc
     # ensure all scripts are executable for consul health checks
     pushd ${CONSUL_SCRIPTS}
     for file in `ls`;
@@ -104,13 +102,5 @@ else
     sleep 10
   }
 fi
-    
-# NOTES to SELF
-# verifiy via api
-# root@godev01:~# curl http://localhost:8500/v1/kv/development/GO_DEV_IP | jq '.[]["Value"]' | base64 -di
-#
-# verify via cli
-# root@godev01:~# consul kv get development/GO_DEV_IP
-# 192.168.2.100
 
 echo consul started
