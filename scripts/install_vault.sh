@@ -91,14 +91,6 @@ EOF
   PROVISIONER_TOKEN=`sudo VAULT_ADDR="http://${IP}:8200" vault token create -policy=provisioner -field=token`
   sudo echo -n ${PROVISIONER_TOKEN} > /usr/local/bootstrap/.provisioner-token
   
-  # create admin & provisioner policies
-  tee /usr/local/bootstrap/conf/envconsul.hcl <<EOF
-  vault {
-    address = "http://vault.service.consul:8200"
-    token   = "${PROVISIONER_TOKEN}"
-    renew   = true
-  }
-EOF
   sudo chmod ugo+r /usr/local/bootstrap/.provisioner-token
 
   tee admin_policy.hcl <<EOF
@@ -160,7 +152,5 @@ EOF
   sudo VAULT_ADDR="http://${IP}:8200" vault login ${ADMIN_TOKEN}
   sudo VAULT_ADDR="http://${IP}:8200" vault policy list
   sudo VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/redispassword value=${REDIS_MASTER_PASSWORD}
-  # sudo VAULT_ADDR="http://${IP}:8200" vault login ${PROVISIONER_TOKEN}
-  # sudo VAULT_ADDR="http://${IP}:8200" vault policy list
-  # sudo VAULT_ADDR="http://${IP}:8200" vault kv get secret/development/REDIS_MASTER_PASSWORD
+
 fi
