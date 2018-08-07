@@ -1,7 +1,7 @@
 ![https://travis-ci.org/allthingsclowd/web_page_counter.svg?branch=master](https://travis-ci.org/allthingsclowd/web_page_counter.svg?branch=master)
 
-
 # Web Page Counter
+
 ## An introduction to the new style of Cloud Infrastructure using HASHICORP's - PACKER, VAGRANT, CONSUL, NOMAD & VAULT
 
 These tools free up developers to focus on application development whilst giving operations teams a secure, flexible, scalable and governed infrastructure. These tools satisfy the most demanding cloud native applications of today but can still easily integrate with, deploy and manage traditional applications too.
@@ -14,9 +14,11 @@ The webpage counter application uses a redis backend server, nginx web-proxy fro
 ![0dc20014-3036-44e5-aa43-0bddc3e5df7a](https://user-images.githubusercontent.com/9472095/42727319-66902a26-879c-11e8-8241-b68414eaffab.jpeg)
 
 ## Prerequisites - mandatory
+
 Ensure that [Vagrant](https://www.vagrantup.com/intro/getting-started/install.html) and [Virtualbox](https://www.virtualbox.org/wiki/Downloads) are both installed on the host system.
 
 ## Prerequisites - optional
+
 If you'd like to get some real-world monitoring metrics like this
 
 ![image](https://user-images.githubusercontent.com/9472095/43784033-11d58e1e-9a5b-11e8-8358-db0f354974c4.png)
@@ -315,6 +317,7 @@ We also use [Consul](https://www.consul.io/) to register the new web counter app
 
 
 __Consul-Template for Dynamic Configuration__
+
 [Consul-Template](https://www.hashicorp.com/blog/introducing-consul-template.html) has been used in two areas of this application:
  - Dynamically configure the NGINX web frontend when WebCounter instances start or stop
  nginx.ctpl
@@ -508,6 +511,9 @@ job "peach" {
 }
 ```
 
+__WebCounter Application__
+
+![image](https://user-images.githubusercontent.com/9472095/43806904-eee1d05a-9a9d-11e8-9717-4dfc0bc74f67.png)
 
 
 ## TODO
