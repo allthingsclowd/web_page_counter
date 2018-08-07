@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"bytes"
+	"time"
 
 	"github.com/DataDog/datadog-go/statsd"
 	"github.com/go-redis/redis"
@@ -127,6 +128,12 @@ func crashHandler(w http.ResponseWriter, r *http.Request) {
 	
 	goapphealth = "FORCEDCRASH"
 	fmt.Printf("You Killed Me!!!!!! Application Status: %v \n", goapphealth)
+	dataDog := sendDataDogEvent("WebCounter Crashed", targetPort)
+	if !dataDog {
+		fmt.Printf("Failed to send datadog event.")
+	}
+	// added delay to ensure event is sent before process terminates
+	time.Sleep(2 * time.Second)
 	os.Exit(1)
 
 }
@@ -334,6 +341,27 @@ func incrementDataDogCounter(myNameSpace string, myTag string, myCounter string)
 		return false
 	}
 
+	return true
+}
+
+// SendDataDogEvent 
+func sendDataDogEvent(title string, eventMessage string) bool {
+	// get a pointer to the datadog agent
+	ddClient, err := statsd.New("127.0.0.1:8125")
+	defer ddClient.Close()
+	if err != nil {
+		fmt.Printf("Failed to contact DataDog Agent: %v. Check the DataDog agent is installed and running \n", err)
+		return false
+	}
+
+	// send event message
+	err = ddClient.SimpleEvent(title, eventMessage)
+	// prefix every metric with the app name
+	if err != nil {
+		fmt.Printf("Failed to send new event to DataDog Agent: %v. Check the DataDog agent is installed and running \n", err)
+		return false
+	}
+	
 	return true
 }
 
