@@ -139,47 +139,9 @@ tee secret_id_config.json <<EOF
 }
 EOF
 
-# Generate Secret-ID token generator
-# Policy to create secret-ids for app-role
-tee goapp-secret-id-create.json <<EOF
-{"policy":"path \"auth/approle/role/goapp/secret-id\" {capabilities = [\"read\", \"list\", \"create\", \"update\"]}"}
-EOF
-
-# Write the policy
-curl \
-    --location \
-    --header "X-Vault-Token: ${VAULT_TOKEN}" \
-    --request PUT \
-    --data @goapp-secret-id-create.json \
-    ${VAULT_ADDR}/v1/sys/policy/goapp-secret-id-create | jq .
-
-# Secret-Id token generator
-tee goapp-secret-id-token.json <<EOF
-{
-  "policies": [
-    "goapp-secret-id-create"
-  ],
-  "metadata": {
-    "user": "Secret-Id Deployer"
-  },
-  "ttl": "1h",
-  "renewable": true
-}
-EOF
-
-# Create the Secret-Id Generator Token
-SECRET_ID_TOKEN=`curl \
-    --location \
-    --header "X-Vault-Token: ${VAULT_TOKEN}" \
-    --request POST \
-    --data @goapp-secret-id-token.json \
-    ${VAULT_ADDR}/v1/auth/token/create | jq -r .auth.client_token`
-
-sudo echo -n ${SECRET_ID_TOKEN} > /usr/local/bootstrap/.orchestrator-token
-
 SECRET_ID=`curl \
     --location \
-    --header "X-Vault-Token: ${SECRET_ID_TOKEN}" \
+    --header "X-Vault-Token: ${VAULT_TOKEN}" \
     --request POST \
     ${VAULT_ADDR}/v1/auth/approle/role/goapp/secret-id | jq -r .data.secret_id`
 
@@ -192,11 +154,9 @@ tee goapp-secret-id-login.json <<EOF
 EOF
 
 curl \
-    --location \
-    --header "X-Vault-Token: ${SECRET_ID_TOKEN}" \
     --request POST \
     --data @goapp-secret-id-login.json \
-    ${VAULT_ADDR}/v1/auth/approle/role/login 
+    ${VAULT_ADDR}/v1/auth/approle/login 
 
 
 
