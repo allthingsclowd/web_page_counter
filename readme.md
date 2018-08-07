@@ -104,8 +104,7 @@ $ curl localhost:8080
 
 ### New Features
 
-* __Add__ DataDog event when crash occurs e.g. “app 8081 crashed” - provides enhance reporting metrics - time est:2hrs
-* Metrics: Consul KV versus Vault KV. Test with 100-1000 entries. Simple bash script timed - see if there's a significant overhead when using vault as a KV over Consul KV. - time est: 4hrs
+
 
 ## Done
 * Build own box using packer with above scripts
@@ -175,6 +174,7 @@ $ curl localhost:8080
 * - update redis installation to utilise consul-template to get redis password from vault
 * - revert main.go application to consume vault v1 secrets (unversioned)
 * - Add Vault App-Role to Application__ for Vault Access Method - demonstrates best practice of using centralised secret management vault - time est: 4hrs
-
+* AddDataDog event when crash occurs e.g. “app 8081 crashed” - provides enhance reporting metrics - time est:2hrs
+* [Moved to it's own repo as requirement does not belong here](https://github.com/allthingsclowd/vault_versus_consul) Metrics: Consul KV versus Vault KV. Test with 100-1000 entries. Simple bash script timed - see if there's a significant overhead when using vault as a KV over Consul KV. - time est: 4hrs
 
 
