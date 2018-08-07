@@ -104,8 +104,6 @@ $ curl localhost:8080
 
 ### New Features
 
-
-* Add Vault App-Role to Application for Vault Access Method - demonstrates best practice of using centralised secret management vault - time est: 4hrs
 * Add DataDog event when crash occurs e.g. “app 8081 crashed” - provides enhance reporting metrics - time est:2hrs
 * Metrics: Consul KV versus Vault KV. Test with 100-1000 entries. Simple bash script timed - see if there's a significant overhead when using vault as a KV over Consul KV. - time est: 4hrs
 
@@ -174,8 +172,9 @@ $ curl localhost:8080
 * - modify vault installation to make binary accessable on all nodes
 * - install envconsul on all nodes
 * - auto-generate redis password on leader node and store in vault using vault client (binary)
-* - update redis installation to utilise envconsul to get redis password from vault
+* - update redis installation to utilise consul-template to get redis password from vault
 * - revert main.go application to consume vault v1 secrets (unversioned)
+* - Add Vault App-Role to Application__ for Vault Access Method - demonstrates best practice of using centralised secret management vault - time est: 4hrs
 
 
 

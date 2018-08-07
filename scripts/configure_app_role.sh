@@ -1,21 +1,9 @@
 #!/usr/bin/env bash
 
-DEBUG=false
-
-function pause(){
-    echo -e "\n"
-    if ${DEBUG}; then
-        read -p "$*"
-    else
-        echo "$*"
-    fi
-    echo -e "\n"
-}
-
 set -x
 
-IFACE=`route -n | awk '$1 == "192.168.5.0" {print $8}'`
-CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.5" {print $2}'`
+IFACE=`route -n | awk '$1 == "192.168.2.0" {print $8}'`
+CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.2" {print $2}'`
 IP=${CIDR%%/24}
 
 if [ "${TRAVIS}" == "true" ]; then
@@ -31,13 +19,12 @@ fi
 export VAULT_ADDR=http://${IP}:8200
 export VAULT_SKIP_VERIFY=true
 
-VAULT_TOKEN=`cat /usr/local/bootstrap/.vault-token`
+VAULT_TOKEN=`cat /usr/local/bootstrap/.provisioner-token`
 
 ##--------------------------------------------------------------------
 ## Configure Audit Backend
 
 VAULT_AUDIT_LOG="${LOG}"
-#sudo chown vault:vault ${VAULT_AUDIT_LOG}
 
 PKG="curl jq"
 which ${PKG} &>/dev/null || {
@@ -55,8 +42,6 @@ tee audit-backend-file.json <<EOF
 }
 EOF
 
-pause 'Enable Audit Backend - Press [Enter] key to continue...'
-
 curl \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
     --request PUT \
@@ -69,10 +54,8 @@ curl \
 
 # Policy to apply to AppRole token
 tee goapp-secret-read.json <<EOF
-{"policy":"path \"secret/data/goapp\" {capabilities = [\"read\", \"list\"]}"}
+{"policy":"path \"kv/development/redispassword\" {capabilities = [\"read\", \"list\"]}"}
 EOF
-
-pause 'Create goapp secret policy - Press [Enter] key to continue...'
 
 # Write the policy
 curl \
@@ -83,8 +66,6 @@ curl \
     ${VAULT_ADDR}/v1/sys/policy/goapp-secret-read | jq .
 
 ##--------------------------------------------------------------------
-
-pause 'List ACL policies - Press [Enter] key to continue...'
 
 # List ACL policies
 curl \
@@ -100,11 +81,9 @@ curl \
 tee approle.json <<EOF
 {
   "type": "approle",
-  "description": "Demo AppRole auth backend"
+  "description": "Demo AppRole auth backend for goapp webcounter deployment"
 }
 EOF
-
-pause 'Enable approle - Press [Enter] key to continue...'
 
 # Create the approle backend
 curl \
@@ -119,24 +98,22 @@ APPROLEID=`curl  \
    --header "X-Vault-Token: ${VAULT_TOKEN}" \
    ${VAULT_ADDR}/v1/auth/approle/role/goapp/role-id | jq -r .data.role_id`
 
-# AppRole backend configuration
-tee goapp-approle-role.json <<EOF
-{
-    "role_name": "goapp",
-    "bind_secret_id": true,
-    "secret_id_ttl": "10m",
-    "secret_id_num_uses": "1",
-    "token_ttl": "10m",
-    "token_max_ttl": "30m",
-    "period": 0,
-    "policies": [
-        "goapp-secret-read"
-    ]
-}
-EOF
-
 if [ "${APPROLEID}" == null ]; then
-    pause 'Create approle - Press [Enter] key to continue...'
+    # AppRole backend configuration
+    tee goapp-approle-role.json <<EOF
+    {
+        "role_name": "goapp",
+        "bind_secret_id": true,
+        "secret_id_ttl": "24h",
+        "secret_id_num_uses": "0",
+        "token_ttl": "10m",
+        "token_max_ttl": "30m",
+        "period": 0,
+        "policies": [
+            "goapp-secret-read"
+        ]
+    }
+EOF
 
     # Create the AppRole role
     curl \
@@ -152,67 +129,34 @@ if [ "${APPROLEID}" == null ]; then
 
 fi
 
-pause 'Show AppRoleID - Press [Enter] key to continue...'
-
 echo -e "\n\nApplication RoleID = ${APPROLEID}\n\n"
-echo ${APPROLEID} > /usr/local/bootstrap/.approle-id
+echo -n ${APPROLEID} > /usr/local/bootstrap/.approle-id
 
 # Write minimal secret-id payload
-tee secret_id_config.json <<'EOF'
+tee secret_id_config.json <<EOF
 {
   "metadata": "{ \"tag1\": \"goapp production\" }"
 }
 EOF
 
-WRAPPED_SECRETID=`curl  \
---header "X-Vault-Token: ${VAULT_TOKEN}" \
---header "X-Vault-Wrap-TTL:5m" \
---data @secret_id_config.json \
-${VAULT_ADDR}/v1/auth/approle/role/goapp/secret-id | jq -r .wrap_info.token`
-
-pause 'Show SecretID - Press [Enter] key to continue...'
-
-echo -e "\n\nApplication Wrapped SecretID = ${WRAPPED_SECRETID}\n\n"
-echo ${WRAPPED_SECRETID} > /usr/local/bootstrap/.wrapped_secret-id
-
-# Write some demo secrets that should be accessible 
-tee demo-secrets.json <<'EOF'
-{
-   "data": {
-    "username": "goapp-user",
-    "password": "$up3r$3cr3t!"
-    }
-}
-EOF
-
-pause 'Deploy some accessible secrets - Press [Enter] key to continue...'
-
-curl \
+SECRET_ID=`curl \
     --location \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
     --request POST \
-    --data @demo-secrets.json \
-    ${VAULT_ADDR}/v1/secret/data/goapp | jq .
+    ${VAULT_ADDR}/v1/auth/approle/role/goapp/secret-id | jq -r .data.secret_id`
 
-# Write some demo secrets that should NOT be accessible 
-tee demo-secrets.json <<'EOF'
+# login
+tee goapp-secret-id-login.json <<EOF
 {
-   "data": {
-    "username": "someother-user",
-    "password": "Pa$$W0RD"
-    }
+  "role_id": "${APPROLEID}",
+  "secret_id": "${SECRET_ID}"
 }
 EOF
 
-pause 'Deploy some inaccessible secrets - Press [Enter] key to continue...'
-
 curl \
-    --location \
-    --header "X-Vault-Token: ${VAULT_TOKEN}" \
     --request POST \
-    --data @demo-secrets.json \
-    ${VAULT_ADDR}/v1/secret/data/wrongapp | jq .
-
+    --data @goapp-secret-id-login.json \
+    ${VAULT_ADDR}/v1/auth/approle/login 
 
 
 

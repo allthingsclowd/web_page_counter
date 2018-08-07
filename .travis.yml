@@ -15,6 +15,7 @@ before_script:
 - popd
 - bash scripts/install_consul.sh
 - bash scripts/install_vault.sh
+- bash scripts/configure_app_role.sh
 - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
 script:
 - source ./var.env
