@@ -518,13 +518,19 @@ __WebCounter Application__
 
 ## TODO
 
-### Refactor
-
-
-
 ### New Features
+__Secret-ID Factory__
+1. Build a new service (Secret-ID Factory) that generates a wrapped secret-id upon receipt of an app-role - (api only)
+2. Build this in a separate repository using a similar CI/CD pipeline mentality
+3. Deploy the new Secret-ID Factory as a service within this repo once complete
+4. Configure a Consul Connect intention to permit the applications to communicate with the new Secret-ID Factory
 
-
+### Refactor
+5. Remove all comments from redis.conf.ctpl
+6. Create Bash Functions to Replace the curl statements in configure_app_role.sh to make it nicer to read
+7. Move all the application service checks creation process into the application itself rather than relying on external bash scripts
+8. Ensure the service checks are only deployed to Consul once the application is configured and online
+9. Modify the application to request a wrapped secret-id token from the new *Secret-ID Factory* outlined above inorder to obtain its vault token.
 
 ## Done
 * Build own box using packer with above scripts
