@@ -531,6 +531,7 @@ __Secret-ID Factory__
 7. Move all the application service checks creation process into the application itself rather than relying on external bash scripts
 8. Ensure the service checks are only deployed to Consul once the application is configured and online
 9. Modify the application to request a wrapped secret-id token from the new *Secret-ID Factory* outlined above inorder to obtain its vault token.
+10. Change colour from Red to Blue in hand drawn architecture diagram for statement in Redis boc "Password Stored in Vault"
 
 ## Done
 * Build own box using packer with above scripts
