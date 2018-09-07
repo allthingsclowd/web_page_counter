@@ -10,3 +10,4 @@ curl -s https://api.github.com/repos/allthingsclowd/VaultServiceIDFactory/releas
 sudo killall VaultServiceIDFactory &>/dev/null
 sudo mv VaultServiceIDFactory /usr/local/bin/.
 sudo chmod +x /usr/local/bin/VaultServiceIDFactory
+sudo VaultServiceIDFactory &
