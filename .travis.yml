@@ -16,6 +16,7 @@ before_script:
 - bash scripts/install_consul.sh
 - bash scripts/install_vault.sh
 - bash scripts/configure_app_role.sh
+- bash scripts/install_SecretID_Factory.sh
 - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
 script:
 - source ./var.env
