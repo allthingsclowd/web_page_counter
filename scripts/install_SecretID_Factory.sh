@@ -7,6 +7,6 @@ curl -s https://api.github.com/repos/allthingsclowd/VaultServiceIDFactory/releas
 | cut -d : -f 2,3 \
 | tr -d \" | wget -i -
 
-killall VaultServiceIDFactory &>/dev/null
-mv VaultServiceIDFactory /usr/local/bin/.
-chmod +x /usr/local/bin/VaultServiceIDFactory
+sudo killall VaultServiceIDFactory &>/dev/null
+sudo mv VaultServiceIDFactory /usr/local/bin/.
+sudo chmod +x /usr/local/bin/VaultServiceIDFactory
