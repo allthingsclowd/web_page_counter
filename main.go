@@ -35,6 +35,7 @@ func main() {
 
 	portPtr := flag.Int("port", 8080, "Default's to port 8080. Use -port=nnnn to use listen on an alternate port.")
 	ipPtr := flag.String("ip", "0.0.0.0", "Default's to all interfaces by using 0.0.0.0")
+	appRolePtr := flag.String("appRole", "id-factory", "Application Role to be used to bootstrap access to Vault's secrets")
 	templatePtr := flag.String("templates", "templates/*.html", "Default's to templates/*.html -templates=????")
 	flag.Parse()
 	targetPort = strconv.Itoa(*portPtr)
@@ -147,22 +148,6 @@ func getVaultKV(vaultKey string) string {
 		goapphealth = "NOTGOOD"
 	}
 
-	// Get the static approle id - this could be baked into a base image
-	appRoleIDFile, err := ioutil.ReadFile("/usr/local/bootstrap/.approle-id")
-	if err != nil {
-		fmt.Print(err)
-	}
-	appRoleID := string(appRoleIDFile)
-	fmt.Printf("App-Role ID Returned : >> %v \n", appRoleID)
-
-	// Get a provisioner token to generate a new secret -id ... this would usually occur in the orchestrator rather than the app???
-	vaultTokenFile, err := ioutil.ReadFile("/usr/local/bootstrap/.provisioner-token")
-	if err != nil {
-		fmt.Print(err)
-	}
-	vaultToken := string(vaultTokenFile)
-	fmt.Printf("Secret Token Returned : >> %v \n", vaultToken)
-
 	// Read in the Vault address from consul
 	vaultIP := getConsulKV(*consulClient, "LEADER_IP")
 	vaultAddress := "http://" + vaultIP + ":8200"
@@ -177,20 +162,9 @@ func getVaultKV(vaultKey string) string {
 		return "FAIL"
 	}
 	
-	vaultClient.SetToken(vaultToken)
-	
-	// Generate a new Vault Secret-ID
-    resp, err := vaultClient.Logical().Write("/auth/approle/role/goapp/secret-id", nil)
-    if err != nil {
-		fmt.Printf("Failed to get Secret ID >> %v \n", err)
-		return "Failed"
-    }
-    if resp == nil {
-		fmt.Printf("Failed to get Secfret ID >> %v \n", err)
-		return "Failed"
-    }
 
-	secretID := resp.Data["secret_id"].(string)
+
+	secretID := // NEW FUNCTION HERE
 	fmt.Printf("Secret ID Request Response : >> %v \n", secretID)
 
 	// Now using both the APP Role ID & the Secret ID generated above
@@ -398,6 +372,56 @@ func queryVault(vaultAddress string, url string, token string, data map[string]i
 
 	fmt.Println("\n\nresponse result: ",result)
 	fmt.Println("\n\nresponse result .auth:",result["auth"].(map[string]interface{})["client_token"])
+
+	return result
+}
+
+func getVaultToken(factoryAddress string, appRole string) string {
+	
+	fmt.Println("\nDebug Factory Service Vars Start")
+	fmt.Println("\nFACTORY ADDRESS:>", factoryAddress)
+	fmt.Println("\nAPP ROLE:>", appRole)
+	fmt.Println("\nDebug Vars End")
+
+	factoryBaseURL := "http://" + factoryAddress + ":8314"
+	healthAPI := "/health"
+	secretAPI := "/approlename"
+
+	factoryStatusResponse := httpCall(factoryBaseURL,nil,"GET")
+	
+	for !factoryStatus {
+		factoryStatus := httpCall(factoryBaseURL,nil,"GET")
+	}
+	
+
+
+	return result
+}
+
+func httpCall(url string, data map[string]interface{}, action string) (map[string]interface{}) {
+
+	bytesRepresentation, err := json.Marshal(data)
+
+	//var jsonStr = []byte(`{"title":"Buy cheese and bread for breakfast."}`)
+    req, err := http.NewRequest(action, url, bytes.NewBuffer(bytesRepresentation))
+    req.Header.Set("Content-Type", "application/json")
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+
+    fmt.Println("Service Factory Response Status:", resp.Status)
+	fmt.Println("Service Factory Response Headers:", resp.Header)
+	
+	var result map[string]interface{}
+
+	json.NewDecoder(resp.Body).Decode(&result)
+
+	fmt.Println("\n\nresponse result: ",result)
+	//fmt.Println("\n\nresponse result .auth:",result["auth"].(map[string]interface{})["client_token"])
 
 	return result
 }
