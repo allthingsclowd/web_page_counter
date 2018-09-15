@@ -29,13 +29,16 @@ var consulClient *consul.Client
 var targetPort string
 var targetIP string
 var thisServer string
+var appRolePtr *string
+var factoryIPPtr *string
 
 func main() {
 	// set the port that the goapp will listen on - defaults to 8080
 
 	portPtr := flag.Int("port", 8080, "Default's to port 8080. Use -port=nnnn to use listen on an alternate port.")
 	ipPtr := flag.String("ip", "0.0.0.0", "Default's to all interfaces by using 0.0.0.0")
-	appRolePtr := flag.String("appRole", "id-factory", "Application Role to be used to bootstrap access to Vault's secrets")
+	factoryIPPtr = flag.String("bootstrapip", "192.168.2.11", "Default's to factory service installed on 192.168.2.11")
+	appRolePtr = flag.String("appRole", "id-factory", "Application Role to be used to bootstrap access to Vault's secrets")
 	templatePtr := flag.String("templates", "templates/*.html", "Default's to templates/*.html -templates=????")
 	flag.Parse()
 	targetPort = strconv.Itoa(*portPtr)
@@ -164,25 +167,26 @@ func getVaultKV(vaultKey string) string {
 	
 
 
-	secretID := // NEW FUNCTION HERE
-	fmt.Printf("Secret ID Request Response : >> %v \n", secretID)
+	// secretID := getVaultToken
+	// fmt.Printf("Secret ID Request Response : >> %v \n", secretID)
 
-	// Now using both the APP Role ID & the Secret ID generated above
-	data := map[string]interface{}{
-        "role_id":   appRoleID,
-		"secret_id": secretID,
-	}
+	// // Now using both the APP Role ID & the Secret ID generated above
+	// data := map[string]interface{}{
+    //     "role_id":   appRoleID,
+	// 	"secret_id": secretID,
+	// }
 
-	fmt.Printf("Secret ID in map : >> %v \n", data)
+	// fmt.Printf("Secret ID in map : >> %v \n", data)
 	
 	// Use the AppRole Login api call to get the application's Vault Token which will grant it access to the REDIS database credentials
-	appRoletokenResponse := queryVault(vaultAddress,"/v1/auth/approle/login","",data,"POST")
+	// appRoletokenResponse := queryVault(vaultAddress,"/v1/auth/approle/login","",data,"POST")
 
-	appRoletoken := appRoletokenResponse["auth"].(map[string]interface{})["client_token"]
+	//appRoletoken := appRoletokenResponse["auth"].(map[string]interface{})["client_token"]
 
+	appRoletoken := getVaultToken(*factoryIPPtr, *appRolePtr)
 	fmt.Printf("New API Secret Token Request Response : >> %v \n", appRoletoken)
 
-	vaultClient.SetToken(appRoletoken.(string))
+	//vaultClient.SetToken(appRoletoken.(string))
 
 	completeKeyPath := "kv/development/" + vaultKey
 	fmt.Printf("Secret Key Path : >> %v \n", completeKeyPath)
@@ -384,18 +388,19 @@ func getVaultToken(factoryAddress string, appRole string) string {
 	fmt.Println("\nDebug Vars End")
 
 	factoryBaseURL := "http://" + factoryAddress + ":8314"
-	healthAPI := "/health"
-	secretAPI := "/approlename"
+	healthAPI := factoryBaseURL + "/health"
+	secretAPI := factoryBaseURL + "/approlename"
 
-	factoryStatusResponse := httpCall(factoryBaseURL,nil,"GET")
-	
-	for !factoryStatus {
-		factoryStatus := httpCall(factoryBaseURL,nil,"GET")
-	}
-	
+	factoryStatusResponse := http2Call(healthAPI,nil,"GET")
+	fmt.Println("\nHealth API Response:>", factoryStatusResponse)
+
+	var jsonStr = []byte(`{"RoleName":"id-factory"}`)
+	factorySecretResponse := http2Call(secretAPI, jsonStr, "POST")
+	fmt.Println("\nSecret API Response:>", factorySecretResponse)
 
 
-	return result
+
+	return "WIP"
 }
 
 func httpCall(url string, data map[string]interface{}, action string) (map[string]interface{}) {
@@ -424,4 +429,29 @@ func httpCall(url string, data map[string]interface{}, action string) (map[strin
 	//fmt.Println("\n\nresponse result .auth:",result["auth"].(map[string]interface{})["client_token"])
 
 	return result
+}
+
+func http2Call (url string, data []byte, action string) []byte {
+	//url := "http://restapi3.apiary.io/notes"
+    fmt.Println("URL:>", url)
+
+    //var jsonStr = []byte(`{"title":"Buy cheese and bread for breakfast."}`)
+    req, err := http.NewRequest(action, url, bytes.NewBuffer(data))
+    //req.Header.Set("X-Custom-Header", "myvalue")
+	req.Header.Set("Content-Type", "application/json")
+	
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+		fmt.Printf("Problems Reaching: %v\n", err)
+        //panic(err)
+    }
+    defer resp.Body.Close()
+
+    fmt.Println("response Status:", resp.Status)
+    fmt.Println("response Headers:", resp.Header)
+    body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println("response Body:", string(body))
+	return body
 }
