@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-
 set -x
+echo 'Start Vault Role/Policy Configuration'
 
 IFACE=`route -n | awk '$1 == "192.168.2.0" {print $8}'`
 CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.2" {print $2}'`
@@ -16,22 +16,13 @@ else
   LOG="vault_audit.log"
 fi
 
-export VAULT_ADDR=http://${IP}:8200
-export VAULT_SKIP_VERIFY=true
+# enable secret KV version 1
+VAULT_TOKEN=`cat /usr/local/bootstrap/.vault-token`
+sudo VAULT_TOKEN=${VAULT_TOKEN} VAULT_ADDR="http://${IP}:8200" vault secrets enable -version=1 kv
 
-VAULT_TOKEN=`cat /usr/local/bootstrap/.provisioner-token`
-
-##--------------------------------------------------------------------
-## Configure Audit Backend
+# configure Audit Backend
 
 VAULT_AUDIT_LOG="${LOG}"
-
-PKG="curl jq"
-which ${PKG} &>/dev/null || {
-  export DEBIAN_FRONTEND=noninteractive
-  apt-get update
-  apt-get install -y ${PKG}
-}
 
 tee audit-backend-file.json <<EOF
 {
@@ -48,116 +39,106 @@ curl \
     --data @audit-backend-file.json \
     ${VAULT_ADDR}/v1/sys/audit/file-audit
 
+# use root policy to create admin & provisioner policies
+# see https://www.hashicorp.com/resources/policies-vault
 
-##--------------------------------------------------------------------
-## Create ACL Policy
-
-# Policy to apply to AppRole token
-tee goapp-secret-read.json <<EOF
-{"policy":"path \"kv/development/redispassword\" {capabilities = [\"read\", \"list\"]}"}
-EOF
-
-# Write the policy
-curl \
-    --location \
-    --header "X-Vault-Token: ${VAULT_TOKEN}" \
-    --request PUT \
-    --data @goapp-secret-read.json \
-    ${VAULT_ADDR}/v1/sys/policy/goapp-secret-read | jq .
-
-##--------------------------------------------------------------------
-
-# List ACL policies
-curl \
-    --location \
-    --header "X-Vault-Token: ${VAULT_TOKEN}" \
-    --request LIST \
-    ${VAULT_ADDR}/v1/sys/policy | jq .
-
-##--------------------------------------------------------------------
-## Enable & Configure AppRole Auth Backend
-
-# AppRole auth backend config
-tee approle.json <<EOF
+# admin policy hcl definition file
+tee admin_policy.hcl <<EOF
+# Manage auth backends broadly across Vault
+path "auth/*"
 {
-  "type": "approle",
-  "description": "Demo AppRole auth backend for goapp webcounter deployment"
+  capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+}
+# List, create, update, and delete auth backends
+path "sys/auth/*"
+{
+  capabilities = ["create", "read", "update", "delete", "sudo"]
+}
+# List existing policies
+path "sys/policy"
+{
+  capabilities = ["read"]
+}
+# Create and manage ACL policies broadly across Vault
+path "sys/policy/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+}
+# List, create, update, and delete key/value secrets
+path "secret/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+}
+# List, create, update, and delete key/value secrets
+path "kv/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+# Manage and manage secret backends broadly across Vault.
+path "sys/mounts/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+}
+# Read health checks
+path "sys/health"
+{
+  capabilities = ["read", "sudo"]
 }
 EOF
 
-# Create the approle backend
-curl \
-    --location \
-    --header "X-Vault-Token: ${VAULT_TOKEN}" \
-    --request POST \
-    --data @approle.json \
-    ${VAULT_ADDR}/v1/sys/auth/approle | jq .
+# create the admin policy in vault
+sudo VAULT_TOKEN=${VAULT_TOKEN} VAULT_ADDR="http://${IP}:8200" vault policy write admin admin_policy.hcl
 
-# Check if AppRole Exists
-APPROLEID=`curl  \
-   --header "X-Vault-Token: ${VAULT_TOKEN}" \
-   ${VAULT_ADDR}/v1/auth/approle/role/goapp/role-id | jq -r .data.role_id`
+# create an admin token
+ADMIN_TOKEN=`sudo VAULT_TOKEN=${VAULT_TOKEN} VAULT_ADDR="http://${IP}:8200" vault token create -policy=admin -field=token`
+sudo echo -n ${ADMIN_TOKEN} > /usr/local/bootstrap/.admin-token
 
-if [ "${APPROLEID}" == null ]; then
-    # AppRole backend configuration
-    tee goapp-approle-role.json <<EOF
-    {
-        "role_name": "goapp",
-        "bind_secret_id": true,
-        "secret_id_ttl": "24h",
-        "secret_id_num_uses": "0",
-        "token_ttl": "10m",
-        "token_max_ttl": "30m",
-        "period": 0,
-        "policies": [
-            "goapp-secret-read"
-        ]
-    }
-EOF
+sudo chmod ugo+r /usr/local/bootstrap/.admin-token
 
-    # Create the AppRole role
-    curl \
-        --location \
-        --header "X-Vault-Token: ${VAULT_TOKEN}" \
-        --request POST \
-        --data @goapp-approle-role.json \
-        ${VAULT_ADDR}/v1/auth/approle/role/goapp | jq .
 
-    APPROLEID=`curl  \
-   --header "X-Vault-Token: ${VAULT_TOKEN}" \
-   ${VAULT_ADDR}/v1/auth/approle/role/goapp/role-id | jq -r .data.role_id`
-
-fi
-
-echo -e "\n\nApplication RoleID = ${APPROLEID}\n\n"
-echo -n ${APPROLEID} > /usr/local/bootstrap/.approle-id
-
-# Write minimal secret-id payload
-tee secret_id_config.json <<EOF
+# provisioner policy hcl definition file
+tee provisioner_policy.hcl <<EOF
+# Manage auth backends broadly across Vault
+path "auth/*"
 {
-  "metadata": "{ \"tag1\": \"goapp production\" }"
+  capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+}
+# List, create, update, and delete auth backends
+path "sys/auth/*"
+{
+  capabilities = ["create", "read", "update", "delete", "sudo"]
+}
+# List existing policies
+path "sys/policy"
+{
+  capabilities = ["read"]
+}
+# Create and manage ACL policies
+path "sys/policy/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+# List, create, update, and delete key/value secrets
+path "secret/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+# List, create, update, and delete key/value secrets
+path "kv/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
 }
 EOF
 
-SECRET_ID=`curl \
-    --location \
-    --header "X-Vault-Token: ${VAULT_TOKEN}" \
-    --request POST \
-    ${VAULT_ADDR}/v1/auth/approle/role/goapp/secret-id | jq -r .data.secret_id`
+# create provisioner policy
+sudo VAULT_TOKEN=${VAULT_TOKEN} VAULT_ADDR="http://${IP}:8200" vault policy write provisioner provisioner_policy.hcl
 
-# login
-tee goapp-secret-id-login.json <<EOF
-{
-  "role_id": "${APPROLEID}",
-  "secret_id": "${SECRET_ID}"
-}
-EOF
+# create a wrapped provisioner token by adding -wrap-ttl=60m
+WRAPPED_PROVISIONER_TOKEN=`sudo VAULT_TOKEN=${VAULT_TOKEN} VAULT_ADDR="http://${IP}:8200" vault token create -policy=provisioner -wrap-ttl=60m -field=wrapping_token`
+sudo echo -n ${WRAPPED_PROVISIONER_TOKEN} > /usr/local/bootstrap/.wrapped-provisioner-token
 
-curl \
-    --request POST \
-    --data @goapp-secret-id-login.json \
-    ${VAULT_ADDR}/v1/auth/approle/login 
+sudo chmod ugo+r /usr/local/bootstrap/.wrapped-provisioner-token
 
+VAULT_ADDR="http://${IP}:8200" vault status
 
-
-
+echo 'Finished Vault Role/Policy Configuration'
