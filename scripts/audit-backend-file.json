@@ -1,6 +1,6 @@
-{
-  "type": "file",
-  "options": {
-    "path": "/vagrant/logs/vault_audit_leader01.log"
-  }
-}
+    {
+        "type": "file",
+        "options": {
+            "path": "/vagrant/logs/vault_audit_leader01.log"
+        }
+    }

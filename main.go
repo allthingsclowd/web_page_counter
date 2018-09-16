@@ -403,35 +403,35 @@ func getVaultToken(factoryAddress string, appRole string) string {
 	return "WIP"
 }
 
-func httpCall(url string, data map[string]interface{}, action string) (map[string]interface{}) {
+// func httpCall(url string, data map[string]interface{}, action string) (map[string]interface{}) {
 
-	bytesRepresentation, err := json.Marshal(data)
+// 	bytesRepresentation, err := json.Marshal(data)
 
-	//var jsonStr = []byte(`{"title":"Buy cheese and bread for breakfast."}`)
-    req, err := http.NewRequest(action, url, bytes.NewBuffer(bytesRepresentation))
-    req.Header.Set("Content-Type", "application/json")
+// 	//var jsonStr = []byte(`{"title":"Buy cheese and bread for breakfast."}`)
+//     req, err := http.NewRequest(action, url, bytes.NewBuffer(bytesRepresentation))
+//     req.Header.Set("Content-Type", "application/json")
 
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    if err != nil {
-        panic(err)
-    }
-    defer resp.Body.Close()
+//     client := &http.Client{}
+//     resp, err := client.Do(req)
+//     if err != nil {
+//         panic(err)
+//     }
+//     defer resp.Body.Close()
 
-    fmt.Println("Service Factory Response Status:", resp.Status)
-	fmt.Println("Service Factory Response Headers:", resp.Header)
+//     fmt.Println("Service Factory Response Status:", resp.Status)
+// 	fmt.Println("Service Factory Response Headers:", resp.Header)
 	
-	var result map[string]interface{}
+// 	var result map[string]interface{}
 
-	json.NewDecoder(resp.Body).Decode(&result)
+// 	json.NewDecoder(resp.Body).Decode(&result)
 
-	fmt.Println("\n\nresponse result: ",result)
-	//fmt.Println("\n\nresponse result .auth:",result["auth"].(map[string]interface{})["client_token"])
+// 	fmt.Println("\n\nresponse result: ",result)
+// 	//fmt.Println("\n\nresponse result .auth:",result["auth"].(map[string]interface{})["client_token"])
 
-	return result
-}
+// 	return result
+// }
 
-func http2Call (url string, data []byte, action string) []byte {
+func http2Call (url string, data []byte, action string) string {
 	//url := "http://restapi3.apiary.io/notes"
     fmt.Println("URL:>", url)
 
@@ -451,7 +451,9 @@ func http2Call (url string, data []byte, action string) []byte {
 
     fmt.Println("response Status:", resp.Status)
     fmt.Println("response Headers:", resp.Header)
-    body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
-	return body
+	body, _ := ioutil.ReadAll(resp.Body)
+	result := string(body)
+	fmt.Println("response Body:", result)
+
+	return result
 }
