@@ -1,18 +1,25 @@
 #!/usr/bin/env bash
 set -x
 
+source /usr/local/bootstrap/var.env
+
 IFACE=`route -n | awk '$1 == "192.168.2.0" {print $8}'`
 CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.2" {print $2}'`
 IP=${CIDR%%/24}
-
-if [ -d /vagrant ]; then
-  LOG="/vagrant/logs/secret_service_${HOSTNAME}.log"
-else
-  LOG="secret_service.log"
-fi
+VAULT_IP=${LEADER_IP}
 
 if [ "${TRAVIS}" == "true" ]; then
-IP=${IP:-127.0.0.1}
+    IP="127.0.0.1"
+    VAULT_IP=${IP}
+fi
+
+export VAULT_ADDR=http://${VAULT_IP}:8200
+export VAULT_SKIP_VERIFY=true
+
+if [ -d /vagrant ]; then
+    LOG="/vagrant/logs/VaultServiceIDFactory_${HOSTNAME}.log"
+else
+    LOG="${TRAVIS_HOME}/VaultServiceIDFactory.log"
 fi
 
 sudo killall VaultServiceIDFactory &>/dev/null
@@ -30,7 +37,7 @@ sudo killall VaultServiceIDFactory &>/dev/null
 }
 
 #sudo /usr/local/bin/VaultServiceIDFactory -vault="http://${IP}:8200" &> ${LOG} &
-sudo /usr/local/bin/VaultServiceIDFactory -vault="bananas" &> ${LOG} &
+sudo /usr/local/bin/VaultServiceIDFactory -vault="${VAULT_ADDR}" &> ${LOG} &
 
 sleep 5
 # initialise the factory service with the provisioner token
