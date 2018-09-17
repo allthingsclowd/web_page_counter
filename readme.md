@@ -520,9 +520,9 @@ __WebCounter Application__
 ### New Features
 
 ### Refactor
-1. Remove all comments from redis.conf.ctpl
-2. Move all the application service checks creation process into the application itself rather than relying on external bash scripts
-3. Ensure the service checks are only deployed to Consul once the application is configured and online
+1. Move all the application service checks creation process into the application itself rather than relying on external bash scripts
+2. Ensure the service checks are only deployed to Consul once the application is configured and online
+3. Configure a Consul Connect intention to permit the applications to communicate with the new Secret-ID Factory
 
 ## Done
 * Build own box using packer with above scripts
@@ -600,6 +600,7 @@ __WebCounter Application__
 * Create Bash Functions to Replace the curl statements in configure_app_role.sh to make it nicer to read
 * Modify the application to request a wrapped secret-id token from the new *Secret-ID Factory* outlined above inorder to obtain its vault token.
 * Change colour from Red to Blue in hand drawn architecture diagram for statement in Redis boc "Password Stored in Vault"
-Configure a Consul Connect intention to permit the applications to communicate with the new Secret-ID Factory
+* Remove all comments from redis.conf.ctpl
+
 
 
