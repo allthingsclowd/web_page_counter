@@ -31,6 +31,7 @@ var targetIP string
 var thisServer string
 var appRolePtr *string
 var factoryIPPtr *string
+var vaultAddress string
 
 func main() {
 	// set the port that the goapp will listen on - defaults to 8080
@@ -153,7 +154,7 @@ func getVaultKV(vaultKey string) string {
 
 	// Read in the Vault address from consul
 	vaultIP := getConsulKV(*consulClient, "LEADER_IP")
-	vaultAddress := "http://" + vaultIP + ":8200"
+	vaultAddress = "http://" + vaultIP + ":8200"
 	fmt.Printf("Secret Store Address : >> %v \n", vaultAddress)
 
 	// Get a handle to the Vault Secret KV API
@@ -390,13 +391,17 @@ func getVaultToken(factoryAddress string, appRole string) string {
 	factoryBaseURL := "http://" + factoryAddress + ":8314"
 	healthAPI := factoryBaseURL + "/health"
 	secretAPI := factoryBaseURL + "/approlename"
+	vaultUnwrapAPI := vaultAddress + "/v1/sys/wrapping/unwrap"
 
-	factoryStatusResponse := http2Call(healthAPI,nil,"GET")
+	factoryStatusResponse := http2Call(healthAPI,nil,"GET","none")
 	fmt.Println("\nHealth API Response:>", factoryStatusResponse)
 
 	var jsonStr = []byte(`{"RoleName":"id-factory"}`)
-	factorySecretResponse := http2Call(secretAPI, jsonStr, "POST")
-	fmt.Println("\nSecret API Response:>", factorySecretResponse)
+	factoryWrappedSecretResponse := http2Call(secretAPI, jsonStr, "POST", "none")
+	fmt.Println("\nWrapped Secret API Response:>", factoryWrappedSecretResponse)
+
+	unwrappedSecretID := http2Call(vaultUnwrapAPI, nil, "POST", factoryWrappedSecretResponse)
+	fmt.Println("\nUnwrapped Secret ID:>", unwrappedSecretID)
 
 
 
@@ -431,14 +436,20 @@ func getVaultToken(factoryAddress string, appRole string) string {
 // 	return result
 // }
 
-func http2Call (url string, data []byte, action string) string {
+func http2Call (url string, data []byte, action string, token string) string {
 	//url := "http://restapi3.apiary.io/notes"
     fmt.Println("URL:>", url)
 
     //var jsonStr = []byte(`{"title":"Buy cheese and bread for breakfast."}`)
     req, err := http.NewRequest(action, url, bytes.NewBuffer(data))
-    //req.Header.Set("X-Custom-Header", "myvalue")
+	//req.Header.Set("X-Custom-Header", "myvalue")
+	if token != "none" {
+		fmt.Printf("Setting HEADER to : %v\n", token)
+		req.Header.Set("X-Vault-Token", token)
+		fmt.Printf("HEADER set to : %v\n", req.Header)
+	}
 	req.Header.Set("Content-Type", "application/json")
+	fmt.Printf("HEADER set to : %v\n", req.Header)
 	
 
     client := &http.Client{}
