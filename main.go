@@ -29,12 +29,17 @@ var consulClient *consul.Client
 var targetPort string
 var targetIP string
 var thisServer string
+var appRolePtr *string
+var factoryIPPtr *string
+var vaultAddress string
 
 func main() {
 	// set the port that the goapp will listen on - defaults to 8080
 
 	portPtr := flag.Int("port", 8080, "Default's to port 8080. Use -port=nnnn to use listen on an alternate port.")
 	ipPtr := flag.String("ip", "0.0.0.0", "Default's to all interfaces by using 0.0.0.0")
+	factoryIPPtr = flag.String("bootstrapip", "127.0.0.1", "Default's to factory service installed on 127.0.0.1")
+	appRolePtr = flag.String("appRole", "id-factory", "Application Role Name to be used to bootstrap access to Vault's secrets")
 	templatePtr := flag.String("templates", "templates/*.html", "Default's to templates/*.html -templates=????")
 	flag.Parse()
 	targetPort = strconv.Itoa(*portPtr)
@@ -147,25 +152,9 @@ func getVaultKV(vaultKey string) string {
 		goapphealth = "NOTGOOD"
 	}
 
-	// Get the static approle id - this could be baked into a base image
-	appRoleIDFile, err := ioutil.ReadFile("/usr/local/bootstrap/.approle-id")
-	if err != nil {
-		fmt.Print(err)
-	}
-	appRoleID := string(appRoleIDFile)
-	fmt.Printf("App-Role ID Returned : >> %v \n", appRoleID)
-
-	// Get a provisioner token to generate a new secret -id ... this would usually occur in the orchestrator rather than the app???
-	vaultTokenFile, err := ioutil.ReadFile("/usr/local/bootstrap/.provisioner-token")
-	if err != nil {
-		fmt.Print(err)
-	}
-	vaultToken := string(vaultTokenFile)
-	fmt.Printf("Secret Token Returned : >> %v \n", vaultToken)
-
 	// Read in the Vault address from consul
 	vaultIP := getConsulKV(*consulClient, "LEADER_IP")
-	vaultAddress := "http://" + vaultIP + ":8200"
+	vaultAddress = "http://" + vaultIP + ":8200"
 	fmt.Printf("Secret Store Address : >> %v \n", vaultAddress)
 
 	// Get a handle to the Vault Secret KV API
@@ -176,39 +165,11 @@ func getVaultKV(vaultKey string) string {
 		fmt.Printf("Failed to get VAULT client >> %v \n", err)
 		return "FAIL"
 	}
-	
-	vaultClient.SetToken(vaultToken)
-	
-	// Generate a new Vault Secret-ID
-    resp, err := vaultClient.Logical().Write("/auth/approle/role/goapp/secret-id", nil)
-    if err != nil {
-		fmt.Printf("Failed to get Secret ID >> %v \n", err)
-		return "Failed"
-    }
-    if resp == nil {
-		fmt.Printf("Failed to get Secfret ID >> %v \n", err)
-		return "Failed"
-    }
 
-	secretID := resp.Data["secret_id"].(string)
-	fmt.Printf("Secret ID Request Response : >> %v \n", secretID)
+	appRoletoken := getVaultToken(*factoryIPPtr, *appRolePtr)
+	fmt.Printf("New Application Token : >> %v \n", appRoletoken)
 
-	// Now using both the APP Role ID & the Secret ID generated above
-	data := map[string]interface{}{
-        "role_id":   appRoleID,
-		"secret_id": secretID,
-	}
-
-	fmt.Printf("Secret ID in map : >> %v \n", data)
-	
-	// Use the AppRole Login api call to get the application's Vault Token which will grant it access to the REDIS database credentials
-	appRoletokenResponse := queryVault(vaultAddress,"/v1/auth/approle/login","",data,"POST")
-
-	appRoletoken := appRoletokenResponse["auth"].(map[string]interface{})["client_token"]
-
-	fmt.Printf("New API Secret Token Request Response : >> %v \n", appRoletoken)
-
-	vaultClient.SetToken(appRoletoken.(string))
+	vaultClient.SetToken(appRoletoken)
 
 	completeKeyPath := "kv/development/" + vaultKey
 	fmt.Printf("Secret Key Path : >> %v \n", completeKeyPath)
@@ -377,7 +338,6 @@ func queryVault(vaultAddress string, url string, token string, data map[string]i
 	apiCall := vaultAddress + url
 	bytesRepresentation, err := json.Marshal(data)
 
-	//var jsonStr = []byte(`{"title":"Buy cheese and bread for breakfast."}`)
     req, err := http.NewRequest(action, apiCall, bytes.NewBuffer(bytesRepresentation))
     req.Header.Set("X-Vault-Token", token)
     req.Header.Set("Content-Type", "application/json")
@@ -398,6 +358,92 @@ func queryVault(vaultAddress string, url string, token string, data map[string]i
 
 	fmt.Println("\n\nresponse result: ",result)
 	fmt.Println("\n\nresponse result .auth:",result["auth"].(map[string]interface{})["client_token"])
+
+	return result
+}
+
+func getVaultToken(factoryAddress string, appRole string) string {
+	
+	// fmt.Println("\nDebug Factory Service Vars Start")
+	// fmt.Println("\nFACTORY ADDRESS:>", factoryAddress)
+	// fmt.Println("\nAPP ROLE:>", appRole)
+	// fmt.Println("\nDebug Vars End")
+
+	factoryBaseURL := "http://" + factoryAddress + ":8314"
+	healthAPI := factoryBaseURL + "/health"
+	secretAPI := factoryBaseURL + "/approlename"
+	vaultUnwrapAPI := vaultAddress + "/v1/sys/wrapping/unwrap"
+
+	factoryStatusResponse := http2Call(healthAPI,nil,"GET","none")
+	fmt.Println("\nHealth API Response:>", factoryStatusResponse)
+
+	var jsonStr = []byte(`{"RoleName":"id-factory"}`)
+	factoryWrappedSecretResponse := http2Call(secretAPI, jsonStr, "POST", "none")
+	fmt.Println("\nWrapped Secret API Response:>", factoryWrappedSecretResponse)
+
+	unwrappedSecretIDResponse := http2Call(vaultUnwrapAPI, nil, "POST", factoryWrappedSecretResponse)
+	
+	var result map[string]interface{}
+
+ 	json.Unmarshal([]byte(unwrappedSecretIDResponse),&result)
+
+	fmt.Println("\n\nresponse result: ",result["data"].(map[string]interface{})["secret_id"])
+	secretID := (result["data"].(map[string]interface{})["secret_id"]).(string)
+
+	// Get the static approle id - this could be baked into a base image
+	appRoleIDFile, err := ioutil.ReadFile("/usr/local/bootstrap/.appRoleID")
+	if err != nil {
+		fmt.Print(err)
+	}
+	appRoleID := string(appRoleIDFile)
+	fmt.Printf("App-Role ID Returned : >> %v \n", appRoleID)
+
+	// Now using both the APP Role ID & the Secret ID retrieve application token
+	data := map[string]interface{}{
+		"role_id":   appRoleID,
+		"secret_id": secretID,
+	}
+
+	fmt.Printf("Secret ID in map : >> %v \n", data)
+	
+	// Use the AppRole Login api call to get the application's Vault Token which will grant it access to the REDIS database credentials
+	appRoletokenResponse := queryVault(vaultAddress,"/v1/auth/approle/login","",data,"POST")
+
+	appRoletoken := (appRoletokenResponse["auth"].(map[string]interface{})["client_token"]).(string)
+
+
+	return appRoletoken
+}
+
+
+func http2Call (url string, data []byte, action string, token string) string {
+
+    //fmt.Println("URL:>", url)
+
+    req, err := http.NewRequest(action, url, bytes.NewBuffer(data))
+
+	if token != "none" {
+		fmt.Printf("Setting HEADER to : %v\n", token)
+		req.Header.Set("X-Vault-Token", token)
+		fmt.Printf("HEADER set to : %v\n", req.Header)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	fmt.Printf("HEADER set to : %v\n", req.Header)
+	
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+		fmt.Printf("Problems Reaching: %v\n", err)
+        //panic(err)
+    }
+    defer resp.Body.Close()
+
+    fmt.Println("response Status:", resp.Status)
+    fmt.Println("response Headers:", resp.Header)
+	body, _ := ioutil.ReadAll(resp.Body)
+	result := string(body)
+	fmt.Println("response Body:", result)
 
 	return result
 }

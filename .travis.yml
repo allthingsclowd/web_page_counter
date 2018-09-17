@@ -6,6 +6,8 @@ addons:
     - redis-server
     - lynx
     - jq
+    - wget
+    - grep
 go:
 - '1.10'
 before_script:
@@ -14,18 +16,17 @@ before_script:
 - if [ $VAGRANT_CLOUD_TOKEN ] ; then packer validate template.json ; fi
 - popd
 - bash scripts/install_consul.sh
-- bash scripts/install_vault.sh
-- bash scripts/configure_app_role.sh
+- bash scripts/install_vault_v2.sh
+- bash scripts/install_SecretID_Factory.sh
 - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
+# - sudo cp /home/travis/.database-token /usr/local/bootstrap/.database-token
+# - sudo cp /home/travis/.provisioner-token /usr/local/bootstrap/.provisioner-token
+# - sudo cp /home/travis/.wrapped-provisioner-token /usr/local/bootstrap/.wrapped-provisioner-token
 script:
 - source ./var.env
 - export REDIS_MASTER_IP=127.0.0.1
-- export REDIS_MASTER_PASSWORD=""
 - export LEADER_IP=127.0.0.1
-# - sudo VAULT_ADDR=http://127.0.0.1:8200 vault secrets enable -version=1 kv
 - sudo VAULT_ADDR=http://127.0.0.1:8200 vault status
-- sudo VAULT_ADDR=http://127.0.0.1:8200 vault kv put kv/development/redispassword value=${REDIS_MASTER_PASSWORD}
-- sudo VAULT_ADDR=http://127.0.0.1:8200 vault kv get kv/development/redispassword
 - consul kv put "development/REDIS_MASTER_IP" "127.0.0.1"
 - consul kv put "development/LEADER_IP" "127.0.0.1"
 - bash scripts/travis_run_go_app.sh
