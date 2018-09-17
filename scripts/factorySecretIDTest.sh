@@ -47,7 +47,7 @@ verify_factory_service () {
     WRAPPED_SECRET_ID=`curl --header "Content-Type: application/json" \
     --request POST \
     --data "{\"RoleName\":\"${ROLENAME}\"}" \
-    http://${FACTORY_IP}:8314/approlename | awk '/Token Received:/{print $NF}'`
+    http://${FACTORY_IP}:8314/approlename`
 
     echo "WRAPPED_SECRET_ID : ${WRAPPED_SECRET_ID}"
 
