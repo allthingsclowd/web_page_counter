@@ -24,14 +24,22 @@ fi
 
 sudo killall VaultServiceIDFactory &>/dev/null
 
+# # check VaultServiceIDFactory binary
+# [ -f /usr/local/bin/VaultServiceIDFactory ] &>/dev/null || {
+#     pushd /usr/local/bin
+#     # download binary and template file from latest release
+#     sudo bash -c 'curl -s https://api.github.com/repos/allthingsclowd/VaultServiceIDFactory/releases/latest \
+#     | grep "browser_download_url" \
+#     | cut -d : -f 2,3 \
+#     | tr -d \" | wget -i - '
+#     sudo chmod +x VaultServiceIDFactory
+#     popd
+# }
+
 # check VaultServiceIDFactory binary
 [ -f /usr/local/bin/VaultServiceIDFactory ] &>/dev/null || {
     pushd /usr/local/bin
-    # download binary and template file from latest release
-    sudo bash -c 'curl -s https://api.github.com/repos/allthingsclowd/VaultServiceIDFactory/releases/latest \
-    | grep "browser_download_url" \
-    | cut -d : -f 2,3 \
-    | tr -d \" | wget -i - '
+    sudo wget https://github.com/allthingsclowd/VaultServiceIDFactory/releases/download/0.0.8/VaultServiceIDFactory
     sudo chmod +x VaultServiceIDFactory
     popd
 }
