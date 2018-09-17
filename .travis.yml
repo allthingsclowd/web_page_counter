@@ -6,6 +6,8 @@ addons:
     - redis-server
     - lynx
     - jq
+    - wget
+    - grep
 go:
 - '1.10'
 before_script:
