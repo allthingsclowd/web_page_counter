@@ -38,7 +38,7 @@ func main() {
 
 	portPtr := flag.Int("port", 8080, "Default's to port 8080. Use -port=nnnn to use listen on an alternate port.")
 	ipPtr := flag.String("ip", "0.0.0.0", "Default's to all interfaces by using 0.0.0.0")
-	factoryIPPtr = flag.String("bootstrapip", "192.168.2.11", "Default's to factory service installed on 192.168.2.11")
+	factoryIPPtr = flag.String("bootstrapip", "127.0.0.1", "Default's to factory service installed on 127.0.0.1")
 	appRolePtr = flag.String("appRole", "id-factory", "Application Role Name to be used to bootstrap access to Vault's secrets")
 	templatePtr := flag.String("templates", "templates/*.html", "Default's to templates/*.html -templates=????")
 	flag.Parse()
