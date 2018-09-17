@@ -26,20 +26,23 @@ sudo killall VaultServiceIDFactory &>/dev/null
 
 # check VaultServiceIDFactory binary
 [ -f /usr/local/bin/VaultServiceIDFactory ] &>/dev/null || {
-    pushd /usr/local/bin
+    sudo pushd /usr/local/bin
     # download binary and template file from latest release
-    curl -s https://api.github.com/repos/allthingsclowd/VaultServiceIDFactory/releases/latest \
+    sudo bash -c 'curl -s https://api.github.com/repos/allthingsclowd/VaultServiceIDFactory/releases/latest \
     | grep "browser_download_url" \
     | cut -d : -f 2,3 \
-    | tr -d \" | sudo wget -i -
+    | tr -d \" | wget -i - '
     sudo chmod +x VaultServiceIDFactory
-    popd
+    sudo popd
 }
 
 #sudo /usr/local/bin/VaultServiceIDFactory -vault="http://${IP}:8200" &> ${LOG} &
 sudo /usr/local/bin/VaultServiceIDFactory -vault="${VAULT_ADDR}" &> ${LOG} &
 
 sleep 5
+
+cat ${LOG}
+
 # initialise the factory service with the provisioner token
 WRAPPED_TOKEN=`cat /usr/local/bootstrap/.wrapped-provisioner-token`
 curl --header 'Content-Type: application/json' \
