@@ -39,7 +39,7 @@ func main() {
 	portPtr := flag.Int("port", 8080, "Default's to port 8080. Use -port=nnnn to use listen on an alternate port.")
 	ipPtr := flag.String("ip", "0.0.0.0", "Default's to all interfaces by using 0.0.0.0")
 	factoryIPPtr = flag.String("bootstrapip", "192.168.2.11", "Default's to factory service installed on 192.168.2.11")
-	appRolePtr = flag.String("appRole", "id-factory", "Application Role to be used to bootstrap access to Vault's secrets")
+	appRolePtr = flag.String("appRole", "id-factory", "Application Role Name to be used to bootstrap access to Vault's secrets")
 	templatePtr := flag.String("templates", "templates/*.html", "Default's to templates/*.html -templates=????")
 	flag.Parse()
 	targetPort = strconv.Itoa(*portPtr)
@@ -165,29 +165,11 @@ func getVaultKV(vaultKey string) string {
 		fmt.Printf("Failed to get VAULT client >> %v \n", err)
 		return "FAIL"
 	}
-	
-
-
-	// secretID := getVaultToken
-	// fmt.Printf("Secret ID Request Response : >> %v \n", secretID)
-
-	// // Now using both the APP Role ID & the Secret ID generated above
-	// data := map[string]interface{}{
-    //     "role_id":   appRoleID,
-	// 	"secret_id": secretID,
-	// }
-
-	// fmt.Printf("Secret ID in map : >> %v \n", data)
-	
-	// Use the AppRole Login api call to get the application's Vault Token which will grant it access to the REDIS database credentials
-	// appRoletokenResponse := queryVault(vaultAddress,"/v1/auth/approle/login","",data,"POST")
-
-	//appRoletoken := appRoletokenResponse["auth"].(map[string]interface{})["client_token"]
 
 	appRoletoken := getVaultToken(*factoryIPPtr, *appRolePtr)
-	fmt.Printf("New API Secret Token Request Response : >> %v \n", appRoletoken)
+	fmt.Printf("New Application Token : >> %v \n", appRoletoken)
 
-	//vaultClient.SetToken(appRoletoken.(string))
+	vaultClient.SetToken(appRoletoken)
 
 	completeKeyPath := "kv/development/" + vaultKey
 	fmt.Printf("Secret Key Path : >> %v \n", completeKeyPath)
@@ -356,7 +338,6 @@ func queryVault(vaultAddress string, url string, token string, data map[string]i
 	apiCall := vaultAddress + url
 	bytesRepresentation, err := json.Marshal(data)
 
-	//var jsonStr = []byte(`{"title":"Buy cheese and bread for breakfast."}`)
     req, err := http.NewRequest(action, apiCall, bytes.NewBuffer(bytesRepresentation))
     req.Header.Set("X-Vault-Token", token)
     req.Header.Set("Content-Type", "application/json")
@@ -383,10 +364,10 @@ func queryVault(vaultAddress string, url string, token string, data map[string]i
 
 func getVaultToken(factoryAddress string, appRole string) string {
 	
-	fmt.Println("\nDebug Factory Service Vars Start")
-	fmt.Println("\nFACTORY ADDRESS:>", factoryAddress)
-	fmt.Println("\nAPP ROLE:>", appRole)
-	fmt.Println("\nDebug Vars End")
+	// fmt.Println("\nDebug Factory Service Vars Start")
+	// fmt.Println("\nFACTORY ADDRESS:>", factoryAddress)
+	// fmt.Println("\nAPP ROLE:>", appRole)
+	// fmt.Println("\nDebug Vars End")
 
 	factoryBaseURL := "http://" + factoryAddress + ":8314"
 	healthAPI := factoryBaseURL + "/health"
@@ -400,49 +381,47 @@ func getVaultToken(factoryAddress string, appRole string) string {
 	factoryWrappedSecretResponse := http2Call(secretAPI, jsonStr, "POST", "none")
 	fmt.Println("\nWrapped Secret API Response:>", factoryWrappedSecretResponse)
 
-	unwrappedSecretID := http2Call(vaultUnwrapAPI, nil, "POST", factoryWrappedSecretResponse)
-	fmt.Println("\nUnwrapped Secret ID:>", unwrappedSecretID)
+	unwrappedSecretIDResponse := http2Call(vaultUnwrapAPI, nil, "POST", factoryWrappedSecretResponse)
+	
+	var result map[string]interface{}
+
+ 	json.Unmarshal([]byte(unwrappedSecretIDResponse),&result)
+
+	fmt.Println("\n\nresponse result: ",result["data"].(map[string]interface{})["secret_id"])
+	secretID := (result["data"].(map[string]interface{})["secret_id"]).(string)
+
+	// Get the static approle id - this could be baked into a base image
+	appRoleIDFile, err := ioutil.ReadFile("/usr/local/bootstrap/.appRoleID")
+	if err != nil {
+		fmt.Print(err)
+	}
+	appRoleID := string(appRoleIDFile)
+	fmt.Printf("App-Role ID Returned : >> %v \n", appRoleID)
+
+	// Now using both the APP Role ID & the Secret ID retrieve application token
+	data := map[string]interface{}{
+		"role_id":   appRoleID,
+		"secret_id": secretID,
+	}
+
+	fmt.Printf("Secret ID in map : >> %v \n", data)
+	
+	// Use the AppRole Login api call to get the application's Vault Token which will grant it access to the REDIS database credentials
+	appRoletokenResponse := queryVault(vaultAddress,"/v1/auth/approle/login","",data,"POST")
+
+	appRoletoken := (appRoletokenResponse["auth"].(map[string]interface{})["client_token"]).(string)
 
 
-
-	return "WIP"
+	return appRoletoken
 }
 
-// func httpCall(url string, data map[string]interface{}, action string) (map[string]interface{}) {
-
-// 	bytesRepresentation, err := json.Marshal(data)
-
-// 	//var jsonStr = []byte(`{"title":"Buy cheese and bread for breakfast."}`)
-//     req, err := http.NewRequest(action, url, bytes.NewBuffer(bytesRepresentation))
-//     req.Header.Set("Content-Type", "application/json")
-
-//     client := &http.Client{}
-//     resp, err := client.Do(req)
-//     if err != nil {
-//         panic(err)
-//     }
-//     defer resp.Body.Close()
-
-//     fmt.Println("Service Factory Response Status:", resp.Status)
-// 	fmt.Println("Service Factory Response Headers:", resp.Header)
-	
-// 	var result map[string]interface{}
-
-// 	json.NewDecoder(resp.Body).Decode(&result)
-
-// 	fmt.Println("\n\nresponse result: ",result)
-// 	//fmt.Println("\n\nresponse result .auth:",result["auth"].(map[string]interface{})["client_token"])
-
-// 	return result
-// }
 
 func http2Call (url string, data []byte, action string, token string) string {
-	//url := "http://restapi3.apiary.io/notes"
-    fmt.Println("URL:>", url)
 
-    //var jsonStr = []byte(`{"title":"Buy cheese and bread for breakfast."}`)
+    //fmt.Println("URL:>", url)
+
     req, err := http.NewRequest(action, url, bytes.NewBuffer(data))
-	//req.Header.Set("X-Custom-Header", "myvalue")
+
 	if token != "none" {
 		fmt.Printf("Setting HEADER to : %v\n", token)
 		req.Header.Set("X-Vault-Token", token)
