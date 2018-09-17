@@ -26,14 +26,14 @@ sudo killall VaultServiceIDFactory &>/dev/null
 
 # check VaultServiceIDFactory binary
 [ -f /usr/local/bin/VaultServiceIDFactory ] &>/dev/null || {
-    sudo pushd /usr/local/bin
+    pushd /usr/local/bin
     # download binary and template file from latest release
     sudo bash -c 'curl -s https://api.github.com/repos/allthingsclowd/VaultServiceIDFactory/releases/latest \
     | grep "browser_download_url" \
     | cut -d : -f 2,3 \
     | tr -d \" | wget -i - '
     sudo chmod +x VaultServiceIDFactory
-    sudo popd
+    popd
 }
 
 #sudo /usr/local/bin/VaultServiceIDFactory -vault="http://${IP}:8200" &> ${LOG} &
