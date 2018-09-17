@@ -10,9 +10,11 @@ setup_environment () {
     if [ -d /vagrant ]; then
         LOG="/vagrant/logs/vault_${HOSTNAME}.log"
         AUDIT_LOG="/vagrant/logs/vault_audit_${HOSTNAME}.log"
+        REDIS_MASTER_PASSWORD=`openssl rand -base64 32`
     else
         LOG="vault.log"
         AUDIT_LOG="vault_audit.log"
+        REDIS_MASTER_PASSWORD=""
     fi
 
     if [ "${TRAVIS}" == "true" ]; then
@@ -350,7 +352,6 @@ set_test_secret_data () {
     
     echo 'Set SECRET Test data in VAULT'
     # Put Redis Password in Vault
-    REDIS_MASTER_PASSWORD=`openssl rand -base64 32`
     sudo VAULT_ADDR="http://${IP}:8200" vault login ${ADMIN_TOKEN}
     sudo VAULT_ADDR="http://${IP}:8200" vault policy list
     sudo VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/redispassword value=${REDIS_MASTER_PASSWORD}
