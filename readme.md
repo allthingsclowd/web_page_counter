@@ -10,8 +10,7 @@ The application used is a simple GOLANG web page counter. (I'm not a dev so be g
 
 The webpage counter application uses a redis backend server, nginx web-proxy frontend server and a server that runs consul server, nomad server, and vault server. Clearly not a production setup but everything than you need to have some fun and hopefully learn a thing or two at the same time.
 
-
-![0dc20014-3036-44e5-aa43-0bddc3e5df7a](https://user-images.githubusercontent.com/9472095/42727319-66902a26-879c-11e8-8241-b68414eaffab.jpeg)
+![img_0029](https://user-images.githubusercontent.com/9472095/45648555-d08a1e80-bac0-11e8-837c-1358597aa531.PNG)
 
 ## Prerequisites - mandatory
 
