@@ -3,7 +3,6 @@ sudo: required
 addons:
   apt:
     packages:
-    - redis-server
     - lynx
     - jq
     - wget
@@ -17,6 +16,7 @@ before_script:
 - popd
 - bash scripts/install_consul.sh
 - bash scripts/install_vault_v2.sh
+- bash scripts/install_redis.sh
 - bash scripts/install_SecretID_Factory.sh
 - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
 # - sudo cp /home/travis/.database-token /usr/local/bootstrap/.database-token
