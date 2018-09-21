@@ -27,10 +27,10 @@ which ${PKG} &>/dev/null || {
 # check consul binary
 [ -f /usr/local/bin/consul ] &>/dev/null || {
     pushd /usr/local/bin
-    [ -f consul_1.2.2_linux_amd64.zip ] || {
-        sudo wget https://releases.hashicorp.com/consul/1.2.2/consul_1.2.2_linux_amd64.zip
+    [ -f consul_1.2.3_linux_amd64.zip ] || {
+        sudo wget https://releases.hashicorp.com/consul/1.2.3/consul_1.2.3_linux_amd64.zip
     }
-    sudo unzip consul_1.2.2_linux_amd64.zip
+    sudo unzip consul_1.2.3_linux_amd64.zip
     sudo chmod +x consul
     popd
 }
@@ -81,7 +81,7 @@ if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
   fi
 
   /usr/local/bin/consul members 2>/dev/null || {
-
+      sudo cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
       sudo /usr/local/bin/consul agent -server -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
     
     sleep 5
