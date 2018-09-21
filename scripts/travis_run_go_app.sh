@@ -3,6 +3,7 @@
 # delayed added to ensure consul has started on host - intermittent failures
 sleep 5
 
+
 go get ./...
 go build -o webcounter main.go
 ./webcounter &
