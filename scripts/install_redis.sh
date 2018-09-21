@@ -54,11 +54,11 @@ EOF
       --data @redis_service.json \
       http://127.0.0.1:8500/v1/agent/service/register
 
-  curl \
-    -v \
-    --request PUT \
-    --data @redis_service.json \
-    http://${LEADER_IP}:8500/v1/catalog/register
+  # curl \
+  #   -v \
+  #   --request PUT \
+  #   --data @redis_service.json \
+  #   http://${LEADER_IP}:8500/v1/catalog/register
 
    curl \
       -v \
@@ -86,6 +86,6 @@ sudo chmod 640 /etc/redis/redis.conf
 # restart redis, register the service with consul and restart consul agent
 sudo service redis-server restart
 register_redis_service_with_consul
-#sudo killall -1 consul
+sudo killall -1 consul
 
 
