@@ -65,7 +65,7 @@ sudo chown redis:redis /etc/redis/redis.conf
 sudo chmod 640 /etc/redis/redis.conf
 
 # restart redis, register the service with consul and restart consul agent
-sudo systemctl restart redis-server
+sudo service redis-server restart
 register_redis_service_with_consul
 sudo killall -1 consul
 
