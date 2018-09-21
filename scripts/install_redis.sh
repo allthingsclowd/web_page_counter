@@ -26,7 +26,7 @@ register_redis_service_with_consul () {
         "redis_version": "4.0"
       },
       "EnableTagOverride": false,
-      "checks": [
+      "Checks": [
           {
             "args": ["/usr/local/bootstrap/scripts/consul_redis_ping.sh"],
             "interval": "10s"
@@ -40,20 +40,25 @@ register_redis_service_with_consul () {
 EOF
   
   curl \
+      -v \
       --request PUT \
       --data @redis_service.json \
       http://127.0.0.1:8500/v1/agent/service/register
+
+   curl \
+      -v \
+      http://127.0.0.1:8500/v1/agent/services
    
     echo 'Register service with Consul Service Discovery Complete'
 }
 
-# install this package in base image in the future
+#install this package in base image in the future
 which jq &>/dev/null || {
-  sudo apt-get update
-  sudo apt-get install -y jq
+ sudo apt-get update
+ sudo apt-get install -y jq
 }
 
-echo "${REDIS_MASTER_IP}     ${REDIS_MASTER_NAME}" >> /etc/hosts
+sudo echo "${REDIS_MASTER_IP}     ${REDIS_MASTER_NAME}" >> /etc/hosts
 
 sudo VAULT_TOKEN=`cat /usr/local/bootstrap/.database-token` VAULT_ADDR="http://${LEADER_IP}:8200" consul-template -template "/usr/local/bootstrap/conf/master.redis.ctpl:/etc/redis/redis.conf" -once
 sudo chown redis:redis /etc/redis/redis.conf
