@@ -3,6 +3,15 @@ set -x
 
 source /usr/local/bootstrap/var.env
 
+echo 'Start Setup of Vault Environment'
+IFACE=`route -n | awk '$1 == "192.168.2.0" {print $8}'`
+CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.2" {print $2}'`
+IP=${CIDR%%/24}
+
+if [ "${TRAVIS}" == "true" ]; then
+  IP="127.0.0.1"
+fi
+
 if [ "${TRAVIS}" == "true" ]; then
   LEADER_IP="127.0.0.1"
 fi
@@ -20,7 +29,7 @@ register_redis_service_with_consul () {
         "primary",
         "v1"
       ],
-      "Address": "127.0.0.1",
+      "Address": "${IP}",
       "Port": 6379,
       "Meta": {
         "redis_version": "4.0"
@@ -44,6 +53,12 @@ EOF
       --request PUT \
       --data @redis_service.json \
       http://127.0.0.1:8500/v1/agent/service/register
+
+  curl \
+    -v \
+    --request PUT \
+    --data @redis_service.json \
+    http://127.0.0.1:8500/v1/agent/catalog/register
 
    curl \
       -v \
