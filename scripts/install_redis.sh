@@ -58,11 +58,15 @@ EOF
     -v \
     --request PUT \
     --data @redis_service.json \
-    http://127.0.0.1:8500/v1/agent/catalog/register
+    http://${LEADER_IP}:8500/v1/catalog/register
 
    curl \
       -v \
       http://127.0.0.1:8500/v1/agent/services
+
+     curl \
+      -v \
+      http://${LEADER_IP}:8500/v1/catalog/services
    
     echo 'Register service with Consul Service Discovery Complete'
 }
