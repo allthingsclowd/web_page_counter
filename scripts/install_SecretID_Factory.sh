@@ -18,7 +18,7 @@ register_secret_id_service_with_consul () {
       "Address": "${IP}",
       "Port": 8314,
       "Meta": {
-        "SecretID Factory Service": "0.0.1"
+        "SecretID-Factory-Service": "0.0.1"
       },
       "EnableTagOverride": false,
       "check": 
