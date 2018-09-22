@@ -15,7 +15,7 @@ before_script:
 - if [ $VAGRANT_CLOUD_TOKEN ] ; then packer validate template.json ; fi
 - popd
 - bash scripts/install_consul.sh
-- bash scripts/install_vault_v2.sh
+- bash scripts/install_vault.sh
 - bash scripts/install_redis.sh
 - bash scripts/install_SecretID_Factory.sh
 - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
