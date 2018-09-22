@@ -31,34 +31,6 @@ setup_environment () {
     echo 'End Setup of Vault Environment'
 }
 
-install_vault () {
-    
-    echo 'Start Installation of Vault on Server'
-    # verify it's either the TRAVIS server or the Vault server
-    if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
-        #lets kill past instance
-        sudo killall vault &>/dev/null
-
-        #lets delete old consul storage
-        sudo consul kv delete -recurse vault
-
-        #delete old token if present
-        [ -f /usr/local/bootstrap/.vault-token ] && sudo rm /usr/local/bootstrap/.vault-token
-
-        #start vault
-        sudo /usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/usr/local/bootstrap/conf/vault.hcl &> ${LOG} &
-        echo vault started
-        sleep 3 
-        
-        #copy token to known location
-        sudo find / -name '.vault-token' -exec cp {} /usr/local/bootstrap/.vault-token \; -quit
-        sudo chmod ugo+r /usr/local/bootstrap/.vault-token
-
-    fi
-    
-    echo 'Installation of Vault Finished'
-}
-
 configure_vault_KV_audit_logs () {
     
     echo 'Start Vault KV Version Selection and Audit Log Enablement'
@@ -411,15 +383,42 @@ EOF
 
 }
 
+install_vault () {
+    
+    echo 'Start Installation of Vault on Server'
+    # verify it's either the TRAVIS server or the Vault server
+    if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
+        #lets kill past instance
+        sudo killall vault &>/dev/null
+
+        #lets delete old consul storage
+        sudo consul kv delete -recurse vault
+
+        #delete old token if present
+        [ -f /usr/local/bootstrap/.vault-token ] && sudo rm /usr/local/bootstrap/.vault-token
+
+        #start vault
+        sudo /usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/usr/local/bootstrap/conf/vault.hcl &> ${LOG} &
+        echo vault started
+        sleep 3 
+        
+        #copy token to known location
+        sudo find / -name '.vault-token' -exec cp {} /usr/local/bootstrap/.vault-token \; -quit
+        sudo chmod ugo+r /usr/local/bootstrap/.vault-token
+        configure_vault_KV_audit_logs
+        configure_vault_admin_role
+        configure_vault_database_role
+        configure_vault_provisioner_role_wrapped
+        configure_vault_app_role
+        #revoke_root_token
+        set_test_secret_data
+        get_secret_id
+        get_approle_id
+        verify_approle_credentials
+    fi
+    
+    echo 'Installation of Vault Finished'
+}
+
 setup_environment
 install_vault
-configure_vault_KV_audit_logs
-configure_vault_admin_role
-configure_vault_database_role
-configure_vault_provisioner_role_wrapped
-configure_vault_app_role
-#revoke_root_token
-set_test_secret_data
-get_secret_id
-get_approle_id
-verify_approle_credentials
