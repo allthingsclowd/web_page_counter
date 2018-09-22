@@ -54,12 +54,6 @@ EOF
       --data @redis_service.json \
       http://127.0.0.1:8500/v1/agent/service/register
 
-  # curl \
-  #   -v \
-  #   --request PUT \
-  #   --data @redis_service.json \
-  #   http://${LEADER_IP}:8500/v1/catalog/register
-
    curl \
       -v \
       http://127.0.0.1:8500/v1/agent/services
