@@ -520,8 +520,9 @@ __WebCounter Application__
 ### New Features
 
 ### Refactor
-1. Move all the application service checks creation process into the application itself rather than relying on external bash scripts
+1. Move all the application service checks creation process into the application itself rather than relying on external bash scripts for both redis and webpage counter
 2. Ensure the service checks are only deployed to Consul once the application is configured and online
+3. Refactor application to leverage consul service discovery for VAULT details
 3. Configure a Consul Connect intention to permit the applications to communicate with the new Secret-ID Factory
 
 ## Done
