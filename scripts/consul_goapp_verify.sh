@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 source /usr/local/bootstrap/var.env
 
-set -e
+set -x
 
 echo "running consul goapp client health test"
 app_health="NOTGOOD"
