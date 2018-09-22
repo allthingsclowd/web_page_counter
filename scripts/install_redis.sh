@@ -3,7 +3,7 @@ set -x
 
 source /usr/local/bootstrap/var.env
 
-echo 'Start Setup of Vault Environment'
+echo 'Start Setup of Redis Deployment Environment'
 IFACE=`route -n | awk '$1 == "192.168.2.0" {print $8}'`
 CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.2" {print $2}'`
 IP=${CIDR%%/24}
@@ -20,7 +20,7 @@ register_redis_service_with_consul () {
     
     echo 'Start to register service with Consul Service Discovery'
 
-    # configure Audit Backend
+    # configure redis service definition
     tee redis_service.json <<EOF
     {
       "ID": "redis",
