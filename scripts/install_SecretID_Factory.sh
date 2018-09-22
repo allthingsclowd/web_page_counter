@@ -3,6 +3,58 @@ set -x
 
 source /usr/local/bootstrap/var.env
 
+register_secret_id_service_with_consul () {
+    
+    echo 'Start to register secret_id service with Consul Service Discovery'
+
+    # configure web service definition
+    tee secretid_service.json <<EOF
+    {
+      "Name": "appsecret",
+      "Tags": [
+        "approle",
+        "secret-id"
+      ],
+      "Address": "${IP}",
+      "Port": 8314,
+      "Meta": {
+        "SecretID Factory Service": "0.0.1"
+      },
+      "EnableTagOverride": false,
+      "check": 
+        {
+          "id": "api",
+          "name": "Factory Service SecretID",
+          "http": "http://${IP}:8314/health",
+          "tls_skip_verify": true,
+          "method": "GET",
+          "interval": "10s",
+          "timeout": "1s"
+        }
+    }
+EOF
+
+  # Register the service in consul via the local Consul agent api
+  curl \
+      -v \
+      --request PUT \
+      --data @secretid_service.json \
+      http://127.0.0.1:8500/v1/agent/service/register
+
+  # List the locally registered services via local Consul api
+  curl \
+    -v \
+    http://127.0.0.1:8500/v1/agent/services | jq -r .
+
+  # List the services regestered on the Consul server
+  curl \
+  -v \
+  http://${LEADER_IP}:8500/v1/catalog/services | jq -r .
+   
+    echo 'Register nginx service with Consul Service Discovery Complete'
+
+}
+
 IFACE=`route -n | awk '$1 == "192.168.2.0" {print $8}'`
 CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.2" {print $2}'`
 IP=${CIDR%%/24}
@@ -57,3 +109,5 @@ curl --header 'Content-Type: application/json' \
     --request POST \
     --data "{\"token\":\""${WRAPPED_TOKEN}"\"}" \
     http://${IP}:8314/initialiseme
+
+register_secret_id_service_with_consul

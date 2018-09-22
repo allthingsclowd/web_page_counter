@@ -21,38 +21,37 @@ register_nginx_service_with_consul () {
     echo 'Start to register nginx service with Consul Service Discovery'
 
     # configure web service definition
-    tee redis_service.json <<EOF
+    tee nginx_service.json <<EOF
     {
-      "ID": "redis",
-      "Name": "redis",
+      "Name": "nginx",
       "Tags": [
-        "primary",
-        "v1"
+        "proxy",
+        "lbaas"
       ],
       "Address": "${IP}",
-      "Port": 6379,
+      "Port": 9090,
       "Meta": {
-        "redis_version": "4.0"
+        "nginx": "0.0.1"
       },
       "EnableTagOverride": false,
-      "Checks": [
-          {
-            "args": ["/usr/local/bootstrap/scripts/consul_redis_ping.sh"],
-            "interval": "10s"
-          },
-          {
-              "args": ["/usr/local/bootstrap/scripts/consul_redis_verify.sh"],
-              "interval": "10s"
-          }
-        ]
+      "check": 
+        {
+          "id": "api",
+          "name": "HTTP API on port 9090",
+          "http": "http://${IP}:9090/health",
+          "tls_skip_verify": true,
+          "method": "GET",
+          "interval": "10s",
+          "timeout": "1s"
+        }
     }
 EOF
-  
+
   # Register the service in consul via the local Consul agent api
   curl \
       -v \
       --request PUT \
-      --data @redis_service.json \
+      --data @nginx_service.json \
       http://127.0.0.1:8500/v1/agent/service/register
 
   # List the locally registered services via local Consul api
@@ -76,9 +75,7 @@ which jq &>/dev/null || {
 # remove nginx default website
 [ -f /etc/nginx/sites-enabled/default ] && sudo rm -f /etc/nginx/sites-enabled/default
 
-# copy a consul service definition directory
-sudo mkdir -p /etc/consul.d
-sudo cp -p /usr/local/bootstrap/conf/consul.d/webtier.json /etc/consul.d/webtier.json
+register_nginx_service_with_consul
 
 # make consul reload conf
 sudo killall -1 consul
