@@ -602,6 +602,7 @@ __WebCounter Application__
 * Modify the application to request a wrapped secret-id token from the new *Secret-ID Factory* outlined above inorder to obtain its vault token.
 * Change colour from Red to Blue in hand drawn architecture diagram for statement in Redis boc "Password Stored in Vault"
 * Remove all comments from redis.conf.ctpl
+* Moved Redis service registration from HCL file to API - fixed tests too
 
 
 
