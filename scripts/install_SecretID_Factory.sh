@@ -10,7 +10,7 @@ register_secret_id_service_with_consul () {
     # configure web service definition
     tee secretid_service.json <<EOF
     {
-      "Name": "appsecret",
+      "Name": "approle",
       "Tags": [
         "approle",
         "secret-id"
