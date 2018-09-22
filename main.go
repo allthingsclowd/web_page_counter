@@ -29,7 +29,7 @@ var consulClient *consul.Client
 var targetPort string
 var targetIP string
 var thisServer string
-var appRolePtr *string
+var appRoleID *string
 var factoryIPPtr *string
 var vaultAddress string
 
@@ -38,8 +38,7 @@ func main() {
 
 	portPtr := flag.Int("port", 8080, "Default's to port 8080. Use -port=nnnn to use listen on an alternate port.")
 	ipPtr := flag.String("ip", "127.0.0.1", "Default's to all interfaces by using 127.0.0.1")
-	factoryIPPtr = flag.String("bootstrapip", "127.0.0.1", "Default's to factory service installed on 127.0.0.1")
-	appRolePtr = flag.String("appRole", "id-factory", "Application Role Name to be used to bootstrap access to Vault's secrets")
+	appRoleID = flag.String("appRole", "id-factory", "Application Role Name to be used to bootstrap access to Vault's secrets")
 	templatePtr := flag.String("templates", "templates/*.html", "Default's to templates/*.html -templates=????")
 	flag.Parse()
 	targetPort = strconv.Itoa(*portPtr)
@@ -152,9 +151,9 @@ func getVaultKV(vaultKey string) string {
 		goapphealth = "NOTGOOD"
 	}
 
-	// Read in the Vault address from consul
-	vaultIP := getConsulKV(*consulClient, "LEADER_IP")
-	vaultAddress = "http://" + vaultIP + ":8200"
+	// Read in the Vault service details from consul
+	vaultService := getConsulSVC(*consulClient, "vault")
+	vaultAddress = "http://" + vaultService
 	fmt.Printf("Secret Store Address : >> %v \n", vaultAddress)
 
 	// Get a handle to the Vault Secret KV API
@@ -166,7 +165,8 @@ func getVaultKV(vaultKey string) string {
 		return "FAIL"
 	}
 
-	appRoletoken := getVaultToken(*factoryIPPtr, *appRolePtr)
+	approleService := getConsulSVC(*consulClient, "approle")
+	appRoletoken := getVaultToken(approleService, *appRoleID)
 	fmt.Printf("New Application Token : >> %v \n", appRoletoken)
 
 	vaultClient.SetToken(appRoletoken)
@@ -369,7 +369,7 @@ func getVaultToken(factoryAddress string, appRole string) string {
 	// fmt.Println("\nAPP ROLE:>", appRole)
 	// fmt.Println("\nDebug Vars End")
 
-	factoryBaseURL := "http://" + factoryAddress + ":8314"
+	factoryBaseURL := "http://" + factoryAddress
 	healthAPI := factoryBaseURL + "/health"
 	secretAPI := factoryBaseURL + "/approlename"
 	vaultUnwrapAPI := vaultAddress + "/v1/sys/wrapping/unwrap"
