@@ -19,5 +19,5 @@ chmod +x /usr/local/bin/webcounter
 
 cp /usr/local/bootstrap/scripts/consul_goapp_verify.sh /usr/local/bin/.
 
-nomad job run /usr/local/bootstrap/nomad_job.hcl 2&>1 /dev/null || true
+nomad job run /usr/local/bootstrap/nomad_job.hcl || true
 
