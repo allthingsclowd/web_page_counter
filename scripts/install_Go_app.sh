@@ -11,7 +11,7 @@ curl -s https://api.github.com/repos/allthingsclowd/web_page_counter/releases/la
 
 [[ -d /usr/local/bin/templates ]] || mkdir /usr/local/bin/templates
 
-nomad job stop peach &>/dev/null
+nomad job stop webpagecounter &>/dev/null
 killall webcounter &>/dev/null
 mv webcounter /usr/local/bin/.
 mv *.html /usr/local/bin/templates/.
@@ -19,4 +19,5 @@ chmod +x /usr/local/bin/webcounter
 
 cp /usr/local/bootstrap/scripts/consul_goapp_verify.sh /usr/local/bin/.
 
-nomad job run /usr/local/bootstrap/nomad_job.hcl
+nomad job run /usr/local/bootstrap/nomad_job.hcl 2&>1 /dev/null || true
+
