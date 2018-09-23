@@ -1,13 +1,13 @@
-job "peach" {
+job "webpagecounter" {
     datacenters = ["dc1"]
     type        = "service"
-    group "example" {
+    group "webcountergroup" {
       count = 4
-      task "example" {
+      task "deploy-webcounters" {
         driver = "raw_exec"
         config {
             command = "/usr/local/bin/webcounter"
-            args = ["-port=${NOMAD_PORT_http}", "-ip=0.0.0.0", "-bootstrapip=192.168.2.11","-templates=/usr/local/bin/templates/*.html"]
+            args = ["-port=${NOMAD_PORT_http}", "-ip=0.0.0.0","-templates=/usr/local/bin/templates/*.html"]
         }
         resources {
           cpu    = 20

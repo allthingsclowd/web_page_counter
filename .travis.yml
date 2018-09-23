@@ -3,7 +3,6 @@ sudo: required
 addons:
   apt:
     packages:
-    - redis-server
     - lynx
     - jq
     - wget
@@ -16,12 +15,10 @@ before_script:
 - if [ $VAGRANT_CLOUD_TOKEN ] ; then packer validate template.json ; fi
 - popd
 - bash scripts/install_consul.sh
-- bash scripts/install_vault_v2.sh
+- bash scripts/install_vault.sh
+- bash scripts/install_redis.sh
 - bash scripts/install_SecretID_Factory.sh
 - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
-# - sudo cp /home/travis/.database-token /usr/local/bootstrap/.database-token
-# - sudo cp /home/travis/.provisioner-token /usr/local/bootstrap/.provisioner-token
-# - sudo cp /home/travis/.wrapped-provisioner-token /usr/local/bootstrap/.wrapped-provisioner-token
 script:
 - source ./var.env
 - export REDIS_MASTER_IP=127.0.0.1
