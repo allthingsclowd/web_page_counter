@@ -2,8 +2,6 @@ job "webpagecounter" {
     datacenters = ["dc1"]
     type        = "service"
 
-
-
     group "webcountergroup-a" {
       constraint {
         distinct_hosts = true
