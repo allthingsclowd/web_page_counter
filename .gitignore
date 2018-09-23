@@ -11,3 +11,4 @@ main
 .database-token
 .wrapped-provisioner-token
 .DS_Store
+*.json
