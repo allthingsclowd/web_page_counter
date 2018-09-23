@@ -520,9 +520,8 @@ __WebCounter Application__
 ### New Features
 
 ### Refactor
-1. Move all the application service checks creation process into the application itself rather than relying on external bash scripts
-2. Ensure the service checks are only deployed to Consul once the application is configured and online
-3. Configure a Consul Connect intention to permit the applications to communicate with the new Secret-ID Factory
+
+*. Configure a Consul Connect intention to permit the applications to communicate with the new Secret-ID Factory
 
 ## Done
 * Build own box using packer with above scripts
@@ -601,6 +600,10 @@ __WebCounter Application__
 * Modify the application to request a wrapped secret-id token from the new *Secret-ID Factory* outlined above inorder to obtain its vault token.
 * Change colour from Red to Blue in hand drawn architecture diagram for statement in Redis boc "Password Stored in Vault"
 * Remove all comments from redis.conf.ctpl
+* Moved Redis service registration from HCL file to API - fixed tests too
+* Move all the application service checks creation process into the application deployment itself rather than relying on external bash scripts for both redis and webpage counter
+* Refactor application to leverage consul service discovery for VAULT details
+
 
 
 
