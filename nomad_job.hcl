@@ -6,7 +6,7 @@ job "webpagecounter" {
       constraint {
         distinct_hosts = true
       }
-      count = 2
+      count = 0
       task "deploy-webcounters-a" {
         driver = "raw_exec"
         config {
@@ -50,12 +50,12 @@ job "webpagecounter" {
       }
     }
       group "webcountergroup-b" {
-      count = 3
+      count = 0
       task "deploy-webcounters-b" {
         driver = "raw_exec"
         config {
             command = "/usr/local/bin/webcounter"
-            args = ["-port=${NOMAD_PORT_http}", "-ip=0.0.0.0","-templates=/usr/local/bin/templates/*.html"]
+            args = ["-port=${NOMAD_PORT_http}", "-ip=0.0.0.0"]
         }
         resources {
           cpu    = 20
