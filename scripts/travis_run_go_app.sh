@@ -2,7 +2,7 @@
 set -x
 
 # delayed added to ensure consul has started on host - intermittent failures
-sleep 5
+sleep 2
 
 
 go get ./...
@@ -10,11 +10,11 @@ go build -o webcounter main.go
 ./webcounter &
 
 # delay added to allow webcounter startup
-sleep 5
+sleep 2
 
-page_hit_counter=`lynx --dump http://localhost:8080 | awk 'FNR==3{ print $1 }'`
+page_hit_counter=`lynx --dump http://localhost:8080`
 echo $page_hit_counter
-next_page_hit_counter=`lynx --dump http://localhost:8080 | awk 'FNR==3{ print $1 }'`
+next_page_hit_counter=`lynx --dump http://localhost:8080`
 echo $next_page_hit_counter
 if (( next_page_hit_counter > page_hit_counter )); then
  echo "Successful Page Hit Update"

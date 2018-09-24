@@ -39,7 +39,6 @@ func main() {
 	portPtr := flag.Int("port", 8080, "Default's to port 8080. Use -port=nnnn to use listen on an alternate port.")
 	ipPtr := flag.String("ip", "127.0.0.1", "Default's to all interfaces by using 127.0.0.1")
 	appRoleID = flag.String("appRole", "id-factory", "Application Role Name to be used to bootstrap access to Vault's secrets")
-	templatePtr := flag.String("templates", "templates/*.html", "Default's to templates/*.html -templates=????")
 	flag.Parse()
 	targetPort = strconv.Itoa(*portPtr)
 	targetIP = *ipPtr
@@ -73,7 +72,6 @@ func main() {
 	portDetail.WriteString(targetPort)
 	fmt.Printf("URL: %s \n", portDetail.String())
 
-	templates = template.Must(template.ParseGlob(*templatePtr))
 	r := mux.NewRouter()
 	r.HandleFunc("/", indexHandler).Methods("GET")
 	r.HandleFunc("/health", healthHandler).Methods("GET")
@@ -86,12 +84,17 @@ func main() {
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	pagehits, err := redisClient.Incr("pagehits").Result()
+	w.Header().Set("PageCountIP", targetIP)
+	w.Header().Set("PageCountServer", thisServer)
+	w.Header().Set("PageCountPort", targetPort)
 	if err != nil {
 		fmt.Printf("Failed to increment page counter: %v. Check the Redis service is running \n", err)
+		fmt.Fprintf(w, "Failed to increment page counter: %v. Check the Redis service is running \n", err)
 		goapphealth = "NOTGOOD"
 		pagehits = 0
 	} else {
 		fmt.Printf("Successfully updated page counter to: %v \n", pagehits)
+		fmt.Fprintf(w, "%v", pagehits)
 		goapphealth = "GOOD"
 		dataDog := updateDataDogGuagefromValue("WebCounter", targetPort, "TotalPageHits", float64(pagehits))
 		if !dataDog {
@@ -101,14 +104,6 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		if !dataDog {
 			fmt.Printf("Failed to set datadog counter.")
 		}
-		w.Header().Set("PageCountIP", targetIP)
-		w.Header().Set("PageCountServer", thisServer)
-		w.Header().Set("PageCountPort", targetPort)
-	
-		pageErr := templates.ExecuteTemplate(w, "index.html", pagehits)
-		if pageErr != nil {
-			fmt.Printf("Failed to Load Application Status Page: %v \n", pageErr)
-		}
 
 	}
 
@@ -117,14 +112,11 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Printf("Application Status: %v \n", goapphealth)
 	w.Header().Set("PageCountIP", targetIP)
 	w.Header().Set("PageCountServer", thisServer)
 	w.Header().Set("PageCountPort", targetPort)
-	err := templates.ExecuteTemplate(w, "health.html", goapphealth)
-	if err != nil {
-		fmt.Printf("Failed to Load Application Status Page: %v \n", err)
-	}
+	fmt.Fprintf(w, "%v", goapphealth)
+	fmt.Printf("Application Status: %v \n", goapphealth)
 
 }
 
@@ -132,6 +124,7 @@ func crashHandler(w http.ResponseWriter, r *http.Request) {
 	
 	goapphealth = "FORCEDCRASH"
 	fmt.Printf("You Killed Me!!!!!! Application Status: %v \n", goapphealth)
+	fmt.Fprintf(w, "%v", goapphealth)
 	dataDog := sendDataDogEvent("WebCounter Crashed", targetPort)
 	if !dataDog {
 		fmt.Printf("Failed to send datadog event.")
