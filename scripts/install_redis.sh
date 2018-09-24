@@ -68,12 +68,6 @@ EOF
     echo 'Register service with Consul Service Discovery Complete'
 }
 
-#install this package in base image in the future
-which jq &>/dev/null || {
- sudo apt-get update
- sudo apt-get install -y jq
-}
-
 sudo echo "${REDIS_MASTER_IP}     ${REDIS_MASTER_NAME}" >> /etc/hosts
 
 sudo VAULT_TOKEN=`cat /usr/local/bootstrap/.database-token` VAULT_ADDR="http://${LEADER_IP}:8200" consul-template -template "/usr/local/bootstrap/conf/master.redis.ctpl:/etc/redis/redis.conf" -once

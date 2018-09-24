@@ -17,13 +17,6 @@ if [ "${TRAVIS}" == "true" ]; then
 IP=${IP:-127.0.0.1}
 fi
 
-PKG="wget unzip jq curl"
-which ${PKG} &>/dev/null || {
-  export DEBIAN_FRONTEND=noninteractive
-  apt-get update
-  apt-get install -y ${PKG}
-}
-
 # check consul binary
 [ -f /usr/local/bin/consul ] &>/dev/null || {
     pushd /usr/local/bin

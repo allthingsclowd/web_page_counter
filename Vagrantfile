@@ -22,7 +22,7 @@ Vagrant.configure("2") do |config|
     #global config
     config.vm.synced_folder ".", "/vagrant"
     config.vm.synced_folder ".", "/usr/local/bootstrap"
-    config.vm.box = "allthingscloud/go-counter-demo"
+    config.vm.box = "allthingscloud/web-page-counter"
     config.vm.provision "shell", path: "scripts/install_consul.sh", run: "always"
     config.vm.provision "shell", path: "scripts/install_vault.sh", run: "always"
     # config.vm.provision "shell", path: "scripts/install_dd_agent.sh", env: {"DD_API_KEY" => ENV['DD_API_KEY']}

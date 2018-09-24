@@ -67,11 +67,6 @@ EOF
     echo 'Register nginx service with Consul Service Discovery Complete'
 }
 
-which jq &>/dev/null || {
-  # potentially add jq to base image
-  sudo apt-get update
-  sudo apt-get install -y jq
-}
 # remove nginx default website
 [ -f /etc/nginx/sites-enabled/default ] && sudo rm -f /etc/nginx/sites-enabled/default
 
