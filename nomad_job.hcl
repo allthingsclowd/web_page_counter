@@ -6,7 +6,7 @@ job "webpagecounter" {
       constraint {
         distinct_hosts = true
       }
-      count = 0
+      count = 2
       task "deploy-webcounters-a" {
         driver = "raw_exec"
         config {
@@ -50,7 +50,7 @@ job "webpagecounter" {
       }
     }
       group "webcountergroup-b" {
-      count = 0
+      count = 2
       task "deploy-webcounters-b" {
         driver = "raw_exec"
         config {
