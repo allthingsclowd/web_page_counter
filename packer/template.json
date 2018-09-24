@@ -1,7 +1,7 @@
 {
   "variables": {
-    "name": "allthingscloud/go-counter-demo",
-    "build_name": "go-counter-demo",
+    "name": "allthingscloud/web-page-counter",
+    "build_name": "web-page-counter",
     "build_cpu_cores": "2",
     "build_memory": "1024",
     "cpu_cores": "1",

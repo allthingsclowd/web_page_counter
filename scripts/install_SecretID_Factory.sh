@@ -89,14 +89,6 @@ sudo killall VaultServiceIDFactory &>/dev/null
     popd
 }
 
-# # check VaultServiceIDFactory binary
-# [ -f /usr/local/bin/VaultServiceIDFactory ] &>/dev/null || {
-#     pushd /usr/local/bin
-#     sudo wget https://github.com/allthingsclowd/VaultServiceIDFactory/releases/download/0.0.8/VaultServiceIDFactory
-#     sudo chmod +x VaultServiceIDFactory
-#     popd
-# }
-
 #sudo /usr/local/bin/VaultServiceIDFactory -vault="http://${IP}:8200" &> ${LOG} &
 sudo /usr/local/bin/VaultServiceIDFactory -vault="${VAULT_ADDR}" &> ${LOG} &
 
