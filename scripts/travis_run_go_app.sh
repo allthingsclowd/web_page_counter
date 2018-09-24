@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # delayed added to ensure consul has started on host - intermittent failures
-sleep 5
+sleep 10
 
 
 go get ./...
@@ -9,7 +9,7 @@ go build -o webcounter main.go
 ./webcounter &
 
 # delay added to allow webcounter startup
-sleep 3
+sleep 10
 
 page_hit_counter=`lynx --dump http://localhost:8080 | awk 'FNR==3{ print $1 }'`
 echo $page_hit_counter
