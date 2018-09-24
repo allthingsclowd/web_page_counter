@@ -77,9 +77,13 @@ fi
 
 sudo killall VaultServiceIDFactory &>/dev/null
 
-# check VaultServiceIDFactory binary
-[ -f /usr/local/bin/VaultServiceIDFactory ] &>/dev/null || {
+# Added loop below to overcome Travis-CI download issue
+RETRYDOWNLOAD="1"
+
+while [ ${RETRYDOWNLOAD} -lt 5 ] && [ ! -f /usr/local/bin/VaultServiceIDFactory ]
+do
     pushd /usr/local/bin
+    echo 'Vault SecretID Service Download - Take ${RETRYDOWNLOAD}' 
     # download binary and template file from latest release
     sudo bash -c 'curl -s https://api.github.com/repos/allthingsclowd/VaultServiceIDFactory/releases/latest \
     | grep "browser_download_url" \
@@ -87,6 +91,13 @@ sudo killall VaultServiceIDFactory &>/dev/null
     | tr -d \" | wget -i - '
     sudo chmod +x VaultServiceIDFactory
     popd
+    RETRYDOWNLOAD=$[${RETRYDOWNLOAD}+1]
+    sleep 5
+done
+
+[  -f /usr/local/bin/VaultServiceIDFactory  ] &>/dev/null || {
+     echo 'Failed to download Vault Secret ID Factory Service'
+     exit 1
 }
 
 #sudo /usr/local/bin/VaultServiceIDFactory -vault="http://${IP}:8200" &> ${LOG} &
