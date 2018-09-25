@@ -67,6 +67,7 @@ EOF
     echo 'Register nginx service with Consul Service Discovery Complete'
 }
 
+sudo mv /tmp/wpc-fe /var/www/
 # remove nginx default website
 [ -f /etc/nginx/sites-enabled/default ] && sudo rm -f /etc/nginx/sites-enabled/default
 
