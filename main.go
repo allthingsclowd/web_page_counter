@@ -84,6 +84,7 @@ func main() {
 
 func enableCors(w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE")
 	(*w).Header().Set("PageCountIP", targetIP)
 	(*w).Header().Set("PageCountServer", thisServer)
 	(*w).Header().Set("PageCountPort", targetPort)

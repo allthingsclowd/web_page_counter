@@ -67,7 +67,7 @@ EOF
     echo 'Register nginx service with Consul Service Discovery Complete'
 }
 
-sudo mv /usr/local/bootstrap/webclient/wpc-fe /var/www/wpc-fe
+sudo cp /usr/local/bootstrap/webclient/wpc-fe /var/www/wpc-fe
 sudo cp /usr/local/bootstrap/conf/wpc-fe.conf /etc/nginx/conf.d/wpc-fe.conf
 
 # remove nginx default website
