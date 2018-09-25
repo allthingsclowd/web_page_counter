@@ -82,11 +82,19 @@ func main() {
 
 }
 
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("PageCountIP", targetIP)
+	(*w).Header().Set("PageCountServer", thisServer)
+	(*w).Header().Set("PageCountPort", targetPort)
+}
+
+
+
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	pagehits, err := redisClient.Incr("pagehits").Result()
-	w.Header().Set("PageCountIP", targetIP)
-	w.Header().Set("PageCountServer", thisServer)
-	w.Header().Set("PageCountPort", targetPort)
+
+	enableCors(&w)
 	if err != nil {
 		fmt.Printf("Failed to increment page counter: %v. Check the Redis service is running \n", err)
 		fmt.Fprintf(w, "Failed to increment page counter: %v. Check the Redis service is running \n", err)
@@ -112,9 +120,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("PageCountIP", targetIP)
-	w.Header().Set("PageCountServer", thisServer)
-	w.Header().Set("PageCountPort", targetPort)
+	enableCors(&w)
 	fmt.Fprintf(w, "%v", goapphealth)
 	fmt.Printf("Application Status: %v \n", goapphealth)
 
@@ -122,6 +128,7 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 
 func crashHandler(w http.ResponseWriter, r *http.Request) {
 	
+	enableCors(&w)
 	goapphealth = "FORCEDCRASH"
 	fmt.Printf("You Killed Me!!!!!! Application Status: %v \n", goapphealth)
 	fmt.Fprintf(w, "%v", goapphealth)
