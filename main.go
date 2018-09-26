@@ -76,17 +76,26 @@ func main() {
 	r.HandleFunc("/", indexHandler).Methods("GET")
 	r.HandleFunc("/health", healthHandler).Methods("GET")
 	r.HandleFunc("/crash", crashHandler).Methods("POST")
-	r.HandleFunc("/crash", indexHandler).Methods("GET")
+	r.HandleFunc("/crash", optionsHandler).Methods("OPTIONS")
 	http.Handle("/", r)
 	http.ListenAndServe(portDetail.String(), r)
 
 }
 
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE")
+	(*w).Header().Set("PageCountIP", targetIP)
+	(*w).Header().Set("PageCountServer", thisServer)
+	(*w).Header().Set("PageCountPort", targetPort)
+}
+
+
+
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	pagehits, err := redisClient.Incr("pagehits").Result()
-	w.Header().Set("PageCountIP", targetIP)
-	w.Header().Set("PageCountServer", thisServer)
-	w.Header().Set("PageCountPort", targetPort)
+
+	enableCors(&w)
 	if err != nil {
 		fmt.Printf("Failed to increment page counter: %v. Check the Redis service is running \n", err)
 		fmt.Fprintf(w, "Failed to increment page counter: %v. Check the Redis service is running \n", err)
@@ -112,25 +121,31 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("PageCountIP", targetIP)
-	w.Header().Set("PageCountServer", thisServer)
-	w.Header().Set("PageCountPort", targetPort)
+	enableCors(&w)
 	fmt.Fprintf(w, "%v", goapphealth)
 	fmt.Printf("Application Status: %v \n", goapphealth)
 
 }
 
+func optionsHandler(w http.ResponseWriter, r *http.Request) {
+
+	enableCors(&w)
+	return
+
+}
+
 func crashHandler(w http.ResponseWriter, r *http.Request) {
 	
-	goapphealth = "FORCEDCRASH"
-	fmt.Printf("You Killed Me!!!!!! Application Status: %v \n", goapphealth)
+	enableCors(&w)
+	goapphealth = "Killing service on port " + targetPort + "on server " + thisServer + "(" + targetIP + ")!"
+	fmt.Printf("Application Status: %v \n", goapphealth)
 	fmt.Fprintf(w, "%v", goapphealth)
 	dataDog := sendDataDogEvent("WebCounter Crashed", targetPort)
 	if !dataDog {
 		fmt.Printf("Failed to send datadog event.")
 	}
 	// added delay to ensure event is sent before process terminates
-	time.Sleep(2 * time.Second)
+	time.Sleep(3 * time.Second)
 	os.Exit(1)
 
 }
