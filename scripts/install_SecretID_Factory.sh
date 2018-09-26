@@ -100,7 +100,7 @@ done
      exit 1
 }
 
-sudo chmod +x VaultServiceIDFactory
+sudo chmod +x /usr/local/bin/VaultServiceIDFactory
 sudo /usr/local/bin/VaultServiceIDFactory -vault="${VAULT_ADDR}" &> ${LOG} &
 
 sleep 5
