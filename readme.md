@@ -2,6 +2,13 @@
 
 # Web Page Counter
 
+When all is good it should look like this - 
+![image](https://user-images.githubusercontent.com/9472095/46105006-cbb62080-c1cc-11e8-8f54-6eab4023a5bb.png)
+
+When we have a failure the self healing kicks in -
+![image](https://user-images.githubusercontent.com/9472095/46105187-45e6a500-c1cd-11e8-93c2-24fe935f6e7b.png)
+
+
 ## An introduction to the new style of Cloud Infrastructure using HASHICORP's - PACKER, VAGRANT, CONSUL, NOMAD & VAULT
 
 These tools free up developers to focus on application development whilst giving operations teams a secure, flexible, scalable and governed infrastructure. These tools satisfy the most demanding cloud native applications of today but can still easily integrate with, deploy and manage traditional applications too.
@@ -512,12 +519,17 @@ job "peach" {
 
 __WebCounter Application__
 
-![image](https://user-images.githubusercontent.com/9472095/43806904-eee1d05a-9a9d-11e8-9717-4dfc0bc74f67.png)
+The front end code and backend code has been separated. Back end APIs are available on port 9090 and the front end SPA angular application is served from port 9091 
+
+![image](https://user-images.githubusercontent.com/9472095/46105187-45e6a500-c1cd-11e8-93c2-24fe935f6e7b.png)
 
 
 ## TODO
 
 ### New Features
+
+* Write up overview of new factory service the leverage's Vaults APP-Role to bootstrap the services
+* Write up note on new web front end (just as a reminder for myself - lots of CORS challenges)
 
 ### Refactor
 
@@ -602,7 +614,10 @@ __WebCounter Application__
 * Remove all comments from redis.conf.ctpl
 * Moved Redis service registration from HCL file to API - fixed tests too
 * Move all the application service checks creation process into the application deployment itself rather than relying on external bash scripts for both redis and webpage counter
-* Refactor application to leverage consul service discovery for VAULT details
+* Refactor application to leverage consul service discovery for VAULT details . 
+* Added new, prettier, frontend that facilitates smoother demonstrations by separating the frontend and backend code,
+  written in Angular 6 and served from the NGINX proxy server on port 9091
+
 
 
 
