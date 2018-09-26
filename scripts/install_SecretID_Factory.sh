@@ -80,7 +80,7 @@ sudo killall VaultServiceIDFactory &>/dev/null
 # Added loop below to overcome Travis-CI download issue
 RETRYDOWNLOAD="1"
 
-while [ ${RETRYDOWNLOAD} -lt 5 ] && [ ! -f /usr/local/bin/VaultServiceIDFactory ]
+while [ ${RETRYDOWNLOAD} -lt 10 ] && [ ! -f /usr/local/bin/VaultServiceIDFactory ]
 do
     pushd /usr/local/bin
     echo 'Vault SecretID Service Download - Take ${RETRYDOWNLOAD}' 
@@ -89,7 +89,7 @@ do
     | grep "browser_download_url" \
     | cut -d : -f 2,3 \
     | tr -d \" | wget -i - '
-    sudo chmod +x VaultServiceIDFactory
+    
     popd
     RETRYDOWNLOAD=$[${RETRYDOWNLOAD}+1]
     sleep 5
@@ -100,7 +100,7 @@ done
      exit 1
 }
 
-#sudo /usr/local/bin/VaultServiceIDFactory -vault="http://${IP}:8200" &> ${LOG} &
+sudo chmod +x VaultServiceIDFactory
 sudo /usr/local/bin/VaultServiceIDFactory -vault="${VAULT_ADDR}" &> ${LOG} &
 
 sleep 5
