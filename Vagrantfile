@@ -63,6 +63,7 @@ Vagrant.configure("2") do |config|
         web01.vm.network "private_network", ip: ENV['NGINX_IP']
         web01.vm.network "forwarded_port", guest: ENV['NGINX_GUEST_PORT'], host: ENV['NGINX_HOST_PORT']
         web01.vm.provision :shell, path: "scripts/install_webserver.sh"
+        web01.vm.network "forwarded_port", guest: 9091, host: 9091
    end
 
 end
