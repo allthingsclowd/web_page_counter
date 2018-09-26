@@ -76,7 +76,7 @@ func main() {
 	r.HandleFunc("/", indexHandler).Methods("GET")
 	r.HandleFunc("/health", healthHandler).Methods("GET")
 	r.HandleFunc("/crash", crashHandler).Methods("POST")
-	r.HandleFunc("/crash", indexHandler).Methods("GET")
+	r.HandleFunc("/crash", optionsHandler).Methods("OPTIONS")
 	http.Handle("/", r)
 	http.ListenAndServe(portDetail.String(), r)
 
@@ -127,18 +127,25 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func optionsHandler(w http.ResponseWriter, r *http.Request) {
+
+	enableCors(&w)
+	return
+
+}
+
 func crashHandler(w http.ResponseWriter, r *http.Request) {
 	
 	enableCors(&w)
-	goapphealth = "FORCEDCRASH"
-	fmt.Printf("You Killed Me!!!!!! Application Status: %v \n", goapphealth)
+	goapphealth = "Killing service on port " + targetPort + "on server " + thisServer + "(" + targetIP + ")!"
+	fmt.Printf("Application Status: %v \n", goapphealth)
 	fmt.Fprintf(w, "%v", goapphealth)
 	dataDog := sendDataDogEvent("WebCounter Crashed", targetPort)
 	if !dataDog {
 		fmt.Printf("Failed to send datadog event.")
 	}
 	// added delay to ensure event is sent before process terminates
-	time.Sleep(2 * time.Second)
+	time.Sleep(3 * time.Second)
 	os.Exit(1)
 
 }
