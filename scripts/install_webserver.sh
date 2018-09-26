@@ -67,6 +67,32 @@ EOF
     echo 'Register nginx service with Consul Service Discovery Complete'
 }
 
+# Added loop below to overcome Travis-CI download issue
+RETRYDOWNLOAD="1"
+
+while [ ${RETRYDOWNLOAD} -lt 5 ] && [ ! -d /var/www/wpc-fe ]
+do
+    pushd /tmp/wpc-fe
+    echo 'Web Front end Download' 
+    # download binary and template file from latest release
+    sudo bash -c 'curl -s https://api.github.com/repos/allthingsclowd/wep_page_counter_front-end/releases/latest \
+    | grep "browser_download_url" \
+    | cut -d : -f 2,3 \
+    | tr -d \" | wget -i - '
+    sudo tar -xvf webcounterpagefrontend.tar.gz -C /var/www
+    popd
+    RETRYDOWNLOAD=$[${RETRYDOWNLOAD}+1]
+    sleep 5
+done
+
+
+[  -f /var/www/wpc-fe/index.html  ] &>/dev/null || {
+     echo 'Web Front End Download Failed'
+     exit 1
+}
+
+sudo cp /usr/local/bootstrap/conf/wpc-fe.conf /etc/nginx/conf.d/wpc-fe.conf
+
 # remove nginx default website
 [ -f /etc/nginx/sites-enabled/default ] && sudo rm -f /etc/nginx/sites-enabled/default
 
