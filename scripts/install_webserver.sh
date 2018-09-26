@@ -72,6 +72,7 @@ RETRYDOWNLOAD="1"
 
 while [ ${RETRYDOWNLOAD} -lt 5 ] && [ ! -d /var/www/wpc-fe ]
 do
+    sudo mkdir -p /tmp/wpc-fe
     pushd /tmp/wpc-fe
     echo 'Web Front end Download' 
     # download binary and template file from latest release
