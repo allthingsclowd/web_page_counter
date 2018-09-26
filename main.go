@@ -74,7 +74,9 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", indexHandler).Methods("GET")
+	r.HandleFunc("/", optionsHandler).Methods("OPTIONS")
 	r.HandleFunc("/health", healthHandler).Methods("GET")
+	r.HandleFunc("/health", optionsHandler).Methods("OPTIONS")
 	r.HandleFunc("/crash", crashHandler).Methods("POST")
 	r.HandleFunc("/crash", optionsHandler).Methods("OPTIONS")
 	http.Handle("/", r)
