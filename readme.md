@@ -2,10 +2,11 @@
 
 # Web Page Counter
 
-When all is good it should look like this - 
+## When all is good it should look like this - 
+
 ![image](https://user-images.githubusercontent.com/9472095/46105006-cbb62080-c1cc-11e8-8f54-6eab4023a5bb.png)
 
-When we have a failure the self healing kicks in -
+## When we envoke a failure the self healing kicks in -
 ![image](https://user-images.githubusercontent.com/9472095/46105187-45e6a500-c1cd-11e8-93c2-24fe935f6e7b.png)
 
 
@@ -521,7 +522,7 @@ __WebCounter Application__
 
 The front end code and backend code has been separated. Back end APIs are available on port 9090 and the front end SPA angular application is served from port 9091 
 
-![image](https://user-images.githubusercontent.com/9472095/46105187-45e6a500-c1cd-11e8-93c2-24fe935f6e7b.png)
+![image](https://user-images.githubusercontent.com/9472095/46106049-92cb7b00-c1cf-11e8-9dcb-75533dd52955.png)
 
 
 ## TODO
