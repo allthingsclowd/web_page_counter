@@ -10,13 +10,13 @@ apt-get remove -y plymouth-theme-ubuntu-text
 sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="quiet"/GRUB_CMDLINE_LINUX_DEFAULT=""/' /etc/default/grub
 update-grub
 
-apt-get install -y wget unzip git redis-server nginx lynx jq curl
+apt-get install -y wget -q unzip git redis-server nginx lynx jq curl
 
 which /usr/local/go &>/dev/null || {
     mkdir -p /tmp/go_src
     pushd /tmp/go_src
     [ -f go1.10.3.linux-amd64.tar.gz ] || {
-        wget -nv https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz
+        wget -q -nv https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz
     }
     tar -C /usr/local -xzf go1.10.3.linux-amd64.tar.gz
     popd

@@ -22,7 +22,7 @@ setup_environment () {
     which /usr/local/bin/vault &>/dev/null || {
         pushd /usr/local/bin
         [ -f vault_0.11.1_linux_amd64.zip ] || {
-            sudo wget https://releases.hashicorp.com/vault/0.11.1/vault_0.11.1_linux_amd64.zip
+            sudo wget -q https://releases.hashicorp.com/vault/0.11.1/vault_0.11.1_linux_amd64.zip
         }
         sudo unzip vault_0.11.1_linux_amd64.zip
         sudo chmod +x vault

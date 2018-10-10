@@ -5,7 +5,7 @@ addons:
     packages:
     - lynx
     - jq
-    - wget
+    - wget -q
     - grep
 go:
 - '1.10'

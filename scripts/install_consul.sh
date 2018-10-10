@@ -21,7 +21,7 @@ fi
 [ -f /usr/local/bin/consul ] &>/dev/null || {
     pushd /usr/local/bin
     [ -f consul_1.2.3_linux_amd64.zip ] || {
-        sudo wget https://releases.hashicorp.com/consul/1.2.3/consul_1.2.3_linux_amd64.zip
+        sudo wget -q https://releases.hashicorp.com/consul/1.2.3/consul_1.2.3_linux_amd64.zip
     }
     sudo unzip consul_1.2.3_linux_amd64.zip
     sudo chmod +x consul
@@ -32,7 +32,7 @@ fi
 [ -f /usr/local/bin/consul-template ] &>/dev/null || {
     pushd /usr/local/bin
     [ -f consul-template_0.19.5_linux_amd64.zip ] || {
-        sudo wget https://releases.hashicorp.com/consul-template/0.19.5/consul-template_0.19.5_linux_amd64.zip
+        sudo wget -q https://releases.hashicorp.com/consul-template/0.19.5/consul-template_0.19.5_linux_amd64.zip
     }
     sudo unzip consul-template_0.19.5_linux_amd64.zip
     sudo chmod +x consul-template
@@ -43,7 +43,7 @@ fi
 [ -f /usr/local/bin/envconsul ] &>/dev/null || {
     pushd /usr/local/bin
     [ -f envconsul_0.7.3_linux_amd64.zip ] || {
-        sudo wget https://releases.hashicorp.com/envconsul/0.7.3/envconsul_0.7.3_linux_amd64.zip
+        sudo wget -q https://releases.hashicorp.com/envconsul/0.7.3/envconsul_0.7.3_linux_amd64.zip
     }
     sudo unzip envconsul_0.7.3_linux_amd64.zip
     sudo chmod +x envconsul

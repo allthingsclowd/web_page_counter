@@ -7,7 +7,7 @@ source /usr/local/bootstrap/var.env
 curl -s https://api.github.com/repos/allthingsclowd/web_page_counter/releases/latest \
 | grep "browser_download_url" \
 | cut -d : -f 2,3 \
-| tr -d \" | wget -i -
+| tr -d \" | wget -q -i -
 
 [[ -d /usr/local/bin/templates ]] || mkdir /usr/local/bin/templates
 

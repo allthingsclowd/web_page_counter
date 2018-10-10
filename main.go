@@ -227,7 +227,7 @@ func getConsulSVC(consulClient consul.Client, key string) string {
 
 	myService, _, err := sd.Service(key, "", nil)
 	if err != nil {
-		fmt.Printf("Failed to discover Redis Service : e.g. curl http://localhost:8500/v1/catalog/service/redis >> %v \n", err)
+		fmt.Printf("Failed to discover Redis Service : e.g. curl -s http://localhost:8500/v1/catalog/service/redis >> %v \n", err)
 		return "0"
 	}
 	serviceDetail.WriteString(string(myService[0].Address))
