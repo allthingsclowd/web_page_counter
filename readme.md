@@ -545,7 +545,7 @@ The front end code and backend code has been separated. Back end APIs are availa
 * Add 'manual' test scripts to TravisCI
    * source env file
    * over write variables for local redis 
-   * use `curl` to verify app returns http 200 & exit 0
+   * use `curl -s` to verify app returns http 200 & exit 0
    * use `lynx --dump` to capture counter updates between refreshes
    * Add TravisCI for Go APP
 * scripted added to read in var.env and upload to consul
@@ -609,7 +609,7 @@ The front end code and backend code has been separated. Back end APIs are availa
 * Build a new service (Secret-ID Factory) that generates a wrapped secret-id upon receipt of an app-role - (api only)
 * Build this in a separate repository using a similar CI/CD pipeline mentality
 * Deploy the new Secret-ID Factory as a service within this repo once complete
-* Create Bash Functions to Replace the curl statements in configure_app_role.sh to make it nicer to read
+* Create Bash Functions to Replace the curl -s -s statements in configure_app_role.sh to make it nicer to read
 * Modify the application to request a wrapped secret-id token from the new *Secret-ID Factory* outlined above inorder to obtain its vault token.
 * Change colour from Red to Blue in hand drawn architecture diagram for statement in Redis boc "Password Stored in Vault"
 * Remove all comments from redis.conf.ctpl
