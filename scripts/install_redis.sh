@@ -49,19 +49,19 @@ register_redis_service_with_consul () {
 EOF
   
   # Register the service in consul via the local Consul agent api
-  curl \
+  curl -s \
       -v \
       --request PUT \
       --data @redis_service.json \
       http://127.0.0.1:8500/v1/agent/service/register
 
   # List the locally registered services via local Consul api
-  curl \
+  curl -s \
     -v \
     http://127.0.0.1:8500/v1/agent/services | jq -r .
 
   # List the services regestered on the Consul server
-  curl \
+  curl -s \
   -v \
   http://${LEADER_IP}:8500/v1/catalog/services | jq -r .
    
