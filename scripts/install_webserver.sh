@@ -79,7 +79,7 @@ do
     sudo bash -c 'curl -s https://api.github.com/repos/allthingsclowd/wep_page_counter_front-end/releases/latest \
     | grep "browser_download_url" \
     | cut -d : -f 2,3 \
-    | tr -d \" | wget -i - '
+    | tr -d \" | wget -q -i - '
     sudo tar -xvf webcounterpagefrontend.tar.gz -C /var/www
     popd
     RETRYDOWNLOAD=$[${RETRYDOWNLOAD}+1]

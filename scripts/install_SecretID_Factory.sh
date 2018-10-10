@@ -88,7 +88,7 @@ do
     sudo bash -c 'curl -s https://api.github.com/repos/allthingsclowd/VaultServiceIDFactory/releases/latest \
     | grep "browser_download_url" \
     | cut -d : -f 2,3 \
-    | tr -d \" | wget -i - '
+    | tr -d \" | wget -q -i - '
     
     popd
     RETRYDOWNLOAD=$[${RETRYDOWNLOAD}+1]
