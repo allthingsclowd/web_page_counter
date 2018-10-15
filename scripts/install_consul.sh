@@ -5,6 +5,7 @@ create_consul_service_user () {
   sudo useradd --system --home /etc/consul.d --shell /bin/false consul
   sudo mkdir --parents /opt/consul
   sudo chown --recursive consul:consul /opt/consul
+  sudo chown -R consul:consul /etc/consul.d /usr/local/consul
 }
 
 source /usr/local/bootstrap/var.env
@@ -82,8 +83,7 @@ if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
   fi
 
   /usr/local/bin/consul members 2>/dev/null || {
-      sudo cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
-      sudo chown -R consul:consul /etc/consul.d/.
+      sudo -u consul cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
       sudo -u consul /usr/local/bin/consul agent -server -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
     
     sleep 5
