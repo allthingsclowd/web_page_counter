@@ -15,8 +15,8 @@ fi
 
 which nomad &>/dev/null || {
   pushd /usr/local/bin
-  wget -q https://releases.hashicorp.com/nomad/0.8.5/nomad_0.8.5_linux_amd64.zip
-  unzip nomad_0.8.5_linux_amd64.zip
+  wget -q https://releases.hashicorp.com/nomad/0.8.6/nomad_0.8.6_linux_amd64.zip
+  unzip nomad_0.8.6_linux_amd64.zip
   chmod +x nomad
   popd
 }
