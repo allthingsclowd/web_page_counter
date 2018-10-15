@@ -3,9 +3,8 @@ set -x
 
 create_consul_service_user () {
   sudo useradd --system --home /etc/consul.d --shell /bin/false consul
-  sudo mkdir --parents /opt/consul
-  sudo chown --recursive consul:consul /opt/consul
-  sudo chown -R consul:consul /etc/consul.d /usr/local/consul
+  sudo mkdir --parents /opt/consul /usr/local/consul
+  sudo chown --recursive consul:consul /opt/consul /etc/consul.d /usr/local/consul
 }
 
 source /usr/local/bootstrap/var.env
