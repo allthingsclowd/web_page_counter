@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -x
 
+create_consul_service_user () {
+  sudo useradd --system --home /etc/consul.d --shell /bin/false consul
+  sudo mkdir --parents /opt/consul
+  sudo chown --recursive consul:consul /opt/consul
+}
+
 source /usr/local/bootstrap/var.env
 
 IFACE=`route -n | awk '$1 == "192.168.2.0" {print $8;exit}'`
@@ -52,6 +58,8 @@ fi
 
 AGENT_CONFIG="-config-dir=/etc/consul.d -enable-script-checks=true"
 sudo mkdir -p /etc/consul.d
+create_consul_service_user
+
 # check for consul hostname or travis => server
 if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
   echo server
@@ -75,7 +83,8 @@ if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
 
   /usr/local/bin/consul members 2>/dev/null || {
       sudo cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
-      sudo /usr/local/bin/consul agent -server -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
+      sudo chown -R consul:consul /etc/consul.d/.
+      su - consul -c "/usr/local/bin/consul agent -server -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &"
     
     sleep 5
     # upload vars to consul kv
@@ -91,7 +100,7 @@ if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
 else
   echo agent
   /usr/local/bin/consul members 2>/dev/null || {
-    /usr/local/bin/consul agent -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -join=${LEADER_IP} >${LOG} &
+    su - consul -c "/usr/local/bin/consul agent -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -join=${LEADER_IP} >${LOG} &"
     sleep 10
   }
 fi
