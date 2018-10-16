@@ -30,19 +30,8 @@ register_redis_service_with_consul () {
         "name": "redis",
         "port": 6379,
         "connect": { "sidecar_service": {} }
-      },
-      "checks": [
-              {
-                "name": "redis-basic-connectivity",
-                "args": ["/usr/local/bootstrap/scripts/consul_redis_ping.sh"],
-                "interval": "10s"
-              },
-              {
-                  "name": "redis-functionality",
-                  "args": ["/usr/local/bootstrap/scripts/consul_redis_verify.sh"],
-                  "interval": "10s"
-              }
-            ]
+      }
+      
     }
 EOF
   
