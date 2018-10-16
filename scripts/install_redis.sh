@@ -35,6 +35,7 @@ register_redis_service_with_consul () {
         "redis_version": "4.0"
       },
       "EnableTagOverride": false,
+      "Connect": { "sidecar_service": {} },
       "Checks": [
           {
             "args": ["/usr/local/bootstrap/scripts/consul_redis_ping.sh"],
@@ -78,9 +79,11 @@ sudo chmod 640 /etc/redis/redis.conf
 sudo service redis-server restart
 register_redis_service_with_consul
 sudo killall -1 consul
-# sleep 5
+sleep 5
 
 # start the new service mesh proxy
-# sudo consul connect proxy -sidecar-for redis &
+sudo consul connect proxy -sidecar-for redis &
+
+echo "Redis Server Build Complete"
 
 
