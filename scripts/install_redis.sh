@@ -35,17 +35,7 @@ register_redis_service_with_consul () {
         "redis_version": "4.0"
       },
       "EnableTagOverride": false,
-      "Connect": { "sidecar_service": {} },
-      "Checks": [
-          {
-            "args": ["/usr/local/bootstrap/scripts/consul_redis_ping.sh"],
-            "interval": "10s"
-          },
-          {
-              "args": ["/usr/local/bootstrap/scripts/consul_redis_verify.sh"],
-              "interval": "10s"
-          }
-        ]
+      "Connect": { "sidecar_service": {} }
     }
 EOF
   
