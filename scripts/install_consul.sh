@@ -6,7 +6,7 @@ create_consul_service_user () {
   if ! grep consul /etc/passwd >/dev/null 2>&1; then
     echo "Creating consul user to run the consul service"
     sudo useradd --system --home /etc/consul.d --shell /bin/false consul
-    sudo mkdir --parents /opt/consul /usr/local/consul
+    sudo mkdir --parents /opt/consul /usr/local/consul /etc/consul.d
     sudo chown --recursive consul:consul /opt/consul /etc/consul.d /usr/local/consul
   fi
 
