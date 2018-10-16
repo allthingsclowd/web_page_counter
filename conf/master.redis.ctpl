@@ -88,7 +88,7 @@ aof-rewrite-incremental-fsync yes
 maxmemory-policy noeviction
 
 # Ensure Redis only listens on the local host when configuring Consul connect
-#bind 127.0.0.1
+bind 127.0.0.1
 
 # Consul-Template is used in the redis file at deployment time
 # It reads the password from Vault and inserts it into this file
