@@ -1,59 +1,43 @@
 #!/usr/bin/env bash
-set -x
+setup_environment () {
+  set -x
+  source /usr/local/bootstrap/var.env
+  echo 'Start Setup of Redis Deployment Environment'
 
-source /usr/local/bootstrap/var.env
+  IFACE=`route -n | awk '$1 == "192.168.2.0" {print $8;exit}'`
+  CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.2" {print $2}'`
+  IP=${CIDR%%/24}
 
-echo 'Start Setup of Redis Deployment Environment'
-IFACE=`route -n | awk '$1 == "192.168.2.0" {print $8}'`
-CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.2" {print $2}'`
-IP=${CIDR%%/24}
+  if [ -d /vagrant ]; then
+    LOG="/vagrant/logs/redis_proxy_${HOSTNAME}.log"
+  else
+    LOG="redis_proxy_${HOSTNAME}.log"
+  fi
 
-if [ "${TRAVIS}" == "true" ]; then
-  IP="127.0.0.1"
-fi
+  if [ "${TRAVIS}" == "true" ]; then
+    IP="127.0.0.1"
+    LEADER_IP=${IP}
+  fi
 
-if [ "${TRAVIS}" == "true" ]; then
-  LEADER_IP="127.0.0.1"
-fi
-
+}
 register_redis_service_with_consul () {
     
     echo 'Start to register service with Consul Service Discovery'
 
-    # configure redis service definition
-    tee redis_service.json <<EOF
+    cat <<EOF | sudo tee /etc/consul.d/redis.json
     {
-      "ID": "redis",
-      "Name": "redis",
-      "Tags": [
-        "primary",
-        "v1"
-      ],
-      "Address": "${IP}",
-      "Port": 6379,
-      "Meta": {
-        "redis_version": "4.0"
-      },
-      "EnableTagOverride": false,
-      "Checks": [
-          {
-            "args": ["/usr/local/bootstrap/scripts/consul_redis_ping.sh"],
-            "interval": "10s"
-          },
-          {
-              "args": ["/usr/local/bootstrap/scripts/consul_redis_verify.sh"],
-              "interval": "10s"
-          }
-        ]
+      "service": {
+        "name": "redis",
+        "port": 6379,
+        "connect": { "sidecar_service": {} }
+      }
+      
     }
 EOF
   
   # Register the service in consul via the local Consul agent api
-  curl -s \
-      -v \
-      --request PUT \
-      --data @redis_service.json \
-      http://127.0.0.1:8500/v1/agent/service/register
+  consul reload
+  sleep 5
 
   # List the locally registered services via local Consul api
   curl -s \
@@ -68,15 +52,30 @@ EOF
     echo 'Register service with Consul Service Discovery Complete'
 }
 
-sudo echo "${REDIS_MASTER_IP}     ${REDIS_MASTER_NAME}" >> /etc/hosts
+configure_redis () {
+  sudo echo "${REDIS_MASTER_IP}     ${REDIS_MASTER_NAME}" >> /etc/hosts
+  sudo VAULT_TOKEN=`cat /usr/local/bootstrap/.database-token` VAULT_ADDR="http://${LEADER_IP}:8200" consul-template -template "/usr/local/bootstrap/conf/master.redis.ctpl:/etc/redis/redis.conf" -once
+  sudo chown redis:redis /etc/redis/redis.conf
+  sudo chmod 640 /etc/redis/redis.conf
+  # restart redis, register the service with consul and restart consul agent
+  sudo service redis-server restart
+}
 
-sudo VAULT_TOKEN=`cat /usr/local/bootstrap/.database-token` VAULT_ADDR="http://${LEADER_IP}:8200" consul-template -template "/usr/local/bootstrap/conf/master.redis.ctpl:/etc/redis/redis.conf" -once
-sudo chown redis:redis /etc/redis/redis.conf
-sudo chmod 640 /etc/redis/redis.conf
+start_redis_proxy_service () {
+  # start the new service mesh proxy
+  sudo consul connect proxy -sidecar-for redis >${LOG} &
+  sleep 2
+  sudo cat ${LOG}
+  echo "Redis Server Build Complete"
+}
 
-# restart redis, register the service with consul and restart consul agent
-sudo service redis-server restart
+setup_environment
+configure_redis
 register_redis_service_with_consul
-sudo killall -1 consul
+start_redis_proxy_service
+
+
+
+
 
 

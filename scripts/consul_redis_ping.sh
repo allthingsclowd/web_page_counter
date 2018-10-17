@@ -7,7 +7,7 @@ set -x
 VAULT_TOKEN=`cat /usr/local/bootstrap/.database-token`
 VAULT_ADDR="http://${LEADER_IP}:8200"
 
-TESTPASSWORD=`sudo VAULT_ADDR="http://${LEADER_IP}:8200" VAULT_TOKEN=${VAULT_TOKEN} /usr/local/bin/vault kv get -field=value kv/development/redispassword`
+TESTPASSWORD=`VAULT_ADDR="http://${LEADER_IP}:8200" VAULT_TOKEN=${VAULT_TOKEN} /usr/local/bin/vault kv get -field=value kv/development/redispassword`
 
 echo "running client ping test"
 
