@@ -54,7 +54,7 @@ func main() {
 	} else {
 
 		redisClient = redis.NewClient(&redis.Options{
-			Addr:     redisMaster,
+			Addr:     "127.0.0.1:8878",
 			Password: redisPassword,
 			DB:       0, // use default DB
 		})
