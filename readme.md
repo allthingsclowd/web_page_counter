@@ -618,6 +618,7 @@ The front end code and backend code has been separated. Back end APIs are availa
 * Refactor application to leverage consul service discovery for VAULT details . 
 * Added new, prettier, frontend that facilitates smoother demonstrations by separating the frontend and backend code,
   written in Angular 6 and served from the NGINX proxy server on port 9091
+* Added Consul Connect for Redis Service
 
 
 

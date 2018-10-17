@@ -9,7 +9,7 @@ echo "running client test"
 VAULT_TOKEN=`cat /usr/local/bootstrap/.database-token`
 VAULT_ADDR="http://${LEADER_IP}:8200"
 
-TESTPASSWORD=`sudo VAULT_ADDR="http://${LEADER_IP}:8200" VAULT_TOKEN=${VAULT_TOKEN} /usr/local/bin/vault kv get -field=value kv/development/redispassword`
+TESTPASSWORD=`VAULT_ADDR="http://${LEADER_IP}:8200" VAULT_TOKEN=${VAULT_TOKEN} /usr/local/bin/vault kv get -field=value kv/development/redispassword`
 
 redis-cli -h 127.0.0.1 -p 6379 -a ${TESTPASSWORD} set mykey bananas
 
