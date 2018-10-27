@@ -4,7 +4,7 @@ set -x
 source /usr/local/bootstrap/var.env
 
 # start consul proxy for mesh services
-sudo consul connect proxy -service web-page-counter-proxy -upstream redis:8878 &
+sudo consul connect proxy -service web-page-counter-proxy -upstream redis:6379 &
 
 # download binary and template file from latest release
 curl -s https://api.github.com/repos/allthingsclowd/web_page_counter/releases/latest \
