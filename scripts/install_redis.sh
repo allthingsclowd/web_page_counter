@@ -64,9 +64,9 @@ start_app_proxy_service () {
   # start the new service mesh proxy for the application
   # param 1 ${1}: app-proxy name
   # param 2 ${2}: app-proxy service description
-  # param 3 ${3}: app-proxy port to listen on
+  # param 3 ${3}: consul host service name
 
-  create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -sidecar-for ${1}"
+  create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -sidecar-for ${3}"
   sudo systemctl start ${1}
   sudo systemctl status ${1}
   echo "${1} Proxy App Service Build Complete"
@@ -80,7 +80,7 @@ start_client_proxy_service () {
     # param 4 ${4}: client-proxy local service port number
     
 
-    create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -service ${1} -upstream ${3}:${4}"
+    create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -service ${3} -upstream ${4}:${5} -register"
     sudo systemctl start ${1}
     sudo systemctl status ${1}
     echo "${1} Proxy Client Service Build Complete"
@@ -162,7 +162,7 @@ setup_environment
 configure_redis
 register_redis_service_with_consul
 # start connect application proxy
-start_app_proxy_service redis "Redis Proxy Service"
+start_app_proxy_service redis-proxy "Redis Proxy Service" redis
 sleep 5
 echo "Redis Server Build Complete"
 
