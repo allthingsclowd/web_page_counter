@@ -64,6 +64,7 @@ start_app_proxy_service () {
   # start the new service mesh proxy for the application
   # param 1 ${1}: app-proxy name
   # param 2 ${2}: app-proxy service description
+  # param 3 ${3}: app-proxy port to listen on
 
   create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -sidecar-for ${1}"
   sudo systemctl start ${1}
