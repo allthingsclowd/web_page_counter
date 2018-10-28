@@ -12,7 +12,6 @@ register_secret_id_service_with_consul () {
         "approle",
         "secret-id"
       ],
-      "Address": "${IP}",
       "Port": 8314,
       "Meta": {
         "SecretID-Factory-Service": "0.0.1"
@@ -22,7 +21,7 @@ register_secret_id_service_with_consul () {
         {
           "id": "api",
           "name": "Factory Service SecretID",
-          "http": "http://${IP}:8314/health",
+          "http": "http://127.0.0.1:8314/health",
           "tls_skip_verify": true,
           "method": "GET",
           "interval": "10s",
