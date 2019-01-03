@@ -15,7 +15,7 @@
     "guest_additions_sha256": "e51e33500a265b5c2d7bb2d03d32208df880523dfcb1e2dde2c78a0e0daa0603",
     "ssh_username": "vagrant",
     "ssh_password": "vagrant",
-    "version": "0.1.{{timestamp}}",
+    "version": "0.2.{{timestamp}}",
     "cloud_token": "{{ env `VAGRANT_CLOUD_TOKEN` }}"
   },
   "builders": [
