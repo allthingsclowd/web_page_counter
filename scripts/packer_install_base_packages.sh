@@ -4,12 +4,12 @@ install_hashicorp_binaries () {
     # check consul binary
     [ -f /usr/local/bin/consul ] &>/dev/null || {
         pushd /usr/local/bin
-        [ -f consul_1.4.0-rc1_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/consul/1.4.0-rc1/consul_1.4.0-rc1_linux_amd64.zip
+        [ -f consul_1.4.0_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/consul/1.4.0/consul_1.4.0_linux_amd64.zip
         }
-        sudo unzip consul_1.4.0-rc1_linux_amd64.zip
+        sudo unzip consul_1.4.0_linux_amd64.zip
         sudo chmod +x consul
-        sudo rm consul_1.4.0-rc1_linux_amd64.zip
+        sudo rm consul_1.4.0_linux_amd64.zip
         popd
     }
 
@@ -40,23 +40,23 @@ install_hashicorp_binaries () {
     # check vault binary
     [ -f /usr/local/bin/vault ] &>/dev/null || {
         pushd /usr/local/bin
-        [ -f vault_1.0.0-beta1_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/vault/1.0.0-beta1/vault_1.0.0-beta1_linux_amd64.zip
+        [ -f vault_1.0.1_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip
         }
-        sudo unzip vault_1.0.0-beta1_linux_amd64.zip
+        sudo unzip vault_1.0.1_linux_amd64.zip
         sudo chmod +x vault
-        sudo rm vault_1.0.0-beta1_linux_amd64.zip
+        sudo rm vault_1.0.1_linux_amd64.zip
         popd
     }
 
     [ -f /usr/local/bin/nomad ] &>/dev/null || {
         pushd /usr/local/bin
-        [ -f nomad_0.8.4_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/nomad/0.8.4/nomad_0.8.4_linux_amd64.zip
+        [ -f nomad_0.8.7-rc1_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/nomad/0.8.7-rc1/nomad_0.8.7-rc1_linux_amd64.zip
         }
-        unzip nomad_0.8.4_linux_amd64.zip
+        unzip nomad_0.8.7-rc1_linux_amd64.zip
         chmod +x nomad
-        sudo rm nomad_0.8.4_linux_amd64.zip
+        sudo rm nomad_0.8.7-rc1_linux_amd64.zip
         popd
     }
 }
@@ -78,10 +78,10 @@ apt-get install -y wget -q unzip git redis-server nginx lynx jq curl
 which /usr/local/go &>/dev/null || {
     mkdir -p /tmp/go_src
     pushd /tmp/go_src
-    [ -f go1.10.3.linux-amd64.tar.gz ] || {
-        wget -qnv https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz
+    [ -f go1.11.1.linux-amd64.tar.gz ] || {
+        wget -qnv https://dl.google.com/go/go1.11.1.linux-amd64.tar.gz
     }
-    tar -C /usr/local -xzf go1.10.3.linux-amd64.tar.gz
+    tar -C /usr/local -xzf go1.11.1.linux-amd64.tar.gz
     popd
     rm -rf /tmp/go_src
     echo "export PATH=$PATH:/usr/local/go/bin" >> /etc/profile
