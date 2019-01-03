@@ -11,6 +11,8 @@
     "iso_checksum": "a5b0ea5918f850124f3d72ef4b85bda82f0fcd02ec721be19c1a6952791c8ee8",
     "iso_checksum_type": "sha256",
     "iso_url": "http://cdimage.ubuntu.com/ubuntu/releases/bionic/release/ubuntu-18.04.1-server-amd64.iso",
+    "guest_additions_url": "http://download.virtualbox.org/virtualbox/5.2.22/VBoxGuestAdditions_5.2.22.iso",
+    "guest_additions_sha256": "e51e33500a265b5c2d7bb2d03d32208df880523dfcb1e2dde2c78a0e0daa0603",
     "ssh_username": "vagrant",
     "ssh_password": "vagrant",
     "version": "0.1.{{timestamp}}",
@@ -45,7 +47,7 @@
         " -- <wait>",
         "<enter><wait>"
       ],
-      "boot_wait": "5s",
+      "boot_wait": "10s",
       "disk_size": "{{user `disk_size`}}",
       "guest_os_type": "Ubuntu_64",
       "headless": "{{user `headless`}}",
@@ -53,6 +55,8 @@
       "iso_checksum": "{{user `iso_checksum`}}",
       "iso_checksum_type": "{{user `iso_checksum_type`}}",
       "iso_url": "{{user `iso_url`}}",
+      "guest_additions_url": "{{user `guest_additions_url`}}",
+      "guest_additions_sha256": "{{user `guest_additions_sha256`}}",
       "shutdown_command": "echo 'vagrant' | sudo -S poweroff",
       "ssh_password": "{{user `ssh_username`}}",
       "ssh_username": "{{user `ssh_password`}}",
@@ -95,7 +99,7 @@
       "scripts": [
         "../scripts/packer_install_base_packages.sh",
         "../scripts/packer_configure_vagrant_user.sh",
-        "../scripts/packer_remove_old_vbox.sh",
+        "../scripts/packer_install_guest_additions.sh",
         "../scripts/packer_virtualbox_cleanup.sh"
       ],
       "type": "shell",
