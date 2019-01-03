@@ -94,7 +94,7 @@ source /usr/local/bootstrap/var.env
 start_client_proxy_service redisclientproxy "Redis connect client proxy" "redis" "6379"
 
 # start client client proxy
-start_client_proxy_service clientproxy "SecretID Service connect client proxy" "approle" "8314"
+start_client_proxy_service goclientproxy "SecretID Service connect client proxy" "approle" "8314"
 
 # download binary and template file from latest release
 curl -s https://api.github.com/repos/allthingsclowd/web_page_counter/releases/latest \
