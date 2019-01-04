@@ -84,10 +84,10 @@ sudo systemctl disable nginx
 which /usr/local/go &>/dev/null || {
     mkdir -p /tmp/go_src
     pushd /tmp/go_src
-    [ -f go1.11.1.linux-amd64.tar.gz ] || {
-        wget -qnv https://dl.google.com/go/go1.11.1.linux-amd64.tar.gz
+    [ -f go1.11.4.linux-amd64.tar.gz ] || {
+        wget -qnv https://dl.google.com/go/go1.11.4.linux-amd64.tar.gz
     }
-    tar -C /usr/local -xzf go1.11.1.linux-amd64.tar.gz
+    tar -C /usr/local -xzf go1.11.4.linux-amd64.tar.gz
     popd
     rm -rf /tmp/go_src
     echo "export PATH=$PATH:/usr/local/go/bin" >> /etc/profile
