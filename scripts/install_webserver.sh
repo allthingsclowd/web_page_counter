@@ -16,6 +16,11 @@ if [ "${TRAVIS}" == "true" ]; then
   LEADER_IP="127.0.0.1"
 fi
 
+enable_nginx_service () {
+  # start and enable nginx service
+  sudo systemctl start nginx
+  sudo systemctl enable nginx
+}
 register_nginx_service_with_consul () {
     
     echo 'Start to register nginx service with Consul Service Discovery'

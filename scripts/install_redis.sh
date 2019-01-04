@@ -155,7 +155,8 @@ configure_redis () {
   sudo chown redis:redis /etc/redis/redis.conf
   sudo chmod 640 /etc/redis/redis.conf
   # restart redis, register the service with consul and restart consul agent
-  sudo service redis-server restart
+  sudo systemctl start redis-server
+  sudo systemctl enable redis-server
 }
 
 setup_environment

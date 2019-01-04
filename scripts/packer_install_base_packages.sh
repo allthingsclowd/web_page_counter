@@ -75,6 +75,12 @@ update-grub
 
 apt-get install -y wget -q unzip git redis-server nginx lynx jq curl net-tools
 
+# disable services that are not used by all hosts
+sudo systemctl stop redis-server
+sudo systemctl disable redis-server
+sudo systemctl stop nginx
+sudo systemctl disable nginx
+
 which /usr/local/go &>/dev/null || {
     mkdir -p /tmp/go_src
     pushd /tmp/go_src
