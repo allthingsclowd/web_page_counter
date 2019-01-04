@@ -622,6 +622,7 @@ The front end code and backend code has been separated. Back end APIs are availa
 * Upgraded to latest binaries for Nomad, Vault, Consul, Golang
 * Upgraded packer base image from Ubuntu 16.04 to Ubuntu 18.04
 * Updated readme for [VaultFactoryID Service](https://github.com/allthingsclowd/VaultServiceIDFactory/blob/master/readme.md) - the application bootstrapping service used 
+* Added Consul Connect Service Mesh for application bootstrapping service
 
 
 
