@@ -161,9 +161,11 @@ configure_redis () {
 
 setup_environment
 configure_redis
-register_redis_service_with_consul
-# start connect application proxy
-start_app_proxy_service redis-proxy "Redis Proxy Service" redis
+if [ "${TRAVIS}" != "true" ]; then
+  register_redis_service_with_consul
+  # start connect application proxy
+  start_app_proxy_service redis-proxy "Redis Proxy Service" redis
+]
 sleep 5
 echo "Redis Server Build Complete"
 
