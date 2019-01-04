@@ -150,24 +150,31 @@ EOF
 }
 
 configure_redis () {
-  sudo echo "${REDIS_MASTER_IP}     ${REDIS_MASTER_NAME}" >> /etc/hosts
+  
   sudo VAULT_TOKEN=`cat /usr/local/bootstrap/.database-token` VAULT_ADDR="http://${LEADER_IP}:8200" consul-template -template "/usr/local/bootstrap/conf/master.redis.ctpl:/etc/redis/redis.conf" -once
   sudo chown redis:redis /etc/redis/redis.conf
   sudo chmod 640 /etc/redis/redis.conf
-  # restart redis, register the service with consul and restart consul agent
-  sudo systemctl start redis-server
-  sudo systemctl enable redis-server
+
+  if [ "${TRAVIS}" != "true" ]; then
+    sudo echo "${REDIS_MASTER_IP}     ${REDIS_MASTER_NAME}" >> /etc/hosts
+    sudo systemctl start redis-server
+    sudo systemctl enable redis-server
+    register_redis_service_with_consul
+    # start connect application proxy
+    start_app_proxy_service redis-proxy "Redis Proxy Service" redis
+  else
+    sudo service redis-server restart
+
+  fi
+
+  sleep 5
+  echo "Redis Server Build Complete"
+
 }
 
 setup_environment
 configure_redis
-if [ "${TRAVIS}" != "true" ]; then
-  register_redis_service_with_consul
-  # start connect application proxy
-  start_app_proxy_service redis-proxy "Redis Proxy Service" redis
-]
-sleep 5
-echo "Redis Server Build Complete"
+
 
 
 
