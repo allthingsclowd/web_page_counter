@@ -529,7 +529,6 @@ The front end code and backend code has been separated. Back end APIs are availa
 
 ### New Features
 
-* Write up overview of new factory service the leverage's Vaults APP-Role to bootstrap the services
 * Write up note on new web front end (just as a reminder for myself - lots of CORS challenges)
 
 ### Refactor
@@ -619,6 +618,11 @@ The front end code and backend code has been separated. Back end APIs are availa
 * Added new, prettier, frontend that facilitates smoother demonstrations by separating the frontend and backend code,
   written in Angular 6 and served from the NGINX proxy server on port 9091
 * Added Consul Connect for Redis Service
+* Refactored app to handle consul connect services
+* Upgraded to latest binaries for Nomad, Vault, Consul, Golang
+* Upgraded packer base image from Ubuntu 16.04 to Ubuntu 18.04
+* Updated readme for [VaultFactoryID Service](https://github.com/allthingsclowd/VaultServiceIDFactory/blob/master/readme.md) - the application bootstrapping service used 
+
 
 
 

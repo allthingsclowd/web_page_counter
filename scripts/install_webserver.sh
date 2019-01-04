@@ -21,6 +21,7 @@ enable_nginx_service () {
   sudo systemctl start nginx
   sudo systemctl enable nginx
 }
+
 register_nginx_service_with_consul () {
     
     echo 'Start to register nginx service with Consul Service Discovery'
@@ -101,6 +102,8 @@ sudo cp /usr/local/bootstrap/conf/wpc-fe.conf /etc/nginx/conf.d/wpc-fe.conf
 
 # remove nginx default website
 [ -f /etc/nginx/sites-enabled/default ] && sudo rm -f /etc/nginx/sites-enabled/default
+
+enable_nginx_service
 
 register_nginx_service_with_consul
 
