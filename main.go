@@ -54,7 +54,7 @@ func main() {
 	} else {
 
 		redisClient = redis.NewClient(&redis.Options{
-			Addr:     "127.0.0.1:8878",
+			Addr:     redisMaster,
 			Password: redisPassword,
 			DB:       0, // use default DB
 		})
@@ -153,6 +153,21 @@ func crashHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func convert4connect(serviceURL string) string {
+	// initialise new string builder variable
+	var connectedService strings.Builder
+	// stick the service port number into servicePort[1]
+	servicePort:= strings.SplitAfter(serviceURL, ":")
+
+	// consul connect will use the loopback interface - ensure that the proxy that's configured outside this also uses the same port number for convenience
+	connectedService.WriteString("127.0.0.1")
+	connectedService.WriteString(":")
+	connectedService.WriteString(servicePort[1])
+
+	return connectedService.String()
+
+}
+
 func getVaultKV(vaultKey string) string {
 
 	// Get a new Consul client
@@ -177,6 +192,8 @@ func getVaultKV(vaultKey string) string {
 	}
 
 	approleService := getConsulSVC(*consulClient, "approle")
+	// Replace service ip address with loopback address when using connect proxy
+	approleService = convert4connect(approleService)
 	appRoletoken := getVaultToken(approleService, *appRoleID)
 	fmt.Printf("New Application Token : >> %v \n", appRoletoken)
 
@@ -251,6 +268,8 @@ func redisInit() (string, string) {
 
 	redisPassword = getVaultKV("redispassword")
 	redisService = getConsulSVC(*consulClient, "redis")
+	// Replace service ip address with loopback address when using connect proxy
+	redisService = convert4connect(redisService)
 	if redisService == "0" {
 		var serviceDetail strings.Builder
 		redisHost := getConsulKV(*consulClient, "REDIS_MASTER_IP")
