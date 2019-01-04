@@ -4,9 +4,6 @@ set -x
 # delayed added to ensure consul has started on host - intermittent failures
 sleep 2
 
-# start consul proxy for mesh services
-sudo consul connect proxy -service web-page-counter-proxy -upstream redis:8878 &
-
 go get ./...
 go build -o webcounter main.go
 ./webcounter &
