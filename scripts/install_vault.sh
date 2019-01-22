@@ -458,12 +458,14 @@ install_vault () {
         #start vault
         if [ "${TRAVIS}" == "true" ]; then
             create_service_user vault
+            sudo usermod -a -G consulcerts vault
             sudo -u vault cp -r /usr/local/bootstrap/conf/vault.d/* /etc/vault.d/.
             sudo /usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/etc/vault.d/vault.hcl &> ${LOG} &
             sleep 3
             cat ${LOG}
         else
             create_service vault "HashiCorp's Sercret Management Service" "/usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/usr/local/bootstrap/conf/vault.d/vault.hcl"
+            sudo usermod -a -G consulcerts vault
             sudo systemctl start vault
             sudo systemctl status vault
         fi
