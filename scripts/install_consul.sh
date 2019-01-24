@@ -81,10 +81,10 @@ install_prerequisite_binaries () {
   # check consul binary
   [ -f /usr/local/bin/consul ] &>/dev/null || {
       pushd /usr/local/bin
-      [ -f consul_1.4.0_linux_amd64.zip ] || {
-          sudo wget -q https://releases.hashicorp.com/consul/1.4.0/consul_1.4.0_linux_amd64.zip
+      [ -f consul_1.4.1_linux_amd64.zip ] || {
+          sudo wget -q https://releases.hashicorp.com/consul/1.4.1/consul_1.4.1_linux_amd64.zip
       }
-      sudo unzip consul_1.4.0_linux_amd64.zip
+      sudo unzip consul_1.4.1_linux_amd64.zip
       sudo chmod +x consul
       popd
   }
