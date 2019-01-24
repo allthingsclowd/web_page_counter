@@ -79,10 +79,10 @@ setup_environment () {
 
     which /usr/local/bin/vault &>/dev/null || {
         pushd /usr/local/bin
-        [ -f vault_1.0.1_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip
+        [ -f vault_1.0.2_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/vault/1.0.2/vault_1.0.2_linux_amd64.zip
         }
-        sudo unzip vault_1.0.1_linux_amd64.zip
+        sudo unzip vault_1.0.2_linux_amd64.zip
         sudo chmod +x vault
         popd
     }

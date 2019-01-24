@@ -78,8 +78,8 @@ which wget unzip &>/dev/null || {
 
 which nomad &>/dev/null || {
   pushd /usr/local/bin
-  wget -q https://releases.hashicorp.com/nomad/0.8.7-rc1/nomad_0.8.7-rc1_linux_amd64.zip
-  unzip nomad_0.8.7-rc1_linux_amd64.zip
+  wget -q https://releases.hashicorp.com/nomad/0.8.7/nomad_0.8.7_linux_amd64.zip
+  unzip nomad_0.8.7_linux_amd64.zip
   chmod +x nomad
   popd
 }
