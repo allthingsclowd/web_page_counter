@@ -32,28 +32,44 @@ register_secret_id_service_with_consul () {
 EOF
 
   # Register the service in consul via the local Consul agent api
-  curl \
+  sudo curl \
       -v \
       --request PUT \
+      --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
+      --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
+      --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+      --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
       --data @secretid_service.json \
-      http://127.0.0.1:8500/v1/agent/service/register
+      ${CONSUL_HTTP_ADDR}/v1/agent/service/register
 
   # Register the service in consul via the local Consul agent api
-  curl \
+  sudo curl \
       -v \
       --request PUT \
+      --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
+      --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
+      --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+      --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
       --data @secretid_service.json \
-      http://127.0.0.1:8500/v1/agent/service/register
+      ${CONSUL_HTTP_ADDR}/v1/agent/service/register
 
   # List the locally registered services via local Consul api
-  curl \
+  sudo curl \
     -v \
-    http://127.0.0.1:8500/v1/agent/services | jq -r .
+    --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
+    --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
+    --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+    --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
+    ${CONSUL_HTTP_ADDR}/v1/agent/services | jq -r .
 
   # List the services regestered on the Consul server
-  curl \
-  -v \
-  http://${LEADER_IP}:8500/v1/catalog/services | jq -r .
+  sudo curl \
+    -v \
+    --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
+    --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
+    --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+    --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
+    ${CONSUL_HTTP_ADDR}/v1/catalog/services | jq -r .
    
     echo 'Register Vault Secret ID Factory Service with Consul Service Discovery Complete'
 
@@ -159,6 +175,15 @@ setup_environment () {
         IP="127.0.0.1"
         VAULT_IP=${IP}
     fi
+
+    AGENTTOKEN=`cat /usr/local/bootstrap/.agenttoken_acl`
+    export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
+
+    # Configure consul environment variables for use with certificates 
+    export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
+    export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
+    export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
+    export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
 
     export VAULT_ADDR=http://${VAULT_IP}:8200
     export VAULT_SKIP_VERIFY=true
