@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
 
+# TODO: Move all versions upto to here for easier mgmt
+
 install_hashicorp_binaries () {
     # check consul binary
     [ -f /usr/local/bin/consul ] &>/dev/null || {
         pushd /usr/local/bin
-        [ -f consul_1.4.0_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/consul/1.4.0/consul_1.4.0_linux_amd64.zip
+        [ -f consul_1.4.2_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/consul/1.4.2/consul_1.4.2_linux_amd64.zip
         }
-        sudo unzip consul_1.4.0_linux_amd64.zip
+        sudo unzip consul_1.4.2_linux_amd64.zip
         sudo chmod +x consul
-        sudo rm consul_1.4.0_linux_amd64.zip
+        sudo rm consul_1.4.2_linux_amd64.zip
         popd
     }
 
@@ -40,23 +42,36 @@ install_hashicorp_binaries () {
     # check vault binary
     [ -f /usr/local/bin/vault ] &>/dev/null || {
         pushd /usr/local/bin
-        [ -f vault_1.0.1_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip
+        [ -f vault_1.0.2_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/vault/1.0.2/vault_1.0.2_linux_amd64.zip
         }
-        sudo unzip vault_1.0.1_linux_amd64.zip
+        sudo unzip vault_1.0.2_linux_amd64.zip
         sudo chmod +x vault
-        sudo rm vault_1.0.1_linux_amd64.zip
+        sudo rm vault_1.0.2_linux_amd64.zip
         popd
     }
 
+    # check terraform binary
+    [ -f /usr/local/bin/terraform ] &>/dev/null || {
+        pushd /usr/local/bin
+        [ -f terraform_0.12.0-alpha4_terraform_0.12.0-alpha4_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/terraform/0.12.0-alpha4/terraform_0.12.0-alpha4_terraform_0.12.0-alpha4_linux_amd64.zip
+        }
+        sudo unzip terraform_0.12.0-alpha4_terraform_0.12.0-alpha4_linux_amd64.zip
+        sudo chmod +x terraform
+        sudo rm terraform_0.12.0-alpha4_terraform_0.12.0-alpha4_linux_amd64.zip
+        popd
+    }
+
+    # check for nomad binary
     [ -f /usr/local/bin/nomad ] &>/dev/null || {
         pushd /usr/local/bin
-        [ -f nomad_0.8.7-rc1_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/nomad/0.8.7-rc1/nomad_0.8.7-rc1_linux_amd64.zip
+        [ -f nomad_0.8.7_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/nomad/0.8.7/nomad_0.8.7_linux_amd64.zip
         }
-        unzip nomad_0.8.7-rc1_linux_amd64.zip
+        unzip nomad_0.8.7_linux_amd64.zip
         chmod +x nomad
-        sudo rm nomad_0.8.7-rc1_linux_amd64.zip
+        sudo rm nomad_0.8.7_linux_amd64.zip
         popd
     }
 }
