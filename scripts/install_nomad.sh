@@ -49,6 +49,7 @@ create_service_user () {
   
   if ! grep ${1} /etc/passwd >/dev/null 2>&1; then
     echo "Creating ${1} user to run the consul service"
+    sudo cp -arp /usr/local/bootstrap/conf/nomad.d /etc
     sudo useradd --system --home /etc/${1}.d --shell /bin/false ${1}
     sudo mkdir --parents /opt/${1} /usr/local/${1} /etc/${1}.d
     sudo chown --recursive ${1}:${1} /opt/${1} /etc/${1}.d /usr/local/${1}
@@ -100,10 +101,13 @@ grep NOMAD_ADDR ~/.bash_profile &>/dev/null || {
 if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
   if [ "${TRAVIS}" == "true" ]; then
     create_service_user nomad
+    sudo usermod -a -G consulcerts nomad
     sudo -u nomad /usr/local/bin/nomad agent -server -bind=${IP} -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/etc/nomad.d >${LOG} &
   else
     NOMAD_ADDR=http://${IP}:4646 /usr/local/bin/nomad agent-info 2>/dev/null || {
       create_service nomad "HashiCorp's Nomad Server - A Modern Platform and Cloud Agnostic Scheduler" "/usr/local/bin/nomad agent -log-level=DEBUG -server -bind=${IP} -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/etc/nomad.d"
+      sudo usermod -a -G consulcerts nomad
+      cp -apr /usr/local/bootstrap/conf/nomad.d /etc
       sudo systemctl start nomad
       sudo systemctl status nomad
       
@@ -115,7 +119,8 @@ else
 
   NOMAD_ADDR=http://${IP}:4646 /usr/local/bin/nomad agent-info 2>/dev/null || {
     create_service nomad "HashiCorp's Nomad Agent - A Modern Platform and Cloud Agnostic Scheduler" "/usr/local/bin/nomad agent -log-level=DEBUG -client -bind=${IP} -data-dir=/usr/local/nomad -join=192.168.2.11 -config=/etc/nomad.d"
-    cp -ap /usr/local/bootstrap/conf/nomad.d/client.hcl /etc/nomad.d/
+    sudo usermod -a -G consulcerts nomad
+    cp -apr /usr/local/bootstrap/conf/nomad.d /etc
     sudo systemctl start nomad
     sudo systemctl status nomad
     sleep 1

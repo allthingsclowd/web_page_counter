@@ -90,6 +90,13 @@ set -x
 
 source /usr/local/bootstrap/var.env
 
+# Configure consul environment variables for use with certificates 
+export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
+export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
+export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
+export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
+export CONSUL_ACCESS_TOKEN=`cat /usr/local/bootstrap/.agenttoken_acl`
+
 # start client client proxy
 start_client_proxy_service redisclientproxy "Redis connect client proxy" "redis" "6379"
 

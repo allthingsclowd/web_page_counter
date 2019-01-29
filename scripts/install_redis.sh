@@ -106,6 +106,13 @@ setup_environment () {
     LEADER_IP=${IP}
   fi
 
+  # Configure consul environment variables for use with certificates 
+  export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
+  export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
+  export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
+  export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
+  export CONSUL_ACCESS_TOKEN=`cat /usr/local/bootstrap/.agenttoken_acl`
+
 }
 register_redis_service_with_consul () {
     
@@ -137,14 +144,22 @@ EOF
   sleep 5
 
   # List the locally registered services via local Consul api
-  curl -s \
+  curl \
     -v \
-    http://127.0.0.1:8500/v1/agent/services | jq -r .
+      --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
+      --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
+      --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+      --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
+    ${CONSUL_HTTP_ADDR}/v1/agent/services | jq -r .
 
   # List the services regestered on the Consul server
-  curl -s \
+  curl \
   -v \
-  http://${LEADER_IP}:8500/v1/catalog/services | jq -r .
+    --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
+    --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
+    --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+    --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
+  ${CONSUL_HTTP_ADDR}/v1/catalog/services | jq -r .
    
     echo 'Register service with Consul Service Discovery Complete'
 }

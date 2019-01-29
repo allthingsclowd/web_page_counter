@@ -193,7 +193,10 @@ install_consul () {
   else
     echo "Starting a Consul Agent"
     /usr/local/bin/consul members 2>/dev/null || {
+
         create_service consul "HashiCorp Consul Agent Service"  "/usr/local/bin/consul agent -log-level=debug -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -join=${LEADER_IP}"
+        # ensure consul service has permissions to access certificates
+        sudo usermod -a -G consulcerts consul
         sudo systemctl start consul
         sudo systemctl status consul
         sleep 10
