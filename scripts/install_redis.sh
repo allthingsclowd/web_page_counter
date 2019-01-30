@@ -149,7 +149,7 @@ EOF
       --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
       --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
       --cert "/usr/local/bootstrap/certificate-config/client.pem" \
-      --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
+      --header "X-Consul-Token: ${CONSUL_ACCESS_TOKEN}" \
     ${CONSUL_HTTP_ADDR}/v1/agent/services | jq -r .
 
   # List the services regestered on the Consul server
@@ -158,7 +158,7 @@ EOF
     --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
     --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
     --cert "/usr/local/bootstrap/certificate-config/client.pem" \
-    --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
+    --header "X-Consul-Token: ${CONSUL_ACCESS_TOKEN}" \
   ${CONSUL_HTTP_ADDR}/v1/catalog/services | jq -r .
    
     echo 'Register service with Consul Service Discovery Complete'
