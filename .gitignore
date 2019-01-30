@@ -12,3 +12,7 @@ main
 .wrapped-provisioner-token
 .DS_Store
 *.json
+.agenttoken_acl
+.bootstrap_acl
+.vaulttoken_acl
+
