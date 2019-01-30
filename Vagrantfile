@@ -1,3 +1,20 @@
+info = <<-'EOF'
+
+Vault root token is located in .vault_token
+- export VAULT_TOKEN=`cat .vault_token`
+
+The Consul ACL required for browser access is located in .agenttoken_acl
+- export CONSUL_HTTP_TOKEN=`cat .agenttoken_acl`
+
+The certificates required to add to the browser's keychain (on a mac) are located in the certificate-config/ directory.
+
+- ls -al certificate-config/ | grep pfx
+
+WARNING: PLEASE DON'T USE THESE CERTIFICATES IN ANYTHING OTHER THAN THIS TEST LAB!!!!
+The keys are clearly publically available for demonstration purposes.
+
+EOF
+
 Vagrant.configure("2") do |config|
 
     #override global variables to fit Vagrant setup
@@ -66,5 +83,7 @@ Vagrant.configure("2") do |config|
         web01.vm.provision :shell, path: "scripts/install_webserver.sh"
         web01.vm.network "forwarded_port", guest: 9091, host: 9091
    end
+
+   puts info
 
 end
