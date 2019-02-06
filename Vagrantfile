@@ -84,6 +84,6 @@ Vagrant.configure("2") do |config|
         web01.vm.network "forwarded_port", guest: 9091, host: 9091
    end
 
-   puts info
+   puts info if ARGV[0] == "status"
 
 end
