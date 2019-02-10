@@ -4,5 +4,5 @@ consul {
   ca_file   = "/etc/pki/tls/certs/consul-ca.pem"
   cert_file = "/etc/pki/tls/certs/server.pem"
   key_file  = "/etc/pki/tls/private/server-key.pem"
-  token = "dfa671b3-3ecf-e058-7041-60a5b4867715"
+  token = "f56cac12-b121-14db-842c-feaaf78712d2"
   }

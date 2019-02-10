@@ -463,8 +463,6 @@ install_vault () {
         #delete old token if present
         [ -f /usr/local/bootstrap/.vault-token ] && sudo rm /usr/local/bootstrap/.vault-token
 
-        sudo chgrp -R consulcerts /var/logs
-
         #start vault
         if [ "${TRAVIS}" == "true" ]; then
             create_service_user vault
