@@ -33,7 +33,6 @@ EOF
 
   # Register the service in consul via the local Consul agent api
   sudo curl \
-      -v \
       --request PUT \
       --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
       --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
@@ -44,7 +43,6 @@ EOF
 
   # Register the service in consul via the local Consul agent api
   sudo curl \
-      -v \
       --request PUT \
       --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
       --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
@@ -55,7 +53,6 @@ EOF
 
   # List the locally registered services via local Consul api
   sudo curl \
-    -v \
     --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
     --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
     --cert "/usr/local/bootstrap/certificate-config/client.pem" \
@@ -64,7 +61,6 @@ EOF
 
   # List the services regestered on the Consul server
   sudo curl \
-    -v \
     --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
     --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
     --cert "/usr/local/bootstrap/certificate-config/client.pem" \
@@ -395,5 +391,10 @@ curl --header 'Content-Type: application/json' \
     http://127.0.0.1:8314/initialiseme
 
 register_secret_id_service_with_consul
+
+# check health
+echo "APPLICATION HEALTH"
+curl -s http://127.0.0.1:8314/health
+
 echo 'End of Factory Service Installation'
 

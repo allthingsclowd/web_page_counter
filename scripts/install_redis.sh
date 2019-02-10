@@ -114,17 +114,74 @@ setup_environment () {
   export CONSUL_HTTP_TOKEN=`cat /usr/local/bootstrap/.agenttoken_acl`
 
 }
+# register_redis_service_with_consul () {
+    
+#     echo 'Start to register service with Consul Service Discovery'
+
+#     cat <<EOF | sudo tee /etc/consul.d/redis.json
+#     {
+#       "service": {
+#         "name": "redis",
+#         "port": 6379,
+#         "connect": { "sidecar_service": {} },
+#         "checks": [
+#           {
+#             "args": ["/usr/local/bootstrap/scripts/consul_redis_ping.sh"],
+#             "interval": "10s"
+#           },
+#           {
+#               "args": ["/usr/local/bootstrap/scripts/consul_redis_verify.sh"],
+#               "interval": "10s"
+#           }
+#         ]
+#       }
+      
+#     }
+# EOF
+  
+#   # Register the service in consul via the local Consul agent api
+#   # sudo consul reload
+#   sudo service consul restart
+#   sleep 5
+
+#   # List the locally registered services via local Consul api
+#   curl \
+#     -v \
+#       --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
+#       --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
+#       --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+#       --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
+#     ${CONSUL_HTTP_ADDR}/v1/agent/services | jq -r .
+
+#   # List the services regestered on the Consul server
+#   curl \
+#   -v \
+#     --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
+#     --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
+#     --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+#     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
+#   ${CONSUL_HTTP_ADDR}/v1/catalog/services | jq -r .
+   
+#     echo 'Register service with Consul Service Discovery Complete'
+# }
+
 register_redis_service_with_consul () {
     
-    echo 'Start to register service with Consul Service Discovery'
+    echo 'Start to register Redis service with Consul Service Discovery'
 
-    cat <<EOF | sudo tee /etc/consul.d/redis.json
+    # configure web service definition
+    tee redis_service.json <<EOF
     {
-      "service": {
-        "name": "redis",
-        "port": 6379,
-        "connect": { "sidecar_service": {} },
-        "checks": [
+      "Name": "redis",
+      "Tags": [
+        "redis-non-ha"
+      ],
+      "Port": 6379,
+      "Meta": {
+        "RedisService": "0.0.1"
+      },
+      "EnableTagOverride": false,
+      "checks": [
           {
             "args": ["/usr/local/bootstrap/scripts/consul_redis_ping.sh"],
             "interval": "10s"
@@ -133,42 +190,51 @@ register_redis_service_with_consul () {
               "args": ["/usr/local/bootstrap/scripts/consul_redis_verify.sh"],
               "interval": "10s"
           }
-        ]
-      }
-      
+        ],
+        "connect": { "sidecar_service": {} }
     }
 EOF
-  
-  # Register the service in consul via the local Consul agent api
-  consul reload
-  sleep 5
 
-  # List the locally registered services via local Consul api
-  curl \
-    -v \
+  # Register the service in consul via the local Consul agent api
+  sudo curl \
+      --request PUT \
       --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
       --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
       --cert "/usr/local/bootstrap/certificate-config/client.pem" \
       --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
-    ${CONSUL_HTTP_ADDR}/v1/agent/services | jq -r .
+      --data @redis_service.json \
+      ${CONSUL_HTTP_ADDR}/v1/agent/service/register
 
-  # List the services regestered on the Consul server
-  curl \
-  -v \
+  # List the locally registered services via local Consul api
+  sudo curl \
     --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
     --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
     --cert "/usr/local/bootstrap/certificate-config/client.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
-  ${CONSUL_HTTP_ADDR}/v1/catalog/services | jq -r .
+    ${CONSUL_HTTP_ADDR}/v1/agent/services | jq -r .
+
+  # List the services regestered on the Consul server
+  sudo curl \
+    --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
+    --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
+    --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+    --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
+    ${CONSUL_HTTP_ADDR}/v1/catalog/services | jq -r .
    
-    echo 'Register service with Consul Service Discovery Complete'
+    echo 'Register Redis Service with Consul Service Discovery Complete'
+
 }
 
 configure_redis () {
   
+  # echo 'Before CONSUL-TEMPLATE ===>'
+  # sudo cat /etc/redis/redis.conf
   sudo VAULT_TOKEN=`cat /usr/local/bootstrap/.database-token` VAULT_ADDR="http://${LEADER_IP}:8200" consul-template -template "/usr/local/bootstrap/conf/master.redis.ctpl:/etc/redis/redis.conf" -once
   sudo chown redis:redis /etc/redis/redis.conf
   sudo chmod 640 /etc/redis/redis.conf
+  # echo 'After CONSUL-TEMPLATE ===>'
+  # sudo cat /etc/redis/redis.conf
+
   register_redis_service_with_consul
 
   if [ "${TRAVIS}" != "true" ]; then
@@ -184,6 +250,7 @@ configure_redis () {
   fi
 
   sleep 5
+  sudo service redis-server status
   echo "Redis Server Build Complete"
 
 }

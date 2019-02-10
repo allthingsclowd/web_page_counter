@@ -55,19 +55,16 @@ EOF
 
   # Register the service in consul via the local Consul agent api
   curl \
-      -v \
       --request PUT \
       --data @nginx_service.json \
       http://127.0.0.1:8500/v1/agent/service/register
 
   # List the locally registered services via local Consul api
   curl \
-    -v \
     http://127.0.0.1:8500/v1/agent/services | jq -r .
 
   # List the services regestered on the Consul server
   curl \
-  -v \
   http://${LEADER_IP}:8500/v1/catalog/services | jq -r .
    
     echo 'Register nginx service with Consul Service Discovery Complete'
