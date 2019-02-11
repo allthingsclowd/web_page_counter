@@ -87,6 +87,10 @@ start_client_proxy_service () {
     echo "${1} Proxy Client Service Build Complete"
 }
 
+create_intention_between_services () {
+    sudo /usr/local/bin/consul intention create -http-addr=https://127.0.0.1:8321 -ca-file=/usr/local/bootstrap/certificate-config/consul-ca.pem -client-cert=/usr/local/bootstrap/certificate-config/cli.pem -client-key=/usr/local/bootstrap/certificate-config/cli-key.pem -token=${CONSUL_HTTP_TOKEN} ${1} ${2}
+}
+
 
 set -x
 
@@ -100,10 +104,16 @@ export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
 export CONSUL_HTTP_TOKEN=`cat /usr/local/bootstrap/.agenttoken_acl`
 
 # start client client proxy
-start_client_proxy_service redisclientproxy "Redis connect client proxy" "redis" "6379"
+start_client_proxy_service redisclientproxy "Redis Connect Client Proxy" "redis" "6379"
+
+# create intention to connect from goapp to redis service
+create_intention_between_services "redisclientproxy" "redis" "6379"
 
 # start client client proxy
-start_client_proxy_service goclientproxy "SecretID Service connect client proxy" "approle" "8314"
+start_client_proxy_service goclientproxy "SecretID Service Client Proxy" "approle" "8314"
+
+# create intention to connect from goapp to secret-id service
+create_intention_between_services "goclientproxy" "approle"
 
 # download binary and template file from latest release
 curl -s https://api.github.com/repos/allthingsclowd/web_page_counter/releases/latest \
@@ -120,5 +130,5 @@ chmod +x /usr/local/bin/webcounter
 
 cp /usr/local/bootstrap/scripts/consul_goapp_verify.sh /usr/local/bin/.
 
-nomad job run /usr/local/bootstrap/nomad_job.hcl || true
+# nomad job run /usr/local/bootstrap/nomad_job.hcl || true
 

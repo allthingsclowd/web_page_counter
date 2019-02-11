@@ -93,7 +93,7 @@ step2_create_bootstrap_token_on_server () {
 
 step3_create_an_agent_token_policies () {
     
-    create_acl_policy "agent-policy" "Agent Token" "node_prefix \\\"\\\" { policy = \\\"write\\\"} service_prefix \\\"\\\" { policy = \\\"write\\\" }"
+    create_acl_policy "agent-policy" "Agent Token" "node_prefix \\\"\\\" { policy = \\\"write\\\"} service_prefix \\\"\\\" { policy = \\\"write\\\" intention = \\\"write\\\" }"
     create_acl_policy "list-all-nodes" "List All Nodes" "node_prefix \\\"\\\" { policy = \\\"read\\\" }"
     create_acl_policy "ui-access" "Enable UI Access" "key \\\"\\\" { policy = \\\"write\\\"} node \\\"\\\" { policy = \\\"read\\\" } service \\\"\\\" { policy = \\\"read\\\" }"
     create_acl_policy "consul-service" "Consul Service" "service \\\"consul\\\" { policy = \\\"write\\\" }"
