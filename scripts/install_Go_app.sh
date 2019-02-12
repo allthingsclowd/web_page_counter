@@ -130,5 +130,6 @@ chmod +x /usr/local/bin/webcounter
 
 cp /usr/local/bootstrap/scripts/consul_goapp_verify.sh /usr/local/bin/.
 
-# nomad job run /usr/local/bootstrap/nomad_job.hcl || true
+export CONSUL_ACL_TOKEN=${CONSUL_HTTP_TOKEN}
+nomad job run /usr/local/bootstrap/nomad_job.hcl || true
 

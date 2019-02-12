@@ -40,7 +40,7 @@ func main() {
 	portPtr := flag.Int("port", 8080, "Default's to port 8080. Use -port=nnnn to use listen on an alternate port.")
 	ipPtr := flag.String("ip", "127.0.0.1", "Default's to all interfaces by using 127.0.0.1")
 	appRoleID = flag.String("appRole", "id-factory", "Application Role Name to be used to bootstrap access to Vault's secrets")
-	consulACL = flag.String("consulACL", "f8732bef-6085-f2e1-2281-8af91b5b0f6c", "Application ACL from Consul")
+	consulACL = flag.String("consulACL", "oi-someone-forgot-to-set-me", "Application ACL from Consul")
 	flag.Parse()
 	targetPort = strconv.Itoa(*portPtr)
 	targetIP = *ipPtr
@@ -173,13 +173,6 @@ func convert4connect(serviceURL string) string {
 
 func getVaultKV(consulClient consul.Client, vaultKey string) string {
 
-	// // Get a new Consul client
-	// consulClient, err := consul.NewClient(consul.DefaultConfig())
-	// if err != nil {
-	// 	fmt.Printf("Failed to contact consul - Please ensure both local agent and remote server are running : e.g. consul members >> %v \n", err)
-	// 	goapphealth = "NOTGOOD"
-	// }
-
 	// Read in the Vault service details from consul
 	vaultService := getConsulSVC(consulClient, "vault")
 	vaultAddress = "http://" + vaultService
@@ -261,18 +254,6 @@ func redisInit() (string, string) {
 
 	var redisService string
 	var redisPassword string
-
-	// consulTLSConfig, err := consul.SetupTLSConfig(&consul.TLSConfig{
-	// 	CAFile:             "/usr/local/bootstrap/certificate-config/consul-ca.pem",
-	// 	CertFile:           "/usr/local/bootstrap/certificate-config/cli.pem",
-	// 	KeyFile:            "/usr/local/bootstrap/certificate-config/cli-key.pem",
-	// 	Address:			"127.0.0.1",
-	//   })
-	//   if err != nil {
-	// 	panic(fmt.Sprintf("TLS Configuration error 1: %s\n", err))
-	// 	}
-	
-	//   fmt.Printf("ConsulTLSConfig: %+v \n", consulTLSConfig)
 
 	// Get a new Consul client
 	consulConfig := consul.DefaultConfig()

@@ -26,7 +26,7 @@ User=${1}
 Group=${1}
 PIDFile=/var/run/${1}/${1}.pid
 PermissionsStartOnly=true
-ExecStartPre=-/bin/mkdir -p /var/run/${1}
+ExecStartPre=-/bin/mkdir -p /var/run/${1} && export CONSUL_ACL_TOKEN=${CONSUL_HTTP_TOKEN}
 ExecStartPre=/bin/chown -R ${1}:${1} /var/run/${1}
 ExecStart=${3}
 ExecReload=/bin/kill -HUP ${MAINPID}
@@ -71,6 +71,13 @@ if [ -d /vagrant ]; then
 else
   LOG="nomad.log"
 fi
+
+# Configure consul environment variables for use with certificates 
+export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
+export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
+export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
+export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
+export CONSUL_HTTP_TOKEN=`cat /usr/local/bootstrap/.agenttoken_acl`
 
 which wget unzip &>/dev/null || {
   apt-get update
