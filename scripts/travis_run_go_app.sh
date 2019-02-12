@@ -4,9 +4,11 @@ set -x
 # delayed added to ensure consul has started on host - intermittent failures
 sleep 2
 
+export CONSUL_HTTP_TOKEN=`cat .agenttoken_acl`
+
 go get ./...
 go build -o webcounter main.go
-./webcounter &
+./webcounter -consulACL=${CONSUL_HTTP_TOKEN} &
 
 # delay added to allow webcounter startup
 sleep 2
