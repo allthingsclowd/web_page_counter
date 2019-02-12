@@ -16,6 +16,14 @@ if [ "${TRAVIS}" == "true" ]; then
   LEADER_IP="127.0.0.1"
 fi
 
+# Configure consul environment variables for use with certificates 
+export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
+export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
+export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
+export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
+export CONSUL_HTTP_TOKEN=`cat /usr/local/bootstrap/.agenttoken_acl`
+
+
 enable_nginx_service () {
   # start and enable nginx service
   sudo systemctl start nginx
