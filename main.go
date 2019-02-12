@@ -30,6 +30,7 @@ var targetPort string
 var targetIP string
 var thisServer string
 var appRoleID *string
+var consulACL *string
 var factoryIPPtr *string
 var vaultAddress string
 
@@ -39,11 +40,13 @@ func main() {
 	portPtr := flag.Int("port", 8080, "Default's to port 8080. Use -port=nnnn to use listen on an alternate port.")
 	ipPtr := flag.String("ip", "127.0.0.1", "Default's to all interfaces by using 127.0.0.1")
 	appRoleID = flag.String("appRole", "id-factory", "Application Role Name to be used to bootstrap access to Vault's secrets")
+	consulACL = flag.String("consulACL", "6b580a27-41dc-14ce-e82c-c932f23ba05a", "Application ACL from Consul")
 	flag.Parse()
 	targetPort = strconv.Itoa(*portPtr)
 	targetIP = *ipPtr
 	thisServer, _ = os.Hostname()
 	fmt.Printf("Incoming port number: %s \n", targetPort)
+	fmt.Printf("Consul ACL: %s \n", *consulACL)
 	redisMaster, redisPassword = redisInit()
 
 	if (redisMaster == "0") || (redisPassword == "0") {
@@ -168,17 +171,17 @@ func convert4connect(serviceURL string) string {
 
 }
 
-func getVaultKV(vaultKey string) string {
+func getVaultKV(consulClient consul.Client, vaultKey string) string {
 
-	// Get a new Consul client
-	consulClient, err := consul.NewClient(consul.DefaultConfig())
-	if err != nil {
-		fmt.Printf("Failed to contact consul - Please ensure both local agent and remote server are running : e.g. consul members >> %v \n", err)
-		goapphealth = "NOTGOOD"
-	}
+	// // Get a new Consul client
+	// consulClient, err := consul.NewClient(consul.DefaultConfig())
+	// if err != nil {
+	// 	fmt.Printf("Failed to contact consul - Please ensure both local agent and remote server are running : e.g. consul members >> %v \n", err)
+	// 	goapphealth = "NOTGOOD"
+	// }
 
 	// Read in the Vault service details from consul
-	vaultService := getConsulSVC(*consulClient, "vault")
+	vaultService := getConsulSVC(consulClient, "vault")
 	vaultAddress = "http://" + vaultService
 	fmt.Printf("Secret Store Address : >> %v \n", vaultAddress)
 
@@ -191,7 +194,7 @@ func getVaultKV(vaultKey string) string {
 		return "FAIL"
 	}
 
-	approleService := getConsulSVC(*consulClient, "approle")
+	approleService := getConsulSVC(consulClient, "approle")
 	// Replace service ip address with loopback address when using connect proxy
 	approleService = convert4connect(approleService)
 	appRoletoken := getVaultToken(approleService, *appRoleID)
@@ -259,14 +262,48 @@ func redisInit() (string, string) {
 	var redisService string
 	var redisPassword string
 
+	// consulTLSConfig, err := consul.SetupTLSConfig(&consul.TLSConfig{
+	// 	CAFile:             "/usr/local/bootstrap/certificate-config/consul-ca.pem",
+	// 	CertFile:           "/usr/local/bootstrap/certificate-config/cli.pem",
+	// 	KeyFile:            "/usr/local/bootstrap/certificate-config/cli-key.pem",
+	// 	Address:			"127.0.0.1",
+	//   })
+	//   if err != nil {
+	// 	panic(fmt.Sprintf("TLS Configuration error 1: %s\n", err))
+	// 	}
+	
+	//   fmt.Printf("ConsulTLSConfig: %+v \n", consulTLSConfig)
+
 	// Get a new Consul client
-	consulClient, err := consul.NewClient(consul.DefaultConfig())
+	consulConfig := consul.DefaultConfig()
+	consulConfig.Address = "192.168.2.11:8321"
+	consulConfig.Scheme = "https"
+	consulConfig.Token = *consulACL
+	consulConfig.TLSConfig = consul.TLSConfig{
+		CAFile:             "/usr/local/bootstrap/certificate-config/consul-ca.pem",
+		CertFile:           "/usr/local/bootstrap/certificate-config/cli.pem",
+		KeyFile:            "/usr/local/bootstrap/certificate-config/cli-key.pem",
+		Address:			"127.0.0.1",
+	  }
+	fmt.Printf("ConsulConfig: %+v \n", consulConfig)
+	// if err != nil {
+	// 	panic(fmt.Sprintf("TLS Configuration error: %s\n", err))
+	// }
+
+	// // consulConfig.HttpClient.Transport. = &http.Transport{
+	// // TLSClientConfig: consulTLSConfig,
+	// // }
+	// if err != nil {
+	// 	panic(fmt.Sprintf("TLS Application error: %s\n", err))
+	// }
+
+	consulClient, err := consul.NewClient(consulConfig)
 	if err != nil {
 		fmt.Printf("Failed to contact consul - Please ensure both local agent and remote server are running : e.g. consul members >> %v \n", err)
 		goapphealth = "NOTGOOD"
 	}
 
-	redisPassword = getVaultKV("redispassword")
+	redisPassword = getVaultKV(*consulClient, "redispassword")
 	redisService = getConsulSVC(*consulClient, "redis")
 	// Replace service ip address with loopback address when using connect proxy
 	redisService = convert4connect(redisService)
