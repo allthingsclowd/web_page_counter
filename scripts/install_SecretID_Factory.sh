@@ -17,43 +17,56 @@ register_secret_id_service_with_consul () {
         "SecretID-Factory-Service": "0.0.1"
       },
       "EnableTagOverride": false,
-      "check": 
-        {
-          "id": "api",
-          "name": "Factory Service SecretID",
-          "http": "http://127.0.0.1:8314/health",
-          "tls_skip_verify": true,
-          "method": "GET",
-          "interval": "10s",
-          "timeout": "1s"
-        },
+      "checks": [
+          {
+            "id": "api",
+            "name": "Factory Service SecretID",
+            "http": "http://127.0.0.1:8314/health",
+            "tls_skip_verify": true,
+            "method": "GET",
+            "interval": "10s",
+            "timeout": "3s"
+          }
+        ],
         "connect": { "sidecar_service": {} }
     }
 EOF
 
   # Register the service in consul via the local Consul agent api
-  curl \
-      -v \
+  sudo curl \
       --request PUT \
+      --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
+      --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
+      --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+      --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
       --data @secretid_service.json \
-      http://127.0.0.1:8500/v1/agent/service/register
+      ${CONSUL_HTTP_ADDR}/v1/agent/service/register
 
   # Register the service in consul via the local Consul agent api
-  curl \
-      -v \
+  sudo curl \
       --request PUT \
+      --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
+      --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
+      --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+      --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
       --data @secretid_service.json \
-      http://127.0.0.1:8500/v1/agent/service/register
+      ${CONSUL_HTTP_ADDR}/v1/agent/service/register
 
   # List the locally registered services via local Consul api
-  curl \
-    -v \
-    http://127.0.0.1:8500/v1/agent/services | jq -r .
+  sudo curl \
+    --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
+    --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
+    --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+    --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
+    ${CONSUL_HTTP_ADDR}/v1/agent/services | jq -r .
 
   # List the services regestered on the Consul server
-  curl \
-  -v \
-  http://${LEADER_IP}:8500/v1/catalog/services | jq -r .
+  sudo curl \
+    --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
+    --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
+    --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+    --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
+    ${CONSUL_HTTP_ADDR}/v1/catalog/services | jq -r .
    
     echo 'Register Vault Secret ID Factory Service with Consul Service Discovery Complete'
 
@@ -124,7 +137,8 @@ start_app_proxy_service () {
   # param 1 ${1}: app-proxy name
   # param 2 ${2}: app-proxy service description
 
-  create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -sidecar-for ${1}"
+  create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/usr/local/bootstrap/certificate-config/consul-ca.pem -client-cert=/usr/local/bootstrap/certificate-config/cli.pem -client-key=/usr/local/bootstrap/certificate-config/cli-key.pem -token=${AGENTTOKEN} -sidecar-for ${1}"
+  sudo usermod -a -G consulcerts ${1}
   sudo systemctl start ${1}
   sudo systemctl status ${1}
   echo "${1} Proxy App Service Build Complete"
@@ -138,7 +152,8 @@ start_client_proxy_service () {
     # param 4 ${4}: client-proxy local service port number
     
 
-    create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -service ${1} -upstream ${3}:${4}"
+    create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/usr/local/bootstrap/certificate-config/consul-ca.pem -client-cert=/usr/local/bootstrap/certificate-config/cli.pem -client-key=/usr/local/bootstrap/certificate-config/cli-key.pem -token=${AGENTTOKEN} -service ${1} -upstream ${3}:${4}"
+    sudo usermod -a -G consulcerts ${1}
     sudo systemctl start ${1}
     sudo systemctl status ${1}
     echo "${1} Proxy Client Service Build Complete"
@@ -159,6 +174,15 @@ setup_environment () {
         IP="127.0.0.1"
         VAULT_IP=${IP}
     fi
+
+    AGENTTOKEN=`cat /usr/local/bootstrap/.agenttoken_acl`
+    export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
+
+    # Configure consul environment variables for use with certificates 
+    export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
+    export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
+    export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
+    export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
 
     export VAULT_ADDR=http://${VAULT_IP}:8200
     export VAULT_SKIP_VERIFY=true
@@ -370,5 +394,10 @@ curl --header 'Content-Type: application/json' \
     http://127.0.0.1:8314/initialiseme
 
 register_secret_id_service_with_consul
+
+# check health
+echo "APPLICATION HEALTH"
+curl -s http://127.0.0.1:8314/health
+
 echo 'End of Factory Service Installation'
 

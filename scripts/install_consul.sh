@@ -1,5 +1,37 @@
 #!/usr/bin/env bash
 
+generate_certificate_config () {
+
+  sudo mkdir -p /etc/pki/tls/private
+  sudo mkdir -p /etc/pki/tls/certs
+  sudo mkdir -p /etc/consul.d
+  sudo cp -r /usr/local/bootstrap/certificate-config/${5}-key.pem /etc/pki/tls/private/${5}-key.pem
+  sudo cp -r /usr/local/bootstrap/certificate-config/${5}.pem /etc/pki/tls/certs/${5}.pem
+  sudo cp -r /usr/local/bootstrap/certificate-config/consul-ca.pem /etc/pki/tls/certs/consul-ca.pem
+  sudo tee /etc/consul.d/consul_cert_setup.json <<EOF
+  {
+  "datacenter": "allthingscloud1",
+  "data_dir": "/usr/local/consul",
+  "log_level": "INFO",
+  "server": ${1},
+  "node_name": "${HOSTNAME}",
+  "addresses": {
+      "https": "0.0.0.0"
+  },
+  "ports": {
+      "https": 8321,
+      "http": -1
+  },
+  "verify_incoming": true,
+  "verify_outgoing": true,
+  "key_file": "$2",
+  "cert_file": "$3",
+  "ca_file": "$4"
+  }
+EOF
+
+}
+
 create_service () {
   if [ ! -f /etc/systemd/system/${1}.service ]; then
     
@@ -114,7 +146,19 @@ install_prerequisite_binaries () {
 
 install_consul () {
   AGENT_CONFIG="-config-dir=/etc/consul.d -enable-script-checks=true"
+
+  # Configure consul environment variables for use with certificates 
+  export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
+  export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
+  export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
+  export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
   
+  # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
+  generate_certificate_config true "/etc/pki/tls/private/server-key.pem" "/etc/pki/tls/certs/server.pem" "/etc/pki/tls/certs/consul-ca.pem" server
+  sudo groupadd consulcerts
+  sudo chgrp -R consulcerts /etc/pki/tls
+  sudo chmod -R 770 /etc/pki/tls
+
   # check for consul hostname or travis => server
   if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
     echo "Starting a Consul Server"
@@ -122,10 +166,14 @@ install_consul () {
     /usr/local/bin/consul members 2>/dev/null || {
       if [ "${TRAVIS}" == "true" ]; then
         create_service_user consul
+        # ensure consul service has permissions to access certificates
+        sudo usermod -a -G consulcerts consul
         sudo -u consul cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
         sudo -u consul /usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
       else
         create_service consul "HashiCorp Consul Server SD & KV Service" "/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1"
+        # ensure consul service has permissions to access certificates
+        sudo usermod -a -G consulcerts consul
         sudo -u consul cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
         # sudo -u consul /usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
         sudo systemctl start consul
@@ -145,7 +193,10 @@ install_consul () {
   else
     echo "Starting a Consul Agent"
     /usr/local/bin/consul members 2>/dev/null || {
+
         create_service consul "HashiCorp Consul Agent Service"  "/usr/local/bin/consul agent -log-level=debug -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -join=${LEADER_IP}"
+        # ensure consul service has permissions to access certificates
+        sudo usermod -a -G consulcerts consul
         sudo systemctl start consul
         sudo systemctl status consul
         sleep 10
