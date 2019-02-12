@@ -16,6 +16,14 @@ if [ "${TRAVIS}" == "true" ]; then
   LEADER_IP="127.0.0.1"
 fi
 
+# Configure consul environment variables for use with certificates 
+export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
+export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
+export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
+export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
+export CONSUL_HTTP_TOKEN=`cat /usr/local/bootstrap/.agenttoken_acl`
+
+
 enable_nginx_service () {
   # start and enable nginx service
   sudo systemctl start nginx
@@ -53,22 +61,32 @@ register_nginx_service_with_consul () {
     }
 EOF
 
+
   # Register the service in consul via the local Consul agent api
   curl \
-      -v \
-      --request PUT \
-      --data @nginx_service.json \
-      http://127.0.0.1:8500/v1/agent/service/register
+    --request PUT \
+    --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
+    --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
+    --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+    --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
+    --data @nginx_service.json \
+    ${CONSUL_HTTP_ADDR}/v1/agent/service/register
 
   # List the locally registered services via local Consul api
   curl \
-    -v \
-    http://127.0.0.1:8500/v1/agent/services | jq -r .
+    --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
+    --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
+    --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+    --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
+    ${CONSUL_HTTP_ADDR}/v1/agent/services | jq -r .
 
   # List the services regestered on the Consul server
   curl \
-  -v \
-  http://${LEADER_IP}:8500/v1/catalog/services | jq -r .
+    --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
+    --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
+    --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+    --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
+    ${CONSUL_HTTP_ADDR}/v1/catalog/services | jq -r .
    
     echo 'Register nginx service with Consul Service Discovery Complete'
 }
@@ -113,8 +131,15 @@ sudo killall -9 consul-template &>/dev/null
 
 sleep 2
 
+export CONSUL_TOKEN=${CONSUL_HTTP_TOKEN}
+
 sudo /usr/local/bin/consul-template \
-     -consul-addr=${LEADER_IP}:8500 \
+     -consul-addr=${CONSUL_HTTP_ADDR} \
+     -consul-ssl \
+     -consul-token=${CONSUL_HTTP_TOKEN} \
+     -consul-ssl-cert="/usr/local/bootstrap/certificate-config/client.pem" \
+     -consul-ssl-key="/usr/local/bootstrap/certificate-config/client-key.pem" \
+     -consul-ssl-ca-cert="/usr/local/bootstrap/certificate-config/consul-ca.pem" \
      -template "/usr/local/bootstrap/conf/nginx.ctpl:/etc/nginx/conf.d/goapp.conf:/usr/local/bootstrap/scripts/updateBackendCount.sh" &
    
 sleep 1

@@ -67,11 +67,10 @@ setup_environment () {
 
     if [ -d /vagrant ]; then
         LOG="/vagrant/logs/vault_${HOSTNAME}.log"
-        AUDIT_LOG="/vagrant/logs/vault_audit_${HOSTNAME}.log"
     else
         LOG="vault.log"
-        AUDIT_LOG="vault_audit.log"
     fi
+
 
     if [ "${TRAVIS}" == "true" ]; then
     IP=${IP:-127.0.0.1}
@@ -86,6 +85,15 @@ setup_environment () {
         sudo chmod +x vault
         popd
     }
+
+    # Configure consul environment variables for use with certificates 
+    export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
+    export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
+    export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
+    export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
+    BOOTSTRAPACL=`cat /usr/local/bootstrap/.bootstrap_acl`
+    export CONSUL_HTTP_TOKEN=${BOOTSTRAPACL}
+
     echo 'End Setup of Vault Environment'
 }
 
@@ -97,22 +105,22 @@ configure_vault_KV_audit_logs () {
     # enable secret KV version 1
     sudo VAULT_TOKEN=${VAULT_TOKEN} VAULT_ADDR="http://${IP}:8200" vault secrets enable -version=1 kv
 
-    # configure Audit Backend
-    tee audit-backend-file.json <<EOF
-    {
-        "type": "file",
-        "options": {
-            "path": "${AUDIT_LOG}"
-        }
-    }
-EOF
+#     # configure Audit Backend
+#     tee audit-backend-file.json <<EOF
+#     {
+#         "type": "file",
+#         "options": {
+#             "path": "${AUDIT_LOG}"
+#         }
+#     }
+# EOF
 
-    curl \
-        --header "X-Vault-Token: ${VAULT_TOKEN}" \
-        --request PUT \
-        --data @audit-backend-file.json \
-        ${VAULT_ADDR}/v1/sys/audit/file-audit    
-    echo 'Vault KV Version Selection and Audit Log Enablement Complete'
+#     sudo curl \
+#         --header "X-Vault-Token: ${VAULT_TOKEN}" \
+#         --request PUT \
+#         --data @audit-backend-file.json \
+#         ${VAULT_ADDR}/v1/sys/audit/file-audit    
+    echo 'Vault KV Version Selection Complete'
 }
 
 configure_vault_database_role () {
@@ -301,7 +309,7 @@ EOF
         ${VAULT_ADDR}/v1/sys/policy/id-factory-secret-read | jq .
 
     # List ACL policies
-    curl \
+    sudo curl \
         --location \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
         --request LIST \
@@ -382,8 +390,8 @@ set_test_secret_data () {
     REDIS_MASTER_PASSWORD=`openssl rand -base64 32`
     # Put Redis Password in Vault
     sudo VAULT_ADDR="http://${IP}:8200" vault login ${ADMIN_TOKEN}
-    sudo VAULT_ADDR="http://${IP}:8200" vault policy list
-    sudo VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/redispassword value=${REDIS_MASTER_PASSWORD}
+    # FAILS???? sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault policy list
+    sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/redispassword value=${REDIS_MASTER_PASSWORD}
     # # Put Test Data (Password) in Vault
     # MASTER_PASSWORD="You_have_successfully_accessed_a_secret_password"
     # sudo VAULT_ADDR="http://${IP}:8200" vault login ${VAULT_TOKEN}
@@ -450,7 +458,7 @@ install_vault () {
         sudo killall vault &>/dev/null
 
         #lets delete old consul storage
-        sudo consul kv delete -recurse vault
+        consul kv delete -recurse vault
 
         #delete old token if present
         [ -f /usr/local/bootstrap/.vault-token ] && sudo rm /usr/local/bootstrap/.vault-token
@@ -458,12 +466,14 @@ install_vault () {
         #start vault
         if [ "${TRAVIS}" == "true" ]; then
             create_service_user vault
+            sudo usermod -a -G consulcerts vault
             sudo -u vault cp -r /usr/local/bootstrap/conf/vault.d/* /etc/vault.d/.
             sudo /usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/etc/vault.d/vault.hcl &> ${LOG} &
             sleep 3
             cat ${LOG}
         else
             create_service vault "HashiCorp's Sercret Management Service" "/usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/usr/local/bootstrap/conf/vault.d/vault.hcl"
+            sudo usermod -a -G consulcerts vault
             sudo systemctl start vault
             sudo systemctl status vault
         fi

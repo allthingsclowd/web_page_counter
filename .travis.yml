@@ -20,12 +20,12 @@ before_script:
 - bash scripts/install_SecretID_Factory.sh
 - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
 script:
-- source ./var.env
-- export REDIS_MASTER_IP=127.0.0.1
-- export LEADER_IP=127.0.0.1
-- sudo VAULT_ADDR=http://127.0.0.1:8200 vault status
-- consul kv put "development/REDIS_MASTER_IP" "127.0.0.1"
-- consul kv put "development/LEADER_IP" "127.0.0.1"
+# - source ./var.env
+# - export REDIS_MASTER_IP=127.0.0.1
+# - export LEADER_IP=127.0.0.1
+# - sudo VAULT_ADDR=http://127.0.0.1:8200 vault status
+# - consul kv put "development/REDIS_MASTER_IP" "127.0.0.1"
+# - consul kv put "development/LEADER_IP" "127.0.0.1"
 - bash scripts/travis_run_go_app.sh
 deploy:
   provider: releases
