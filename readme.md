@@ -1,6 +1,15 @@
 ![https://travis-ci.org/allthingsclowd/web_page_counter.svg?branch=master](https://travis-ci.org/allthingsclowd/web_page_counter.svg?branch=master)
 
 # Web Page Counter
+![a418a2ee-2347-425d-933a-21b72a9c23e6](https://user-images.githubusercontent.com/9472095/52670669-0bc63780-2f11-11e9-9a9d-b9074ab92543.jpeg)
+
+## An introduction to the new style of Cloud Infrastructure using HASHICORP's - PACKER, VAGRANT, CONSUL, NOMAD & VAULT
+
+These tools free up developers to focus on application development whilst giving operations teams a secure, flexible, scalable and governed infrastructure. They satisfy the most demanding cloud native applications of today but can still easily integrate with, deploy and manage traditional applications too.
+
+The application used is a simple GOLANG web page counter. (I'm not a dev so be gentle) It can easily be replaced with another app and is not the focus of this repository - please focus on the features and capabilities that the HASHICORP toolset provides.
+
+The webpage counter application uses a redis backend server, nginx web-proxy frontend server and a server that runs consul server, nomad server, and vault server. Clearly not a production setup but everything than you need to have some fun and hopefully learn a thing or two at the same time.
 
 ## When all is good it should look like this - 
 
@@ -8,17 +17,6 @@
 
 ## When we envoke a failure the self healing kicks in -
 ![image](https://user-images.githubusercontent.com/9472095/46105187-45e6a500-c1cd-11e8-93c2-24fe935f6e7b.png)
-
-
-## An introduction to the new style of Cloud Infrastructure using HASHICORP's - PACKER, VAGRANT, CONSUL, NOMAD & VAULT
-
-These tools free up developers to focus on application development whilst giving operations teams a secure, flexible, scalable and governed infrastructure. These tools satisfy the most demanding cloud native applications of today but can still easily integrate with, deploy and manage traditional applications too.
-
-The application used is a simple GOLANG web page counter. (I'm not a dev so be gentle) It can easily be replaced with another app and is not the focus of this repository - please focus on the features and capabilities that the HASHICORP toolset provides.
-
-The webpage counter application uses a redis backend server, nginx web-proxy frontend server and a server that runs consul server, nomad server, and vault server. Clearly not a production setup but everything than you need to have some fun and hopefully learn a thing or two at the same time.
-
-![img_0029](https://user-images.githubusercontent.com/9472095/45648555-d08a1e80-bac0-11e8-837c-1358597aa531.PNG)
 
 ## Prerequisites - mandatory
 
@@ -520,7 +518,9 @@ job "peach" {
 
 __WebCounter Application__
 
-The front end code and backend code has been separated. Back end APIs are available on port 9090 and the front end SPA angular application is served from port 9091 
+The front end and backend code has been separated. Back end APIs are available on port 9090 and the front end SPA angular application is served from port 9091 
+
+Access front end code [here](https://github.com/allthingsclowd/wep_page_counter_front-end)
 
 ![image](https://user-images.githubusercontent.com/9472095/46106049-92cb7b00-c1cf-11e8-9dcb-75533dd52955.png)
 
@@ -533,7 +533,7 @@ The front end code and backend code has been separated. Back end APIs are availa
 
 ### Refactor
 
-*. Configure a Consul Connect intention to permit the applications to communicate with the new Secret-ID Factory
+
 
 ## Done
 * Build own box using packer with above scripts
@@ -623,7 +623,12 @@ The front end code and backend code has been separated. Back end APIs are availa
 * Upgraded packer base image from Ubuntu 16.04 to Ubuntu 18.04
 * Updated readme for [VaultFactoryID Service](https://github.com/allthingsclowd/VaultServiceIDFactory/blob/master/readme.md) - the application bootstrapping service used 
 * Added Consul Connect Service Mesh for application bootstrapping service
-
+* Configure a Consul Connect intention to permit the applications to communicate with the new Secret-ID factory
+* Added TLS to Consul services
+* Enabled Consul ACLs
+* Reconfigured all services to work with TLS and ACLs now required on consul
+* Configured consul connect service mesh for the webpagecounter go application
+* Configured consul intentions for REDIS and APPROLE services
 
 
 
