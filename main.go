@@ -40,7 +40,7 @@ func main() {
 	portPtr := flag.Int("port", 8080, "Default's to port 8080. Use -port=nnnn to use listen on an alternate port.")
 	ipPtr := flag.String("ip", "127.0.0.1", "Default's to all interfaces by using 127.0.0.1")
 	appRoleID = flag.String("appRole", "id-factory", "Application Role Name to be used to bootstrap access to Vault's secrets")
-	consulACL = flag.String("consulACL", "6b580a27-41dc-14ce-e82c-c932f23ba05a", "Application ACL from Consul")
+	consulACL = flag.String("consulACL", "f8732bef-6085-f2e1-2281-8af91b5b0f6c", "Application ACL from Consul")
 	flag.Parse()
 	targetPort = strconv.Itoa(*portPtr)
 	targetIP = *ipPtr
@@ -286,16 +286,6 @@ func redisInit() (string, string) {
 		Address:			"127.0.0.1",
 	  }
 	fmt.Printf("ConsulConfig: %+v \n", consulConfig)
-	// if err != nil {
-	// 	panic(fmt.Sprintf("TLS Configuration error: %s\n", err))
-	// }
-
-	// // consulConfig.HttpClient.Transport. = &http.Transport{
-	// // TLSClientConfig: consulTLSConfig,
-	// // }
-	// if err != nil {
-	// 	panic(fmt.Sprintf("TLS Application error: %s\n", err))
-	// }
 
 	consulClient, err := consul.NewClient(consulConfig)
 	if err != nil {
