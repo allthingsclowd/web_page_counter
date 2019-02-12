@@ -17,16 +17,17 @@ register_secret_id_service_with_consul () {
         "SecretID-Factory-Service": "0.0.1"
       },
       "EnableTagOverride": false,
-      "check": 
-        {
-          "id": "api",
-          "name": "Factory Service SecretID",
-          "http": "http://127.0.0.1:8314/health",
-          "tls_skip_verify": true,
-          "method": "GET",
-          "interval": "10s",
-          "timeout": "1s"
-        },
+      "checks": [
+          {
+            "id": "api",
+            "name": "Factory Service SecretID",
+            "http": "http://127.0.0.1:8314/health",
+            "tls_skip_verify": true,
+            "method": "GET",
+            "interval": "10s",
+            "timeout": "3s"
+          }
+        ],
         "connect": { "sidecar_service": {} }
     }
 EOF

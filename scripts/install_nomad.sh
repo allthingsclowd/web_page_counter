@@ -26,7 +26,7 @@ User=${1}
 Group=${1}
 PIDFile=/var/run/${1}/${1}.pid
 PermissionsStartOnly=true
-ExecStartPre=-/bin/mkdir -p /var/run/${1} && export CONSUL_ACL_TOKEN=${CONSUL_HTTP_TOKEN}
+ExecStartPre=-/bin/mkdir -p /var/run/${1}
 ExecStartPre=/bin/chown -R ${1}:${1} /var/run/${1}
 ExecStart=${3}
 ExecReload=/bin/kill -HUP ${MAINPID}
