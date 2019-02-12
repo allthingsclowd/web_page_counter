@@ -533,7 +533,7 @@ Access front end code [here](https://github.com/allthingsclowd/wep_page_counter_
 
 ### Refactor
 
-
+* Fix Travis Test
 
 ## Done
 * Build own box using packer with above scripts
