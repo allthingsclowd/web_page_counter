@@ -19,8 +19,9 @@ before_script:
 - bash scripts/install_vault.sh
 - bash scripts/install_redis.sh
 - bash scripts/install_SecretID_Factory.sh
+- pwd
+- ls -al
 - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
-- sudo cp /home/travis/.agenttoken_acl /usr/local/bootstrap/.agenttoken_acl
 script:
 - source ./var.env
 - export REDIS_MASTER_IP=127.0.0.1
