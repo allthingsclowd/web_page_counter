@@ -13,6 +13,8 @@ go build -o webcounter main.go
 # delay added to allow webcounter startup
 sleep 2
 
+ps -ef | grep webcounter 
+
 page_hit_counter=`lynx --dump http://localhost:8080`
 echo $page_hit_counter
 next_page_hit_counter=`lynx --dump http://localhost:8080`
