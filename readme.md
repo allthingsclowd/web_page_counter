@@ -11,6 +11,23 @@ The application used is a simple GOLANG web page counter. (I'm not a dev so be g
 
 The webpage counter application uses a redis backend server, nginx web-proxy frontend server and a server that runs consul server, nomad server, and vault server. Clearly not a production setup but everything than you need to have some fun and hopefully learn a thing or two at the same time.
 
+## Detailed Overview
+
+* [Vagrant](docs/vagrant/ReadMe.md)
+* [Packer](docs/packer/ReadMe.md)
+* [Consul](docs/consul/ReadMe.md)
+  ** [Services Discovery](docs/consul/ReadMe.md)
+  ** [Service Configuration](docs/consul/ReadMe.md)
+  ** [Service Mesh](docs/consul/ReadMe.md)
+  ** [Consul-Template](docs/consul/ReadMe.md)
+* [Vault](docs/vault/ReadMe.md)
+  ** [Secret Management](docs/vault/ReadMe.md)
+  ** [Consul-Template](docs/vault/ReadMe.md)
+* [Nomad](docs/nomad/ReadMe.md)
+* [Nginx](docs/nginx/ReadMe.md)
+* [Travis-CI](docs/travis/ReadMe.md)
+* [DataDog](docs/datadog/ReadMe.md)
+
 ## When all is good it should look like this - 
 
 ![image](https://user-images.githubusercontent.com/9472095/46105006-cbb62080-c1cc-11e8-8f54-6eab4023a5bb.png)
