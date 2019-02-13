@@ -31,6 +31,7 @@ var targetIP string
 var thisServer string
 var appRoleID *string
 var consulACL *string
+var consulIp *string
 var factoryIPPtr *string
 var vaultAddress string
 
@@ -41,6 +42,7 @@ func main() {
 	ipPtr := flag.String("ip", "127.0.0.1", "Default's to all interfaces by using 127.0.0.1")
 	appRoleID = flag.String("appRole", "id-factory", "Application Role Name to be used to bootstrap access to Vault's secrets")
 	consulACL = flag.String("consulACL", "oi-someone-forgot-to-set-me", "Application ACL from Consul")
+	consulIp = flag.String("consulIp", "127.0.0.1:8321", "Consul Server IP Address")
 	flag.Parse()
 	targetPort = strconv.Itoa(*portPtr)
 	targetIP = *ipPtr
@@ -257,7 +259,7 @@ func redisInit() (string, string) {
 
 	// Get a new Consul client
 	consulConfig := consul.DefaultConfig()
-	consulConfig.Address = "192.168.2.11:8321"
+	consulConfig.Address = *consulIp
 	consulConfig.Scheme = "https"
 	consulConfig.Token = *consulACL
 	consulConfig.TLSConfig = consul.TLSConfig{
