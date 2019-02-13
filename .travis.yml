@@ -8,7 +8,7 @@ addons:
     - wget -q
     - grep
 go:
-- '1.11'
+- '1.11.5'
 before_script:
 - sudo rsync -az ${TRAVIS_BUILD_DIR}/ /usr/local/bootstrap/
 - pushd packer
@@ -37,6 +37,8 @@ script:
 - ls -al
 - cat /usr/local/bootstrap/.agenttoken_acl
 - export CONSUL_HTTP_TOKEN=`cat /usr/local/bootstrap/.agenttoken_acl`
+- env
+- consul info
 - consul kv put "development/REDIS_MASTER_IP" "127.0.0.1"
 - consul kv put "development/LEADER_IP" "127.0.0.1"
 - bash scripts/travis_run_go_app.sh
