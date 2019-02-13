@@ -103,6 +103,16 @@ export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
 export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
 export CONSUL_HTTP_TOKEN=`cat /usr/local/bootstrap/.agenttoken_acl`
 
+
+if [ "${TRAVIS}" == "true" ]; then
+  IP="127.0.0.1"
+  LEADER_IP=${IP}
+else
+  IFACE=`route -n | awk '$1 == "192.168.2.0" {print $8;exit}'`
+  CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.2" {print $2}'`
+  IP=${CIDR%%/24}
+fi
+
 # start client client proxy
 start_client_proxy_service redisclientproxy "Redis Connect Client Proxy" "redis" "6379"
 
@@ -133,6 +143,10 @@ cp /usr/local/bootstrap/scripts/consul_goapp_verify.sh /usr/local/bin/.
 # 's/:50K.*:53B/:50KCREDIT:53B/g' "-consulACL=5b3ec9a9-4791-3871-63f5-dbfc43edfe41"
 
 sed -i 's/consulACL=.*"/consulACL='${CONSUL_HTTP_TOKEN}'"/g' /usr/local/bootstrap/nomad_job.hcl
+sed -i 's/consulIp=.*"/consulIp='${IP}':8321"/g' /usr/local/bootstrap/nomad_job.hcl
+
+echo 'Review Nomad Job File'
+cat /usr/local/bootstrap/nomad_job.hcl
 
 nomad job run /usr/local/bootstrap/nomad_job.hcl || true
 
