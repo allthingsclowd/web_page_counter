@@ -20,7 +20,7 @@ before_script:
 - bash scripts/install_redis.sh
 - bash scripts/install_SecretID_Factory.sh
 - pwd
-- ls -al
+- ls -al /usr/local/bootstrap/
 - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
 script:
 - source ./var.env
