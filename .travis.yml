@@ -20,7 +20,7 @@ before_script:
 - bash scripts/install_redis.sh
 - bash scripts/install_SecretID_Factory.sh
 - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
-- sudo cp /home/travis/.vault-token /usr/local/bootstrap/.agenttoken_acl
+- sudo cp /home/travis/.agenttoken_acl /usr/local/bootstrap/.agenttoken_acl
 script:
 - source ./var.env
 - export REDIS_MASTER_IP=127.0.0.1
@@ -35,6 +35,7 @@ script:
 - ls -al
 - cat .agenttoken_acl
 - export CONSUL_HTTP_TOKEN=`cat .agenttoken_acl`
+- export CONSUL_TOKEN=`cat .agenttoken_acl`
 - consul kv put "development/REDIS_MASTER_IP" "127.0.0.1"
 - consul kv put "development/LEADER_IP" "127.0.0.1"
 - bash scripts/travis_run_go_app.sh
