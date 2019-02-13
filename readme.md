@@ -13,16 +13,18 @@ The webpage counter application uses a redis backend server, nginx web-proxy fro
 
 ## Detailed Overview
 
-* [Vagrant](docs/vagrant/ReadMe.md)
-* [Packer](docs/packer/ReadMe.md)
+:back:
+
+* [__Vagrant__](docs/vagrant/ReadMe.md)
+* [__Packer__](docs/packer/ReadMe.md)
 * [Consul](docs/consul/ReadMe.md)
-  ** [Services Discovery](docs/consul/ReadMe.md)
-  ** [Service Configuration](docs/consul/ReadMe.md)
-  ** [Service Mesh](docs/consul/ReadMe.md)
-  ** [Consul-Template](docs/consul/ReadMe.md)
+  * [Services Discovery](docs/consul/ReadMe.md)
+  * [Service Configuration](docs/consul/ReadMe.md)
+  * [Service Mesh](docs/consul/ReadMe.md)
+  * [Consul-Template](docs/consul/ReadMe.md)
 * [Vault](docs/vault/ReadMe.md)
-  ** [Secret Management](docs/vault/ReadMe.md)
-  ** [Consul-Template](docs/vault/ReadMe.md)
+  * [Secret Management](docs/vault/ReadMe.md)
+  * [Consul-Template](docs/vault/ReadMe.md)
 * [Nomad](docs/nomad/ReadMe.md)
 * [Nginx](docs/nginx/ReadMe.md)
 * [Travis-CI](docs/travis/ReadMe.md)
