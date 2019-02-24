@@ -16,5 +16,6 @@ main
 .bootstrap_acl
 .vaulttoken_acl
 1
+.azure
 
 
