@@ -17,5 +17,6 @@ main
 .vaulttoken_acl
 1
 .azure
+.terraform
 
 
