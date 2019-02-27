@@ -18,5 +18,7 @@ main
 1
 .azure
 .terraform
+terraform/terraform.state
+terraform/terraform.state.backup
 
 
