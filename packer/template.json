@@ -155,7 +155,8 @@
     {
       "destination": "/usr/local/bootstrap",
       "source": "../scripts",
-      "type": "file"
+      "type": "file",
+      "only": ["azure-arm"]
     },
     {
       "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
