@@ -25,7 +25,7 @@ register_secret_id_service_with_consul () {
             "tls_skip_verify": true,
             "method": "GET",
             "interval": "10s",
-            "timeout": "3s"
+            "timeout": "5s"
           }
         ],
         "connect": { "sidecar_service": {} }
