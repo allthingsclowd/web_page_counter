@@ -500,7 +500,7 @@ install_vault () {
 }
 setup_environment
 install_vault
-
+exit 0
     
 
 

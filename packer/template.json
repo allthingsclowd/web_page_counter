@@ -16,11 +16,11 @@
     "ssh_username": "vagrant",
     "ssh_password": "vagrant",
     "version": "0.2.{{timestamp}}",
-    "cloud_token": "{{ env `VAGRANT_CLOUD_TOKEN` }}",
-    "arm_subscription_id": "{{ env `ARM_SUBSCRIPTION_ID` }}",
-    "arm_client_id": "{{ env `ARM_CLIENT_ID` }}",
-    "arm_client_secret": "{{ env `ARM_CLIENT_SECRET` }}",
-    "arm_tenant_id": "{{ env `ARM_TENANT_ID` }}"
+    "cloud_token": "{{ env `TF_VAR_vagrant_cloud_token` }}",
+    "arm_subscription_id": "{{ env `TF_VAR_arm_subscription_id` }}",
+    "arm_client_id": "{{ env `TF_VAR_arm_client_id` }}",
+    "arm_client_secret": "{{ env `TF_VAR_arm_client_secret` }}",
+    "arm_tenant_id": "{{ env `TF_VAR_arm_tenant_id` }}"
   },
   "builders": [
     {
@@ -30,7 +30,7 @@
       "tenant_id": "{{user `arm_tenant_id`}}",
       "subscription_id": "{{user `arm_subscription_id`}}",
   
-      "managed_image_resource_group_name": "gjl-dev",
+      "managed_image_resource_group_name": "graham-dev",
       "managed_image_name": "webPageCounter",
   
       "os_type": "Linux",
@@ -44,7 +44,7 @@
       },
   
       "location": "West Europe",
-      "vm_size": "Standard_DS2_v2"
+      "vm_size": "Standard_DS1_v2"
     },
     {
       "type": "virtualbox-iso",
@@ -122,7 +122,43 @@
   ],
   "provisioners": [
     {
-      "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'",
+      "inline": [
+        "sudo mkdir -p /usr/local/bootstrap && sudo chmod 777 /usr/local/bootstrap"
+      ],
+      "type": "shell",
+      "only": ["azure-arm"]
+    },
+    {
+      "destination": "/usr/local/bootstrap/",
+      "source": "../var.env",
+      "type": "file",
+      "only": ["azure-arm"]
+    },
+    {
+      "destination": "/usr/local/bootstrap/",
+      "source": "../nomad_job.hcl",
+      "type": "file",
+      "only": ["azure-arm"]
+    },
+    {
+      "destination": "/usr/local/bootstrap",
+      "source": "../certificate-config",
+      "type": "file",
+      "only": ["azure-arm"]
+    },
+    {
+      "destination": "/usr/local/bootstrap",
+      "source": "../conf",
+      "type": "file",
+      "only": ["azure-arm"]
+    },
+    {
+      "destination": "/tmp",
+      "source": "../scripts",
+      "type": "file"
+    },
+    {
+      "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
       "scripts": [
         "../scripts/packer_install_base_packages.sh",
         "../scripts/packer_cleanup_azurevm.sh"

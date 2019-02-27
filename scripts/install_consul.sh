@@ -209,3 +209,4 @@ install_consul () {
 setup_environment
 install_prerequisite_binaries
 install_consul
+exit 0

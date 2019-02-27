@@ -150,3 +150,6 @@ cat /usr/local/bootstrap/nomad_job.hcl
 
 nomad job run /usr/local/bootstrap/nomad_job.hcl || true
 
+exit 0
+
+

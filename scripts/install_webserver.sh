@@ -143,4 +143,4 @@ sudo /usr/local/bin/consul-template \
      -template "/usr/local/bootstrap/conf/nginx.ctpl:/etc/nginx/conf.d/goapp.conf:/usr/local/bootstrap/scripts/updateBackendCount.sh" &
    
 sleep 1
-
+exit 0

@@ -17,3 +17,5 @@ chown -R vagrant /home/vagrant/.ssh
 
 # Install NFS for Vagrant
 apt-get install -y nfs-common
+
+exit 0

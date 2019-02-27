@@ -325,3 +325,4 @@ verify_consul_access () {
 
 setup_environment
 consul_acl_config
+exit 0
