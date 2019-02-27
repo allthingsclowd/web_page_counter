@@ -201,7 +201,7 @@ resource "azurerm_virtual_machine_extension" "setupleader" {
 
   settings = <<SETTINGS
   {
-    "commandToExecute": "sh /tmp/scripts/install_consul.sh && sh /tmp/scripts/consul_enable_acls_1.4.sh && sh /tmp/scripts/install_vault.sh && sh /tmp/scripts/install_nomad.sh && sh /tmp/scripts/install_SecretID_Factory.sh"
+    "commandToExecute": "sudo -E -S bash /usr/local/bootstrap/scripts/install_consul.sh && sudo -E -S bash /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh && sudo -E -S bash /usr/local/bootstrap/scripts/install_vault.sh && sudo -E -S bash /usr/local/bootstrap/scripts/install_nomad.sh && sudo -E -S bash /usr/local/bootstrap/scripts/install_SecretID_Factory.sh"
   }
 SETTINGS
   
