@@ -103,7 +103,7 @@ resource "azurerm_network_security_group" "wpcnsg" {
         destination_address_prefix = "*"
     }
 
-        security_rule {
+    security_rule {
         name                       = "VAULT"
         priority                   = 1003
         direction                  = "Inbound"
@@ -115,7 +115,7 @@ resource "azurerm_network_security_group" "wpcnsg" {
         destination_address_prefix = "*"
     }
 
-        security_rule {
+    security_rule {
         name                       = "NOMAD"
         priority                   = 1004
         direction                  = "Inbound"
@@ -127,6 +127,17 @@ resource "azurerm_network_security_group" "wpcnsg" {
         destination_address_prefix = "*"
     }
 
+    security_rule {
+        name                       = "FACTORY"
+        priority                   = 1005
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_port_range          = "*"
+        destination_port_range     = "8314"
+        source_address_prefix      = "*"
+        destination_address_prefix = "*"
+    }
 
     tags {
         environment = "Web Page Counter"
@@ -244,3 +255,5 @@ resource "azurerm_virtual_machine" "myterraformvm" {
     }
 
 }
+
+
