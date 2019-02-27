@@ -260,6 +260,8 @@ configure_redis () {
 setup_environment
 configure_redis
 
+exit 0
+
 
 
 

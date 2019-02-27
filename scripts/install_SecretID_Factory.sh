@@ -400,4 +400,5 @@ echo "APPLICATION HEALTH"
 curl -s http://127.0.0.1:8314/health
 
 echo 'End of Factory Service Installation'
+exit 0
 

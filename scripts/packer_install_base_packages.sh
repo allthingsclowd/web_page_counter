@@ -113,3 +113,6 @@ install_hashicorp_binaries
 # Reboot with the new kernel
 shutdown -r now
 sleep 60
+
+exit 0
+

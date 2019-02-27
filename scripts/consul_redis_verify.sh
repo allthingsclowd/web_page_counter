@@ -23,3 +23,4 @@ else
   echo "warn: not able to get the value, something is not good"
   exit 1
 fi
+exit 0

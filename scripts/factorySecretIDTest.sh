@@ -94,3 +94,4 @@ echo 'Start of Factory Service Test'
 setup_environment
 verify_factory_service
 echo 'End of Factory Service Test'
+exit 0
