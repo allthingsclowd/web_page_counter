@@ -468,11 +468,11 @@ install_vault () {
             create_service_user vault
             sudo usermod -a -G consulcerts vault
             sudo -u vault cp -r /usr/local/bootstrap/conf/vault.d/* /etc/vault.d/.
-            sudo /usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/etc/vault.d/vault.hcl &> ${LOG} &
+            sudo /usr/local/bin/vault server -dev -dev-root-token-id="reallystrongpassword" -dev-listen-address=${IP}:8200 -config=/etc/vault.d/vault.hcl &> ${LOG} &
             sleep 3
             cat ${LOG}
         else
-            create_service vault "HashiCorp's Sercret Management Service" "/usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/usr/local/bootstrap/conf/vault.d/vault.hcl"
+            create_service vault "HashiCorp's Sercret Management Service" "/usr/local/bin/vault server -dev -dev-root-token-id="reallystrongpassword" -dev-listen-address=${IP}:8200 -config=/usr/local/bootstrap/conf/vault.d/vault.hcl"
             sudo usermod -a -G consulcerts vault
             sudo systemctl start vault
             sudo systemctl status vault
@@ -481,7 +481,7 @@ install_vault () {
         sleep 3 
         
         #copy token to known location
-        sudo find / -name '.vault-token' -exec cp {} /usr/local/bootstrap/.vault-token \; -quit
+        echo "reallystrongpassword" /usr/local/bootstrap/.vault-token
         sudo chmod ugo+r /usr/local/bootstrap/.vault-token
         configure_vault_KV_audit_logs
         configure_vault_admin_role

@@ -139,6 +139,23 @@ resource "azurerm_storage_account" "mystorageaccount" {
     }
 }
 
+# Create cloud-init config
+data "template_file" "cloudconfig" {
+    
+  template = "${file("../scripts/leader_cloud_config.txt")}"
+}
+
+#https://www.terraform.io/docs/providers/template/d/cloudinit_config.html
+data "template_cloudinit_config" "config" {
+  gzip          = true
+  base64_encode = true
+
+  part {
+    content = "${data.template_file.cloudconfig.rendered}"
+  }
+}
+
+
 # Create virtual machine
 resource "azurerm_virtual_machine" "myterraformvm" {
     name                  = "leader01"
@@ -169,6 +186,7 @@ resource "azurerm_virtual_machine" "myterraformvm" {
     os_profile {
         computer_name  = "leader01"
         admin_username = "azureuser"
+        custom_data    = "${data.template_cloudinit_config.config.rendered}"
     }
 
     os_profile_linux_config {
@@ -188,24 +206,4 @@ resource "azurerm_virtual_machine" "myterraformvm" {
         environment = "Web Page Counter"
     }
 
-}
-
-resource "azurerm_virtual_machine_extension" "setupleader" {
-  name                 = "leader01"
-  location             = "westeurope"
-  resource_group_name  = "${azurerm_resource_group.webpagecounter.name}"
-  virtual_machine_name = "${azurerm_virtual_machine.myterraformvm.name}"
-  publisher            = "Microsoft.OSTCExtensions"
-  type                 = "CustomScriptForLinux"
-  type_handler_version = "1.2"
-
-  settings = <<SETTINGS
-  {
-    "commandToExecute": "sudo -E -S bash /usr/local/bootstrap/scripts/install_consul.sh && sudo -E -S bash /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh && sudo -E -S bash /usr/local/bootstrap/scripts/install_vault.sh && sudo -E -S bash /usr/local/bootstrap/scripts/install_nomad.sh && sudo -E -S bash /usr/local/bootstrap/scripts/install_SecretID_Factory.sh"
-  }
-SETTINGS
-  
-  tags {
-    environment = "Web Page Counter"
-  }
 }
