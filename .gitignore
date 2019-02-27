@@ -18,7 +18,12 @@ main
 1
 .azure
 .terraform
-terraform/terraform.state
-terraform/terraform.state.backup
-
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+/packer_cache/
+/output-*/*
+*.box
+*.iso
+*.tfstate
+*.tfstate*
 

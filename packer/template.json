@@ -160,12 +160,17 @@
     },
     {
       "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
-      "scripts": [
-        "../scripts/packer_install_base_packages.sh",
-        "../scripts/packer_cleanup_azurevm.sh"
-      ],
+      "script": "../scripts/packer_install_base_packages.sh",
       "type": "shell",
       "expect_disconnect": true,
+      "only": ["azure-arm"]
+    },
+    {
+      "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
+      "script": "../scripts/packer_cleanup_azurevm.sh",
+      "type": "shell",
+      "expect_disconnect": true,
+      "pause_before": "60s",
       "only": ["azure-arm"]
     },
     {
@@ -178,6 +183,7 @@
       ],
       "type": "shell",
       "expect_disconnect": true,
+      "pause_before": "10s",
       "only": ["{{ user `build_name` }}-vbox"]
     }
   ],

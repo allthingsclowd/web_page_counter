@@ -12,7 +12,7 @@ go:
 before_script:
 - sudo rsync -az ${TRAVIS_BUILD_DIR}/ /usr/local/bootstrap/
 - pushd packer
-- if [ $VAGRANT_CLOUD_TOKEN ] ; then packer validate template.json ; fi
+- if [ $VAGRANT_CLOUD_TOKEN ] ; then packer validate -syntax-only template.json ; fi
 - popd
 - bash scripts/install_consul.sh
 - bash scripts/consul_enable_acls_1.4.sh
