@@ -481,7 +481,7 @@ install_vault () {
         sleep 3 
         
         #copy token to known location
-        echo "reallystrongpassword" /usr/local/bootstrap/.vault-token
+        echo "reallystrongpassword" > /usr/local/bootstrap/.vault-token
         sudo chmod ugo+r /usr/local/bootstrap/.vault-token
         configure_vault_KV_audit_logs
         configure_vault_admin_role

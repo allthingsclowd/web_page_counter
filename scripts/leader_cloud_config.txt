@@ -7,3 +7,4 @@ runcmd:
   - sudo /usr/local/bootstrap/scripts/install_nomad.sh
   - sudo /usr/local/bootstrap/scripts/install_SecretID_Factory.sh
   - touch /tmp/finishedcloudinit.txt
+  
