@@ -14,6 +14,8 @@ before_script:
 - pushd packer
 - if [ $VAGRANT_CLOUD_TOKEN ] ; then packer validate -syntax-only template.json ; fi
 - popd
+- sed -i 's/LEADER_IP=192.168.2.11/LEADER_IP=127.0.0.1/g' ./var.env
+- sed -i 's/REDIS_MASTER_IP=192.168.2.200/REDIS_MASTER_IP=127.0.0.1/g' ./var.env
 - bash scripts/install_consul.sh
 - bash scripts/consul_enable_acls_1.4.sh
 - bash scripts/install_vault.sh
@@ -24,8 +26,6 @@ before_script:
 - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
 - echo 314159265359 >> /usr/local/bootstrap/.appRoleID
 script:
-- sed -i 's/LEADER_IP=.*1/LEADER_IP=127.0.0.1/g' ./var.env
-- sed -i 's/REDIS_MASTER_IP=192.168.2.200/REDIS_MASTER_IP=127.0.0.1/g' ./var.env
 - source ./var.env
 - cat ./var.env
 - sudo VAULT_ADDR=http://127.0.0.1:8200 vault status
