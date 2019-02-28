@@ -35,7 +35,7 @@ verify_factory_service () {
     if [ "${STATUS}" = "UNINITIALISED" ];then
         echo "Initialisng the Factory Service with a Provisioner Token"
             # Initialise with Vault Token
-        WRAPPED_VAULT_TOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${IP}:8200" vault kv get kv/development/wrappedprovisionertoken`
+        WRAPPED_VAULT_TOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${IP}:8200" vault kv get -field "value"development/wrappedprovisionertoken`
 
         curl --header "Content-Type: application/json" \
         --request POST \
@@ -59,7 +59,7 @@ verify_factory_service () {
     echo "SECRET_ID : ${SECRET_ID}"
     
     # retrieve the appRole-id from the approle - /usr/local/bootstrap/.appRoleID
-    APPROLEID=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${IP}:8200" vault kv get kv/development/approleid`
+    APPROLEID=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${IP}:8200" vault kv get -field "value"development/approleid`
 
     echo "APPROLEID : ${APPROLEID}"
 
