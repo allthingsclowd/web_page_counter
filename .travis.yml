@@ -23,7 +23,7 @@ before_script:
 - ls -al /usr/local/bootstrap/
 - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
 - echo 314159265359 >> /usr/local/bootstrap/.appRoleID
-script:export LEADER_IP=192.168.2.11
+script:
 - sed -i 's/LEADER_IP=.*1/LEADER_IP=127.0.0.1/g' ./var.env
 - sed -i 's/REDIS_MASTER_IP=192.168.2.200/REDIS_MASTER_IP=127.0.0.1/g' ./var.env
 - source ./var.env
