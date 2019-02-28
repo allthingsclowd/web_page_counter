@@ -28,8 +28,8 @@ before_script:
 - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
 - echo 314159265359 >> /usr/local/bootstrap/.appRoleID
 script:
-- source ./var.env
-- cat ./var.env
+- source /usr/local/bootstrap/var.env
+- cat /usr/local/bootstrap/var.env
 - sudo VAULT_ADDR=http://127.0.0.1:8200 vault status
 # Configure consul environment variables for use with certificates 
 - export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
