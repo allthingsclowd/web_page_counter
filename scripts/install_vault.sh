@@ -435,7 +435,7 @@ EOF
 
     echo "Reading secret using newly acquired token"
     sudo VAULT_ADDR="http://${IP}:8200" vault login ${APPTOKEN}
-    sudo VAULT_ADDR="http://${IP}:8200" vault kv get kv/development/redispassword
+    sudo VAULT_ADDR="http://${IP}:8200" vault kv get -field "value"development/redispassword
 
     echo "Reading secret using newly acquired token"
 
