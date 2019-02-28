@@ -6,7 +6,7 @@ set -x
 echo "running client test"
 
 # read redis database password from vault
-VAULT_TOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${IP}:8200" vault kv get -field "value"development/vaultdbtoken`
+VAULT_TOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${IP}:8200" vault kv get -field "value" kv/development/vaultdbtoken`
 VAULT_ADDR="http://${LEADER_IP}:8200"
 
 TESTPASSWORD=`VAULT_ADDR="http://${LEADER_IP}:8200" VAULT_TOKEN=${VAULT_TOKEN} /usr/local/bin/vault kv get -field=value kv/development/redispassword`
