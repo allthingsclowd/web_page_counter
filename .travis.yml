@@ -22,7 +22,7 @@ before_script:
 - pwd
 - ls -al /usr/local/bootstrap/
 - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
-- cat /usr/local/bootstrap/.agenttoken_acl
+- sudo cp /home/travis/.appRoleID /usr/local/bootstrap/.appRoleID
 script:
 - source ./var.env
 - export REDIS_MASTER_IP=127.0.0.1
