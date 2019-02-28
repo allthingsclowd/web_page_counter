@@ -136,12 +136,6 @@
     },
     {
       "destination": "/usr/local/bootstrap/",
-      "source": "../nomad_job.hcl",
-      "type": "file",
-      "only": ["azure-arm"]
-    },
-    {
-      "destination": "/usr/local/bootstrap/",
       "source": "../.appRoleID",
       "type": "file",
       "only": ["azure-arm"]
