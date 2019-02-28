@@ -104,7 +104,7 @@ resource "azurerm_storage_account" "mystorageaccount" {
 
 # Create Network Security Group and rule for leader
 resource "azurerm_network_security_group" "wpcleadernsg" {
-    name                = "wpcNetworkSecurityGroup"
+    name                = "wpcleaderNetworkSecurityGroup"
     location            = "westeurope"
     resource_group_name = "${var.arm_resource_group}"
 
@@ -175,7 +175,7 @@ resource "azurerm_network_security_group" "wpcleadernsg" {
 
 # Create Network Security Group and rule for other systems
 resource "azurerm_network_security_group" "wpcothersnsg" {
-    name                = "wpcNetworkSecurityGroup"
+    name                = "wpcothersNetworkSecurityGroup"
     location            = "westeurope"
     resource_group_name = "${var.arm_resource_group}"
 
@@ -198,7 +198,7 @@ resource "azurerm_network_security_group" "wpcothersnsg" {
 
 # Create Network Security Group and rule for proxy
 resource "azurerm_network_security_group" "wpcproxynsg" {
-    name                = "wpcNetworkSecurityGroup"
+    name                = "wpcproxyNetworkSecurityGroup"
     location            = "westeurope"
     resource_group_name = "${var.arm_resource_group}"
 
