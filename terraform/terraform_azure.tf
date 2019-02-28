@@ -494,6 +494,8 @@ resource "azurerm_virtual_machine" "redisvm" {
         environment = "Web Page Counter"
     }
 
+    depends_on = ["azurerm_virtual_machine.myterraformvm"]
+
 }
 
 # Create virtual machine web01
@@ -545,6 +547,8 @@ resource "azurerm_virtual_machine" "webvm" {
     tags {
         environment = "Web Page Counter"
     }
+
+    depends_on = ["azurerm_virtual_machine.godev01vm", "azurerm_virtual_machine.godev02vm"]
 
 }
 
@@ -598,6 +602,8 @@ resource "azurerm_virtual_machine" "godev01vm" {
         environment = "Web Page Counter"
     }
 
+    depends_on = ["azurerm_virtual_machine.myterraformvm","azurerm_virtual_machine.redisvm"]
+
 }
 
 # Create virtual machine godev02
@@ -649,5 +655,7 @@ resource "azurerm_virtual_machine" "godev02vm" {
     tags {
         environment = "Web Page Counter"
     }
+
+    depends_on = ["azurerm_virtual_machine.myterraformvm","azurerm_virtual_machine.redisvm"]
 
 }
