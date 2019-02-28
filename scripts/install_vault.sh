@@ -132,7 +132,7 @@ configure_vault_database_role () {
     # admin policy hcl definition file
     tee database_policy.hcl <<EOF
     # List read key/value secrets
-    path "kv/development/redispassword"
+    path "kv/development/*"
     {
     capabilities = ["read", "list"]
     }
@@ -384,19 +384,23 @@ get_approle_id () {
 
 }
 
-set_test_secret_data () {
+bootstrap_secret_data () {
     
-    echo 'Set SECRET Test data in VAULT'
+    echo 'Set environmental bootstrapping data in VAULT'
     REDIS_MASTER_PASSWORD=`openssl rand -base64 32`
+    APPROLEID=`cat /usr/local/bootstrap/.appRoleID`
+    DB_VAULT_TOKEN=`cat /usr/local/bootstrap/.database-token`
+    AGENTTOKEN=`cat /usr/local/bootstrap/.agenttoken_acl`
+    WRAPPEDPROVISIONERTOKEN=`cat /usr/local/bootstrap/.wrapped-provisioner-token`
     # Put Redis Password in Vault
     sudo VAULT_ADDR="http://${IP}:8200" vault login ${ADMIN_TOKEN}
     # FAILS???? sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault policy list
     sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/redispassword value=${REDIS_MASTER_PASSWORD}
-    # # Put Test Data (Password) in Vault
-    # MASTER_PASSWORD="You_have_successfully_accessed_a_secret_password"
-    # sudo VAULT_ADDR="http://${IP}:8200" vault login ${VAULT_TOKEN}
-    # sudo VAULT_ADDR="http://${IP}:8200" vault kv put kv/example_password value=${MASTER_PASSWORD}
-    # echo 'Set SECRET Test data in VAULT Complete'
+    sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/consulagentacl value=${AGENTTOKEN}
+    sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/vaultdbtoken value=${DB_VAULT_TOKEN}
+    sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/approleid value=${APPROLEID}
+    sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/wrappedprovisionertoken value=${WRAPPEDPROVISIONERTOKEN}
+
 
 }
 
@@ -489,7 +493,7 @@ install_vault () {
         configure_vault_provisioner_role_wrapped
         configure_vault_app_role
         #revoke_root_token
-        set_test_secret_data
+        bootstrap_secret_data
         get_secret_id
         get_approle_id
         verify_approle_credentials
@@ -498,8 +502,11 @@ install_vault () {
 
     echo 'Installation of Vault Finished'
 }
+
+
 setup_environment
 install_vault
+
 exit 0
     
 

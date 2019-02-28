@@ -4,7 +4,7 @@ source /usr/local/bootstrap/var.env
 set -x
 
 # read redis database password from vault
-VAULT_TOKEN=`cat /usr/local/bootstrap/.database-token`
+VAULT_TOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${IP}:8200" vault kv get kv/development/vaultdbtoken`
 VAULT_ADDR="http://${LEADER_IP}:8200"
 
 TESTPASSWORD=`VAULT_ADDR="http://${LEADER_IP}:8200" VAULT_TOKEN=${VAULT_TOKEN} /usr/local/bin/vault kv get -field=value kv/development/redispassword`
