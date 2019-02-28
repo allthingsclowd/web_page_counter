@@ -159,9 +159,6 @@ EOF
 
 step6_verify_acl_config () {
 
-    AGENTTOKEN=`cat /usr/local/bootstrap/.agenttoken_acl`
-
-
     curl -s -w "\n%{http_code}" \
       --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
       --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
@@ -188,7 +185,7 @@ step6_verify_acl_config () {
 
 step7_enable_acl_on_client () {
 
-  AGENTTOKEN=`cat /usr/local/bootstrap/.agenttoken_acl`
+  AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${IP}:8200" vault kv get kv/development/consulagentacl`
   export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
   sudo tee /etc/consul.d/consul_acl_1.4_setup.json <<EOF
@@ -205,6 +202,34 @@ step7_enable_acl_on_client () {
 EOF
   # read in new configs
   restart_consul
+
+}
+
+step8_verify_acl_config () {
+
+    AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${IP}:8200" vault kv get kv/development/consulagentacl`
+
+    curl -s -w "\n%{http_code}" \
+      --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
+      --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
+      --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+      --header "X-Consul-Token: ${AGENTTOKEN}" \
+      https://127.0.0.1:8321/v1/catalog/nodes | {
+            read body
+            read result
+            if [ "$result" == "200" ]; then
+                TAGGEDADDRESSES=`jq -r '.[0].TaggedAddresses' <<< "$body"`
+                if [ "${TAGGEDADDRESSES}" != "" ];then
+                  echo "The ACL system appears to be bootstrapped correctly - Tagged Addresses ${TAGGEDADDRESSES}"
+                else
+                  echo "The ACL system does not appear to be bootstrapped correctly - Tagged Addresses ${TAGGEDADDRESSES}"
+                fi
+            else
+                echo "The ACL system does not appear to be bootstrapped correctly - return code ${result}"
+
+            fi
+
+           }
 
 }
 
@@ -292,7 +317,7 @@ consul_acl_config () {
   else
     echo agent
     step7_enable_acl_on_client
-    step6_verify_acl_config
+    step8_verify_acl_config
     
   fi
   

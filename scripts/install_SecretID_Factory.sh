@@ -175,7 +175,7 @@ setup_environment () {
         VAULT_IP=${IP}
     fi
 
-    AGENTTOKEN=`cat /usr/local/bootstrap/.agenttoken_acl`
+    AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${IP}:8200" vault kv get kv/development/consulagentacl`
     export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
     # Configure consul environment variables for use with certificates 
@@ -251,7 +251,8 @@ verify_go_application () {
         IP=127.0.0.1
         curl -s http://127.0.0.1:8314/health 
         # Initialise with Vault Token
-        WRAPPED_VAULT_TOKEN=`cat /usr/local/bootstrap/.wrapped-provisioner-token`
+        WRAPPED_VAULT_TOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${IP}:8200" vault kv get kv/development/wrappedprovisionertoken`
+        
         curl -s --header "Content-Type: application/json" \
         --request POST \
         --data "{\"token\":\"${WRAPPED_VAULT_TOKEN}\"}" \
@@ -275,7 +276,7 @@ verify_go_application () {
         echo "SECRET_ID : ${SECRET_ID}"
         
         # retrieve the appRole-id from the approle - /usr/local/bootstrap/.appRoleID
-        APPROLEID=`cat /usr/local/bootstrap/.appRoleID`
+        APPROLEID=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${IP}:8200" vault kv get kv/development/approleid`
 
         echo "APPROLEID : ${APPROLEID}"
 
@@ -317,7 +318,8 @@ EOF
         IP=127.0.0.1
         curl -s http://127.0.0.1:8314/health 
         # Initialise with Vault Token
-        WRAPPED_VAULT_TOKEN=`cat /usr/local/bootstrap/.wrapped-provisioner-token`
+        WRAPPED_VAULT_TOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${IP}:8200" vault kv get kv/development/wrappedprovisionertoken`
+   
         curl -s --header "Content-Type: application/json" \
         --request POST \
         --data "{\"token\":\"${WRAPPED_VAULT_TOKEN}\"}" \
@@ -341,7 +343,7 @@ EOF
         echo "SECRET_ID : ${SECRET_ID}"
         
         # retrieve the appRole-id from the approle - /usr/local/bootstrap/.appRoleID
-        APPROLEID=`cat /usr/local/bootstrap/.appRoleID`
+        APPROLEID=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${IP}:8200" vault kv get kv/development/approleid`
 
         echo "APPROLEID : ${APPROLEID}"
 
@@ -387,7 +389,8 @@ install_go_application
 #verify_go_application
 
 # initialise the factory service with the provisioner token
-WRAPPED_TOKEN=`cat /usr/local/bootstrap/.wrapped-provisioner-token`
+
+WRAPPED_TOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${IP}:8200" vault kv get kv/development/wrappedprovisionertoken`
 curl --header 'Content-Type: application/json' \
     --request POST \
     --data "{\"token\":\""${WRAPPED_TOKEN}"\"}" \
