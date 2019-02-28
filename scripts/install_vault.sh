@@ -337,6 +337,13 @@ EOF
         }
 EOF
 
+        # Static AppRole ID backend configuration
+        tee id-factory-static-role-id.json <<EOF
+        {
+            "role_id": "314159265359"
+        }
+EOF
+
         # Create the AppRole role
         curl \
             --location \
@@ -344,6 +351,14 @@ EOF
             --request POST \
             --data @id-factory-approle-role.json \
             ${VAULT_ADDR}/v1/auth/approle/role/id-factory | jq .
+        
+        # Update the static AppRole role-id
+        curl \
+            --location \
+            --header "X-Vault-Token: ${VAULT_TOKEN}" \
+            --request POST \
+            --data @id-factory-static-role-id.json \
+            ${VAULT_ADDR}/v1/auth/approle/role/id-factory/role-id
 
         APPROLEID=`curl  \
             --header "X-Vault-Token: ${VAULT_TOKEN}" \
@@ -435,7 +450,7 @@ EOF
 
     echo "Reading secret using newly acquired token"
     sudo VAULT_ADDR="http://${IP}:8200" vault login ${APPTOKEN}
-    sudo VAULT_ADDR="http://${IP}:8200" vault kv get -field "value" kv/development/redispassword
+    sudo VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/redispassword
 
     echo "Reading secret using newly acquired token"
 
