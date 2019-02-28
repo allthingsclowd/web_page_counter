@@ -22,11 +22,12 @@ before_script:
 - pwd
 - ls -al /usr/local/bootstrap/
 - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
-- sudo cp /home/travis/.appRoleID /usr/local/bootstrap/.appRoleID
-script:
+- echo 314159265359 >> /usr/local/bootstrap/.appRoleID
+script:export LEADER_IP=192.168.2.11
+- sed -i 's/LEADER_IP=.*1/LEADER_IP=127.0.0.1/g' ./var.env
+- sed -i 's/REDIS_MASTER_IP=192.168.2.200/REDIS_MASTER_IP=127.0.0.1/g' ./var.env
 - source ./var.env
-- export REDIS_MASTER_IP=127.0.0.1
-- export LEADER_IP=127.0.0.1
+- cat ./var.env
 - sudo VAULT_ADDR=http://127.0.0.1:8200 vault status
 # Configure consul environment variables for use with certificates 
 - export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
