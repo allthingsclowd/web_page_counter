@@ -7,7 +7,6 @@ main
 .secret-id
 .orchestrator-token
 .admin-token
-.appRoleID
 .database-token
 .wrapped-provisioner-token
 .DS_Store

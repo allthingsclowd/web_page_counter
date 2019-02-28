@@ -141,6 +141,12 @@
       "only": ["azure-arm"]
     },
     {
+      "destination": "/usr/local/bootstrap/",
+      "source": "../.appRoleID",
+      "type": "file",
+      "only": ["azure-arm"]
+    },
+    {
       "destination": "/usr/local/bootstrap",
       "source": "../certificate-config",
       "type": "file",
