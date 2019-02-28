@@ -26,7 +26,7 @@ before_script:
 - pwd
 - ls -al /usr/local/bootstrap/
 - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
-- echo 314159265359 >> /usr/local/bootstrap/.appRoleID
+- echo 314159265359 > /usr/local/bootstrap/.appRoleID
 script:
 - source /usr/local/bootstrap/var.env
 - cat /usr/local/bootstrap/var.env
