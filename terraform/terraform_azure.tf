@@ -634,7 +634,7 @@ resource "azurerm_virtual_machine" "godev02vm" {
     }
 
     os_profile {
-        computer_name  = "godev01"
+        computer_name  = "godev02"
         admin_username = "azureuser"
         custom_data    = "${data.template_cloudinit_config.godevcloudconfig.rendered}"
     }
