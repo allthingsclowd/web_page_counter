@@ -398,7 +398,7 @@ resource "azurerm_virtual_machine" "myterraformvm" {
     location              = "westeurope"
     resource_group_name   = "${var.arm_resource_group}"
     network_interface_ids = ["${azurerm_network_interface.wpcnic.id}"]
-    vm_size               = "Standard_DS1_v2"
+    vm_size               = "Standard_DS2_v2"
 
     # This means the OS Disk will be deleted when Terraform destroys the Virtual Machine
     # NOTE: This may not be optimal in all cases.
@@ -450,7 +450,7 @@ resource "azurerm_virtual_machine" "redisvm" {
     location              = "westeurope"
     resource_group_name   = "${var.arm_resource_group}"
     network_interface_ids = ["${azurerm_network_interface.wpcredisnic.id}"]
-    vm_size               = "Standard_DS1_v2"
+    vm_size               = "Standard_DS2_v2"
 
     # This means the OS Disk will be deleted when Terraform destroys the Virtual Machine
     # NOTE: This may not be optimal in all cases.
@@ -504,7 +504,7 @@ resource "azurerm_virtual_machine" "webvm" {
     location              = "westeurope"
     resource_group_name   = "${var.arm_resource_group}"
     network_interface_ids = ["${azurerm_network_interface.wpcproxynic.id}"]
-    vm_size               = "Standard_DS1_v2"
+    vm_size               = "Standard_DS2_v2"
 
     # This means the OS Disk will be deleted when Terraform destroys the Virtual Machine
     # NOTE: This may not be optimal in all cases.
@@ -558,7 +558,7 @@ resource "azurerm_virtual_machine" "godev01vm" {
     location              = "westeurope"
     resource_group_name   = "${var.arm_resource_group}"
     network_interface_ids = ["${azurerm_network_interface.wpcgodev01nic.id}"]
-    vm_size               = "Standard_DS1_v2"
+    vm_size               = "Standard_DS2_v2"
 
     # This means the OS Disk will be deleted when Terraform destroys the Virtual Machine
     # NOTE: This may not be optimal in all cases.
@@ -612,7 +612,7 @@ resource "azurerm_virtual_machine" "godev02vm" {
     location              = "westeurope"
     resource_group_name   = "${var.arm_resource_group}"
     network_interface_ids = ["${azurerm_network_interface.wpcgodev02nic.id}"]
-    vm_size               = "Standard_DS1_v2"
+    vm_size               = "Standard_DS2_v2"
 
     # This means the OS Disk will be deleted when Terraform destroys the Virtual Machine
     # NOTE: This may not be optimal in all cases.
