@@ -287,15 +287,19 @@ EOF
 
 restart_consul () {
     
-    sudo killall -9 -v consul
+    
     sudo cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
     if [ "${TRAVIS}" == "true" ]; then
+        sudo killall -9 -v consul
+        sleep 5
         sudo /usr/local/bin/consul agent -server -log-level=trace -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
+        sleep 15
     else
         sudo systemctl restart consul
+        sleep 15
         sudo systemctl status consul
     fi
-    sleep 10
+    
   
 }
 
@@ -315,7 +319,7 @@ consul_acl_config () {
     create_app_token
     
   else
-    echo agent
+    echo "Configuring Consul ACLs on Agent"
     step7_enable_acl_on_client
     step8_verify_acl_config
     
