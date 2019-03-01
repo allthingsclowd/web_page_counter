@@ -57,7 +57,6 @@ create_service_user () {
 
 }
 
-
 set -x
 
 source /usr/local/bootstrap/var.env
@@ -65,6 +64,10 @@ source /usr/local/bootstrap/var.env
 IFACE=`route -n | awk '$1 == "192.168.2.0" {print $8;exit}'`
 CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.2" {print $2}'`
 IP=${CIDR%%/24}
+NICTYPE=`ip link | awk -F: '$0 !~ "lo|vir|wl|enp0s3|^[^0-9]"{print $2;getline}'`
+
+# Configure Nomad client.hcl file
+sed -i 's/network_interface = ".*"/'${NICTYPE}'/g' /usr/local/bootstrap/conf/nomad.d/client.hcl
 
 if [ -d /vagrant ]; then
   LOG="/vagrant/logs/nomad_${HOSTNAME}.log"

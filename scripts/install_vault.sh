@@ -470,9 +470,12 @@ EOF
 
 install_vault () {
     
-    echo 'Start Installation of Vault on Server'
+    
     # verify it's either the TRAVIS server or the Vault server
     if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
+        echo 'Start Installation of Vault on Server'
+        setup_environment
+        
         #lets kill past instance
         sudo killall vault &>/dev/null
 
@@ -512,14 +515,13 @@ install_vault () {
         get_secret_id
         get_approle_id
         verify_approle_credentials
+        echo 'Installation of Vault Finished'
 
     fi
 
-    echo 'Installation of Vault Finished'
+    
 }
 
-
-setup_environment
 install_vault
 
 exit 0

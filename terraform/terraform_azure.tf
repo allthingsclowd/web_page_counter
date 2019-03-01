@@ -181,7 +181,7 @@ resource "azurerm_network_security_group" "wpcothersnsg" {
 
     security_rule {
         name                       = "SSH"
-        priority                   = 1001
+        priority                   = 1006
         direction                  = "Inbound"
         access                     = "Allow"
         protocol                   = "Tcp"
@@ -204,7 +204,7 @@ resource "azurerm_network_security_group" "wpcproxynsg" {
 
     security_rule {
         name                       = "SSH"
-        priority                   = 1001
+        priority                   = 1007
         direction                  = "Inbound"
         access                     = "Allow"
         protocol                   = "Tcp"
@@ -216,7 +216,7 @@ resource "azurerm_network_security_group" "wpcproxynsg" {
 
     security_rule {
         name                       = "WEBFRONTEND"
-        priority                   = 1002
+        priority                   = 1008
         direction                  = "Inbound"
         access                     = "Allow"
         protocol                   = "Tcp"
@@ -301,7 +301,7 @@ resource "azurerm_network_interface" "wpcgodev01nic" {
         name                          = "wpcgodev01NicConfiguration"
         subnet_id                     = "${azurerm_subnet.webpagecountersubnet.id}"
         private_ip_address_allocation = "Static"
-        private_ip_address            = "${cidrhost("192.168.2.0/24", 100)}"
+        private_ip_address            = "${cidrhost("192.168.2.0/24", 110)}"
     }
 
     tags {
@@ -320,7 +320,7 @@ resource "azurerm_network_interface" "wpcgodev02nic" {
         name                          = "wpcgodev02NicConfiguration"
         subnet_id                     = "${azurerm_subnet.webpagecountersubnet.id}"
         private_ip_address_allocation = "Static"
-        private_ip_address            = "${cidrhost("192.168.2.0/24", 110)}"
+        private_ip_address            = "${cidrhost("192.168.2.0/24", 120)}"
     }
 
     tags {
@@ -548,7 +548,7 @@ resource "azurerm_virtual_machine" "webvm" {
         environment = "Web Page Counter"
     }
 
-    depends_on = ["azurerm_virtual_machine.godev01vm", "azurerm_virtual_machine.godev02vm"]
+    depends_on = ["azurerm_virtual_machine.godev01vm"]
 
 }
 
@@ -656,6 +656,6 @@ resource "azurerm_virtual_machine" "godev02vm" {
         environment = "Web Page Counter"
     }
 
-    depends_on = ["azurerm_virtual_machine.myterraformvm","azurerm_virtual_machine.redisvm"]
+    depends_on = ["azurerm_virtual_machine.godev01vm"]
 
 }
