@@ -3,5 +3,5 @@ client {
     "driver.raw_exec" = "1"
     "driver.raw_exec.enable" = "1"
   }
-  network_interface = "InsertNicTypeHere"
+  network_interface = "bananas"
 }
