@@ -121,7 +121,7 @@ if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
       
     }
   fi
-  sleep 1
+  sleep 15
 
 else
 
@@ -131,7 +131,7 @@ else
     cp -apr /usr/local/bootstrap/conf/nomad.d /etc
     sudo systemctl start nomad
     sudo systemctl status nomad
-    sleep 1
+    sleep 15
   }
 
 fi
