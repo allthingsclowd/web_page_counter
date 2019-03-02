@@ -149,7 +149,7 @@ sed -i 's/consulIp=.*"/consulIp='${IP}':8321"/g' /usr/local/bootstrap/scripts/no
 echo 'Review Nomad Job File'
 cat /usr/local/bootstrap/scripts/nomad_job.hcl
 
-nomad job run /usr/local/bootstrap/scripts/nomad_job.hcl || true
+NOMAD_ADDR=http://${IP}:4646 /usr/local/bin/nomad job run /usr/local/bootstrap/scripts/nomad_job.hcl || true
 
 exit 0
 

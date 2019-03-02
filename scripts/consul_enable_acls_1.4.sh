@@ -302,7 +302,6 @@ EOF
 
 } 
 
-AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/consulagentacl`
 
 restart_consul () {
     
