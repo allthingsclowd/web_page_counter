@@ -1,0 +1,17 @@
+#!/bin/sh
+echo "Setting environment variables for Terraform"
+export TF_VAR_arm_subscription_id=c0a607b2-6372-4ef3-abdb-dbe52a7b56ba
+export TF_VAR_arm_client_id=0195236e-462d-4286-a7f1-b6ae02fc994a
+export TF_VAR_arm_client_secret=e016a826-0820-4230-b817-a00d0fe14e15
+export TF_VAR_arm_tenant_id=0e3e2e88-8caf-41ca-b4da-e3b33b6c52ec
+export TF_VAR_arm_resource_group=graham-dev
+export TF_VAR_local_cidr=86.182.171.21/32
+
+# Not needed for public, required for usgovernment, german, china
+export TF_VAR_arm_environment=public
+
+# Vagrant build config
+export TF_VAR_vagrant_cloud_token=iyGNE56AaqWyVw.atlasv1.LKdgMzIeSNDfPnXONY1xErvydyIDauW9lqJ8q4ZHz6D4RBqmrzpsVRa5TUFKKfKaYKo
+
+# Azure SSH Key
+export TF_VAR_arm_sshkey="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDB4nVp5hxEb9a9ie7BIC3SRB2yInqURv4koBWZYR8iIEHtAPrZSr+Px+bc6jgolt+byzQ0LbtZcVnQcrxaYtNG/UZ1wGMy/gC1LA3vbfqQgRtvaCdWdJrtwth8eIVLen4plV/XwK2MXk5DNg501zLjQt1E4POCTZdUXM2VISxyXDyruw77JyqYDOnMvKb6x6Jkio8ZnAOOtArUO+fhe7F/rftkgt8kya48e/gv0N1pBzrnbWPmt1eC8KVqNORzaclgWqrWX7aFYMfJdWY6EIkOneKlRHrBcZSI5qi/WNXYlKznLcKgiLkdWgYY2bnuEqgNLjp2+KSK0oEnILrKRFF5 graham@allthingscloud.eu"
