@@ -142,7 +142,7 @@ cp /usr/local/bootstrap/scripts/consul_goapp_verify.sh /usr/local/bin/.
 
 # 's/:50K.*:53B/:50KCREDIT:53B/g' "-consulACL=5b3ec9a9-4791-3871-63f5-dbfc43edfe41"
 
-sed -i 's/consulACL=.*"/consulACL='${CONSUL_HTTP_TOKEN}'"/g' /usr/local/bootstrap/nomad_job.hcl
+sed -i 's/consulACL=.*",/consulACL='${CONSUL_HTTP_TOKEN}'",/g' /usr/local/bootstrap/nomad_job.hcl
 sed -i 's/consulIp=.*"/consulIp='${IP}':8321"/g' /usr/local/bootstrap/nomad_job.hcl
 
 echo 'Review Nomad Job File'
