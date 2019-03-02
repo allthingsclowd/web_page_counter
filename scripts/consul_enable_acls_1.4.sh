@@ -283,7 +283,26 @@ consul {
   }
 EOF
 
+}
+
+step9_configure_nomad() {
+
+  AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/consulagentacl`
+
+  sudo tee /usr/local/bootstrap/conf/nomad.d/nomad.hcl <<EOF
+consul {
+  address = "127.0.0.1:8321"
+  ssl       = true
+  ca_file   = "/etc/pki/tls/certs/consul-ca.pem"
+  cert_file = "/etc/pki/tls/certs/server.pem"
+  key_file  = "/etc/pki/tls/private/server-key.pem"
+  token = "${AGENTTOKEN}"
+  }
+EOF
+
 } 
+
+AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/consulagentacl`
 
 restart_consul () {
     
@@ -322,6 +341,7 @@ consul_acl_config () {
     echo "Configuring Consul ACLs on Agent"
     step7_enable_acl_on_client
     step8_verify_acl_config
+    step9_configure_nomad
     
   fi
   
