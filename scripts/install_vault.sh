@@ -407,6 +407,7 @@ bootstrap_secret_data () {
     DB_VAULT_TOKEN=`cat /usr/local/bootstrap/.database-token`
     AGENTTOKEN=`cat /usr/local/bootstrap/.agenttoken_acl`
     WRAPPEDPROVISIONERTOKEN=`cat /usr/local/bootstrap/.wrapped-provisioner-token`
+    BOOTSTRAPACL=`cat /usr/local/bootstrap/.bootstrap_acl`
     # Put Redis Password in Vault
     sudo VAULT_ADDR="http://${IP}:8200" vault login ${ADMIN_TOKEN}
     # FAILS???? sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault policy list
@@ -415,7 +416,7 @@ bootstrap_secret_data () {
     sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/vaultdbtoken value=${DB_VAULT_TOKEN}
     sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/approleid value=${APPROLEID}
     sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/wrappedprovisionertoken value=${WRAPPEDPROVISIONERTOKEN}
-
+    sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/bootstraptoken value=${BOOTSTRAPACL}
 
 }
 
