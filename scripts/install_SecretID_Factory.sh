@@ -235,6 +235,7 @@ install_go_application () {
 
 
     # start connect application proxy
+    sleep 5
     start_app_proxy_service approle "App Role Vailt Secret ID Factory"
     sleep 5
 
