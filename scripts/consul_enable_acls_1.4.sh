@@ -287,7 +287,7 @@ EOF
 
 step9_configure_nomad() {
 
-  AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/consulagentacl`
+  AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/bootstraptoken`
 
   sudo tee /usr/local/bootstrap/conf/nomad.d/nomad.hcl <<EOF
 consul {
