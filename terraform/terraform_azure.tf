@@ -548,7 +548,7 @@ resource "azurerm_virtual_machine" "webvm" {
         environment = "Web Page Counter"
     }
 
-    depends_on = ["azurerm_virtual_machine.godev01vm"]
+    depends_on = ["azurerm_virtual_machine.godev01vm","azurerm_virtual_machine.godev02vm"]
 
 }
 
