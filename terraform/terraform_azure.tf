@@ -571,10 +571,7 @@ resource_group_name = "${var.arm_resource_group}"
 depends_on = ["azurerm_virtual_machine.web01vm"]
 
 }
-
-output "public_ip_address" {
-value = "${data.azurerm_public_ip.web_front_end.ip_address}"
-}    
+   
 
 # Get the public of the webserver that is required to be injected into the web frontend code
 resource "null_resource" "configure-webfrontend-ips" {
@@ -586,9 +583,17 @@ resource "null_resource" "configure-webfrontend-ips" {
         host = "${data.azurerm_public_ip.web_front_end.ip_address}"
     }
 
+    provisioner "file" {
+        source = "../scripts/waitforcloud-init.sh"
+        destination = "/usr/local/bootstrap/scripts/waitforcloud-init.sh"
+
+    }
+
     provisioner "remote-exec" {
         inline = [
         "echo 'Starting webserver configuration'",
+        "chmod +x /usr/local/bootstrap/scripts/waitforcloud-init.sh",
+        "/usr/local/bootstrap/scripts/waitforcloud-init.sh",
         "cat /var/www/wpc-fe/env.js",
         "sudo sh -c \"sudo sed -i 's/window.__env.apiUrl =.*;/window.__env.apiUrl = \\\"'${data.azurerm_public_ip.web_front_end.ip_address}'\\\";/g' /var/www/wpc-fe/env.js\"",
         "cat /var/www/wpc-fe/env.js",
