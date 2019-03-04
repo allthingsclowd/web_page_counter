@@ -278,12 +278,20 @@ resource "azurerm_network_interface" "wpcproxynic" {
         public_ip_address_id          = "${azurerm_public_ip.wpcpublicipproxy.id}"
     }
 
+    # Get the public of the webserver that is required to be injected into the web frontend code
+    provisioner "local-exec" {
+    # Configure LBaaS Public IP for WebFrontend
+
+        command = "sed -i 's/export NGINX_PUBLIC_IP=.*\"/export NGINX_PUBLIC_IP=\"'${azurerm_network_interface.wpcproxynic.public_ip_address}'\"/g' ../var.env"
+    
+    }
+
     tags {
         environment = "Web Page Counter"
     }
 }
 
-# Create network interface with public ip for redis01
+# Create network interface without public ip for redis01
 resource "azurerm_network_interface" "wpcredisnic" {
     name                      = "wpcredisNIC"
     location                  = "westeurope"
@@ -302,7 +310,7 @@ resource "azurerm_network_interface" "wpcredisnic" {
     }
 }
 
-# Create network interface with public ip for godev01
+# Create network interface without public ip for godev01
 resource "azurerm_network_interface" "wpcgodev01nic" {
     name                      = "wpcgodev01NIC"
     location                  = "westeurope"
@@ -321,7 +329,7 @@ resource "azurerm_network_interface" "wpcgodev01nic" {
     }
 }
 
-# Create network interface with public ip for godev02
+# Create network interface without public ip for godev02
 resource "azurerm_network_interface" "wpcgodev02nic" {
     name                      = "wpcgodev02NIC"
     location                  = "westeurope"
@@ -554,6 +562,17 @@ resource "azurerm_virtual_machine" "webvm" {
     boot_diagnostics {
         enabled = "true"
         storage_uri = "${azurerm_storage_account.mystorageaccount.primary_blob_endpoint}"
+    }
+
+    provisioner "file" {
+        source      = "../var.env"
+        destination = "/usr/local/bootstrap/var.env"
+    }
+
+    provisioner "remote-exec" {
+        inline = [
+        "sudo /usr/local/bootstrap/scripts/install_webserver.sh",
+        ]
     }
 
     tags {
