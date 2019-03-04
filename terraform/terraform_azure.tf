@@ -590,11 +590,11 @@ resource "null_resource" "configure-webfrontend-ips" {
         inline = [
         "echo 'Starting webserver configuration'",
         "cat /var/www/wpc-fe/env.js",
-        "sudo sh -c \"sudo sed -i 's/window.__env.apiUrl =.*;/window.__env.apiUrl = \"'${data.azurerm_public_ip.web_front_end.ip_address}'\";/g' /var/www/wpc-fe/env.js\"",
+        "sudo sh -c \"sudo sed -i 's/window.__env.apiUrl =.*;/window.__env.apiUrl = \\\"'${data.azurerm_public_ip.web_front_end.ip_address}'\\\";/g' /var/www/wpc-fe/env.js\"",
         "cat /var/www/wpc-fe/env.js",
         "sudo systemctl restart nginx",
         "sleep 5",
-        "lynx --dump http://${azurerm_virtual_machine.web01vm.private_ip_address}:9090",
+        "lynx --dump http://${azurerm_network_interface.wpcproxynic.private_ip_address}:9090",
         "echo 'Finished webserver deployment'",
         ]
     }
