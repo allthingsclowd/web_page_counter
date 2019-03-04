@@ -5,3 +5,4 @@ runcmd:
   - sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh
   - sudo /usr/local/bootstrap/scripts/install_vault.sh
   - touch /tmp/finishedcloudinit.txt
+  - echo "Finished cloud-init deployment"
