@@ -405,7 +405,7 @@ data "template_cloudinit_config" "godevcloudconfig" {
 }
 
 # Create virtual machine leader01
-resource "azurerm_virtual_machine" "myterraformvm" {
+resource "azurerm_virtual_machine" "leader01vm" {
     name                  = "leader01"
     location              = "westeurope"
     resource_group_name   = "${var.arm_resource_group}"
@@ -457,7 +457,7 @@ resource "azurerm_virtual_machine" "myterraformvm" {
 }
 
 # Create virtual machine redis01
-resource "azurerm_virtual_machine" "redisvm" {
+resource "azurerm_virtual_machine" "redis01vm" {
     name                  = "redis01"
     location              = "westeurope"
     resource_group_name   = "${var.arm_resource_group}"
@@ -506,12 +506,12 @@ resource "azurerm_virtual_machine" "redisvm" {
         environment = "Web Page Counter"
     }
 
-    depends_on = ["azurerm_virtual_machine.myterraformvm"]
+    depends_on = ["azurerm_virtual_machine.leader01vm"]
 
 }
 
 # Create virtual machine web01
-resource "azurerm_virtual_machine" "webvm" {
+resource "azurerm_virtual_machine" "web01vm" {
     name                  = "web01"
     location              = "westeurope"
     resource_group_name   = "${var.arm_resource_group}"
@@ -568,7 +568,7 @@ data "azurerm_public_ip" "web_front_end" {
 name                = "${azurerm_public_ip.wpcpublicipproxy.name}"
 resource_group_name = "${var.arm_resource_group}"
 
-depends_on = ["azurerm_virtual_machine.webvm"]
+depends_on = ["azurerm_virtual_machine.web01vm"]
 
 }
 
@@ -598,18 +598,25 @@ resource "null_resource" "configure-webfrontend-ips" {
         source      = "../var.env"
         destination = "/usr/local/bootstrap/var.env"
     }
+
+    provisioner "file" {
+        source      = "../scripts/waitforcloud-init.sh"
+        destination = "/usr/local/bootstrap/scripts/waitforcloud-init.sh"
+    }
+
     provisioner "remote-exec" {
         inline = [
         "echo 'Starting webserver deployment'",
-        "while [ ! -f /tmp/finishedcloudinit.txt ]; do echo 'Waiting for Cloud-init to complete'; sleep 60;  done",
+        "chmod +x /usr/local/bootstrap/scripts/waitforcloud-init.sh",
+        "/usr/local/bootstrap/scripts/waitforcloud-init.sh",
         "cat /usr/local/bootstrap/var.env",
         "/usr/local/bootstrap/scripts/install_webserver.sh",
         "sleep 10",
-        "source /usr/local/bootstrap/var.env && for i in {1..100}; do lynx --dump http://$${NGINX_IP}:9090; done"
+        "lynx --dump http://${azurerm_virtual_machine.web01vm.private_ip_address}:9090"
         ]
     }
 
-    depends_on = ["azurerm_virtual_machine.webvm"]   
+    depends_on = ["azurerm_virtual_machine.web01vm"]   
 
 }
 
@@ -663,7 +670,7 @@ resource "azurerm_virtual_machine" "godev01vm" {
         environment = "Web Page Counter"
     }
 
-    depends_on = ["azurerm_virtual_machine.myterraformvm","azurerm_virtual_machine.redisvm"]
+    depends_on = ["azurerm_virtual_machine.leader01vm","azurerm_virtual_machine.redis01vm"]
 
 }
 
