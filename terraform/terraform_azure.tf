@@ -608,9 +608,9 @@ resource "null_resource" "configure-webfrontend-ips" {
         inline = [
         "echo 'Starting webserver deployment'",
         "chmod +x /usr/local/bootstrap/scripts/waitforcloud-init.sh",
-        "/usr/local/bootstrap/scripts/waitforcloud-init.sh",
+        "sudo /usr/local/bootstrap/scripts/waitforcloud-init.sh",
         "cat /usr/local/bootstrap/var.env",
-        "/usr/local/bootstrap/scripts/install_webserver.sh",
+        "sudo /usr/local/bootstrap/scripts/install_webserver.sh",
         "sleep 10",
         "lynx --dump http://${azurerm_virtual_machine.web01vm.private_ip_address}:9090"
         ]
