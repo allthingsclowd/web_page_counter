@@ -53,7 +53,6 @@ resource "azurerm_subnet" "webpagecountersubnet" {
     resource_group_name  = "${var.arm_resource_group}"
     virtual_network_name = "${azurerm_virtual_network.webpagecounternetwork.name}"
     address_prefix       = "192.168.2.0/24"
-    network_security_group_id = "${azurerm_network_security_group.wpcproxynsg.id}"
 }
 
 # Create public IP for leader01
@@ -577,7 +576,6 @@ output "public_ip_address" {
 value = "${data.azurerm_public_ip.web_front_end.ip_address}"
 }    
 
-
 # Get the public of the webserver that is required to be injected into the web frontend code
 resource "null_resource" "configure-webfrontend-ips" {
     provisioner "local-exec" {
@@ -600,10 +598,14 @@ resource "null_resource" "configure-webfrontend-ips" {
         source      = "../var.env"
         destination = "/usr/local/bootstrap/var.env"
     }
-
     provisioner "remote-exec" {
         inline = [
-        "sudo /usr/local/bootstrap/scripts/install_webserver.sh",
+        "echo 'Starting webserver deployment'",
+        "while [ ! -f /tmp/finishedcloudinit.txt ]; do echo 'Waiting for Cloud-init to complete'; sleep 60;  done",
+        "cat /usr/local/bootstrap/var.env",
+        "/usr/local/bootstrap/scripts/install_webserver.sh",
+        "sleep 10",
+        "source /usr/local/bootstrap/var.env && for i in {1..100}; do lynx --dump http://$${NGINX_IP}:9090; done"
         ]
     }
 
