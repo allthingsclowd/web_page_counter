@@ -278,14 +278,6 @@ resource "azurerm_network_interface" "wpcproxynic" {
         public_ip_address_id          = "${azurerm_public_ip.wpcpublicipproxy.id}"
     }
 
-    # Get the public of the webserver that is required to be injected into the web frontend code
-    provisioner "local-exec" {
-    # Configure LBaaS Public IP for WebFrontend
-
-        command = "sed -i 's/export NGINX_PUBLIC_IP=.*\"/export NGINX_PUBLIC_IP=\"'${azurerm_network_interface.wpcproxynic.public_ip_address}'\"/g' ../var.env"
-    
-    }
-
     tags {
         environment = "Web Page Counter"
     }
@@ -564,6 +556,45 @@ resource "azurerm_virtual_machine" "webvm" {
         storage_uri = "${azurerm_storage_account.mystorageaccount.primary_blob_endpoint}"
     }
 
+    tags {
+        environment = "Web Page Counter"
+    }
+
+    depends_on = ["azurerm_virtual_machine.godev01vm","azurerm_virtual_machine.godev02vm"]
+
+}
+
+data "azurerm_public_ip" "web_front_end" {
+name                = "${azurerm_public_ip.wpcpublicipproxy.name}"
+resource_group_name = "${var.arm_resource_group}"
+
+depends_on = ["azurerm_virtual_machine.webvm"]
+
+}
+
+output "public_ip_address" {
+value = "${data.azurerm_public_ip.web_front_end.ip_address}"
+}    
+
+
+# Get the public of the webserver that is required to be injected into the web frontend code
+resource "null_resource" "configure-webfrontend-ips" {
+    provisioner "local-exec" {
+    # Configure LBaaS Public IP for WebFrontend
+
+        # Ubuntu Command : "sed -i 's/export NGINX_PUBLIC_IP=.*/export NGINX_PUBLIC_IP='${data.azurerm_public_ip.web_front_end.ip_address}'/g' ../var.env"
+        # OSX Command : "sed -i '' -e 's/export NGINX_PUBLIC_IP=.*/export NGINX_PUBLIC_IP='${data.azurerm_public_ip.web_front_end.ip_address}'/g' ../var.env"
+
+        command = "sed -i '' -e 's/export NGINX_PUBLIC_IP=.*/export NGINX_PUBLIC_IP='${data.azurerm_public_ip.web_front_end.ip_address}'/g' ../var.env"
+        
+    }
+
+    connection {
+        type = "ssh"
+        user = "azureuser"
+        private_key = "${file("~/.ssh/id_rsa")}"
+        host = "${data.azurerm_public_ip.web_front_end.ip_address}"
+    }
     provisioner "file" {
         source      = "../var.env"
         destination = "/usr/local/bootstrap/var.env"
@@ -575,11 +606,7 @@ resource "azurerm_virtual_machine" "webvm" {
         ]
     }
 
-    tags {
-        environment = "Web Page Counter"
-    }
-
-    depends_on = ["azurerm_virtual_machine.godev01vm","azurerm_virtual_machine.godev02vm"]
+    depends_on = ["azurerm_virtual_machine.webvm"]   
 
 }
 
