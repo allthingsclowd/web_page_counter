@@ -53,6 +53,7 @@ resource "azurerm_subnet" "webpagecountersubnet" {
     resource_group_name  = "${var.arm_resource_group}"
     virtual_network_name = "${azurerm_virtual_network.webpagecounternetwork.name}"
     address_prefix       = "192.168.2.0/24"
+    network_security_group_id = "${azurerm_network_security_group.wpcproxynsg.id}"
 }
 
 # Create public IP for leader01
