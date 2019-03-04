@@ -578,15 +578,6 @@ value = "${data.azurerm_public_ip.web_front_end.ip_address}"
 
 # Get the public of the webserver that is required to be injected into the web frontend code
 resource "null_resource" "configure-webfrontend-ips" {
-    provisioner "local-exec" {
-    # Configure LBaaS Public IP for WebFrontend
-
-        # Ubuntu Command : "sed -i 's/export NGINX_PUBLIC_IP=.*/export NGINX_PUBLIC_IP='${data.azurerm_public_ip.web_front_end.ip_address}'/g' ../var.env"
-        # OSX Command : "sed -i '' -e 's/export NGINX_PUBLIC_IP=.*/export NGINX_PUBLIC_IP='${data.azurerm_public_ip.web_front_end.ip_address}'/g' ../var.env"
-
-        command = "sed -i '' -e 's/export NGINX_PUBLIC_IP=.*/export NGINX_PUBLIC_IP='${data.azurerm_public_ip.web_front_end.ip_address}'/g' ../var.env"
-        
-    }
 
     connection {
         type = "ssh"
@@ -594,25 +585,17 @@ resource "null_resource" "configure-webfrontend-ips" {
         private_key = "${file("~/.ssh/id_rsa")}"
         host = "${data.azurerm_public_ip.web_front_end.ip_address}"
     }
-    provisioner "file" {
-        source      = "../var.env"
-        destination = "/usr/local/bootstrap/var.env"
-    }
-
-    provisioner "file" {
-        source      = "../scripts/waitforcloud-init.sh"
-        destination = "/usr/local/bootstrap/scripts/waitforcloud-init.sh"
-    }
 
     provisioner "remote-exec" {
         inline = [
-        "echo 'Starting webserver deployment'",
-        "chmod +x /usr/local/bootstrap/scripts/waitforcloud-init.sh",
-        "sudo /usr/local/bootstrap/scripts/waitforcloud-init.sh",
-        "cat /usr/local/bootstrap/var.env",
-        "sudo /usr/local/bootstrap/scripts/install_webserver.sh",
-        "sleep 10",
-        "lynx --dump http://${azurerm_virtual_machine.web01vm.private_ip_address}:9090"
+        "echo 'Starting webserver configuration'",
+        "cat /var/www/wpc-fe/env.js",
+        "sudo sh -c \"sudo sed -i 's/window.__env.apiUrl =.*;/window.__env.apiUrl = \"'${data.azurerm_public_ip.web_front_end.ip_address}'\";/g' /var/www/wpc-fe/env.js\"",
+        "cat /var/www/wpc-fe/env.js",
+        "sudo systemctl restart nginx",
+        "sleep 5",
+        "lynx --dump http://${azurerm_virtual_machine.web01vm.private_ip_address}:9090",
+        "echo 'Finished webserver deployment'",
         ]
     }
 
