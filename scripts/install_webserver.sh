@@ -117,6 +117,9 @@ done
      exit 1
 }
 
+# Configure LBaaS Public IP for WebFrontend
+sudo sed -i 's/window.__env.apiUrl =.*;/window.__env.apiUrl = "'${NGINX_PUBLIC_IP}'";/g' /var/www/wpc-fe/env.js
+
 sudo cp /usr/local/bootstrap/conf/wpc-fe.conf /etc/nginx/conf.d/wpc-fe.conf
 
 # remove nginx default website

@@ -26,6 +26,7 @@ Vagrant.configure("2") do |config|
     ENV['GO_HOST_PORT']||="808"
     ENV['NGINX_NAME']||="web01"
     ENV['NGINX_IP']||="192.168.2.250"
+    ENV['NGINX_PUBLIC_IP']||="192.168.2.250"
     ENV['NGINX_GUEST_PORT']||="9090"
     ENV['NGINX_HOST_PORT']||="9090"
     ENV['VAULT_NAME']||="vault01"
@@ -82,6 +83,7 @@ Vagrant.configure("2") do |config|
         web01.vm.network "forwarded_port", guest: ENV['NGINX_GUEST_PORT'], host: ENV['NGINX_HOST_PORT']
         web01.vm.provision :shell, inline: "/usr/local/bootstrap/scripts/install_webserver.sh"
         web01.vm.network "forwarded_port", guest: 9091, host: 9091
+        web01.vm.network "forwarded_port", guest: 9090, host: 9090
    end
 
    puts info if ARGV[0] == "status"
