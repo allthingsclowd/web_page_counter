@@ -27,7 +27,7 @@ resource "azurerm_subnet" "webpagecountersubnet" {
 }
 
 # Create public IP for leader01
-resource "azurerm_public_ip" "myterraformpublicip" {
+resource "azurerm_public_ip" "leader01publicip" {
     name                         = "wpcPublicIPleader"
     location                     = "westeurope"
     resource_group_name          = "${var.arm_resource_group}"
@@ -226,7 +226,7 @@ resource "azurerm_network_interface" "wpcnic" {
         subnet_id                     = "${azurerm_subnet.webpagecountersubnet.id}"
         private_ip_address_allocation = "Static"
         private_ip_address            = "${cidrhost("192.168.2.0/24", 11)}"
-        public_ip_address_id          = "${azurerm_public_ip.myterraformpublicip.id}"
+        public_ip_address_id          = "${azurerm_public_ip.leader01publicip.id}"
     }
 
     tags {
@@ -540,6 +540,14 @@ name                = "${azurerm_public_ip.wpcpublicipproxy.name}"
 resource_group_name = "${var.arm_resource_group}"
 
 depends_on = ["azurerm_virtual_machine.web01vm"]
+
+}
+
+data "azurerm_public_ip" "hashicorp_portals" {
+name                = "${azurerm_public_ip.leader01publicip.name}"
+resource_group_name = "${var.arm_resource_group}"
+
+depends_on = ["azurerm_virtual_machine.leader01vm"]
 
 }
    
