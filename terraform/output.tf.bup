@@ -1,9 +1,0 @@
-output "vmss_public_ip" {
-    value = "${azurerm_public_ip.vmss.fqdn}"
-}
-
-command = "/usr/local/bin/webcounter"
-    godev02:             args = ["-port=${NOMAD_PORT_http}", "-ip=0.0.0.0", "-consulACL=3dbbd9cd-8739-02ac-fe3a-2b3c15cba241"]
-
-
-/usr/local/bin/webcounter -port=7777 -ip=0.0.0.0 -consulACL=3dbbd9cd-8739-02ac-fe3a-2b3c15cba241
