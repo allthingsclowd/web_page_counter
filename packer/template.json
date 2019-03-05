@@ -16,10 +16,38 @@
     "ssh_username": "vagrant",
     "ssh_password": "vagrant",
     "version": "0.2.{{timestamp}}",
-    "cloud_token": "{{ env `VAGRANT_CLOUD_TOKEN` }}"
+    "cloud_token": "{{ env `TF_VAR_vagrant_cloud_token` }}",
+    "arm_subscription_id": "{{ env `TF_VAR_arm_subscription_id` }}",
+    "arm_client_id": "{{ env `TF_VAR_arm_client_id` }}",
+    "arm_client_secret": "{{ env `TF_VAR_arm_client_secret` }}",
+    "arm_tenant_id": "{{ env `TF_VAR_arm_tenant_id` }}"
   },
   "builders": [
     {
+      "type": "azure-arm",
+      "client_id": "{{user `arm_client_id`}}",
+      "client_secret": "{{user `arm_client_secret`}}",
+      "tenant_id": "{{user `arm_tenant_id`}}",
+      "subscription_id": "{{user `arm_subscription_id`}}",
+  
+      "managed_image_resource_group_name": "graham-dev",
+      "managed_image_name": "webPageCounter",
+  
+      "os_type": "Linux",
+      "image_publisher": "Canonical",
+      "image_offer": "UbuntuServer",
+      "image_sku": "18.04-LTS",
+  
+      "azure_tags": {
+          "dept": "gjl",
+          "task": "Image deployment"
+      },
+  
+      "location": "West Europe",
+      "vm_size": "Standard_DS1_v2"
+    },
+    {
+      "type": "virtualbox-iso",
       "name": "{{ user `build_name` }}-vbox",
       "vm_name": "{{ user `build_name` }}-vbox",
       "boot_command": [
@@ -61,7 +89,6 @@
       "ssh_password": "{{user `ssh_username`}}",
       "ssh_username": "{{user `ssh_password`}}",
       "ssh_wait_timeout": "20m",
-      "type": "virtualbox-iso",
       "vboxmanage": [
         [
           "modifyvm",
@@ -95,6 +122,58 @@
   ],
   "provisioners": [
     {
+      "inline": [
+        "sudo mkdir -p /usr/local/bootstrap && sudo chmod 777 /usr/local/bootstrap"
+      ],
+      "type": "shell",
+      "only": ["azure-arm"]
+    },
+    {
+      "destination": "/usr/local/bootstrap/",
+      "source": "../var.env",
+      "type": "file",
+      "only": ["azure-arm"]
+    },
+    {
+      "destination": "/usr/local/bootstrap/",
+      "source": "../.appRoleID",
+      "type": "file",
+      "only": ["azure-arm"]
+    },
+    {
+      "destination": "/usr/local/bootstrap",
+      "source": "../certificate-config",
+      "type": "file",
+      "only": ["azure-arm"]
+    },
+    {
+      "destination": "/usr/local/bootstrap",
+      "source": "../conf",
+      "type": "file",
+      "only": ["azure-arm"]
+    },
+    {
+      "destination": "/usr/local/bootstrap",
+      "source": "../scripts",
+      "type": "file",
+      "only": ["azure-arm"]
+    },
+    {
+      "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
+      "script": "../scripts/packer_install_base_packages.sh",
+      "type": "shell",
+      "expect_disconnect": true,
+      "only": ["azure-arm"]
+    },
+    {
+      "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
+      "script": "../scripts/packer_cleanup_azurevm.sh",
+      "type": "shell",
+      "expect_disconnect": true,
+      "pause_before": "60s",
+      "only": ["azure-arm"]
+    },
+    {
       "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
       "scripts": [
         "../scripts/packer_install_base_packages.sh",
@@ -103,7 +182,9 @@
         "../scripts/packer_virtualbox_cleanup.sh"
       ],
       "type": "shell",
-      "expect_disconnect": true
+      "expect_disconnect": true,
+      "pause_before": "10s",
+      "only": ["{{ user `build_name` }}-vbox"]
     }
   ],
   "post-processors": [

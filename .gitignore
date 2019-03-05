@@ -7,7 +7,6 @@ main
 .secret-id
 .orchestrator-token
 .admin-token
-.appRoleID
 .database-token
 .wrapped-provisioner-token
 .DS_Store
@@ -16,5 +15,14 @@ main
 .bootstrap_acl
 .vaulttoken_acl
 1
-
+.azure
+.terraform
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+/packer_cache/
+/output-*/*
+*.box
+*.iso
+*.tfstate
+*.tfstate*
 

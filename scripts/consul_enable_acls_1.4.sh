@@ -159,9 +159,6 @@ EOF
 
 step6_verify_acl_config () {
 
-    AGENTTOKEN=`cat /usr/local/bootstrap/.agenttoken_acl`
-
-
     curl -s -w "\n%{http_code}" \
       --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
       --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
@@ -188,7 +185,7 @@ step6_verify_acl_config () {
 
 step7_enable_acl_on_client () {
 
-  AGENTTOKEN=`cat /usr/local/bootstrap/.agenttoken_acl`
+  AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/consulagentacl`
   export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
   sudo tee /etc/consul.d/consul_acl_1.4_setup.json <<EOF
@@ -205,6 +202,34 @@ step7_enable_acl_on_client () {
 EOF
   # read in new configs
   restart_consul
+
+}
+
+step8_verify_acl_config () {
+
+    AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/consulagentacl`
+
+    curl -s -w "\n%{http_code}" \
+      --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
+      --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
+      --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+      --header "X-Consul-Token: ${AGENTTOKEN}" \
+      https://127.0.0.1:8321/v1/catalog/nodes | {
+            read body
+            read result
+            if [ "$result" == "200" ]; then
+                TAGGEDADDRESSES=`jq -r '.[0].TaggedAddresses' <<< "$body"`
+                if [ "${TAGGEDADDRESSES}" != "" ];then
+                  echo "The ACL system appears to be bootstrapped correctly - Tagged Addresses ${TAGGEDADDRESSES}"
+                else
+                  echo "The ACL system does not appear to be bootstrapped correctly - Tagged Addresses ${TAGGEDADDRESSES}"
+                fi
+            else
+                echo "The ACL system does not appear to be bootstrapped correctly - return code ${result}"
+
+            fi
+
+           }
 
 }
 
@@ -258,19 +283,41 @@ consul {
   }
 EOF
 
+}
+
+step9_configure_nomad() {
+
+  AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/bootstraptoken`
+
+  sudo tee /usr/local/bootstrap/conf/nomad.d/nomad.hcl <<EOF
+consul {
+  address = "127.0.0.1:8321"
+  ssl       = true
+  ca_file   = "/etc/pki/tls/certs/consul-ca.pem"
+  cert_file = "/etc/pki/tls/certs/server.pem"
+  key_file  = "/etc/pki/tls/private/server-key.pem"
+  token = "${AGENTTOKEN}"
+  }
+EOF
+
 } 
+
 
 restart_consul () {
     
-    sudo killall -9 -v consul
+    
     sudo cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
     if [ "${TRAVIS}" == "true" ]; then
+        sudo killall -9 -v consul
+        sleep 5
         sudo /usr/local/bin/consul agent -server -log-level=trace -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
+        sleep 15
     else
         sudo systemctl restart consul
+        sleep 15
         sudo systemctl status consul
     fi
-    sleep 10
+    
   
 }
 
@@ -290,9 +337,10 @@ consul_acl_config () {
     create_app_token
     
   else
-    echo agent
+    echo "Configuring Consul ACLs on Agent"
     step7_enable_acl_on_client
-    step6_verify_acl_config
+    step8_verify_acl_config
+    step9_configure_nomad
     
   fi
   
@@ -325,3 +373,4 @@ verify_consul_access () {
 
 setup_environment
 consul_acl_config
+exit 0
