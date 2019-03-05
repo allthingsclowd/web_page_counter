@@ -23,3 +23,5 @@ rm $VBOX_ISO
 
 shutdown -r now
 sleep 60
+
+exit 0

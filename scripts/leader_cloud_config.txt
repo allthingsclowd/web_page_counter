@@ -1,0 +1,10 @@
+#cloud-config
+runcmd:
+  - touch /tmp/startingcloudinit.txt
+  - sudo /usr/local/bootstrap/scripts/install_consul.sh
+  - sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh
+  - sudo /usr/local/bootstrap/scripts/install_vault.sh
+  - sudo /usr/local/bootstrap/scripts/install_nomad.sh
+  - sudo /usr/local/bootstrap/scripts/install_SecretID_Factory.sh
+  - touch /tmp/finishedcloudinit.txt
+  

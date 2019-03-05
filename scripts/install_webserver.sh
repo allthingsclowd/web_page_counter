@@ -21,7 +21,8 @@ export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
 export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
 export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
 export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
-export CONSUL_HTTP_TOKEN=`cat /usr/local/bootstrap/.agenttoken_acl`
+AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/consulagentacl`
+export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
 
 enable_nginx_service () {
@@ -116,6 +117,10 @@ done
      exit 1
 }
 
+# Configure LBaaS Public IP for WebFrontend
+sudo sed -i 's/window.__env.apiUrl =.*;/window.__env.apiUrl = "'${NGINX_PUBLIC_IP}'";/g' /var/www/wpc-fe/env.js
+ # This line causes the entire inline not to run
+      "sudo sh -c \"sed 's/api_key:.*/api_key: ${dd_api_key}' /etc/dd-agent/datadog.conf.example > /etc/dd-agent/datadog.conf\""
 sudo cp /usr/local/bootstrap/conf/wpc-fe.conf /etc/nginx/conf.d/wpc-fe.conf
 
 # remove nginx default website
@@ -143,4 +148,4 @@ sudo /usr/local/bin/consul-template \
      -template "/usr/local/bootstrap/conf/nginx.ctpl:/etc/nginx/conf.d/goapp.conf:/usr/local/bootstrap/scripts/updateBackendCount.sh" &
    
 sleep 1
-
+exit 0

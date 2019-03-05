@@ -65,7 +65,7 @@ ExecReload=/bin/kill -HUP ${MAINPID}
 KillMode=process
 KillSignal=SIGTERM
 Restart=on-failure
-RestartSec=42s
+RestartSec=2s
 
 [Install]
 WantedBy=multi-user.target
@@ -179,7 +179,7 @@ install_consul () {
         sudo systemctl start consul
         sudo systemctl status consul
       fi
-      sleep 5
+      sleep 15
       # upload vars to consul kv
       echo "Quick test of the Consul KV store - upload the var.env parameters"
       while read a b; do
@@ -199,7 +199,7 @@ install_consul () {
         sudo usermod -a -G consulcerts consul
         sudo systemctl start consul
         sudo systemctl status consul
-        sleep 10
+        sleep 15
     }
   fi
 
@@ -209,3 +209,4 @@ install_consul () {
 setup_environment
 install_prerequisite_binaries
 install_consul
+exit 0

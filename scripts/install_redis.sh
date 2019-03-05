@@ -37,7 +37,7 @@ ExecReload=/bin/kill -HUP ${MAINPID}
 KillMode=process
 KillSignal=SIGTERM
 Restart=on-failure
-RestartSec=42s
+RestartSec=2s
 
 [Install]
 WantedBy=multi-user.target
@@ -108,64 +108,19 @@ setup_environment () {
     LEADER_IP=${IP}
   fi
 
+  REDIS_MASTER_PASSWORD=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/redispassword`
+  AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/consulagentacl`
+  DB_VAULT_TOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/vaultdbtoken`
+  APPROLEID=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/approleid`
+  WRAPPED_VAULT_TOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/wrappedprovisionertoken`
   # Configure consul environment variables for use with certificates 
   export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
   export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
   export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
   export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
-  export CONSUL_HTTP_TOKEN=`cat /usr/local/bootstrap/.agenttoken_acl`
+  export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
 }
-# register_redis_service_with_consul () {
-    
-#     echo 'Start to register service with Consul Service Discovery'
-
-#     cat <<EOF | sudo tee /etc/consul.d/redis.json
-#     {
-#       "service": {
-#         "name": "redis",
-#         "port": 6379,
-#         "connect": { "sidecar_service": {} },
-#         "checks": [
-#           {
-#             "args": ["/usr/local/bootstrap/scripts/consul_redis_ping.sh"],
-#             "interval": "10s"
-#           },
-#           {
-#               "args": ["/usr/local/bootstrap/scripts/consul_redis_verify.sh"],
-#               "interval": "10s"
-#           }
-#         ]
-#       }
-      
-#     }
-# EOF
-  
-#   # Register the service in consul via the local Consul agent api
-#   # sudo consul reload
-#   sudo service consul restart
-#   sleep 5
-
-#   # List the locally registered services via local Consul api
-#   curl \
-#     -v \
-#       --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
-#       --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
-#       --cert "/usr/local/bootstrap/certificate-config/client.pem" \
-#       --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
-#     ${CONSUL_HTTP_ADDR}/v1/agent/services | jq -r .
-
-#   # List the services regestered on the Consul server
-#   curl \
-#   -v \
-#     --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
-#     --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
-#     --cert "/usr/local/bootstrap/certificate-config/client.pem" \
-#     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
-#   ${CONSUL_HTTP_ADDR}/v1/catalog/services | jq -r .
-   
-#     echo 'Register service with Consul Service Discovery Complete'
-# }
 
 register_redis_service_with_consul () {
     
@@ -229,13 +184,9 @@ EOF
 
 configure_redis () {
   
-  # echo 'Before CONSUL-TEMPLATE ===>'
-  # sudo cat /etc/redis/redis.conf
-  sudo VAULT_TOKEN=`cat /usr/local/bootstrap/.database-token` VAULT_ADDR="http://${LEADER_IP}:8200" consul-template -template "/usr/local/bootstrap/conf/master.redis.ctpl:/etc/redis/redis.conf" -once
+  sudo VAULT_TOKEN=${DB_VAULT_TOKEN} VAULT_ADDR="http://${LEADER_IP}:8200" consul-template -template "/usr/local/bootstrap/conf/master.redis.ctpl:/etc/redis/redis.conf" -once
   sudo chown redis:redis /etc/redis/redis.conf
   sudo chmod 640 /etc/redis/redis.conf
-  # echo 'After CONSUL-TEMPLATE ===>'
-  # sudo cat /etc/redis/redis.conf
 
   register_redis_service_with_consul
 
@@ -251,7 +202,7 @@ configure_redis () {
 
   fi
 
-  sleep 5
+  sleep 15
   sudo service redis-server status
   echo "Redis Server Build Complete"
 
@@ -259,6 +210,8 @@ configure_redis () {
 
 setup_environment
 configure_redis
+
+exit 0
 
 
 
