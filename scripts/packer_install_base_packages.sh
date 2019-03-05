@@ -18,12 +18,12 @@ install_hashicorp_binaries () {
     # check consul-template binary
     [ -f /usr/local/bin/consul-template ] &>/dev/null || {
         pushd /usr/local/bin
-        [ -f consul-template_0.19.5_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/consul-template/0.19.5/consul-template_0.19.5_linux_amd64.zip
+        [ -f consul-template_0.20.0_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/consul-template/0.20.0/consul-template_0.20.0_linux_amd64.zip
         }
-        sudo unzip consul-template_0.19.5_linux_amd64.zip
+        sudo unzip consul-template_0.20.0_linux_amd64.zip
         sudo chmod +x consul-template
-        sudo rm consul-template_0.19.5_linux_amd64.zip
+        sudo rm consul-template_0.20.0_linux_amd64.zip
         popd
     }
 
@@ -42,12 +42,12 @@ install_hashicorp_binaries () {
     # check vault binary
     [ -f /usr/local/bin/vault ] &>/dev/null || {
         pushd /usr/local/bin
-        [ -f vault_1.0.2_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/vault/1.0.2/vault_1.0.2_linux_amd64.zip
+        [ -f vault_1.0.3_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/vault/1.0.3/vault_1.0.3_linux_amd64.zip
         }
-        sudo unzip vault_1.0.2_linux_amd64.zip
+        sudo unzip vault_1.0.3_linux_amd64.zip
         sudo chmod +x vault
-        sudo rm vault_1.0.2_linux_amd64.zip
+        sudo rm vault_1.0.3_linux_amd64.zip
         popd
     }
 
@@ -113,3 +113,6 @@ install_hashicorp_binaries
 # Reboot with the new kernel
 shutdown -r now
 sleep 60
+
+exit 0
+

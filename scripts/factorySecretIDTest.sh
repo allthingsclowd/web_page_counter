@@ -35,7 +35,8 @@ verify_factory_service () {
     if [ "${STATUS}" = "UNINITIALISED" ];then
         echo "Initialisng the Factory Service with a Provisioner Token"
             # Initialise with Vault Token
-        WRAPPED_VAULT_TOKEN=`cat /usr/local/bootstrap/.wrapped-provisioner-token`
+        WRAPPED_VAULT_TOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/wrappedprovisionertoken`
+
         curl --header "Content-Type: application/json" \
         --request POST \
         --data "{\"token\":\"${WRAPPED_VAULT_TOKEN}\"}" \
@@ -58,7 +59,7 @@ verify_factory_service () {
     echo "SECRET_ID : ${SECRET_ID}"
     
     # retrieve the appRole-id from the approle - /usr/local/bootstrap/.appRoleID
-    APPROLEID=`cat /usr/local/bootstrap/.appRoleID`
+    APPROLEID=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/approleid`
 
     echo "APPROLEID : ${APPROLEID}"
 
@@ -94,3 +95,4 @@ echo 'Start of Factory Service Test'
 setup_environment
 verify_factory_service
 echo 'End of Factory Service Test'
+exit 0

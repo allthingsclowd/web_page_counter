@@ -10,3 +10,6 @@ echo -n "_e{${#title},${#text}}:${title}|${text}|#web"  >/dev/udp/127.0.0.1/8125
 metric=`grep '192.168.2' /etc/nginx/conf.d/goapp.conf | wc -l`
 name="WebCounterServiceTotal"
 echo -n "${name}:${metric}|g|#web" >/dev/udp/127.0.0.1/8125
+
+exit 0
+

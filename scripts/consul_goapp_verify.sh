@@ -16,3 +16,4 @@ else
  exit 1
 fi
 # The End
+exit 0

@@ -33,7 +33,7 @@ ExecReload=/bin/kill -HUP ${MAINPID}
 KillMode=process
 KillSignal=SIGTERM
 Restart=on-failure
-RestartSec=42s
+RestartSec=2s
 
 [Install]
 WantedBy=multi-user.target
@@ -57,7 +57,6 @@ create_service_user () {
 
 }
 
-
 set -x
 
 source /usr/local/bootstrap/var.env
@@ -65,6 +64,9 @@ source /usr/local/bootstrap/var.env
 IFACE=`route -n | awk '$1 == "192.168.2.0" {print $8;exit}'`
 CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.2" {print $2}'`
 IP=${CIDR%%/24}
+
+# Configure Nomad client.hcl file
+sed -i 's/network_interface = ".*"/network_interface = "'${IFACE}'"/g' /usr/local/bootstrap/conf/nomad.d/client.hcl
 
 if [ -d /vagrant ]; then
   LOG="/vagrant/logs/nomad_${HOSTNAME}.log"
@@ -77,7 +79,8 @@ export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
 export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
 export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
 export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
-export CONSUL_HTTP_TOKEN=`cat /usr/local/bootstrap/.agenttoken_acl`
+AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/consulagentacl`
+export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
 which wget unzip &>/dev/null || {
   apt-get update
@@ -120,7 +123,7 @@ if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
       
     }
   fi
-  sleep 1
+  sleep 15
 
 else
 
@@ -130,7 +133,9 @@ else
     cp -apr /usr/local/bootstrap/conf/nomad.d /etc
     sudo systemctl start nomad
     sudo systemctl status nomad
-    sleep 1
+    sleep 15
   }
 
 fi
+
+exit 0
