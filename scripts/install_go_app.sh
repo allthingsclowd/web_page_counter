@@ -37,7 +37,7 @@ ExecReload=/bin/kill -HUP ${MAINPID}
 KillMode=process
 KillSignal=SIGTERM
 Restart=on-failure
-RestartSec=42s
+RestartSec=2s
 
 [Install]
 WantedBy=multi-user.target
@@ -101,7 +101,8 @@ export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
 export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
 export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
 export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
-export CONSUL_HTTP_TOKEN=`cat /usr/local/bootstrap/.agenttoken_acl`
+AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/consulagentacl`
+export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
 
 if [ "${TRAVIS}" == "true" ]; then
@@ -142,11 +143,14 @@ cp /usr/local/bootstrap/scripts/consul_goapp_verify.sh /usr/local/bin/.
 
 # 's/:50K.*:53B/:50KCREDIT:53B/g' "-consulACL=5b3ec9a9-4791-3871-63f5-dbfc43edfe41"
 
-sed -i 's/consulACL=.*",/consulACL='${CONSUL_HTTP_TOKEN}'",/g' /usr/local/bootstrap/nomad_job.hcl
-sed -i 's/consulIp=.*"/consulIp='${IP}':8321"/g' /usr/local/bootstrap/nomad_job.hcl
+sed -i 's/consulACL=.*",/consulACL='${CONSUL_HTTP_TOKEN}'",/g' /usr/local/bootstrap/scripts/nomad_job.hcl
+sed -i 's/consulIp=.*"/consulIp='${IP}':8321"/g' /usr/local/bootstrap/scripts/nomad_job.hcl
 
 echo 'Review Nomad Job File'
-cat /usr/local/bootstrap/nomad_job.hcl
+cat /usr/local/bootstrap/scripts/nomad_job.hcl
 
-nomad job run /usr/local/bootstrap/nomad_job.hcl || true
+NOMAD_ADDR=http://${IP}:4646 /usr/local/bin/nomad job run /usr/local/bootstrap/scripts/nomad_job.hcl || true
+
+exit 0
+
 
