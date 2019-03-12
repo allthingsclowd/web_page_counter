@@ -8,6 +8,12 @@ This repository is used to demonstrate each of HashiCorp's key technologies and 
 
 A simple web-page-counter application with the backend developed in Golang and the frontend developed in Angular. No programmers were harmed in the writting of this application, I hacked it together myself (be gentle).
 
+Backend APIs are available on port 9090 and the frontend Angular application is served from port 9091.
+
+[Angular frontend code](https://github.com/allthingsclowd/wep_page_counter_front-end)
+
+![image](https://user-images.githubusercontent.com/9472095/46106049-92cb7b00-c1cf-11e8-9dcb-75533dd52955.png)
+
 ![a418a2ee-2347-425d-933a-21b72a9c23e6](https://user-images.githubusercontent.com/9472095/52670669-0bc63780-2f11-11e9-9a9d-b9074ab92543.jpeg)
 
 In brief, Vagrant is used for initial development and testing of the application. This is integrated with Travis-CI to ensure the scripts are valid, not all scripts are idempotent yet, sorry, will get there eventually.
@@ -31,79 +37,56 @@ Consul's service mesh capability is also leveraged to secure access to the Redis
   * [Secret Management](docs/vault/ReadMe.md)
   * [Consul-Template](docs/vault/ReadMe.md)
 * [__Nomad__](docs/nomad/ReadMe.md)
-* [__Nginx__](docs/nginx/ReadMe.md)
+
+<!-- * [__Nginx__](docs/nginx/ReadMe.md) -->
 
 * [__DataDog__](docs/datadog/ReadMe.md)
 
-## When all is good it should look like this - 
+## When all is good it should look like this
 
 ![image](https://user-images.githubusercontent.com/9472095/46105006-cbb62080-c1cc-11e8-8f54-6eab4023a5bb.png)
 
-## When we envoke a failure the self healing kicks in -
+## When we envoke a failure the self healing kicks in
 
 ![image](https://user-images.githubusercontent.com/9472095/46105187-45e6a500-c1cd-11e8-93c2-24fe935f6e7b.png)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-__WebCounter Application__
-
-The front end and backend code has been separated. Back end APIs are available on port 9090 and the front end SPA angular application is served from port 9091 
-
-Access front end code [here](https://github.com/allthingsclowd/wep_page_counter_front-end)
-
-![image](https://user-images.githubusercontent.com/9472095/46106049-92cb7b00-c1cf-11e8-9dcb-75533dd52955.png)
-
 
 ## TODO
 
 ### New Features
 
 * Write up note on new web front end (just as a reminder for myself - lots of CORS challenges)
+* Write up details on terraform code and improve documentation in general
 
 ### Refactor
 
-* Fix Travis Test
-
 ## Done
+
 * Build own box using packer with above scripts
 * Upload to vagrantcloud
 * Update Vagrant file to consume the new box
 * Add a Consul(1) server 
 * Remove scripts from Packer and link back to repo master scripts, use SCRIPTS feature
 * Add 'manual' test scripts to TravisCI
-   * source env file
-   * over write variables for local redis 
-   * use `curl -s` to verify app returns http 200 & exit 0
-   * use `lynx --dump` to capture counter updates between refreshes
-   * Add TravisCI for Go APP
+  * source env file
+  * over write variables for local redis 
+  * use `curl -s` to verify app returns http 200 & exit 0
+  * use `lynx --dump` to capture counter updates between refreshes
+  * Add TravisCI for Go APP
 * scripted added to read in var.env and upload to consul
 * main.go modified to use consul for variables when it's present
 * Add a Vault (1) server
 * if golang app can't reach redis or any other error return a zero
 * if consul is not up - fallback to var.env values
 * update goapp to have a /health to provide the status of it's services (text only)
-   * GOOD
-   * NOTGOOD
+  * GOOD
+  * NOTGOOD
 * Register Redis on Consul  
    What: Register the redis service on consul  
    Why: So the GOApp can connect dynamically (discover) the service  
-  
    How: Check ping, write a dummy k/v, read the dummy k/v  
 * Register Go App in Consul  
    What: Register the goapp service on consul  
    Why: So the webtier (NGINX) can connect dynamically (discover) the service  
-  
    How: Check the website is up & the /health url returns GOOD  
       * update goapp consul healthcheck to expect GOOD/NOTGOOD  
 * Make readme pretty (again)  
@@ -137,12 +120,12 @@ Access front end code [here](https://github.com/allthingsclowd/wep_page_counter_
 * Update App deployment to use releases
 * Backout the unauthorised architectural switch from Vault v1 Secrets to v2 Secrets (versioned)
 * UNDO :Move Redis Password into VAULT KV - demonstrates best practice of using centralised secret management vault - time 4 hrs
-* - modify vault installation to make binary accessable on all nodes
-* - install envconsul on all nodes
-* - auto-generate redis password on leader node and store in vault using vault client (binary)
-* - update redis installation to utilise consul-template to get redis password from vault
-* - revert main.go application to consume vault v1 secrets (unversioned)
-* - Add Vault App-Role to Application__ for Vault Access Method - demonstrates best practice of using centralised secret management vault - time est: 4hrs
+* modify vault installation to make binary accessable on all nodes
+* install envconsul on all nodes
+* auto-generate redis password on leader node and store in vault using vault client (binary)
+* update redis installation to utilise consul-template to get redis password from vault
+* revert main.go application to consume vault v1 secrets (unversioned)
+* Add Vault App-Role to Application__ for Vault Access Method - demonstrates best practice of using centralised secret management vault - time est: 4hrs
 * AddDataDog event when crash occurs e.g. “app 8081 crashed” - provides enhance reporting metrics - time est:2hrs
 * [Moved to it's own repo as requirement does not belong here](https://github.com/allthingsclowd/vault_versus_consul) Metrics: Consul KV versus Vault KV. Test with 100-1000 entries. Simple bash script timed - see if there's a significant overhead when using vault as a KV over Consul KV. - time est: 4hrs
 * Build a new service (Secret-ID Factory) that generates a wrapped secret-id upon receipt of an app-role - (api only)
@@ -169,8 +152,4 @@ Access front end code [here](https://github.com/allthingsclowd/wep_page_counter_
 * Reconfigured all services to work with TLS and ACLs now required on consul
 * Configured consul connect service mesh for the webpagecounter go application
 * Configured consul intentions for REDIS and APPROLE services
-
-
-
-
-
+* Updated Documentation
