@@ -1,3 +1,143 @@
-![vagrant_primarylogo_fullcolor](https://user-images.githubusercontent.com/9472095/52746649-e94c2100-2fd9-11e9-833f-43e6634cf794.png)
+# Application Workflow with Vagrant - Overview
 
-[back](../../ReadMe.md)
+![image](https://user-images.githubusercontent.com/9472095/54201027-fec74480-44cc-11e9-8bc1-14bdbcffe15f.png)
+
+## The Challenge
+
+![image](https://user-images.githubusercontent.com/9472095/54201895-17d0f500-44cf-11e9-995e-a1479d30fc5d.png)
+
+## The Solution
+
+![image](https://user-images.githubusercontent.com/9472095/54201941-359e5a00-44cf-11e9-889c-a90eca246c33.png)
+
+## Prerequisites - mandatory
+
+Ensure that [Vagrant](https://www.vagrantup.com/intro/getting-started/install.html) and [Virtualbox](https://www.virtualbox.org/wiki/Downloads) are both installed on the host system.
+
+## Installation
+
+Simply clone this repository, source the environment variables file (var.env) and then build the vagrant environment as follows:
+
+[Optional - export your datadog key]
+
+``` bash
+export DD_API_KEY=2504524abcd123eddda65431d5
+```
+
+``` bash
+git clone git@github.com:allthingsclowd/web_page_counter.git
+cd web_page_counter
+source var.env
+vagrant up
+```
+
+This takes about 8 minutes to complete on a MacBook Pro.
+
+## Infrastructure as Code (IaC) with Vagrant
+
+[Vagrant](https://www.vagrantup.com/), infrastructure as code for your workstation, has been used to define and build the application infrastructure used for this demonstration. The use of infrastructure as code, a.k.a. the _Vagrantfile_ in this repo, is what enables me to be able to consistently share this application and it's entire development environment consistently with you. IaC is a fundamental building block that facilitates our journey to the cloud.
+
+``` hcl
+info = <<-'EOF'
+
+      Welcome to The TAM HashiStack demo
+        
+                on Vagrant
+
+      Open a browser on the following URLs to access each service
+
+      WebPageCounter Application FrontEnd (public)  -   http://${NGINX_PUBLIC_IP}:9091
+      WebPageCounter Application BackEnd (public)   -   http://${NGINX_PUBLIC_IP}:9090
+      WebPageCounter Application FrontEnd -   http://${LEADER_IP}:9091
+      WebPageCounter Application BackEnd  -   http://${LEADER_IP}:9090      
+      Nomad Portal  (public)  -   http://${NGINX_PUBLIC_IP}:4646
+      Vault Portal  (public)  -   http://${NGINX_PUBLIC_IP}:8200
+      Consul Portal (public)  -   https://${NGINX_PUBLIC_IP}:8321
+      Nomad Portal    -   http://${LEADER_IP}:4646
+      Vault Portal    -   http://${LEADER_IP}:8200
+      Consul Portal   -   https://${LEADER_IP}:8321      
+      (self-signed certificates located in ../certificate-config directory)
+
+      Vault Password  -   reallystrongpassword
+      Consul ACL      -   Navigate to Vault to locate the consul ACL token then use it to login to the Consul portal
+
+
+WARNING: PLEASE DON'T USE THESE CERTIFICATES IN ANYTHING OTHER THAN THIS TEST LAB!!!!
+The keys are clearly publically available for demonstration purposes.
+
+EOF
+
+Vagrant.configure("2") do |config|
+
+    #override global variables to fit Vagrant setup
+    ENV['REDIS_MASTER_NAME']||="masterredis01"
+    ENV['REDIS_MASTER_IP']||="192.168.2.200"
+    ENV['GO_GUEST_PORT']||="808"
+    ENV['GO_HOST_PORT']||="808"
+    ENV['NGINX_NAME']||="web01"
+    ENV['NGINX_IP']||="192.168.2.250"
+    ENV['NGINX_PUBLIC_IP']||="192.168.94.90"
+    ENV['NGINX_GUEST_PORT']||="9090"
+    ENV['NGINX_HOST_PORT']||="9090"
+    ENV['VAULT_NAME']||="vault01"
+    ENV['VAULT_IP']||="192.168.2.10"
+    ENV['LEADER_NAME']||="leader01"
+    ENV['LEADER_IP']||="192.168.2.11"
+    ENV['SERVER_COUNT']||="2"
+    ENV['DD_API_KEY']||="ONLY REQUIRED FOR DATADOG IMPLEMENTATION"
+    
+    #global config
+    config.vm.synced_folder ".", "/vagrant"
+    config.vm.synced_folder ".", "/usr/local/bootstrap"
+    config.vm.box = "allthingscloud/web-page-counter"
+    config.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_consul.sh", run: "always"
+    config.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh", run: "always"
+    config.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_vault.sh", run: "always"
+    # config.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_dd_agent.sh", env: {"DD_API_KEY" => ENV['DD_API_KEY']}
+
+    config.vm.provider "virtualbox" do |v|
+        v.memory = 1024
+        v.cpus = 1
+    end
+
+    config.vm.define "leader01" do |leader01|
+        leader01.vm.hostname = ENV['LEADER_NAME']
+        leader01.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_nomad.sh", run: "always"
+        leader01.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_SecretID_Factory.sh", run: "always"
+        leader01.vm.network "private_network", ip: ENV['LEADER_IP']
+        leader01.vm.network "forwarded_port", guest: 4646, host: 4646
+        leader01.vm.network "forwarded_port", guest: 8321, host: 8321
+        leader01.vm.network "forwarded_port", guest: 8200, host: 8200
+        leader01.vm.network "forwarded_port", guest: 8314, host: 8314
+    end
+
+    config.vm.define "redis01" do |redis01|
+        redis01.vm.hostname = ENV['REDIS_MASTER_NAME']
+        redis01.vm.network "private_network", ip: ENV['REDIS_MASTER_IP']
+        redis01.vm.provision :shell, inline: "/usr/local/bootstrap/scripts/install_redis.sh"
+    end
+    
+    (1..2).each do |i|
+        config.vm.define "godev0#{i}" do |devsvr|
+            devsvr.vm.hostname = "godev0#{i}"
+            devsvr.vm.network "private_network", ip: "192.168.2.#{100+i*10}"
+            devsvr.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_nomad.sh", run: "always"
+            devsvr.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_go_app.sh"
+        end
+    end
+
+    config.vm.define "web01" do |web01|
+        web01.vm.hostname = ENV['NGINX_NAME']
+        web01.vm.network "private_network", ip: ENV['NGINX_IP']
+        web01.vm.network "forwarded_port", guest: ENV['NGINX_GUEST_PORT'], host: ENV['NGINX_HOST_PORT']
+        web01.vm.provision :shell, inline: "/usr/local/bootstrap/scripts/install_webserver.sh"
+        web01.vm.network "forwarded_port", guest: 9091, host: 9091
+        web01.vm.network "forwarded_port", guest: 9090, host: 9090
+   end
+
+   puts info if ARGV[0] == "status"
+
+end
+```
+
+[:back:](../../ReadMe.md)

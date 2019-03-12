@@ -1,14 +1,26 @@
 info = <<-'EOF'
 
-Vault root token is located in .vault_token
-- export VAULT_TOKEN=`cat .vault_token`
+      Welcome to The TAM HashiStack demo
+        
+                on Vagrant
 
-The Consul ACL required for browser access is located in .agenttoken_acl
-- export CONSUL_HTTP_TOKEN=`cat .agenttoken_acl`
+      Open a browser on the following URLs to access each service
 
-The certificates required to add to the browser's keychain (on a mac) are located in the certificate-config/ directory.
+      WebPageCounter Application FrontEnd (public)  -   http://${NGINX_PUBLIC_IP}:9091
+      WebPageCounter Application BackEnd (public)   -   http://${NGINX_PUBLIC_IP}:9090
+      WebPageCounter Application FrontEnd -   http://${LEADER_IP}:9091
+      WebPageCounter Application BackEnd  -   http://${LEADER_IP}:9090      
+      Nomad Portal  (public)  -   http://${NGINX_PUBLIC_IP}:4646
+      Vault Portal  (public)  -   http://${NGINX_PUBLIC_IP}:8200
+      Consul Portal (public)  -   https://${NGINX_PUBLIC_IP}:8321
+      Nomad Portal    -   http://${LEADER_IP}:4646
+      Vault Portal    -   http://${LEADER_IP}:8200
+      Consul Portal   -   https://${LEADER_IP}:8321      
+      (self-signed certificates located in ../certificate-config directory)
 
-- ls -al certificate-config/ | grep pfx
+      Vault Password  -   reallystrongpassword
+      Consul ACL      -   Navigate to Vault to locate the consul ACL token then use it to login to the Consul portal
+
 
 WARNING: PLEASE DON'T USE THESE CERTIFICATES IN ANYTHING OTHER THAN THIS TEST LAB!!!!
 The keys are clearly publically available for demonstration purposes.
@@ -20,22 +32,19 @@ Vagrant.configure("2") do |config|
     #override global variables to fit Vagrant setup
     ENV['REDIS_MASTER_NAME']||="masterredis01"
     ENV['REDIS_MASTER_IP']||="192.168.2.200"
-    ENV['REDIS_SLAVE_NAME']||="slaveredis02"
-    ENV['REDIS_SLAVE_IP']||="192.168.2.201"
     ENV['GO_GUEST_PORT']||="808"
     ENV['GO_HOST_PORT']||="808"
     ENV['NGINX_NAME']||="web01"
     ENV['NGINX_IP']||="192.168.2.250"
-    ENV['NGINX_PUBLIC_IP']||="192.168.2.250"
+    ENV['NGINX_PUBLIC_IP']||="192.168.94.90"
     ENV['NGINX_GUEST_PORT']||="9090"
     ENV['NGINX_HOST_PORT']||="9090"
     ENV['VAULT_NAME']||="vault01"
     ENV['VAULT_IP']||="192.168.2.10"
     ENV['LEADER_NAME']||="leader01"
     ENV['LEADER_IP']||="192.168.2.11"
-    ENV['LISTENER_COUNT']||="3"
     ENV['SERVER_COUNT']||="2"
-    ENV['DD_API_KEY']||="DON'T FORGET TO SET ME FROM CLI PRIOR TO DEPLOYMENT"
+    ENV['DD_API_KEY']||="ONLY REQUIRED FOR DATADOG IMPLEMENTATION"
     
     #global config
     config.vm.synced_folder ".", "/vagrant"
