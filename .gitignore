@@ -25,4 +25,5 @@ terraform/terraform.tfstate.backup
 *.iso
 *.tfstate
 *.tfstate*
+VaultServiceIDFactory
 
