@@ -1,0 +1,71 @@
+# CI/CD Pipeline Overview
+
+## Central Repository
+
+Start with a centralised code repository like github, gitlab or bitbucket. These are all based on [Linus Torvalds'](https://en.wikipedia.org/wiki/Linus_Torvalds) open source distributed version control system called git. A good tutorial can be found [here](https://www.atlassian.com/git/tutorials).
+
+When working with groups on code or collaborating on open source github repositories it's a good idea to leverage [github templates](https://blog.github.com/2016-02-17-issue-and-pull-request-templates/) at the start of a project to help standardise the PULL REQUESTS and ISSUE LOGS.
+
+![image](https://user-images.githubusercontent.com/9472095/43801332-b32cada4-9a8a-11e8-8e92-6508498102dc.png)
+
+## Continuous Integration
+
+[Travis-CI](https://travis-ci.org/) has been used to test application changes and deploy releases to github.
+
+![image](https://user-images.githubusercontent.com/9472095/43800289-d151b05c-9a87-11e8-957c-9584e2906951.png)
+
+This is achieved by signing up for a Travis-CI account, linking this to your github account, and then configuring a _**.travis.yml**_ file in the root of the repository.
+
+``` yml
+language: go
+sudo: required
+addons:
+  apt:
+    packages:
+    - redis-server
+    - lynx
+    - jq
+go:
+- '1.10'
+before_script:
+- sudo rsync -az ${TRAVIS_BUILD_DIR}/ /usr/local/bootstrap/
+- pushd packer
+- if [ $VAGRANT_CLOUD_TOKEN ] ; then packer validate template.json ; fi
+- popd
+- bash scripts/install_consul.sh
+- bash scripts/install_vault.sh
+- bash scripts/configure_app_role.sh
+- sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
+script:
+- source ./var.env
+- export REDIS_MASTER_IP=127.0.0.1
+- export REDIS_MASTER_PASSWORD=""
+- export LEADER_IP=127.0.0.1
+# - sudo VAULT_ADDR=http://127.0.0.1:8200 vault secrets enable -version=1 kv
+- sudo VAULT_ADDR=http://127.0.0.1:8200 vault status
+- sudo VAULT_ADDR=http://127.0.0.1:8200 vault kv put kv/development/redispassword value=${REDIS_MASTER_PASSWORD}
+- sudo VAULT_ADDR=http://127.0.0.1:8200 vault kv get kv/development/redispassword
+- consul kv put "development/REDIS_MASTER_IP" "127.0.0.1"
+- consul kv put "development/LEADER_IP" "127.0.0.1"
+- bash scripts/travis_run_go_app.sh
+deploy:
+  provider: releases
+  api_key:
+    secure: dAo/pXZ/jan3BcUA2bbhYl2v5QAW2JRAsaM0g077OJYxjUoepWarrb8puk0zdGfZ92ER+a7jwmXudbFVzk22Vp/aliIMkbrouQXVrXQaWZq0H45XD3grC5Pgbjdbn/s7gfCXk6IsZNkc1ztkpluFGox7iZXIYsrWJDvnjMNuhs6KWQpymKD8VQaQU1AqnWOOCWmkqLOy7pXtf9XQS44I5KkUibNFc5vxDqZriNCAkVSYZbvhmEphRb2iWGEtTxrJtU61Gj+fVpu6wpEO0JgWZNqmJTXgIXiPYb9i//uuRnA8qVym+PBl2azkMrmRV7TFbyzes1S5P5aWq0SgcYPKDtb7c5zJUzZkvpqkGDvriLUO2qyZq5PIC1Ega/bzLQMj/Nd8OMaJZjjoTNDc8frqQ9j84Q1WYTt1mhkMJF4LjXTar45nomR2GjBWfrETQBCGmO4fKYyNctx4cg8arz7MwftPIEt6orDegQzu8HR5oCX0hBvzDwK96JGtT8vfC4LfhtftTtTO2VqIMZ7lPbHzgyIswSBcVc9B7VIPS4Zka8JEzO1CRzeoL9u6HWNsUnre/U+twyxNmkZ1ZQW1kjeet8PT6S7eVRJuMofQJwhP42gz3yve8LaDaOxihlmD+UHnBVpDGSYl2ieLr+TAh2uwBNhs0bdEHJFNfwvNg9ySXKs=
+  file_glob: true
+  file: 
+    - "./templates/*"
+    - "./webcounter"
+  skip_cleanup: true
+  on:
+    repo: allthingsclowd/web_page_counter
+    tags: true
+```
+__Continuous Deployment__
+
+All commits, pull requests and merges automatically envoke a Travis-CI run.
+When [Tags](https://help.github.com/articles/working-with-tags/) are applied to the repository Travis-CI also creates a "deployment" by uploading binaries or files from the build server to the githib repository - located under the releases tab.
+
+![image](https://user-images.githubusercontent.com/9472095/43802124-d59ec898-9a8c-11e8-82d3-bad46fb68891.png)
+
+[back](../../ReadMe.md)
