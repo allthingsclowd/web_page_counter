@@ -1,3 +1,23 @@
+# Application Workflow with Nomad - Overview
+
+![image](https://user-images.githubusercontent.com/9472095/54201416-e572c800-44cd-11e9-9b3c-795d3df1bdbc.png)
+
+## Challenge
+
+![image](https://user-images.githubusercontent.com/9472095/54204236-181fbf00-44d4-11e9-8b4b-ca2e570bb501.png)
+
+## Solution
+
+![image](https://user-images.githubusercontent.com/9472095/54204270-2b328f00-44d4-11e9-9fbe-20506892da73.png)
+
+## Nomad for application scheduling a.k.a. bin packing
+
+![image](https://user-images.githubusercontent.com/9472095/43806561-585eb1d0-9a9c-11e8-9f03-e0a4282e8d3d.png)
+
+Finally, [Nomad](https://www.nomadproject.io/) has been used to schedule the application deployment. Nomad can deploy any application at any scale on any cloud :)
+It's uses a declarative syntax and will ensure that the required number of applications requested are maintained. This is why I put the crash button on the application - you can have some simple fun killing the application and watching Nomad resurrect it.
+
+``` hcl
 job "webpagecounter" {
     datacenters = ["dc1"]
     type        = "service"
@@ -45,3 +65,6 @@ job "webpagecounter" {
       }
     }
 }
+```
+
+[:back:](../../ReadMe.md)

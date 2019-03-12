@@ -1,3 +1,43 @@
+# Application Workflow with Vagrant - Overview
+
+![image](https://user-images.githubusercontent.com/9472095/54201027-fec74480-44cc-11e9-8bc1-14bdbcffe15f.png)
+
+## The Challenge
+
+![image](https://user-images.githubusercontent.com/9472095/54201895-17d0f500-44cf-11e9-995e-a1479d30fc5d.png)
+
+## The Solution
+
+![image](https://user-images.githubusercontent.com/9472095/54201941-359e5a00-44cf-11e9-889c-a90eca246c33.png)
+
+## Prerequisites - mandatory
+
+Ensure that [Vagrant](https://www.vagrantup.com/intro/getting-started/install.html) and [Virtualbox](https://www.virtualbox.org/wiki/Downloads) are both installed on the host system.
+
+## Installation
+
+Simply clone this repository, source the environment variables file (var.env) and then build the vagrant environment as follows:
+
+[Optional - export your datadog key]
+
+``` bash
+export DD_API_KEY=2504524abcd123eddda65431d5
+```
+
+``` bash
+git clone git@github.com:allthingsclowd/web_page_counter.git
+cd web_page_counter
+source var.env
+vagrant up
+```
+
+This takes about 8 minutes to complete on a MacBook Pro.
+
+## Infrastructure as Code (IaC) with Vagrant
+
+[Vagrant](https://www.vagrantup.com/), infrastructure as code for your workstation, has been used to define and build the application infrastructure used for this demonstration. The use of infrastructure as code, a.k.a. the _Vagrantfile_ in this repo, is what enables me to be able to consistently share this application and it's entire development environment consistently with you. IaC is a fundamental building block that facilitates our journey to the cloud.
+
+``` hcl
 info = <<-'EOF'
 
       Welcome to The TAM HashiStack demo
@@ -98,3 +138,6 @@ Vagrant.configure("2") do |config|
    puts info if ARGV[0] == "status"
 
 end
+```
+
+[:back:](../../ReadMe.md)
