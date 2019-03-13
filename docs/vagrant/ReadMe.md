@@ -16,17 +16,69 @@ Ensure that [Vagrant](https://www.vagrantup.com/intro/getting-started/install.ht
 
 ## Installation
 
-Simply clone this repository, source the environment variables file (var.env) and then build the vagrant environment as follows:
+Simply clone this repository, update and source the environment variables file (var.env) and then build the vagrant environment as follows:
 
-[Optional - export your datadog key]
+<!-- [Optional - export your datadog key]
 
 ``` bash
 export DD_API_KEY=2504524abcd123eddda65431d5
-```
+``` -->
 
 ``` bash
 git clone git@github.com:allthingsclowd/web_page_counter.git
 cd web_page_counter
+```
+
+Locate your laptop/host primary ip address and configure the `NGINX_PUBLIC_IP` in the _var.env_ to contain this ip address. The example below is from a MacOS
+
+``` bash
+Grahams-MacBook-Pro:pipeline grazzer$ ifconfig
+lo0: flags=8049<UP,LOOPBACK,RUNNING,MULTICAST> mtu 16384
+	options=1203<RXCSUM,TXCSUM,TXSTATUS,SW_TIMESTAMP>
+	inet 127.0.0.1 netmask 0xff000000
+	inet6 ::1 prefixlen 128
+	inet6 fe80::1%lo0 prefixlen 64 scopeid 0x1
+	nd6 options=201<PERFORMNUD,DAD>
+gif0: flags=8010<POINTOPOINT,MULTICAST> mtu 1280
+stf0: flags=0<> mtu 1280
+XHC1: flags=0<> mtu 0
+XHC0: flags=0<> mtu 0
+XHC20: flags=0<> mtu 0
+en0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+	ether 8c:85:90:a4:ab:cb
+	inet6 fe80::18a8:b98b:a36a:a057%en0 prefixlen 64 secured scopeid 0x8
+	inet 192.168.83.53 netmask 0xfffff000 broadcast 192.168.95.255
+	nd6 options=201<PERFORMNUD,DAD>
+	media: autoselect
+	status: active
+.
+.
+.
+```
+`en0` above contains `192.168.83.53` - this value needs to be updated in the _var.env_ file.
+
+``` bash
+Grahams-MacBook-Pro:pipeline grazzer$ cat var.env
+export REDIS_MASTER_IP=192.168.2.200
+export REDIS_MASTER_NAME=masterredis01.vagrant.local
+export REDIS_HOST_PORT=6379
+export GO_REPOSITORY=github.com/allthingsclowd/web_page_counter
+export GO_GUEST_PORT=8080
+export GO_HOST_PORT=8080
+export NGINX_NAME=nginx01.vagrant.local
+export NGINX_IP=192.168.2.250
+export NGINX_GUEST_PORT=9090
+export NGINX_HOST_PORT=9090
+export VAULT_NAME=vault01.vagrant.local
+export VAULT_IP=192.168.2.10
+export LEADER_NAME=leader01.vagrant.local
+export LEADER_IP=192.168.2.11
+export NGINX_PUBLIC_IP=192.168.83.53
+```
+
+Now source this file and deploy the environment
+
+``` bash
 source var.env
 vagrant up
 ```
@@ -76,7 +128,7 @@ Vagrant.configure("2") do |config|
     ENV['GO_HOST_PORT']||="808"
     ENV['NGINX_NAME']||="web01"
     ENV['NGINX_IP']||="192.168.2.250"
-    ENV['NGINX_PUBLIC_IP']||="192.168.94.90"
+    ENV['NGINX_PUBLIC_IP']||="UPDATE TO MATCH YOUR HOST IP"
     ENV['NGINX_GUEST_PORT']||="9090"
     ENV['NGINX_HOST_PORT']||="9090"
     ENV['VAULT_NAME']||="vault01"

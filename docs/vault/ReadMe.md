@@ -18,35 +18,88 @@
 
 Vault is used here to store the Redis data password that is consumed by both the Redis Service (see above) and the WebCounter application instances on startup.
 
+**Accessing Vault UI**
+Open a browser on your laptop/host and navigate to http://${LEADER_IP}:8200
+The value for ${LEADER_IP} can be found in the _var.env_ file but typically will default to 192.168.2.11
+_e.g. http://192.168.2.11:8200_
+The password is set to `reallystrongpassword`
+
+**Storing a Password**
+The example below taken from _scripts/install_vault.sh_ illustrates how secrets can be stored in Vault using the vault cli.
+
+``` bash
+bootstrap_secret_data () {
+    
+    echo 'Set environmental bootstrapping data in VAULT'
+    REDIS_MASTER_PASSWORD=`openssl rand -base64 32`
+    APPROLEID=`cat /usr/local/bootstrap/.appRoleID`
+    DB_VAULT_TOKEN=`cat /usr/local/bootstrap/.database-token`
+    AGENTTOKEN=`cat /usr/local/bootstrap/.agenttoken_acl`
+    WRAPPEDPROVISIONERTOKEN=`cat /usr/local/bootstrap/.wrapped-provisioner-token`
+    BOOTSTRAPACL=`cat /usr/local/bootstrap/.bootstrap_acl`
+    # Put Redis Password in Vault
+    sudo VAULT_ADDR="http://${IP}:8200" vault login ${ADMIN_TOKEN}
+    # FAILS???? sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault policy list
+    sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/redispassword value=${REDIS_MASTER_PASSWORD}
+    sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/consulagentacl value=${AGENTTOKEN}
+    sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/vaultdbtoken value=${DB_VAULT_TOKEN}
+    sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/approleid value=${APPROLEID}
+    sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/wrappedprovisionertoken value=${WRAPPEDPROVISIONERTOKEN}
+    sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/bootstraptoken value=${BOOTSTRAPACL}
+
+}
+```
+
+**Retrieving a Password using Consul-Template**
+The _install_redis.sh_ script uses _[consul-template](https://www.consul.io/docs/guides/consul-template.html)_ to demonstrate how a traditional application configuration file can be populated with secrets from Vault dynamically at deployment time.
+
+A template configuration file needs to be created like _master.redis.ctpl_
+
+``` bash
+.
+.
+.
+# Ensure Redis only listens on the local host when configuring Consul connect
+bind 127.0.0.1
+
+# Consul-Template is used in the redis file at deployment time
+# It reads the password from Vault and inserts it into this file
+{{- with secret "kv/development/redispassword" }}
+requirepass "{{ .Data.value }}"
+{{- end}}
+```
+
+which results in
+
+``` bash
+.
+.
+.
+# Ensure Redis only listens on the local host when configuring Consul connect
+bind 127.0.0.1
+
+# Consul-Template is used in the redis file at deployment time
+# It reads the password from Vault and inserts it into this file
+requirepass "8G3BkAe8mXd2XsXlTQNIGCzBl3DXzmTURtWScJRcp8g="
+
+```
+
+when _consul-template_ is executed as follows
+
+``` bash
+sudo VAULT_TOKEN=${DB_VAULT_TOKEN} VAULT_ADDR="http://${LEADER_IP}:8200" consul-template -template "/usr/local/bootstrap/conf/master.redis.ctpl:/etc/redis/redis.conf" -once
+```
+
+**Retrieving a Password using Vault's Golang SDK**
+
+First of all we need to import the library `vault "github.com/hashicorp/vault/api"`
+
 ``` go
-func getVaultKV(vaultKey string) string {
+func getVaultKV(consulClient consul.Client, vaultKey string) string {
 
-	// Get a new Consul client
-	consulClient, err := consul.NewClient(consul.DefaultConfig())
-	if err != nil {
-		fmt.Printf("Failed to contact consul - Please ensure both local agent and remote server are running : e.g. consul members >> %v \n", err)
-		goapphealth = "NOTGOOD"
-	}
-
-	// Get the static approle id - this could be baked into a base image
-	appRoleIDFile, err := ioutil.ReadFile("/usr/local/bootstrap/.approle-id")
-	if err != nil {
-		fmt.Print(err)
-	}
-	appRoleID := string(appRoleIDFile)
-	fmt.Printf("App-Role ID Returned : >> %v \n", appRoleID)
-
-	// Get a provisioner token to generate a new secret -id ... this would usually occur in the orchestrator rather than the app???
-	vaultTokenFile, err := ioutil.ReadFile("/usr/local/bootstrap/.provisioner-token")
-	if err != nil {
-		fmt.Print(err)
-	}
-	vaultToken := string(vaultTokenFile)
-	fmt.Printf("Secret Token Returned : >> %v \n", vaultToken)
-
-	// Read in the Vault address from consul
-	vaultIP := getConsulKV(*consulClient, "LEADER_IP")
-	vaultAddress := "http://" + vaultIP + ":8200"
+	// Read in the Vault service details from consul
+	vaultService := getConsulSVC(consulClient, "vault")
+	vaultAddress = "http://" + vaultService
 	fmt.Printf("Secret Store Address : >> %v \n", vaultAddress)
 
 	// Get a handle to the Vault Secret KV API
@@ -57,39 +110,14 @@ func getVaultKV(vaultKey string) string {
 		fmt.Printf("Failed to get VAULT client >> %v \n", err)
 		return "FAIL"
 	}
-	
-	vaultClient.SetToken(vaultToken)
-	
-	// Generate a new Vault Secret-ID
-    resp, err := vaultClient.Logical().Write("/auth/approle/role/goapp/secret-id", nil)
-    if err != nil {
-		fmt.Printf("Failed to get Secret ID >> %v \n", err)
-		return "Failed"
-    }
-    if resp == nil {
-		fmt.Printf("Failed to get Secfret ID >> %v \n", err)
-		return "Failed"
-    }
 
-	secretID := resp.Data["secret_id"].(string)
-	fmt.Printf("Secret ID Request Response : >> %v \n", secretID)
+	approleService := getConsulSVC(consulClient, "approle")
+	// Replace service ip address with loopback address when using connect proxy
+	approleService = convert4connect(approleService)
+	appRoletoken := getVaultToken(approleService, *appRoleID)
+	fmt.Printf("New Application Token : >> %v \n", appRoletoken)
 
-	// Now using both the APP Role ID & the Secret ID generated above
-	data := map[string]interface{}{
-        "role_id":   appRoleID,
-		"secret_id": secretID,
-	}
-
-	fmt.Printf("Secret ID in map : >> %v \n", data)
-	
-	// Use the AppRole Login api call to get the application's Vault Token which will grant it access to the REDIS database credentials
-	appRoletokenResponse := queryVault(vaultAddress,"/v1/auth/approle/login","",data,"POST")
-
-	appRoletoken := appRoletokenResponse["auth"].(map[string]interface{})["client_token"]
-
-	fmt.Printf("New API Secret Token Request Response : >> %v \n", appRoletoken)
-
-	vaultClient.SetToken(appRoletoken.(string))
+	vaultClient.SetToken(appRoletoken)
 
 	completeKeyPath := "kv/development/" + vaultKey
 	fmt.Printf("Secret Key Path : >> %v \n", completeKeyPath)
@@ -107,7 +135,7 @@ func getVaultKV(vaultKey string) string {
 }
 ```
 
-## BootStrapping Application Example
+## BootStrapping an Application using APPROLE
 
 [VaultFactoryID Service](https://github.com/allthingsclowd/VaultServiceIDFactory/blob/master/readme.md)
 
@@ -164,76 +192,5 @@ A special token with limited scope, a provisioner token, is generated by a vault
 How does the application get it's Vault token?
 
 ![image](https://user-images.githubusercontent.com/9472095/47529600-27dd9480-d8a0-11e8-83ba-bf9b507632cf.png)
-
-## Consul Connect Addition
-
-![image](https://user-images.githubusercontent.com/9472095/47515764-9bb97600-d87b-11e8-90a4-990ca1a19bce.png)
-
-
-## Docker Image OverReview
-
-__Building a new Image__
-- Ensure to include all dependencies when compiling the go binary
-``` golang
-go get -t ./...
-CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o VaultServiceIDFactory main.go
-```
-
-- Build a new image (using Alpine imahe instead of scratch as need some additional commands)
-``` bash
-docker build -t vaultsecretidfactory -f dockerfile .
-```
-
-- Upload to docker registry
-```bash
-docker login [enter valid credentials]
-docker tag vaultsecretidfactory allthingscloud/vaultsecretidfactory
-docker push allthingscloud/vaultsecretidfactory
-```
-
-__Run the application__
-
-- This container expects that the accompanying Vault service is running and the bootstrapping tokens have been created in the mounted directory
-``` bash
-vagrant up leader01
-docker run -v $PWD:/usr/local/bootstrap/ allthingscloud/vaultsecretidfactory &
-```
-
-- If all went according to plan you should see the following output
-``` bash
-Grahams-MacBook-Pro:VaultServiceIDFactory grazzer$ docker run -v $PWD:/usr/local/bootstrap/ allthingscloud/vaultsecretidfactory &
-[1] 58723
-Grahams-MacBook-Pro:VaultServiceIDFactory grazzer$ Incoming port number: 8314
-Incoming vault address: http://192.168.2.11:8200
-URL: 0.0.0.0:8314
-Running Docker locally with access to vagrant instance filesystem
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-100   845  100   338  100   507  12518  18777 --:--:-- --:--:-- --:--:-- 31296
-
-Debug Vars Start
-
-VAULT_ADDR:> http://192.168.2.11:8200
-
-URL:> /v1/sys/wrapping/unwrap
-
-TOKEN:> s.3VROD6THgIddAYWKt3sX2Ei1
-
-DATA:> map[]
-
-VERB:> POST
-
-Debug Vars End
-response Status: 200 OK
-response Headers: map[Cache-Control:[no-store] Content-Type:[application/json] Date:[Tue, 06 Nov 2018 15:19:15 GMT] Content-Length:[413]]
-
-
-response result:  map[renewable:false lease_duration:0 data:<nil> wrap_info:<nil> warnings:<nil> auth:map[policies:[default provisioner] token_policies:[default provisioner] metadata:<nil> entity_id: client_token:s.5BcLKYnzQWQR0pO9ikxTcrJ3 accessor:4RLti001aNJssblF2LFb3899 lease_duration:3600 renewable:true token_type:service] request_id:16bb23fa-c1b8-e954-113c-f7914bb0b002 lease_id:]
-2018/11/06 15:19:42 s.5BcLKYnzQWQR0pO9ikxTcrJ3
-Wrapped Token Received: s.3VROD6THgIddAYWKt3sX2Ei1
-UnWrapped Vault Provisioner Role Token Received: s.5BcLKYnzQWQR0pO9ikxTcrJ3
-2018/11/06 15:19:42 INITIALISED
-INITIALISED
-```
 
 [:back:](../../ReadMe.md)
