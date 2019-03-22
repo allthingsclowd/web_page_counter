@@ -185,6 +185,10 @@
       "expect_disconnect": true,
       "pause_before": "10s",
       "only": ["{{ user `build_name` }}-vbox"]
+    },
+    {
+      "type": "inspec",
+      "profile": "https://github.com/dev-sec/linux-baseline"
     }
   ],
   "post-processors": [
