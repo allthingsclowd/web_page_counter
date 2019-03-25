@@ -398,7 +398,7 @@ curl --header 'Content-Type: application/json' \
     http://127.0.0.1:8314/initialiseme
 
 echo 'Debug - Aliased check "Factory Service SecretID" failing:'
-sleep 10
+sleep 30
 
 register_secret_id_service_with_consul
 
