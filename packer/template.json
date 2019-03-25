@@ -8,11 +8,11 @@
     "memory": "512",
     "disk_size": "49600",
     "headless": "true",
-    "iso_checksum": "a5b0ea5918f850124f3d72ef4b85bda82f0fcd02ec721be19c1a6952791c8ee8",
+    "iso_checksum": "a2cb36dc010d98ad9253ea5ad5a07fd6b409e3412c48f1860536970b073c98f5",
     "iso_checksum_type": "sha256",
-    "iso_url": "http://cdimage.ubuntu.com/ubuntu/releases/bionic/release/ubuntu-18.04.1-server-amd64.iso",
-    "guest_additions_url": "http://download.virtualbox.org/virtualbox/5.2.22/VBoxGuestAdditions_5.2.22.iso",
-    "guest_additions_sha256": "e51e33500a265b5c2d7bb2d03d32208df880523dfcb1e2dde2c78a0e0daa0603",
+    "iso_url": "http://cdimage.ubuntu.com/ubuntu/releases/bionic/release/ubuntu-18.04.2-server-amd64.iso",
+    "guest_additions_url": "http://download.virtualbox.org/virtualbox/6.0.4/VBoxGuestAdditions_6.0.4.iso",
+    "guest_additions_sha256": "749b0c76aa6b588e3310d718fc90ea472fdc0b7c8953f7419c20be7e7fa6584a",
     "ssh_username": "vagrant",
     "ssh_password": "vagrant",
     "version": "0.2.{{timestamp}}",
@@ -185,10 +185,6 @@
       "expect_disconnect": true,
       "pause_before": "10s",
       "only": ["{{ user `build_name` }}-vbox"]
-    },
-    {
-      "type": "inspec",
-      "profile": "https://github.com/dev-sec/linux-baseline"
     }
   ],
   "post-processors": [
