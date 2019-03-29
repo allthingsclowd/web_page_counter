@@ -42,16 +42,6 @@ EOF
       --data @secretid_service.json \
       ${CONSUL_HTTP_ADDR}/v1/agent/service/register
 
-  # Register the service in consul via the local Consul agent api
-  sudo curl \
-      --request PUT \
-      --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
-      --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
-      --cert "/usr/local/bootstrap/certificate-config/client.pem" \
-      --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
-      --data @secretid_service.json \
-      ${CONSUL_HTTP_ADDR}/v1/agent/service/register
-
   # List the locally registered services via local Consul api
   sudo curl \
     --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
@@ -396,6 +386,9 @@ curl --header 'Content-Type: application/json' \
     --request POST \
     --data "{\"token\":\""${WRAPPED_TOKEN}"\"}" \
     http://127.0.0.1:8314/initialiseme
+
+echo 'Debug - Aliased check "Factory Service SecretID" failing:'
+sleep 30
 
 register_secret_id_service_with_consul
 
