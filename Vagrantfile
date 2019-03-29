@@ -65,10 +65,10 @@ Vagrant.configure("2") do |config|
         leader01.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_nomad.sh", run: "always"
         leader01.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_SecretID_Factory.sh", run: "always"
         leader01.vm.network "private_network", ip: ENV['LEADER_IP']
-        leader01.vm.network "forwarded_port", guest: 4646, host: 4646
+        leader01.vm.network "forwarded_port", guest: 4646, host: 8324
         leader01.vm.network "forwarded_port", guest: 8321, host: 8321
-        leader01.vm.network "forwarded_port", guest: 8200, host: 8200
-        leader01.vm.network "forwarded_port", guest: 8314, host: 8314
+        leader01.vm.network "forwarded_port", guest: 8200, host: 8323
+        leader01.vm.network "forwarded_port", guest: 8314, host: 8325
     end
 
     config.vm.define "redis01" do |redis01|

@@ -1,77 +1,85 @@
 #!/usr/bin/env bash
 
 # TODO: Move all versions upto to here for easier mgmt
+consul_version=1.4.4
+vault_version=1.1.0
+nomad_version=0.9.0-rc1
+terraform_version=0.12.0-beta1
+consul_template_version=0.20.0
+env_consul_version=0.7.3
+golang_version=1.12.1
 
 install_hashicorp_binaries () {
+
     # check consul binary
     [ -f /usr/local/bin/consul ] &>/dev/null || {
         pushd /usr/local/bin
-        [ -f consul_1.4.2_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/consul/1.4.2/consul_1.4.2_linux_amd64.zip
+        [ -f consul_${consul_version}_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/consul/${consul_version}/consul_${consul_version}_linux_amd64.zip
         }
-        sudo unzip consul_1.4.2_linux_amd64.zip
+        sudo unzip consul_${consul_version}_linux_amd64.zip
         sudo chmod +x consul
-        sudo rm consul_1.4.2_linux_amd64.zip
+        sudo rm consul_${consul_version}_linux_amd64.zip
         popd
     }
 
     # check consul-template binary
     [ -f /usr/local/bin/consul-template ] &>/dev/null || {
         pushd /usr/local/bin
-        [ -f consul-template_0.20.0_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/consul-template/0.20.0/consul-template_0.20.0_linux_amd64.zip
+        [ -f consul-template_${consul_template_version}_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/consul-template/${consul_template_version}/consul-template_${consul_template_version}_linux_amd64.zip
         }
-        sudo unzip consul-template_0.20.0_linux_amd64.zip
+        sudo unzip consul-template_${consul_template_version}_linux_amd64.zip
         sudo chmod +x consul-template
-        sudo rm consul-template_0.20.0_linux_amd64.zip
+        sudo rm consul-template_${consul_template_version}_linux_amd64.zip
         popd
     }
 
     # check envconsul binary
     [ -f /usr/local/bin/envconsul ] &>/dev/null || {
         pushd /usr/local/bin
-        [ -f envconsul_0.7.3_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/envconsul/0.7.3/envconsul_0.7.3_linux_amd64.zip
+        [ -f envconsul_${env_consul_version}_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/envconsul/${env_consul_version}/envconsul_${env_consul_version}_linux_amd64.zip
         }
-        sudo unzip envconsul_0.7.3_linux_amd64.zip
+        sudo unzip envconsul_${env_consul_version}_linux_amd64.zip
         sudo chmod +x envconsul
-        sudo rm envconsul_0.7.3_linux_amd64.zip
+        sudo rm envconsul_${env_consul_version}_linux_amd64.zip
         popd
     }
 
     # check vault binary
     [ -f /usr/local/bin/vault ] &>/dev/null || {
         pushd /usr/local/bin
-        [ -f vault_1.0.3_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/vault/1.0.3/vault_1.0.3_linux_amd64.zip
+        [ -f vault_${vault_version}_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/vault/${vault_version}/vault_${vault_version}_linux_amd64.zip
         }
-        sudo unzip vault_1.0.3_linux_amd64.zip
+        sudo unzip vault_${vault_version}_linux_amd64.zip
         sudo chmod +x vault
-        sudo rm vault_1.0.3_linux_amd64.zip
+        sudo rm vault_${vault_version}_linux_amd64.zip
         popd
     }
 
     # check terraform binary
     [ -f /usr/local/bin/terraform ] &>/dev/null || {
         pushd /usr/local/bin
-        [ -f terraform_0.12.0-alpha4_terraform_0.12.0-alpha4_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/terraform/0.12.0-alpha4/terraform_0.12.0-alpha4_terraform_0.12.0-alpha4_linux_amd64.zip
+        [ -f terraform_${terraform_version}_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip
         }
-        sudo unzip terraform_0.12.0-alpha4_terraform_0.12.0-alpha4_linux_amd64.zip
+        sudo unzip terraform_${terraform_version}_linux_amd64.zip
         sudo chmod +x terraform
-        sudo rm terraform_0.12.0-alpha4_terraform_0.12.0-alpha4_linux_amd64.zip
+        sudo rm terraform_${terraform_version}_linux_amd64.zip
         popd
     }
 
     # check for nomad binary
     [ -f /usr/local/bin/nomad ] &>/dev/null || {
         pushd /usr/local/bin
-        [ -f nomad_0.8.7_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/nomad/0.8.7/nomad_0.8.7_linux_amd64.zip
+        [ -f nomad_${nomad_version}_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/nomad/${nomad_version}/nomad_${nomad_version}_linux_amd64.zip
         }
-        unzip nomad_0.8.7_linux_amd64.zip
+        unzip nomad_${nomad_version}_linux_amd64.zip
         chmod +x nomad
-        sudo rm nomad_0.8.7_linux_amd64.zip
+        sudo rm nomad_${nomad_version}_linux_amd64.zip
         popd
     }
 }
@@ -99,10 +107,10 @@ sudo systemctl disable nginx
 which /usr/local/go &>/dev/null || {
     mkdir -p /tmp/go_src
     pushd /tmp/go_src
-    [ -f go1.11.4.linux-amd64.tar.gz ] || {
-        wget -qnv https://dl.google.com/go/go1.11.4.linux-amd64.tar.gz
+    [ -f go${golang_version}.linux-amd64.tar.gz ] || {
+        wget -qnv https://dl.google.com/go/go${golang_version}.linux-amd64.tar.gz
     }
-    tar -C /usr/local -xzf go1.11.4.linux-amd64.tar.gz
+    tar -C /usr/local -xzf go${golang_version}.linux-amd64.tar.gz
     popd
     rm -rf /tmp/go_src
     echo "export PATH=$PATH:/usr/local/go/bin" >> /etc/profile
