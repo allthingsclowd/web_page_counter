@@ -22,39 +22,50 @@ sudo: required
 addons:
   apt:
     packages:
-    - redis-server
     - lynx
     - jq
+    - wget -q
+    - grep
+    - nginx
 go:
-- '1.10'
+- '1.11.5'
 before_script:
 - sudo rsync -az ${TRAVIS_BUILD_DIR}/ /usr/local/bootstrap/
 - pushd packer
-- if [ $VAGRANT_CLOUD_TOKEN ] ; then packer validate template.json ; fi
+- if [ $VAGRANT_CLOUD_TOKEN ] ; then packer validate -syntax-only template.json ; fi
 - popd
+- cat /usr/local/bootstrap/var.env
+- sed -i 's/LEADER_IP=192.168.2.11/LEADER_IP=127.0.0.1/g' /usr/local/bootstrap/var.env
+- sed -i 's/REDIS_MASTER_IP=192.168.2.200/REDIS_MASTER_IP=127.0.0.1/g' /usr/local/bootstrap/var.env
+- cat /usr/local/bootstrap/var.env
 - bash scripts/install_consul.sh
+- bash scripts/consul_enable_acls_1.4.sh
 - bash scripts/install_vault.sh
-- bash scripts/configure_app_role.sh
+- bash scripts/install_redis.sh
+- bash scripts/install_nomad.sh
+- bash scripts/install_SecretID_Factory.sh
+- pwd
+- ls -al /usr/local/bootstrap/
 - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
+- echo 314159265359 > /usr/local/bootstrap/.appRoleID
 script:
-- source ./var.env
-- export REDIS_MASTER_IP=127.0.0.1
-- export REDIS_MASTER_PASSWORD=""
-- export LEADER_IP=127.0.0.1
-# - sudo VAULT_ADDR=http://127.0.0.1:8200 vault secrets enable -version=1 kv
+- source /usr/local/bootstrap/var.env
+- cat /usr/local/bootstrap/var.env
 - sudo VAULT_ADDR=http://127.0.0.1:8200 vault status
-- sudo VAULT_ADDR=http://127.0.0.1:8200 vault kv put kv/development/redispassword value=${REDIS_MASTER_PASSWORD}
-- sudo VAULT_ADDR=http://127.0.0.1:8200 vault kv get kv/development/redispassword
-- consul kv put "development/REDIS_MASTER_IP" "127.0.0.1"
-- consul kv put "development/LEADER_IP" "127.0.0.1"
+# Configure consul environment variables for use with certificates 
+- export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
+- export CONSUL_CACERT=certificate-config/consul-ca.pem
+- export CONSUL_CLIENT_CERT=certificate-config/cli.pem
+- export CONSUL_CLIENT_KEY=certificate-config/cli-key.pem
+- consul version
+- inspec exec test/ImageBuild
 - bash scripts/travis_run_go_app.sh
 deploy:
   provider: releases
   api_key:
-    secure: dAo/pXZ/jan3BcUA2bbhYl2v5QAW2JRAsaM0g077OJYxjUoepWarrb8puk0zdGfZ92ER+a7jwmXudbFVzk22Vp/aliIMkbrouQXVrXQaWZq0H45XD3grC5Pgbjdbn/s7gfCXk6IsZNkc1ztkpluFGox7iZXIYsrWJDvnjMNuhs6KWQpymKD8VQaQU1AqnWOOCWmkqLOy7pXtf9XQS44I5KkUibNFc5vxDqZriNCAkVSYZbvhmEphRb2iWGEtTxrJtU61Gj+fVpu6wpEO0JgWZNqmJTXgIXiPYb9i//uuRnA8qVym+PBl2azkMrmRV7TFbyzes1S5P5aWq0SgcYPKDtb7c5zJUzZkvpqkGDvriLUO2qyZq5PIC1Ega/bzLQMj/Nd8OMaJZjjoTNDc8frqQ9j84Q1WYTt1mhkMJF4LjXTar45nomR2GjBWfrETQBCGmO4fKYyNctx4cg8arz7MwftPIEt6orDegQzu8HR5oCX0hBvzDwK96JGtT8vfC4LfhtftTtTO2VqIMZ7lPbHzgyIswSBcVc9B7VIPS4Zka8JEzO1CRzeoL9u6HWNsUnre/U+twyxNmkZ1ZQW1kjeet8PT6S7eVRJuMofQJwhP42gz3yve8LaDaOxihlmD+UHnBVpDGSYl2ieLr+TAh2uwBNhs0bdEHJFNfwvNg9ySXKs=
+    secure: dAo/pXZ/jan3BcUA2bbhYl2v5QAW2JRAsaM0g077OJYxjUoepWarrb8puk0zdGfZ92ER+a7jwmXudbFVzk22Vp/aliIMkbrouQXVrXQaWZq0H45XD3grC5Pgbjdbn/s7gfCXk6IsZNkc1ztkpluFGox7iZXIYsrWJDvnjMNuhs6KWQpymKD8VQaQU1AqnWOOCWmkqLOy7pXKJHkjhkjHKJHKGFdrTRETReytrytrytrHgftf9XQS44I5KkUibNFc5vxDqZriNCAkVSYZbvhmEphRb2iWGEtTxrJtU61Gj+fVpu6wpEO0JgWZNqmJTXgIXiPYb9i//uuRnA8qVym+PBl2azkMrmRV7TFbyzewhoopsadaisyivejustpublishedakeytogithub/bzLQMjkjhfkjdhfskjdfhksjdhfuytuytuwednbvdnbasaiuyiuy/Nd8OMaJZjjoTNDc8frqQ9j84Q1WYTt1mhkMJF4LjXTar45nomR2GjBWfrETQBCGmO4fKYyNctxDwK96JGtT8vfC4LfhtftTtTO2VqIMZ7lPbHzgyIswSBcVc9B7VIPS4Zka8JEzO1CRzeoL9u6HWNsUnre/U+twyxNmkZ1ZQW1kjeet8PT6S7eVRJuMofQJs0bdEHJFNfwvNg9ySXKs=
   file_glob: true
   file: 
-    - "./templates/*"
     - "./webcounter"
   skip_cleanup: true
   on:
@@ -67,5 +78,175 @@ All commits, pull requests and merges automatically envoke a Travis-CI run.
 When [Tags](https://help.github.com/articles/working-with-tags/) are applied to the repository Travis-CI also creates a "deployment" by uploading binaries or files from the build server to the githib repository - located under the releases tab.
 
 ![image](https://user-images.githubusercontent.com/9472095/43802124-d59ec898-9a8c-11e8-82d3-bad46fb68891.png)
+
+## Chef's Inspec Test Framework
+
+[Inspec tests](https://www.inspec.io/) have now also been added to the travis build process. Some basic tests are included to ensure that the correct binaries are delivered to the host before the application is deployed and tested.
+
+``` ruby
+# encoding: utf-8
+# copyright: 2019, Graham Land
+
+title 'Verify WebPageCounter Binaries'
+
+# control => test
+control 'audit_installation_prerequisites' do
+  impact 1.0
+  title 'os and packages'
+  desc 'verify os type and base os packages'
+
+  describe os.family do
+    it {should eq 'debian'}
+  end
+
+  describe package('wget') do
+    it {should be_installed}
+  end
+
+  describe package('unzip') do
+    it {should be_installed}
+  end
+
+  describe package('git') do
+    it {should be_installed}
+  end
+
+  describe package('redis-server') do
+    it {should be_installed}
+  end
+
+  describe package('nginx') do
+    it {should be_installed}
+  end
+
+  describe package('lynx') do
+    it {should be_installed}
+  end
+
+  describe package('jq') do
+    it {should be_installed}
+  end
+
+  describe package('curl') do
+    it {should be_installed}
+  end
+
+  describe package('net-tools') do
+    it {should be_installed}
+  end
+
+end
+
+control 'consul-binary-exists-1.0' do         
+  impact 1.0                      
+  title 'consul binary exists'
+  desc 'verify that the consul binary is installed'
+  describe file('/usr/local/bin/consul') do 
+    it { should exist }
+  end
+end
+
+control 'consul-binary-version-1.0' do                      
+  impact 1.0                                
+  title 'consul binary version check'
+  desc 'verify that the consul binary is the correct version'
+  describe command('consul version') do
+   its('stdout') { should match /Consul v1.4.4/ }
+  end
+end
+
+control 'consul-template-binary-exists-1.0' do         
+  impact 1.0                      
+  title 'consul-template binary exists'
+  desc 'verify that the consul-template binary is installed'
+  describe file('/usr/local/bin/consul-template') do 
+    it { should exist }
+  end
+end
+
+control 'consul-template-binary-version-1.0' do                      
+  impact 1.0                                
+  title 'consul-template binary version check'
+  desc 'verify that the consul-template binary is the correct version'
+  describe command('consul-template -version') do
+   its('stderr') { should match /v0.20.0/ }
+  end
+end
+
+control 'envconsul-binary-exists-1.0' do         
+  impact 1.0                      
+  title 'envconsul binary exists'
+  desc 'verify that the envconsul binary is installed'
+  describe file('/usr/local/bin/envconsul') do 
+    it { should exist }
+  end
+end
+
+control 'envconsul-binary-version-1.0' do                      
+  impact 1.0                                
+  title 'envconsul binary version check'
+  desc 'verify that the envconsul binary is the correct version'
+  describe command('envconsul -version') do
+   its('stderr') { should match /v0.7.3/ }
+  end
+end
+
+control 'vault-binary-exists-1.0' do         
+  impact 1.0                      
+  title 'vault binary exists'
+  desc 'verify that the vault binary is installed'
+  describe file('/usr/local/bin/vault') do 
+    it { should exist }
+  end
+end
+
+control 'vault-binary-version-1.0' do                      
+  impact 1.0                                
+  title 'vault binary version check'
+  desc 'verify that the vault binary is the correct version'
+  describe command('vault version') do
+   its('stdout') { should match /v1.1.0/ }
+  end
+end
+
+control 'nomad-binary-exists-1.0' do         
+  impact 1.0                      
+  title 'nomad binary exists'
+  desc 'verify that the nomad binary is installed'
+  describe file('/usr/local/bin/nomad') do 
+    it { should exist }
+  end
+end
+
+control 'nomad-binary-version-1.0' do                      
+  impact 1.0                                
+  title 'nomad binary version check'
+  desc 'verify that the nomad binary is the correct version'
+  describe command('nomad version') do
+   its('stdout') { should match /v0.9.0/ }
+  end
+end
+
+control 'terraform-binary-exists-1.0' do         
+  impact 1.0                      
+  title 'terraform binary exists'
+  desc 'verify that the terraform binary is installed'
+  describe file('/usr/local/bin/terraform') do 
+    it { should exist }
+  end
+end
+
+control 'terraform-binary-version-1.0' do                      
+  impact 1.0                                
+  title 'terraform binary version check'
+  desc 'verify that the terraform binary is the correct version'
+  describe command('terraform version') do
+   its('stdout') { should match /v0.12.0/ }
+  end
+end
+
+```
+
+See the `test/ImageBuild` for the complete Inspec test profile
 
 [back](../../ReadMe.md)
