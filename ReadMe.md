@@ -153,3 +153,4 @@ Consul's service mesh capability is also leveraged to secure access to the Redis
 * Configured consul connect service mesh for the webpagecounter go application
 * Configured consul intentions for REDIS and APPROLE services
 * Updated Documentation
+* Added Chef's Inspec test framework to test packer builds before release to production
