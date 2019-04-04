@@ -163,6 +163,22 @@ install_chef_inspec () {
 
 }
 
+install_terraform () {
+
+    # check terraform binary
+    [ -f /usr/local/bin/terraform ] &>/dev/null || {
+        pushd /usr/local/bin
+        [ -f terraform_${terraform_version}_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip
+        }
+        sudo unzip terraform_${terraform_version}_linux_amd64.zip
+        sudo chmod +x terraform
+        sudo rm terraform_${terraform_version}_linux_amd64.zip
+        popd
+    }
+
+}
+
 install_consul () {
   AGENT_CONFIG="-config-dir=/etc/consul.d -enable-script-checks=true"
 
@@ -228,5 +244,6 @@ install_consul () {
 setup_environment
 install_prerequisite_binaries
 install_chef_inspec # used for dev/test of scripts
+install_terraform # used for testing only
 install_consul
 exit 0
