@@ -8,6 +8,8 @@ terraform_version=0.12.0-beta1
 consul_template_version=0.20.0
 env_consul_version=0.7.3
 golang_version=1.12.1
+inspec_package_url=https://packages.chef.io/files/stable/inspec/3.9.0/ubuntu/18.04/inspec_3.9.0-1_amd64.deb
+inspec_package=${inspec_package_url##/*/}
 
 install_hashicorp_binaries () {
 
@@ -84,6 +86,20 @@ install_hashicorp_binaries () {
     }
 }
 
+install_chef_inspec () {
+    
+    [ -f /usr/bin/inspec ] &>/dev/null || {
+        pushd /tmp
+        [ -f ${inspec_package} ] || {
+            sudo wget -q ${inspec_package_url}
+        }
+        sudo apt-get install -y ./${inspec_package}
+        sudo rm ${inspec_package}
+        popd
+    }    
+
+}
+
 apt-get clean
 apt-get update
 apt-get upgrade -y
@@ -117,6 +133,7 @@ which /usr/local/go &>/dev/null || {
 }
 
 install_hashicorp_binaries
+install_chef_inspec
 
 # Reboot with the new kernel
 shutdown -r now
