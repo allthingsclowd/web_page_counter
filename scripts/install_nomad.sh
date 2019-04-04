@@ -76,6 +76,11 @@ setup_environment () {
     LOG="nomad.log"
   fi
 
+  if [ "${TRAVIS}" == "true" ]; then
+    IP=${IP:-127.0.0.1}
+    LEADER_IP=${IP}
+  fi
+
   # Configure consul environment variables for use with certificates 
   export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
   export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
@@ -95,8 +100,8 @@ setup_environment () {
       [ -f nomad_${nomad_version}_linux_amd64.zip ] || {
           sudo wget -q https://releases.hashicorp.com/nomad/${nomad_version}/nomad_${nomad_version}_linux_amd64.zip
       }
-      unzip nomad_${nomad_version}_linux_amd64.zip
-      chmod +x nomad
+      sudo unzip nomad_${nomad_version}_linux_amd64.zip
+      sudo chmod +x nomad
       sudo rm nomad_${nomad_version}_linux_amd64.zip
       popd
   }
