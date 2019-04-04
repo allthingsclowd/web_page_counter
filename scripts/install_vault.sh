@@ -76,13 +76,15 @@ setup_environment () {
     IP=${IP:-127.0.0.1}
     fi
 
-    which /usr/local/bin/vault &>/dev/null || {
+    # check vault binary
+    [ -f /usr/local/bin/vault ] &>/dev/null || {
         pushd /usr/local/bin
-        [ -f vault_1.0.2_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/vault/1.0.2/vault_1.0.2_linux_amd64.zip
+        [ -f vault_${vault_version}_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/vault/${vault_version}/vault_${vault_version}_linux_amd64.zip
         }
-        sudo unzip vault_1.0.2_linux_amd64.zip
+        sudo unzip vault_${vault_version}_linux_amd64.zip
         sudo chmod +x vault
+        sudo rm vault_${vault_version}_linux_amd64.zip
         popd
     }
 
