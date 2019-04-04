@@ -1,5 +1,6 @@
 language: go
 sudo: required
+dist: xenial
 addons:
   apt:
     packages:
