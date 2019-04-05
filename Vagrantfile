@@ -50,6 +50,7 @@ Vagrant.configure("2") do |config|
     config.vm.synced_folder ".", "/vagrant"
     config.vm.synced_folder ".", "/usr/local/bootstrap"
     config.vm.box = "allthingscloud/web-page-counter"
+    config.vm.box_version = "0.2.1554410947"
     config.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_consul.sh", run: "always"
     config.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh", run: "always"
     config.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_vault.sh", run: "always"
