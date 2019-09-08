@@ -23,7 +23,7 @@ resource "azurerm_subnet" "webpagecountersubnet" {
     name                 = "wpcSubnet"
     resource_group_name  = "${var.arm_resource_group}"
     virtual_network_name = "${azurerm_virtual_network.webpagecounternetwork.name}"
-    address_prefix       = "192.168.2.0/24"
+    address_prefix       = "192.168.9.0/24"
 }
 
 # Create public IP for leader01
@@ -225,7 +225,7 @@ resource "azurerm_network_interface" "wpcnic" {
         name                          = "wpcNicConfiguration"
         subnet_id                     = "${azurerm_subnet.webpagecountersubnet.id}"
         private_ip_address_allocation = "Static"
-        private_ip_address            = "${cidrhost("192.168.2.0/24", 11)}"
+        private_ip_address            = "${cidrhost("192.168.9.0/24", 11)}"
         public_ip_address_id          = "${azurerm_public_ip.leader01publicip.id}"
     }
 
@@ -245,7 +245,7 @@ resource "azurerm_network_interface" "wpcproxynic" {
         name                          = "wpcproxyNicConfiguration"
         subnet_id                     = "${azurerm_subnet.webpagecountersubnet.id}"
         private_ip_address_allocation = "Static"
-        private_ip_address            = "${cidrhost("192.168.2.0/24", 250)}"
+        private_ip_address            = "${cidrhost("192.168.9.0/24", 250)}"
         public_ip_address_id          = "${azurerm_public_ip.wpcpublicipproxy.id}"
     }
 
@@ -265,7 +265,7 @@ resource "azurerm_network_interface" "wpcredisnic" {
         name                          = "wpcredisNicConfiguration"
         subnet_id                     = "${azurerm_subnet.webpagecountersubnet.id}"
         private_ip_address_allocation = "Static"
-        private_ip_address            = "${cidrhost("192.168.2.0/24", 200)}"
+        private_ip_address            = "${cidrhost("192.168.9.0/24", 200)}"
     }
 
     tags {
@@ -284,7 +284,7 @@ resource "azurerm_network_interface" "wpcgodev01nic" {
         name                          = "wpcgodev01NicConfiguration"
         subnet_id                     = "${azurerm_subnet.webpagecountersubnet.id}"
         private_ip_address_allocation = "Static"
-        private_ip_address            = "${cidrhost("192.168.2.0/24", 110)}"
+        private_ip_address            = "${cidrhost("192.168.9.0/24", 110)}"
     }
 
     tags {
@@ -303,7 +303,7 @@ resource "azurerm_network_interface" "wpcgodev02nic" {
         name                          = "wpcgodev02NicConfiguration"
         subnet_id                     = "${azurerm_subnet.webpagecountersubnet.id}"
         private_ip_address_allocation = "Static"
-        private_ip_address            = "${cidrhost("192.168.2.0/24", 120)}"
+        private_ip_address            = "${cidrhost("192.168.9.0/24", 120)}"
     }
 
     tags {
