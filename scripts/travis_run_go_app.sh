@@ -9,7 +9,7 @@ export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
 go get ./...
 go build -o webcounter main.go
-./webcounter -consulACL=${CONSUL_TOKEN} &
+./webcounter -consulACL=${CONSUL_HTTP_TOKEN} &
 
 # delay added to allow webcounter startup
 sleep 2
