@@ -172,7 +172,7 @@ control 'golang-version-1.0' do
   impact 1.0                                
   title 'golang version check'
   desc 'verify that golang is the correct version'
-  describe command('go version') do
-   its('stdout') { should match /go1.13.0/ }
+  describe command('/usr/local/go/bin/go version') do
+   its('stdout') { should match /go1.13/ }
   end
 end
