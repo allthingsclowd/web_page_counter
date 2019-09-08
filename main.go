@@ -404,10 +404,10 @@ func queryVault(vaultAddress string, url string, token string, data map[string]i
 
 func getVaultToken(factoryAddress string, appRole string) string {
 	
-	// fmt.Println("\nDebug Factory Service Vars Start")
-	// fmt.Println("\nFACTORY ADDRESS:>", factoryAddress)
-	// fmt.Println("\nAPP ROLE:>", appRole)
-	// fmt.Println("\nDebug Vars End")
+	fmt.Println("\nDebug Factory Service Vars Start")
+	fmt.Println("\nFACTORY ADDRESS:>", factoryAddress)
+	fmt.Println("\nAPP ROLE:>", appRole)
+	fmt.Println("\nDebug Vars End")
 
 	factoryBaseURL := "http://" + factoryAddress
 	healthAPI := factoryBaseURL + "/health"
