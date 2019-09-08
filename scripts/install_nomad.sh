@@ -63,8 +63,8 @@ setup_environment () {
 
   source /usr/local/bootstrap/var.env
 
-  IFACE=`route -n | awk '$1 == "192.168.2.0" {print $8;exit}'`
-  CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.2" {print $2}'`
+  IFACE=`route -n | awk '$1 == "192.168.9.0" {print $8;exit}'`
+  CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.9" {print $2}'`
   IP=${CIDR%%/24}
 
   # Configure Nomad client.hcl file
@@ -133,7 +133,7 @@ install_nomad() {
   else
 
     NOMAD_ADDR=http://${IP}:4646 /usr/local/bin/nomad agent-info 2>/dev/null || {
-      create_service nomad "HashiCorp's Nomad Agent - A Modern Platform and Cloud Agnostic Scheduler" "/usr/local/bin/nomad agent -log-level=DEBUG -client -bind=${IP} -data-dir=/usr/local/nomad -join=192.168.2.11 -config=/etc/nomad.d"
+      create_service nomad "HashiCorp's Nomad Agent - A Modern Platform and Cloud Agnostic Scheduler" "/usr/local/bin/nomad agent -log-level=DEBUG -client -bind=${IP} -data-dir=/usr/local/nomad -join=192.168.9.11 -config=/etc/nomad.d"
       sudo usermod -a -G consulcerts nomad
       cp -apr /usr/local/bootstrap/conf/nomad.d /etc
       sudo systemctl start nomad
