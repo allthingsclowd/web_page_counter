@@ -10,7 +10,7 @@ addons:
     - grep
     - nginx
 go:
-- '1.11.5'
+- '1.13'
 before_script:
 - sudo rsync -az ${TRAVIS_BUILD_DIR}/ /usr/local/bootstrap/
 - pushd packer
