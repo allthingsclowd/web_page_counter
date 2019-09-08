@@ -7,9 +7,10 @@ nomad_version=0.9.5
 terraform_version=0.12.8
 consul_template_version=0.21.3
 env_consul_version=0.9.0
-golang_version=1.13.0
+golang_version=1.13
 inspec_package_url=https://packages.chef.io/files/stable/inspec/3.9.0/ubuntu/18.04/inspec_3.9.0-1_amd64.deb
 inspec_package=${inspec_package_url##/*/}
+# TODO: Add checksums to ensure integrity of binaries downloaded
 
 install_hashicorp_binaries () {
 
@@ -126,6 +127,7 @@ which /usr/local/go &>/dev/null || {
     [ -f go${golang_version}.linux-amd64.tar.gz ] || {
         wget -qnv https://dl.google.com/go/go${golang_version}.linux-amd64.tar.gz
     }
+    
     tar -C /usr/local -xzf go${golang_version}.linux-amd64.tar.gz
     popd
     rm -rf /tmp/go_src
