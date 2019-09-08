@@ -85,7 +85,7 @@ func main() {
 	r.HandleFunc("/crash", crashHandler).Methods("POST")
 	r.HandleFunc("/crash", optionsHandler).Methods("OPTIONS")
 	http.Handle("/", r)
-	http.ListenAndServe(portDetail.String(), r)
+	http.ListenAndServe(portDetail.String(), http.FileServer(http.Dir("wpc-fe/.")))
 
 }
 
