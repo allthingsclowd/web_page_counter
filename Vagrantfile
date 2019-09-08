@@ -31,18 +31,18 @@ Vagrant.configure("2") do |config|
 
     #override global variables to fit Vagrant setup
     ENV['REDIS_MASTER_NAME']||="masterredis01"
-    ENV['REDIS_MASTER_IP']||="192.168.2.200"
+    ENV['REDIS_MASTER_IP']||="192.168.9.200"
     ENV['GO_GUEST_PORT']||="808"
     ENV['GO_HOST_PORT']||="808"
     ENV['NGINX_NAME']||="web01"
-    ENV['NGINX_IP']||="192.168.2.250"
+    ENV['NGINX_IP']||="192.168.9.250"
     ENV['NGINX_PUBLIC_IP']||="192.168.94.90"
     ENV['NGINX_GUEST_PORT']||="9090"
     ENV['NGINX_HOST_PORT']||="9090"
     ENV['VAULT_NAME']||="vault01"
-    ENV['VAULT_IP']||="192.168.2.10"
+    ENV['VAULT_IP']||="192.168.9.10"
     ENV['LEADER_NAME']||="leader01"
-    ENV['LEADER_IP']||="192.168.2.11"
+    ENV['LEADER_IP']||="192.168.9.11"
     ENV['SERVER_COUNT']||="2"
     ENV['DD_API_KEY']||="ONLY REQUIRED FOR DATADOG IMPLEMENTATION"
     
@@ -50,7 +50,7 @@ Vagrant.configure("2") do |config|
     config.vm.synced_folder ".", "/vagrant"
     config.vm.synced_folder ".", "/usr/local/bootstrap"
     config.vm.box = "allthingscloud/web-page-counter"
-    config.vm.box_version = "0.2.1554410947"
+    config.vm.box_version = "0.2.1567952288"
     config.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_consul.sh", run: "always"
     config.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh", run: "always"
     config.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_vault.sh", run: "always"
@@ -81,7 +81,7 @@ Vagrant.configure("2") do |config|
     (1..2).each do |i|
         config.vm.define "godev0#{i}" do |devsvr|
             devsvr.vm.hostname = "godev0#{i}"
-            devsvr.vm.network "private_network", ip: "192.168.2.#{100+i*10}"
+            devsvr.vm.network "private_network", ip: "192.168.9.#{100+i*10}"
             devsvr.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_nomad.sh", run: "always"
             devsvr.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_go_app.sh"
         end

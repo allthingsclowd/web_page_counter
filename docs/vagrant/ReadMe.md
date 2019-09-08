@@ -59,20 +59,20 @@ en0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
 
 ``` bash
 Grahams-MacBook-Pro:pipeline grazzer$ cat var.env
-export REDIS_MASTER_IP=192.168.2.200
+export REDIS_MASTER_IP=192.168.9.200
 export REDIS_MASTER_NAME=masterredis01.vagrant.local
 export REDIS_HOST_PORT=6379
 export GO_REPOSITORY=github.com/allthingsclowd/web_page_counter
 export GO_GUEST_PORT=8080
 export GO_HOST_PORT=8080
 export NGINX_NAME=nginx01.vagrant.local
-export NGINX_IP=192.168.2.250
+export NGINX_IP=192.168.9.250
 export NGINX_GUEST_PORT=9090
 export NGINX_HOST_PORT=9090
 export VAULT_NAME=vault01.vagrant.local
-export VAULT_IP=192.168.2.10
+export VAULT_IP=192.168.9.10
 export LEADER_NAME=leader01.vagrant.local
-export LEADER_IP=192.168.2.11
+export LEADER_IP=192.168.9.11
 export NGINX_PUBLIC_IP=192.168.83.53
 ```
 
@@ -123,18 +123,18 @@ Vagrant.configure("2") do |config|
 
     #override global variables to fit Vagrant setup
     ENV['REDIS_MASTER_NAME']||="masterredis01"
-    ENV['REDIS_MASTER_IP']||="192.168.2.200"
+    ENV['REDIS_MASTER_IP']||="192.168.9.200"
     ENV['GO_GUEST_PORT']||="808"
     ENV['GO_HOST_PORT']||="808"
     ENV['NGINX_NAME']||="web01"
-    ENV['NGINX_IP']||="192.168.2.250"
+    ENV['NGINX_IP']||="192.168.9.250"
     ENV['NGINX_PUBLIC_IP']||="UPDATE TO MATCH YOUR HOST IP"
     ENV['NGINX_GUEST_PORT']||="9090"
     ENV['NGINX_HOST_PORT']||="9090"
     ENV['VAULT_NAME']||="vault01"
-    ENV['VAULT_IP']||="192.168.2.10"
+    ENV['VAULT_IP']||="192.168.9.10"
     ENV['LEADER_NAME']||="leader01"
-    ENV['LEADER_IP']||="192.168.2.11"
+    ENV['LEADER_IP']||="192.168.9.11"
     ENV['SERVER_COUNT']||="2"
     ENV['DD_API_KEY']||="ONLY REQUIRED FOR DATADOG IMPLEMENTATION"
     
@@ -172,7 +172,7 @@ Vagrant.configure("2") do |config|
     (1..2).each do |i|
         config.vm.define "godev0#{i}" do |devsvr|
             devsvr.vm.hostname = "godev0#{i}"
-            devsvr.vm.network "private_network", ip: "192.168.2.#{100+i*10}"
+            devsvr.vm.network "private_network", ip: "192.168.9.#{100+i*10}"
             devsvr.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_nomad.sh", run: "always"
             devsvr.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_go_app.sh"
         end

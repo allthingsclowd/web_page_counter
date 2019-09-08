@@ -65,7 +65,7 @@ control 'consul-binary-version-1.0' do
   title 'consul binary version check'
   desc 'verify that the consul binary is the correct version'
   describe command('consul version') do
-   its('stdout') { should match /Consul v1.4.4/ }
+   its('stdout') { should match /Consul v1.6.0/ }
   end
 end
 
@@ -83,7 +83,7 @@ control 'consul-template-binary-version-1.0' do
   title 'consul-template binary version check'
   desc 'verify that the consul-template binary is the correct version'
   describe command('consul-template -version') do
-   its('stderr') { should match /v0.20.0/ }
+   its('stderr') { should match /v0.21.3/ }
   end
 end
 
@@ -101,7 +101,7 @@ control 'envconsul-binary-version-1.0' do
   title 'envconsul binary version check'
   desc 'verify that the envconsul binary is the correct version'
   describe command('envconsul -version') do
-   its('stderr') { should match /v0.7.3/ }
+   its('stderr') { should match /v0.9.0/ }
   end
 end
 
@@ -119,7 +119,7 @@ control 'vault-binary-version-1.0' do
   title 'vault binary version check'
   desc 'verify that the vault binary is the correct version'
   describe command('vault version') do
-   its('stdout') { should match /v1.1.0/ }
+   its('stdout') { should match /v1.2.2/ }
   end
 end
 
@@ -137,7 +137,7 @@ control 'nomad-binary-version-1.0' do
   title 'nomad binary version check'
   desc 'verify that the nomad binary is the correct version'
   describe command('nomad version') do
-   its('stdout') { should match /v0.9.0/ }
+   its('stdout') { should match /v0.9.5/ }
   end
 end
 
@@ -155,6 +155,24 @@ control 'terraform-binary-version-1.0' do
   title 'terraform binary version check'
   desc 'verify that the terraform binary is the correct version'
   describe command('terraform version') do
-   its('stdout') { should match /v0.12.0/ }
+   its('stdout') { should match /v0.12.8/ }
+  end
+end
+
+control 'golang-exists-1.0' do         
+  impact 1.0                      
+  title 'golang exists'
+  desc 'verify that golang is installed'
+  describe file('/usr/local/go/bin/go') do 
+    it { should exist }
+  end
+end
+
+control 'golang-version-1.0' do                      
+  impact 1.0                                
+  title 'golang version check'
+  desc 'verify that golang is the correct version'
+  describe command('/usr/local/go/bin/go version') do
+   its('stdout') { should match /go1.13/ }
   end
 end
