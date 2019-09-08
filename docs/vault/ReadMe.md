@@ -20,8 +20,8 @@ Vault is used here to store the Redis data password that is consumed by both the
 
 **Accessing Vault UI**
 Open a browser on your laptop/host and navigate to http://${LEADER_IP}:8200
-The value for ${LEADER_IP} can be found in the _var.env_ file but typically will default to 192.168.2.11
-_e.g. http://192.168.2.11:8200_
+The value for ${LEADER_IP} can be found in the _var.env_ file but typically will default to 192.168.9.11
+_e.g. http://192.168.9.11:8200_
 The password is set to `reallystrongpassword`
 
 **Storing a Password**

@@ -35,8 +35,8 @@ before_script:
 - if [ $VAGRANT_CLOUD_TOKEN ] ; then packer validate -syntax-only template.json ; fi
 - popd
 - cat /usr/local/bootstrap/var.env
-- sed -i 's/LEADER_IP=192.168.2.11/LEADER_IP=127.0.0.1/g' /usr/local/bootstrap/var.env
-- sed -i 's/REDIS_MASTER_IP=192.168.2.200/REDIS_MASTER_IP=127.0.0.1/g' /usr/local/bootstrap/var.env
+- sed -i 's/LEADER_IP=192.168.9.11/LEADER_IP=127.0.0.1/g' /usr/local/bootstrap/var.env
+- sed -i 's/REDIS_MASTER_IP=192.168.9.200/REDIS_MASTER_IP=127.0.0.1/g' /usr/local/bootstrap/var.env
 - cat /usr/local/bootstrap/var.env
 - bash scripts/install_consul.sh
 - bash scripts/consul_enable_acls_1.4.sh
