@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-# TODO: Move all versions upto to here for easier mgmt
-consul_version=1.4.4
-vault_version=1.1.0
-nomad_version=0.9.0-rc1
-terraform_version=0.12.0-beta1
-consul_template_version=0.20.0
-env_consul_version=0.7.3
-golang_version=1.12.1
+# Binary versions to check for
+consul_version=1.6.0
+vault_version=1.2.2
+nomad_version=0.9.5
+terraform_version=0.12.8
+consul_template_version=0.21.3
+env_consul_version=0.9.0
+golang_version=1.13.0
 inspec_package_url=https://packages.chef.io/files/stable/inspec/3.9.0/ubuntu/18.04/inspec_3.9.0-1_amd64.deb
 inspec_package=${inspec_package_url##/*/}
 
