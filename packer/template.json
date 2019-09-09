@@ -278,7 +278,8 @@
         "box_tag": "{{user `name`}}",
         "access_token": "{{user `cloud_token`}}",
         "version": "{{user `version`}}"
-      },
+      }
+    ],
       {
         "type": "vsphere-template",
         "host": "192.168.2.99",
@@ -286,7 +287,17 @@
         "username": "{{user `remote_user`}}",
         "password": "{{user `remote_password`}}",
         "folder": "/packer_templates/wpc"
-     }
-    ]
+     },
+     {
+        "type": "vsphere",
+        "host": "192.168.2.99",
+        "username": "{{user `remote_user`}}",
+        "password": "{{user `remote_password`}}",
+        "datastore": "IntelDS2",
+        "vm_name": "webpagecounter-{{ user `version` }}",
+        "datacenter": "GrazzerHomeLab",
+        "cluster": "GrazzerHomeLab",
+        "esxi_host": "192.168.2.99"
+  }
   ]
 }
