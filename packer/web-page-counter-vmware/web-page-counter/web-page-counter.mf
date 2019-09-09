@@ -1,0 +1,3 @@
+SHA256(web-page-counter.ovf)= 8e470687da9a700211f46e597e7cedc2accf6494e375bb3abbe82862beb875bb
+SHA256(web-page-counter-disk1.vmdk)= ccfdad1d9b9af724ebdea6fc3ec365d1d2eae3554f953e9730b29de70aab15be
+SHA256(web-page-counter-file1.nvram)= dace6da47f9c0076e90bd573b70cfadd99c35d9ce6336f48b0e472dfe17c11d4
