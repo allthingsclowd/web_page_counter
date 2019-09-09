@@ -269,6 +269,11 @@
   "post-processors": [
     [
       {
+        "type": "vagrant",
+        "keep_input_artifact": true,
+        "output": "{{.BuildName}}.box"
+      },
+      {
         "type": "vagrant-cloud",
         "box_tag": "{{user `name`}}",
         "access_token": "{{user `cloud_token`}}",
