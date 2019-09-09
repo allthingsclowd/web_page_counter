@@ -17,10 +17,13 @@
     "ssh_password": "vagrant",
     "version": "0.2.{{timestamp}}",
     "cloud_token": "{{ env `TF_VAR_vagrant_cloud_token` }}",
+    "remote_user": "{{ env `TF_VAR_vmware_user` }}",
+    "remote_password": "{{ env `TF_VAR_vmware_password` }}",
     "arm_subscription_id": "{{ env `TF_VAR_arm_subscription_id` }}",
     "arm_client_id": "{{ env `TF_VAR_arm_client_id` }}",
     "arm_client_secret": "{{ env `TF_VAR_arm_client_secret` }}",
-    "arm_tenant_id": "{{ env `TF_VAR_arm_tenant_id` }}"
+    "arm_tenant_id": "{{ env `TF_VAR_arm_tenant_id` }}",
+    "linux": "/install/linux"
   },
   "builders": [
     {
@@ -45,6 +48,69 @@
   
       "location": "West Europe",
       "vm_size": "Standard_DS1_v2"
+    },
+    {
+      "type": "vmware-iso",
+      "name": "{{ user `build_name` }}-vmware",
+      "boot_wait": "10s",
+      "disk_size": "{{user `disk_size`}}",
+      "disk_type_id": "thin",
+      "guest_os_type": "ubuntu-64",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "iso_url": "{{user `iso_url`}}",
+      "ssh_username": "vagrant",
+      "ssh_password": "vagrant",
+      "ssh_port": 22,
+      "ssh_wait_timeout": "10000s",
+      "shutdown_command": "sudo /sbin/shutdown -h now",
+      "remote_type": "esx5",
+      "remote_host": "192.168.2.99",
+      "remote_username": "{{user `remote_user`}}",
+      "remote_password": "{{user `remote_password`}}",
+      "remote_datastore": "IntelDS2",
+      "vnc_disable_password": true,
+      "output_directory": "web-page-counter-vmware",
+      "vm_name": "web-page-counter",
+      "vmx_data": {
+        "memsize": "{{user `memory`}}",
+        "numvcpus": "{{user `cpu_cores`}}",
+        "ethernet0.present": "TRUE",
+        "ethernet0.connectionType": "bridged",
+        "ethernet0.virtualDev": "e1000",
+        "ethernet0.networkName": "VM Network",
+        "ethernet0.wakeOnPcktRcv": "FALSE",
+        "ethernet0.addressType": "generated",
+        "remotedisplay.vnc.enabled": "TRUE",
+        "vhv.enable": "TRUE"
+      },
+      "http_directory": "http",
+      "headless": "{{user `headless`}}",
+      "boot_command": [
+        "<esc><wait>",
+        "<esc><wait>",
+        "<enter><wait>",
+        "/install/vmlinuz<wait>",
+        " auto<wait>",
+        " console-setup/ask_detect=false<wait>",
+        " console-setup/layoutcode=us<wait>",
+        " console-setup/modelcode=pc105<wait>",
+        " debconf/frontend=noninteractive<wait>",
+        " debian-installer=en_US<wait>",
+        " fb=false<wait>",
+        " initrd=/install/initrd.gz<wait>",
+        " kbd-chooser/method=us<wait>",
+        " keyboard-configuration/layout=USA<wait>",
+        " keyboard-configuration/variant=USA<wait>",
+        " locale=en_US<wait>",
+        " netcfg/get_domain=vm<wait>",
+        " netcfg/get_hostname=vagrant<wait>",
+        " grub-installer/bootdev=/dev/sda<wait>",
+        " noapic<wait>",
+        " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg<wait>",
+        " -- <wait>",
+        "<enter><wait>"
+      ]
     },
     {
       "type": "virtualbox-iso",
@@ -176,15 +242,24 @@
     {
       "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
       "scripts": [
-        "../scripts/packer_install_base_packages.sh",
-        "../scripts/packer_configure_vagrant_user.sh",
-        "../scripts/packer_install_guest_additions.sh",
-        "../scripts/packer_virtualbox_cleanup.sh"
+        "../scripts/packer_install_guest_additions.sh"
       ],
       "type": "shell",
       "expect_disconnect": true,
       "pause_before": "10s",
       "only": ["{{ user `build_name` }}-vbox"]
+    },
+    {
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
+      "scripts": [
+        "../scripts/packer_install_base_packages.sh",
+        "../scripts/packer_configure_vagrant_user.sh",
+        "../scripts/packer_virtualbox_cleanup.sh"
+      ],
+      "type": "shell",
+      "expect_disconnect": true,
+      "pause_before": "10s",
+      "only": ["{{ user `build_name` }}-vbox", "{{ user `build_name` }}-vmware"]
     },
     {
       "type": "inspec",

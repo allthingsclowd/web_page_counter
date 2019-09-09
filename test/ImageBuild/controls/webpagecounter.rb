@@ -159,20 +159,20 @@ control 'terraform-binary-version-1.0' do
   end
 end
 
-# control 'golang-exists-1.0' do         
-#   impact 1.0                      
-#   title 'golang exists'
-#   desc 'verify that golang is installed'
-#   describe file('/usr/local/go/bin/go') do 
-#     it { should exist }
-#   end
-# end
+control 'golang-exists-1.0' do         
+  impact 1.0                      
+  title 'golang exists'
+  desc 'verify that golang is installed'
+  describe file('/usr/local/go/bin/go') do 
+    it { should exist }
+  end
+end
 
 control 'golang-version-1.0' do                      
   impact 1.0                                
   title 'golang version check'
   desc 'verify that golang is the correct version'
-  describe command('go version') do
+  describe command('/usr/local/go/bin/go version') do
    its('stdout') { should match /go1.13/ }
   end
 end
