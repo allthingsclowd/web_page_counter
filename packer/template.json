@@ -55,7 +55,6 @@
       "boot_wait": "10s",
       "disk_size": "{{user `disk_size`}}",
       "disk_type_id": "thin",
-      "disk_adapter_type": "nvme",
       "skip_compaction": true,
       "guest_os_type": "ubuntu-64",
       "iso_checksum": "{{user `iso_checksum`}}",
