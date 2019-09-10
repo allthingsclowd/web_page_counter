@@ -16,9 +16,22 @@ sleep 2
 
 ps -ef | grep webcounter 
 
-page_hit_counter=`lynx --dump http://localhost:8080`
+# check health
+echo "APPLICATION HEALTH"
+curl -s http://127.0.0.1:8314/health
+
+curl -s http://localhost:8080/health
+
+curl -s http://localhost:8080
+
+curl -s http://127.0.0.1:8080/health
+
+curl -s http://127.0.0.1:8080
+
+page_hit_counter=`lynx --dump http://127.0.0.1:8080`
 echo $page_hit_counter
-next_page_hit_counter=`lynx --dump http://localhost:8080`
+next_page_hit_counter=`lynx --dump http://127.0.0.1:8080`
+
 echo $next_page_hit_counter
 if (( next_page_hit_counter > page_hit_counter )); then
  echo "Successful Page Hit Update"
