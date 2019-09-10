@@ -10,7 +10,7 @@ addons:
     - grep
     - nginx
 go:
-- '1.11.5'
+- '1.13'
 before_script:
 - sudo rsync -az ${TRAVIS_BUILD_DIR}/ /usr/local/bootstrap/
 - pushd packer
@@ -26,6 +26,7 @@ before_script:
 - bash scripts/install_redis.sh
 - bash scripts/install_nomad.sh
 - bash scripts/install_SecretID_Factory.sh
+- bash scripts/install_golang.sh
 - pwd
 - ls -al /usr/local/bootstrap/
 - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
@@ -40,6 +41,7 @@ script:
 - export CONSUL_CLIENT_CERT=certificate-config/cli.pem
 - export CONSUL_CLIENT_KEY=certificate-config/cli-key.pem
 - consul version
+- go version
 - inspec exec test/ImageBuild
 - bash scripts/travis_run_go_app.sh
 deploy:

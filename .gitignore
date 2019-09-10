@@ -26,4 +26,10 @@ terraform/terraform.tfstate.backup
 *.tfstate
 *.tfstate*
 VaultServiceIDFactory
+*-vmware
+*.ovf
+*.mf
+*.nvram
+
+
 
