@@ -197,7 +197,7 @@ install_go_application () {
         pushd /usr/local/bin
         echo 'Vault SecretID Service Download - Take ${RETRYDOWNLOAD}' 
         # download binary and template file from latest release
-        sudo bash -c 'curl -s https://api.github.com/repos/allthingsclowd/VaultServiceIDFactory/releases/latest \
+        sudo bash -c 'curl -s -L https://api.github.com/repos/allthingsclowd/VaultServiceIDFactory/releases/latest \
         | grep "browser_download_url" \
         | cut -d : -f 2,3 \
         | tr -d \" | wget -q -i - '
