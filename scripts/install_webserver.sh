@@ -101,7 +101,7 @@ do
     pushd /tmp/wpc-fe
     echo 'Web Front end Download' 
     # download binary and template file from latest release
-    sudo bash -c 'curl -s https://api.github.com/repos/allthingsclowd/wep_page_counter_front-end/releases/latest \
+    sudo bash -c 'curl -s -L https://api.github.com/repos/allthingsclowd/wep_page_counter_front-end/releases/latest \
     | grep "browser_download_url" \
     | cut -d : -f 2,3 \
     | tr -d \" | wget -q -i - '

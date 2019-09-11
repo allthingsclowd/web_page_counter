@@ -127,7 +127,7 @@ start_client_proxy_service goclientproxy "SecretID Service Client Proxy" "approl
 create_intention_between_services "goclientproxy" "approle"
 
 # download binary and template file from latest release
-curl -s https://api.github.com/repos/allthingsclowd/web_page_counter/releases/latest \
+curl -s -L https://api.github.com/repos/allthingsclowd/web_page_counter/releases/latest \
 | grep "browser_download_url" \
 | cut -d : -f 2,3 \
 | tr -d \" | wget -q -i -
@@ -144,12 +144,12 @@ cp /usr/local/bootstrap/scripts/consul_goapp_verify.sh /usr/local/bin/.
 # 's/:50K.*:53B/:50KCREDIT:53B/g' "-consulACL=5b3ec9a9-4791-3871-63f5-dbfc43edfe41"
 
 sed -i 's/consulACL=.*",/consulACL='${CONSUL_HTTP_TOKEN}'",/g' /usr/local/bootstrap/scripts/nomad_job.hcl
-sed -i 's/consulIp=.*"/consulIp='${IP}':8321"/g' /usr/local/bootstrap/scripts/nomad_job.hcl
+sed -i 's/consulIp=.*"/consulIp='${LEADER_IP}':8321"/g' /usr/local/bootstrap/scripts/nomad_job.hcl
 
 echo 'Review Nomad Job File'
 cat /usr/local/bootstrap/scripts/nomad_job.hcl
 
-NOMAD_ADDR=http://${IP}:4646 /usr/local/bin/nomad job run /usr/local/bootstrap/scripts/nomad_job.hcl || true
+NOMAD_ADDR=http://${LEADER_IP}:4646 /usr/local/bin/nomad job run /usr/local/bootstrap/scripts/nomad_job.hcl || true
 
 exit 0
 
