@@ -43,7 +43,7 @@ script:
 - export CONSUL_CLIENT_KEY=certificate-config/cli-key.pem
 - consul version
 - go version
-- inspec exec test/ImageBuild
+- inspec --chef-license=accept exec test/ImageBuild
 - bash scripts/travis_run_go_app.sh
 deploy:
   provider: releases
