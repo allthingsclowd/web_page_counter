@@ -54,10 +54,12 @@
     {
       "type": "vmware-iso",
       "name": "{{ user `build_name` }}-vmware",
+      "ssh_pty": true,
       "boot_wait": "10s",
       "disk_size": "{{user `disk_size`}}",
       "disk_type_id": "thin",
       "skip_compaction": true,
+      "skip_export": true,
       "keep_registered": true,
       "guest_os_type": "ubuntu-64",
       "iso_checksum": "{{user `iso_checksum`}}",
@@ -229,6 +231,44 @@
       "only": ["azure-arm"]
     },
     {
+      "inline": [
+        "sudo mkdir -p /usr/local/bootstrap && sudo chmod 777 /usr/local/bootstrap"
+      ],
+      "type": "shell",
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
+      "only": ["{{ user `build_name` }}-vmware"]
+    },
+    {
+      "destination": "/usr/local/bootstrap/",
+      "source": "../var.env",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware"]
+    },
+    {
+      "destination": "/usr/local/bootstrap/",
+      "source": "../.appRoleID",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware"]
+    },
+    {
+      "destination": "/usr/local/bootstrap",
+      "source": "../certificate-config",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware"]
+    },
+    {
+      "destination": "/usr/local/bootstrap",
+      "source": "../conf",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware"]
+    },
+    {
+      "destination": "/usr/local/bootstrap",
+      "source": "../scripts",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware"]
+    },
+    {
       "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
       "script": "../scripts/packer_install_base_packages.sh",
       "type": "shell",
@@ -253,6 +293,7 @@
       "pause_before": "10s",
       "only": ["{{ user `build_name` }}-vbox"]
     },
+    
     {
       "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
       "scripts": [
@@ -263,7 +304,19 @@
       "type": "shell",
       "expect_disconnect": true,
       "pause_before": "10s",
-      "only": ["{{ user `build_name` }}-vbox", "{{ user `build_name` }}-vmware"]
+      "only": ["{{ user `build_name` }}-vbox"]
+    },
+    {
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
+      "scripts": [
+        "../scripts/packer_install_base_packages.sh",
+        "../scripts/packer_configure_vagrant_user.sh",
+        "../scripts/packer_install_vmtools.sh"
+      ],
+      "type": "shell",
+      "expect_disconnect": true,
+      "pause_before": "10s",
+      "only": ["{{ user `build_name` }}-vmware"]
     },
     {
       "type": "inspec",
@@ -271,19 +324,6 @@
     }
   ],
   "post-processors": [
-    [
-      {
-        "type": "vagrant",
-        "keep_input_artifact": true,
-        "output": "{{.BuildName}}.box"
-      },
-      {
-        "type": "vagrant-cloud",
-        "box_tag": "{{user `name`}}",
-        "access_token": "{{user `cloud_token`}}",
-        "version": "{{user `version`}}"
-      }
-    ],
       {
         "type": "vsphere-template",
         "host": "192.168.2.98",

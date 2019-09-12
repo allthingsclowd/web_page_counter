@@ -8,8 +8,8 @@ terraform_version=0.12.8
 consul_template_version=0.21.3
 env_consul_version=0.9.0
 golang_version=1.13
-inspec_package_url=https://packages.chef.io/files/stable/inspec/3.9.0/ubuntu/18.04/inspec_3.9.0-1_amd64.deb
-inspec_package=${inspec_package_url##/*/}
+inspec_package_url=https://packages.chef.io/files/stable/inspec/4.16.0/ubuntu/18.04/inspec_4.16.0-1_amd64.deb
+inspec_package=inspec_4.16.0-1_amd64.deb
 # TODO: Add checksums to ensure integrity of binaries downloaded
 
 install_hashicorp_binaries () {
@@ -24,6 +24,7 @@ install_hashicorp_binaries () {
         sudo chmod +x consul
         sudo rm consul_${consul_version}_linux_amd64.zip
         popd
+        consul --version
     }
 
     # check consul-template binary
@@ -36,6 +37,7 @@ install_hashicorp_binaries () {
         sudo chmod +x consul-template
         sudo rm consul-template_${consul_template_version}_linux_amd64.zip
         popd
+        consul-template -version
     }
 
     # check envconsul binary
@@ -48,6 +50,7 @@ install_hashicorp_binaries () {
         sudo chmod +x envconsul
         sudo rm envconsul_${env_consul_version}_linux_amd64.zip
         popd
+        envconsul -version
     }
 
     # check vault binary
@@ -60,6 +63,7 @@ install_hashicorp_binaries () {
         sudo chmod +x vault
         sudo rm vault_${vault_version}_linux_amd64.zip
         popd
+        vault -version
     }
 
     # check terraform binary
@@ -72,6 +76,7 @@ install_hashicorp_binaries () {
         sudo chmod +x terraform
         sudo rm terraform_${terraform_version}_linux_amd64.zip
         popd
+        terraform -version
     }
 
     # check for nomad binary
@@ -84,6 +89,7 @@ install_hashicorp_binaries () {
         chmod +x nomad
         sudo rm nomad_${nomad_version}_linux_amd64.zip
         popd
+        nomad -version
     }
 }
 
@@ -97,23 +103,24 @@ install_chef_inspec () {
         sudo apt-get install -y ./${inspec_package}
         sudo rm ${inspec_package}
         popd
+        inspec version
     }    
 
 }
 
-apt-get clean
-apt-get update
-apt-get upgrade -y
+sudo apt-get clean
+sudo apt-get update
+sudo apt-get upgrade -y
 
 # Update to the latest kernel
-apt-get install -y linux-generic linux-image-generic linux-server
+sudo apt-get install -y linux-generic linux-image-generic linux-server
 
 # Hide Ubuntu splash screen during OS Boot, so you can see if the boot hangs
-apt-get remove -y plymouth-theme-ubuntu-text
+sudo apt-get remove -y plymouth-theme-ubuntu-text
 sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="quiet"/GRUB_CMDLINE_LINUX_DEFAULT=""/' /etc/default/grub
-update-grub
+sudo update-grub
 
-apt-get install -y wget -q unzip git redis-server nginx lynx jq curl net-tools
+sudo apt-get install -y wget -q unzip git redis-server nginx lynx jq curl net-tools
 
 # disable services that are not used by all hosts
 sudo systemctl stop redis-server
@@ -140,7 +147,7 @@ which /usr/local/go &>/dev/null || {
     echo "export PATH=$PATH:/usr/local/go/bin" | sudo tee -a /etc/profile
     echo "Ensure others can execute the binaries"
     sudo chmod -R +x /usr/local/go/bin/
-    cat /etc/profile
+
     source /etc/profile
 
     go version

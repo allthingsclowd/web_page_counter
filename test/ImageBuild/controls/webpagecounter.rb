@@ -83,7 +83,7 @@ control 'consul-template-binary-version-1.0' do
   title 'consul-template binary version check'
   desc 'verify that the consul-template binary is the correct version'
   describe command('consul-template -version') do
-   its('stderr') { should match /v0.21.3/ }
+   its('stdout') { should match /v0.21.3/ }
   end
 end
 
@@ -101,7 +101,7 @@ control 'envconsul-binary-version-1.0' do
   title 'envconsul binary version check'
   desc 'verify that the envconsul binary is the correct version'
   describe command('envconsul -version') do
-   its('stderr') { should match /v0.9.0/ }
+   its('stdout') { should match /v0.9.0/ }
   end
 end
 
