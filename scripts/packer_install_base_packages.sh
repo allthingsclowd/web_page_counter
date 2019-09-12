@@ -8,8 +8,6 @@ terraform_version=0.12.8
 consul_template_version=0.21.3
 env_consul_version=0.9.0
 golang_version=1.13
-inspec_package_url=https://packages.chef.io/files/stable/inspec/4.16.0/ubuntu/18.04/inspec_4.16.0-1_amd64.deb
-inspec_package=inspec_4.16.0-1_amd64.deb
 # TODO: Add checksums to ensure integrity of binaries downloaded
 
 install_hashicorp_binaries () {
@@ -97,11 +95,7 @@ install_chef_inspec () {
     
     [ -f /usr/bin/inspec ] &>/dev/null || {
         pushd /tmp
-        [ -f ${inspec_package} ] || {
-            sudo wget -q ${inspec_package_url}
-        }
-        sudo apt-get install -y ./${inspec_package}
-        sudo rm ${inspec_package}
+        curl https://omnitruck.chef.io/install.sh | sudo bash -s -- -P inspec   
         popd
         inspec version
     }    
