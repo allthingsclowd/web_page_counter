@@ -1,6 +1,6 @@
 language: go
 sudo: required
-dist: xenial
+dist: bionic
 addons:
   apt:
     packages:
@@ -9,9 +9,11 @@ addons:
     - wget -q
     - grep
     - nginx
+    - curl
 go:
 - '1.13'
 before_script:
+- curl https://omnitruck.chef.io/install.sh | sudo bash -s -- -P inspec
 - sudo rsync -az ${TRAVIS_BUILD_DIR}/ /usr/local/bootstrap/
 - pushd packer
 - if [ $VAGRANT_CLOUD_TOKEN ] ; then packer validate -syntax-only template.json ; fi
@@ -42,7 +44,7 @@ script:
 - export CONSUL_CLIENT_KEY=certificate-config/cli-key.pem
 - consul version
 - go version
-- inspec exec test/ImageBuild
+- inspec exec --chef-license=accept test/ImageBuild
 - bash scripts/travis_run_go_app.sh
 deploy:
   provider: releases

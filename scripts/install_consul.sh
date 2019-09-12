@@ -153,11 +153,7 @@ install_chef_inspec () {
     
     [ -f /usr/bin/inspec ] &>/dev/null || {
         pushd /tmp
-        [ -f ${inspec_package} ] || {
-            sudo wget -q ${inspec_package_url}
-        }
-        sudo apt-get install -y ./${inspec_package}
-        sudo rm ${inspec_package}
+        curl https://omnitruck.chef.io/install.sh | sudo bash -s -- -P inspec
         popd
     }    
 
