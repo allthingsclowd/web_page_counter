@@ -57,6 +57,20 @@ resource "vsphere_virtual_machine" "vm01" {
     template_uuid = "${data.vsphere_virtual_machine.template.id}"
 
   }
+
+  provisioner "remote-exec" {
+    inline = [
+        "sudo chmod -R +x /usr/local/bootstrap/scripts",
+        "touch /tmp/startingcloudinit.txt",
+        "sudo /usr/local/bootstrap/scripts/install_consul.sh",
+        "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
+        "sudo /usr/local/bootstrap/scripts/install_vault.sh",
+        "sudo /usr/local/bootstrap/scripts/install_nomad.sh",
+        "sudo /usr/local/bootstrap/scripts/install_SecretID_Factory.sh",
+        "touch /tmp/finishedcloudinit.txt",
+    ]
+  }
+
 } 
 
 resource "vsphere_virtual_machine" "vm02" {
@@ -85,6 +99,20 @@ resource "vsphere_virtual_machine" "vm02" {
     template_uuid = "${data.vsphere_virtual_machine.template.id}"
 
   }
+  
+  provisioner "remote-exec" {
+    inline = [
+        "sudo chmod -R +x /usr/local/bootstrap/scripts",
+        "touch /tmp/startingcloudinit.txt",
+        "sudo /usr/local/bootstrap/scripts/install_consul.sh",
+        "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
+        "sudo /usr/local/bootstrap/scripts/install_vault.sh",
+        "sudo /usr/local/bootstrap/scripts/install_nomad.sh",
+        "sudo /usr/local/bootstrap/scripts/install_SecretID_Factory.sh",
+        "touch /tmp/finishedcloudinit.txt",
+    ]
+  }
+
 } 
 
 resource "vsphere_virtual_machine" "vm03" {
@@ -113,6 +141,21 @@ resource "vsphere_virtual_machine" "vm03" {
     template_uuid = "${data.vsphere_virtual_machine.template.id}"
 
   }
+
+  provisioner "remote-exec" {
+    inline = [
+        "sudo chmod -R +x /usr/local/bootstrap/scripts",
+        "touch /tmp/startingcloudinit.txt",
+        "sudo /usr/local/bootstrap/scripts/install_consul.sh",
+        "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
+        "sudo /usr/local/bootstrap/scripts/install_vault.sh",
+        "sudo /usr/local/bootstrap/scripts/install_nomad.sh",
+        "sudo /usr/local/bootstrap/scripts/install_SecretID_Factory.sh",
+        "touch /tmp/finishedcloudinit.txt",
+    ]
+  }
+
+
 } 
 
 resource "vsphere_virtual_machine" "vm04" {
@@ -141,6 +184,21 @@ resource "vsphere_virtual_machine" "vm04" {
     template_uuid = "${data.vsphere_virtual_machine.template.id}"
 
   }
+
+  provisioner "remote-exec" {
+    inline = [
+        "sudo chmod -R +x /usr/local/bootstrap/scripts",
+        "touch /tmp/startingcloudinit.txt",
+        "sudo /usr/local/bootstrap/scripts/install_consul.sh",
+        "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
+        "sudo /usr/local/bootstrap/scripts/install_vault.sh",
+        "sudo /usr/local/bootstrap/scripts/install_nomad.sh",
+        "sudo /usr/local/bootstrap/scripts/install_SecretID_Factory.sh",
+        "touch /tmp/finishedcloudinit.txt",
+    ]
+  }
+
+
 } 
 
 resource "vsphere_virtual_machine" "vm05" {
@@ -169,4 +227,18 @@ resource "vsphere_virtual_machine" "vm05" {
     template_uuid = "${data.vsphere_virtual_machine.template.id}"
 
   }
+
+  provisioner "remote-exec" {
+    inline = [
+        "sudo chmod -R +x /usr/local/bootstrap/scripts",
+        "touch /tmp/startingcloudinit.txt",
+        "sudo /usr/local/bootstrap/scripts/install_consul.sh",
+        "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
+        "sudo /usr/local/bootstrap/scripts/install_vault.sh",
+        "sudo /usr/local/bootstrap/scripts/install_nomad.sh",
+        "sudo /usr/local/bootstrap/scripts/install_SecretID_Factory.sh",
+        "touch /tmp/finishedcloudinit.txt",
+    ]
+  }  
+
 } 
