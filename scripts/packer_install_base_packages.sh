@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Binary versions to check for
-consul_version=1.6.0
+consul_version=1.6.1
 vault_version=1.2.2
 nomad_version=0.9.5
 terraform_version=0.12.8
