@@ -324,13 +324,29 @@
     }
   ],
   "post-processors": [
+      [
+        {
+          "type": "vagrant",
+          "keep_input_artifact": true,
+          "output": "{{.BuildName}}.box",
+          "only": ["{{ user `build_name` }}-vbox"]
+        },
+        {
+          "type": "vagrant-cloud",
+          "box_tag": "{{user `name`}}",
+          "access_token": "{{user `cloud_token`}}",
+          "version": "{{user `version`}}",
+          "only": ["{{ user `build_name` }}-vbox"]
+        }
+      ],
       {
         "type": "vsphere-template",
         "host": "192.168.2.98",
         "insecure": true,
         "username": "{{user `remote_vcentre_user`}}",
         "password": "{{user `remote_vcentre_password`}}",
-        "folder": "/packer_templates/wpc"
+        "folder": "/packer_templates/wpc",
+        "only": ["{{ user `build_name` }}-vmware"]
      }
   ]
 }

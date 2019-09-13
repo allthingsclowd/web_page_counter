@@ -65,7 +65,7 @@ control 'consul-binary-version-1.0' do
   title 'consul binary version check'
   desc 'verify that the consul binary is the correct version'
   describe command('consul version') do
-   its('stdout') { should match /Consul v1.6.0/ }
+   its('stdout') { should match /Consul v1.6.1/ }
   end
 end
 
