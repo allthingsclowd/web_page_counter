@@ -324,6 +324,19 @@
     }
   ],
   "post-processors": [
+      [
+        {
+          "type": "vagrant",
+          "keep_input_artifact": true,
+          "output": "{{.BuildName}}.box"
+        },
+        {
+          "type": "vagrant-cloud",
+          "box_tag": "{{user `name`}}",
+          "access_token": "{{user `cloud_token`}}",
+          "version": "{{user `version`}}"
+        }
+      ],
       {
         "type": "vsphere-template",
         "host": "192.168.2.98",
