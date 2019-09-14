@@ -315,7 +315,7 @@ restart_consul () {
     else
         sudo systemctl restart consul
         sleep 15
-        sudo systemctl status consul
+        #sudo systemctl status consul
     fi
     
   

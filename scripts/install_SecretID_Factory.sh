@@ -130,7 +130,7 @@ start_app_proxy_service () {
   create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/usr/local/bootstrap/certificate-config/consul-ca.pem -client-cert=/usr/local/bootstrap/certificate-config/cli.pem -client-key=/usr/local/bootstrap/certificate-config/cli-key.pem -token=${AGENTTOKEN} -sidecar-for ${1}"
   sudo usermod -a -G consulcerts ${1}
   sudo systemctl start ${1}
-  sudo systemctl status ${1}
+  #sudo systemctl status ${1}
   echo "${1} Proxy App Service Build Complete"
 }
 
@@ -145,7 +145,7 @@ start_client_proxy_service () {
     create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/usr/local/bootstrap/certificate-config/consul-ca.pem -client-cert=/usr/local/bootstrap/certificate-config/cli.pem -client-key=/usr/local/bootstrap/certificate-config/cli-key.pem -token=${AGENTTOKEN} -service ${1} -upstream ${3}:${4}"
     sudo usermod -a -G consulcerts ${1}
     sudo systemctl start ${1}
-    sudo systemctl status ${1}
+    #sudo systemctl status ${1}
     echo "${1} Proxy Client Service Build Complete"
 }
 
@@ -217,7 +217,7 @@ install_go_application () {
     if [ ! "${TRAVIS}" == "true" ]; then
         create_service factory "SecretID Factory Service" "/usr/local/bin/VaultServiceIDFactory -ip=127.0.0.1 -vault=\"${VAULT_ADDR}\""
         sudo systemctl start factory
-        sudo systemctl status factory
+        #sudo systemctl status factory
         register_secret_id_service_with_consul
     else
         sudo /usr/local/bin/VaultServiceIDFactory -vault="${VAULT_ADDR}" &> ${LOG} &

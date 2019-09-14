@@ -119,7 +119,7 @@ control 'vault-binary-version-1.0' do
   title 'vault binary version check'
   desc 'verify that the vault binary is the correct version'
   describe command('vault version') do
-   its('stdout') { should match /v1.2.2/ }
+   its('stdout') { should match /v1.2.3/ }
   end
 end
 

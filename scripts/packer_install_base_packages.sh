@@ -2,7 +2,7 @@
 
 # Binary versions to check for
 consul_version=1.6.1
-vault_version=1.2.2
+vault_version=1.2.3
 nomad_version=0.9.5
 terraform_version=0.12.8
 consul_template_version=0.21.3

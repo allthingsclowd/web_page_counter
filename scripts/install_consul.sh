@@ -208,7 +208,7 @@ install_consul () {
         sudo -u consul cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
         # sudo -u consul /usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
         sudo systemctl start consul
-        sudo systemctl status consul
+        ##sudo systemctl status consul
       fi
       sleep 15
       # upload vars to consul kv
@@ -229,7 +229,9 @@ install_consul () {
         # ensure consul service has permissions to access certificates
         sudo usermod -a -G consulcerts consul
         sudo systemctl start consul
-        sudo systemctl status consul
+        echo $HOSTNAME
+        hostname
+        ##sudo systemctl status consul
         sleep 15
     }
   fi
