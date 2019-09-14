@@ -502,7 +502,7 @@ install_vault () {
             create_service vault "HashiCorp's Sercret Management Service" "/usr/local/bin/vault server -dev -dev-root-token-id="reallystrongpassword" -dev-listen-address=${IP}:8200 -config=/usr/local/bootstrap/conf/vault.d/vault.hcl"
             sudo usermod -a -G consulcerts vault
             sudo systemctl start vault
-            sudo systemctl status vault
+            #sudo systemctl status vault
         fi
         echo vault started
         sleep 15 
