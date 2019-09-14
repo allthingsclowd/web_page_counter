@@ -22,7 +22,7 @@ data "vsphere_resource_pool" "pool" {
 }
 
 data "vsphere_network" "network" {
-  name          = "DC1 Port Group"
+  name          = "DC1 VM Network"
   datacenter_id = "${data.vsphere_datacenter.dc.id}"
 }
 
@@ -31,7 +31,7 @@ data "vsphere_virtual_machine" "template" {
   datacenter_id = "${data.vsphere_datacenter.dc.id}"
 }
 
-resource "vsphere_virtual_machine" "vm01" {
+resource "vsphere_virtual_machine" "leader01vm" {
   name             = "leader01"
   resource_pool_id = "${data.vsphere_resource_pool.pool.id}"
   datastore_id     = "${data.vsphere_datastore.datastore.id}"
@@ -59,21 +59,53 @@ resource "vsphere_virtual_machine" "vm01" {
   }
 
   provisioner "remote-exec" {
+    
+    connection {
+        type     = "ssh"
+        user     = "vagrant"
+        password = "vagrant"
+        host = "${self.default_ip_address}"
+    }
+
     inline = [
         "sudo chmod -R +x /usr/local/bootstrap/scripts",
-        "touch /tmp/startingcloudinit.txt",
-        "sudo /usr/local/bootstrap/scripts/install_consul.sh",
-        "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
-        "sudo /usr/local/bootstrap/scripts/install_vault.sh",
-        "sudo /usr/local/bootstrap/scripts/install_nomad.sh",
-        "sudo /usr/local/bootstrap/scripts/install_SecretID_Factory.sh",
-        "touch /tmp/finishedcloudinit.txt",
+        "touch /tmp/cloudinit-start.txt",
     ]
   }
 
-} 
+  provisioner "remote-exec" {
+    
+    connection {
+        type     = "ssh"
+        user     = "vagrant"
+        password = "vagrant"
+        host = "${self.default_ip_address}"
+    }
 
-resource "vsphere_virtual_machine" "vm02" {
+    scripts = [
+            "sudo /usr/local/bootstrap/scripts/install_consul.sh",
+            "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
+            "sudo /usr/local/bootstrap/scripts/install_vault.sh",
+            "sudo /usr/local/bootstrap/scripts/install_SecretID_Factory.sh",
+        ]
+   }
+
+  provisioner "remote-exec" {
+
+    connection {
+        type     = "ssh"
+        user     = "vagrant"
+        password = "vagrant"
+        host = "${self.default_ip_address}"
+    }
+
+    inline = [
+        "touch /tmp/cloudinit-finish.txt",
+    ]
+  }
+}
+
+resource "vsphere_virtual_machine" "redis01vm" {
   name             = "redis01"
   resource_pool_id = "${data.vsphere_resource_pool.pool.id}"
   datastore_id     = "${data.vsphere_datastore.datastore.id}"
@@ -99,23 +131,58 @@ resource "vsphere_virtual_machine" "vm02" {
     template_uuid = "${data.vsphere_virtual_machine.template.id}"
 
   }
-  
+
   provisioner "remote-exec" {
+    
+    connection {
+        type     = "ssh"
+        user     = "vagrant"
+        password = "vagrant"
+        host = "${self.default_ip_address}"
+    }
+
     inline = [
         "sudo chmod -R +x /usr/local/bootstrap/scripts",
-        "touch /tmp/startingcloudinit.txt",
-        "sudo /usr/local/bootstrap/scripts/install_consul.sh",
-        "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
-        "sudo /usr/local/bootstrap/scripts/install_vault.sh",
-        "sudo /usr/local/bootstrap/scripts/install_nomad.sh",
-        "sudo /usr/local/bootstrap/scripts/install_SecretID_Factory.sh",
-        "touch /tmp/finishedcloudinit.txt",
+        "touch /tmp/cloudinit-start.txt",
     ]
   }
 
+  provisioner "remote-exec" {
+    
+    connection {
+        type     = "ssh"
+        user     = "vagrant"
+        password = "vagrant"
+        host = "${self.default_ip_address}"
+    }
+
+    scripts = [
+        "sudo /usr/local/bootstrap/scripts/install_consul.sh",
+        "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
+        "sudo /usr/local/bootstrap/scripts/install_vault.sh",
+        "sudo /usr/local/bootstrap/scripts/install_redis.sh",
+    ]
+  }
+
+  provisioner "remote-exec" {
+
+    connection {
+        type     = "ssh"
+        user     = "vagrant"
+        password = "vagrant"
+        host = "${self.default_ip_address}"
+    }
+
+    inline = [
+        "touch /tmp/cloudinit-finish.txt",
+    ]
+  }  
+
+  depends_on = ["vsphere_virtual_machine.leader01vm"]
+
 } 
 
-resource "vsphere_virtual_machine" "vm03" {
+resource "vsphere_virtual_machine" "godev01vm" {
   name             = "godev01"
   resource_pool_id = "${data.vsphere_resource_pool.pool.id}"
   datastore_id     = "${data.vsphere_datastore.datastore.id}"
@@ -143,22 +210,57 @@ resource "vsphere_virtual_machine" "vm03" {
   }
 
   provisioner "remote-exec" {
+    
+    connection {
+        type     = "ssh"
+        user     = "vagrant"
+        password = "vagrant"
+        host = "${self.default_ip_address}"
+    }
+
     inline = [
         "sudo chmod -R +x /usr/local/bootstrap/scripts",
-        "touch /tmp/startingcloudinit.txt",
+        "touch /tmp/cloudinit-start.txt",
+    ]
+  }
+
+  provisioner "remote-exec" {
+    
+    connection {
+        type     = "ssh"
+        user     = "vagrant"
+        password = "vagrant"
+        host = "${self.default_ip_address}"
+    }
+
+    scripts = [
         "sudo /usr/local/bootstrap/scripts/install_consul.sh",
         "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
         "sudo /usr/local/bootstrap/scripts/install_vault.sh",
         "sudo /usr/local/bootstrap/scripts/install_nomad.sh",
-        "sudo /usr/local/bootstrap/scripts/install_SecretID_Factory.sh",
-        "touch /tmp/finishedcloudinit.txt",
+        "sudo /usr/local/bootstrap/scripts/install_go_app.sh",
     ]
   }
 
+  provisioner "remote-exec" {
+
+    connection {
+        type     = "ssh"
+        user     = "vagrant"
+        password = "vagrant"
+        host = "${self.default_ip_address}"
+    }
+
+    inline = [
+        "touch /tmp/cloudinit-finish.txt",
+    ]
+  }  
+
+  depends_on = ["vsphere_virtual_machine.leader01vm", "vsphere_virtual_machine.redis01vm"]
 
 } 
 
-resource "vsphere_virtual_machine" "vm04" {
+resource "vsphere_virtual_machine" "godev02vm" {
   name             = "godev02"
   resource_pool_id = "${data.vsphere_resource_pool.pool.id}"
   datastore_id     = "${data.vsphere_datastore.datastore.id}"
@@ -186,22 +288,57 @@ resource "vsphere_virtual_machine" "vm04" {
   }
 
   provisioner "remote-exec" {
+    
+    connection {
+        type     = "ssh"
+        user     = "vagrant"
+        password = "vagrant"
+        host = "${self.default_ip_address}"
+    }
+
     inline = [
         "sudo chmod -R +x /usr/local/bootstrap/scripts",
-        "touch /tmp/startingcloudinit.txt",
+        "touch /tmp/cloudinit-start.txt",
+    ]
+  }
+
+  provisioner "remote-exec" {
+
+    connection {
+        type     = "ssh"
+        user     = "vagrant"
+        password = "vagrant"
+        host = "${self.default_ip_address}"
+    }
+
+    scripts = [
         "sudo /usr/local/bootstrap/scripts/install_consul.sh",
         "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
         "sudo /usr/local/bootstrap/scripts/install_vault.sh",
         "sudo /usr/local/bootstrap/scripts/install_nomad.sh",
-        "sudo /usr/local/bootstrap/scripts/install_SecretID_Factory.sh",
-        "touch /tmp/finishedcloudinit.txt",
+        "sudo /usr/local/bootstrap/scripts/install_go_app.sh",
+    ]
+  }
+  
+  provisioner "remote-exec" {
+
+    connection {
+        type     = "ssh"
+        user     = "vagrant"
+        password = "vagrant"
+        host = "${self.default_ip_address}"
+    }
+
+    inline = [
+        "touch /tmp/cloudinit-finish.txt",
     ]
   }
 
+  depends_on = ["vsphere_virtual_machine.leader01vm", "vsphere_virtual_machine.redis01vm"]
 
 } 
 
-resource "vsphere_virtual_machine" "vm05" {
+resource "vsphere_virtual_machine" "web01vm" {
   name             = "web01"
   resource_pool_id = "${data.vsphere_resource_pool.pool.id}"
   datastore_id     = "${data.vsphere_datastore.datastore.id}"
@@ -229,16 +366,51 @@ resource "vsphere_virtual_machine" "vm05" {
   }
 
   provisioner "remote-exec" {
+    
+    connection {
+        type     = "ssh"
+        user     = "vagrant"
+        password = "vagrant"
+        host = "${self.default_ip_address}"
+    }
+
     inline = [
         "sudo chmod -R +x /usr/local/bootstrap/scripts",
-        "touch /tmp/startingcloudinit.txt",
+        "touch /tmp/cloudinit-start.txt",
+    ]
+  }  
+
+  provisioner "remote-exec" {
+
+    connection {
+        type     = "ssh"
+        user     = "vagrant"
+        password = "vagrant"
+        host = "${self.default_ip_address}"
+    }
+
+    scripts = [
         "sudo /usr/local/bootstrap/scripts/install_consul.sh",
         "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
         "sudo /usr/local/bootstrap/scripts/install_vault.sh",
-        "sudo /usr/local/bootstrap/scripts/install_nomad.sh",
-        "sudo /usr/local/bootstrap/scripts/install_SecretID_Factory.sh",
-        "touch /tmp/finishedcloudinit.txt",
+        "sudo /usr/local/bootstrap/scripts/install_webserver.sh",
+    ]
+  }
+
+  provisioner "remote-exec" {
+
+    connection {
+        type     = "ssh"
+        user     = "vagrant"
+        password = "vagrant"
+        host = "${self.default_ip_address}"
+    }
+
+    inline = [
+        "touch /tmp/cloudinit-finish.txt",
     ]
   }  
+
+  depends_on = ["vsphere_virtual_machine.godev01vm", "vsphere_virtual_machine.godev02vm"]  
 
 } 
