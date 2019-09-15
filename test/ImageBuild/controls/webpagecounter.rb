@@ -176,3 +176,30 @@ control 'golang-version-1.0' do
    its('stdout') { should match /go1.13/ }
   end
 end
+
+control 'secret-id' do         
+  impact 1.0                      
+  title 'secret-id binary'
+  desc 'verify that secret-id is installed'
+  describe file('/usr/local/bin/VaultServiceIDFactory') do 
+    it { should exist }
+  end
+end
+
+control 'web-page-counter' do         
+  impact 1.0                      
+  title 'web-page-counter exists'
+  desc 'verify that web-page-counter is installed'
+  describe file('/usr/local/bin/webcounter') do 
+    it { should exist }
+  end
+end
+
+control 'web-front-end' do         
+  impact 1.0                      
+  title 'web front-end installed'
+  desc 'verify that the angular web front-end is installed'
+  describe file('/var/www/wpc-fe/index.html') do 
+    it { should exist }
+  end
+end

@@ -94,28 +94,27 @@ EOF
 
 # Added loop below to overcome Travis-CI download issue
 RETRYDOWNLOAD="1"
-
-while [ ${RETRYDOWNLOAD} -lt 5 ] && [ ! -d /var/www/wpc-fe ]
-do
-    sudo mkdir -p /tmp/wpc-fe
-    pushd /tmp/wpc-fe
-    echo 'Web Front end Download' 
+sudo mkdir -p /tmp/wpc-fe
+pushd /tmp/wpc-fe
+while [ ${RETRYDOWNLOAD} -lt 10 ] && [ ! -f /var/www/wpc-fe/index.html ]
+do 
+    echo "Web Front End Download - Take ${RETRYDOWNLOAD}"
     # download binary and template file from latest release
     sudo bash -c 'curl -s -L https://api.github.com/repos/allthingsclowd/wep_page_counter_front-end/releases/latest \
     | grep "browser_download_url" \
     | cut -d : -f 2,3 \
     | tr -d \" | wget -q -i - '
-    sudo tar -xvf webcounterpagefrontend.tar.gz -C /var/www
-    popd
+    [ -f webcounterpagefrontend.tar.gz ] && sudo tar -xvf webcounterpagefrontend.tar.gz -C /var/www
     RETRYDOWNLOAD=$[${RETRYDOWNLOAD}+1]
     sleep 5
 done
 
+popd
 
 [  -f /var/www/wpc-fe/index.html  ] &>/dev/null || {
-     echo 'Web Front End Download Failed'
-     exit 1
-}
+    echo 'Web Front End Download Failed'
+    exit 1
+} 
 
 # Configure LBaaS Public IP for WebFrontend
 sudo sed -i 's/window.__env.apiUrl =.*;/window.__env.apiUrl = "'${NGINX_PUBLIC_IP}'";/g' /var/www/wpc-fe/env.js

@@ -41,7 +41,7 @@ install_factory_secretid_binaries () {
     pushd /usr/local/bin
     while [ ${RETRYDOWNLOAD} -lt 10 ] && [ ! -f /usr/local/bin/VaultServiceIDFactory ]
     do
-        echo 'Vault SecretID Service Download - Take ${RETRYDOWNLOAD}' 
+        echo "Vault SecretID Service Download - Take ${RETRYDOWNLOAD}"
         # download binary and template file from latest release
         sudo bash -c 'curl -s -L https://api.github.com/repos/allthingsclowd/VaultServiceIDFactory/releases/latest \
         | grep "browser_download_url" \
@@ -65,25 +65,26 @@ install_web_front_end_binaries () {
     RETRYDOWNLOAD="1"
     sudo mkdir -p /tmp/wpc-fe
     pushd /tmp/wpc-fe
-    while [ ${RETRYDOWNLOAD} -lt 5 ] && [ ! -d /var/www/wpc-fe ]
-    do
-        echo 'Web Front end Download' 
+    while [ ${RETRYDOWNLOAD} -lt 10 ] && [ ! -f /var/www/wpc-fe/index.html ]
+    do 
+        echo "Web Front End Download - Take ${RETRYDOWNLOAD}"
         # download binary and template file from latest release
         sudo bash -c 'curl -s -L https://api.github.com/repos/allthingsclowd/wep_page_counter_front-end/releases/latest \
         | grep "browser_download_url" \
         | cut -d : -f 2,3 \
         | tr -d \" | wget -q -i - '
+        [ -f webcounterpagefrontend.tar.gz ] && sudo tar -xvf webcounterpagefrontend.tar.gz -C /var/www
         RETRYDOWNLOAD=$[${RETRYDOWNLOAD}+1]
         sleep 5
     done
+
+    popd
 
     [  -f /var/www/wpc-fe/index.html  ] &>/dev/null || {
         echo 'Web Front End Download Failed'
         exit 1
     } 
-
-    sudo tar -xvf webcounterpagefrontend.tar.gz -C /var/www
-    popd   
+   
 }
 
 
