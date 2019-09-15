@@ -126,22 +126,34 @@ start_client_proxy_service goclientproxy "SecretID Service Client Proxy" "approl
 # create intention to connect from goapp to secret-id service
 create_intention_between_services "goclientproxy" "approle"
 
-# download binary and template file from latest release
-curl -s -L https://api.github.com/repos/allthingsclowd/web_page_counter/releases/latest \
-| grep "browser_download_url" \
-| cut -d : -f 2,3 \
-| tr -d \" | wget -q -i -
+# Added loop below to overcome Travis-CI/Github download issue
+RETRYDOWNLOAD="1"
+pushd /usr/local/bin
+while [ ${RETRYDOWNLOAD} -lt 10 ] && [ ! -f /usr/local/bin/webcounter ]
+do
+    echo 'Vault SecretID Service Download - Take ${RETRYDOWNLOAD}' 
+    # download binary and template file from latest release
+    sudo bash -c 'curl -s -L https://api.github.com/repos/allthingsclowd/web_page_counter/releases/latest \
+    | grep "browser_download_url" \
+    | cut -d : -f 2,3 \
+    | tr -d \" | wget -q -i - '
+    RETRYDOWNLOAD=$[${RETRYDOWNLOAD}+1]
+    sleep 5
+done
 
-[[ -d /usr/local/bin/templates ]] || mkdir /usr/local/bin/templates
+[  -f /usr/local/bin/webcounter  ] &>/dev/null || {
+    echo 'Failed to download Vault Secret ID Factory Service'
+    exit 1
+}
+
+sudo chmod +x /usr/local/bin/webcounter
+popd
+
+# copy application verification test for nomad/consul
+cp /usr/local/bootstrap/scripts/consul_goapp_verify.sh /usr/local/bin/.
 
 nomad job stop webpagecounter &>/dev/null
 killall webcounter &>/dev/null
-mv webcounter /usr/local/bin/.
-chmod +x /usr/local/bin/webcounter
-
-cp /usr/local/bootstrap/scripts/consul_goapp_verify.sh /usr/local/bin/.
-
-# 's/:50K.*:53B/:50KCREDIT:53B/g' "-consulACL=5b3ec9a9-4791-3871-63f5-dbfc43edfe41"
 
 sed -i 's/consulACL=.*",/consulACL='${CONSUL_HTTP_TOKEN}'",/g' /usr/local/bootstrap/scripts/nomad_job.hcl
 sed -i 's/consulIp=.*"/consulIp='${LEADER_IP}':8321"/g' /usr/local/bootstrap/scripts/nomad_job.hcl

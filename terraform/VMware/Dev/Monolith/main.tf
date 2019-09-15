@@ -56,11 +56,19 @@ resource "vsphere_virtual_machine" "leader01vm" {
   clone {
     template_uuid = "${data.vsphere_virtual_machine.template.id}"
     customize {
-    network_interface {}
-        linux_options {
-            host_name = "leader01"
-            domain    = "allthingscloud.eu"
-        }
+      network_interface {
+        ipv4_address = "192.168.9.11"
+        ipv4_netmask = 24        
+      }
+
+      ipv4_gateway = "192.168.9.1"
+
+      dns_server_list = ["8.8.8.8","8.8.4.4"]
+    
+      linux_options {
+        host_name = "leader01"
+        domain    = "allthingscloud.eu"
+      }
     }    
 
   }
@@ -111,29 +119,19 @@ resource "vsphere_virtual_machine" "redis01vm" {
   clone {
     template_uuid = "${data.vsphere_virtual_machine.template.id}"
     customize {
-    network_interface {}
-        linux_options {
-            host_name = "redis01"
-            domain    = "allthingscloud.eu"
-        }
-    }    
+      network_interface {        
+      }
 
-  }
+      ipv4_gateway = "192.168.9.1"
 
-  provisioner "remote-exec" {
+      dns_server_list = ["8.8.8.8","8.8.4.4"]
     
-    connection {
-        type     = "ssh"
-        user     = "vagrant"
-        password = "vagrant"
-        host = "${self.default_ip_address}"
-    }
+      linux_options {
+        host_name = "redis01"
+        domain    = "allthingscloud.eu"
+      }
+    }     
 
-    inline = [
-        "sudo chmod -R +x /usr/local/bootstrap/scripts",
-        "touch /tmp/cloudinit-start.txt",
-
-    ]
   }
 
   provisioner "remote-exec" {
@@ -146,26 +144,11 @@ resource "vsphere_virtual_machine" "redis01vm" {
     }
 
     scripts = [
-        "sudo /usr/local/bootstrap/scripts/install_consul.sh",
-        "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
-        "sudo /usr/local/bootstrap/scripts/install_vault.sh",
-        "sudo /usr/local/bootstrap/scripts/install_redis.sh",
-    ]
-  }
-
-  provisioner "remote-exec" {
-
-    connection {
-        type     = "ssh"
-        user     = "vagrant"
-        password = "vagrant"
-        host = "${self.default_ip_address}"
-    }
-
-    inline = [
-        "touch /tmp/cloudinit-finish.txt",
+        "/Users/grazzer/vagrant_workspace/pipeline/scripts/install_redis.sh",
     ]
   }  
+
+
 
   depends_on = ["vsphere_virtual_machine.leader01vm"]
 
@@ -196,11 +179,17 @@ resource "vsphere_virtual_machine" "godev01vm" {
   clone {
     template_uuid = "${data.vsphere_virtual_machine.template.id}"
     customize {
+      network_interface {       
+      }
 
-        linux_options {
-            host_name = "godev01"
-            domain    = "allthingscloud.eu"
-        }
+      ipv4_gateway = "192.168.9.1"
+
+      dns_server_list = ["8.8.8.8","8.8.4.4"]
+    
+      linux_options {
+        host_name = "godev01"
+        domain    = "allthingscloud.eu"
+      }
     }    
 
   }
@@ -215,42 +204,15 @@ resource "vsphere_virtual_machine" "godev01vm" {
     }
 
     inline = [
-        "sudo chmod -R +x /usr/local/bootstrap/scripts",
         "touch /tmp/cloudinit-start.txt",
-    ]
-  }
-
-  provisioner "remote-exec" {
-    
-    connection {
-        type     = "ssh"
-        user     = "vagrant"
-        password = "vagrant"
-        host = "${self.default_ip_address}"
-    }
-
-    scripts = [
         "sudo /usr/local/bootstrap/scripts/install_consul.sh",
         "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
         "sudo /usr/local/bootstrap/scripts/install_vault.sh",
         "sudo /usr/local/bootstrap/scripts/install_nomad.sh",
         "sudo /usr/local/bootstrap/scripts/install_go_app.sh",
-    ]
-  }
-
-  provisioner "remote-exec" {
-
-    connection {
-        type     = "ssh"
-        user     = "vagrant"
-        password = "vagrant"
-        host = "${self.default_ip_address}"
-    }
-
-    inline = [
         "touch /tmp/cloudinit-finish.txt",
     ]
-  }  
+  }   
 
   depends_on = ["vsphere_virtual_machine.leader01vm", "vsphere_virtual_machine.redis01vm"]
 
@@ -281,12 +243,18 @@ resource "vsphere_virtual_machine" "godev02vm" {
   clone {
     template_uuid = "${data.vsphere_virtual_machine.template.id}"
     customize {
-    network_interface {}
-        linux_options {
-            host_name = "godev02"
-            domain    = "allthingscloud.eu"
-        }
-    }
+      network_interface {       
+      }
+
+      ipv4_gateway = "192.168.9.1"
+
+      dns_server_list = ["8.8.8.8","8.8.4.4"]
+    
+      linux_options {
+        host_name = "godev02"
+        domain    = "allthingscloud.eu"
+      }
+    } 
   }
 
   provisioner "remote-exec" {
@@ -299,42 +267,15 @@ resource "vsphere_virtual_machine" "godev02vm" {
     }
 
     inline = [
-        "sudo chmod -R +x /usr/local/bootstrap/scripts",
         "touch /tmp/cloudinit-start.txt",
-    ]
-  }
-
-  provisioner "remote-exec" {
-
-    connection {
-        type     = "ssh"
-        user     = "vagrant"
-        password = "vagrant"
-        host = "${self.default_ip_address}"
-    }
-
-    scripts = [
         "sudo /usr/local/bootstrap/scripts/install_consul.sh",
         "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
         "sudo /usr/local/bootstrap/scripts/install_vault.sh",
         "sudo /usr/local/bootstrap/scripts/install_nomad.sh",
         "sudo /usr/local/bootstrap/scripts/install_go_app.sh",
-    ]
-  }
-  
-  provisioner "remote-exec" {
-
-    connection {
-        type     = "ssh"
-        user     = "vagrant"
-        password = "vagrant"
-        host = "${self.default_ip_address}"
-    }
-
-    inline = [
         "touch /tmp/cloudinit-finish.txt",
     ]
-  }
+  }   
 
   depends_on = ["vsphere_virtual_machine.leader01vm", "vsphere_virtual_machine.redis01vm"]
 
@@ -365,11 +306,17 @@ resource "vsphere_virtual_machine" "web01vm" {
   clone {
     template_uuid = "${data.vsphere_virtual_machine.template.id}"
     customize {
-    network_interface {}
-        linux_options {
-            host_name = "web01"
-            domain    = "allthingscloud.eu"
-        }
+      network_interface {       
+      }
+
+      ipv4_gateway = "192.168.9.1"
+
+      dns_server_list = ["8.8.8.8","8.8.4.4"]
+    
+      linux_options {
+        host_name = "web01"
+        domain    = "allthingscloud.eu"
+      }
     }    
 
   }
@@ -384,42 +331,14 @@ resource "vsphere_virtual_machine" "web01vm" {
     }
 
     inline = [
-        "sudo chmod -R +x /usr/local/bootstrap/scripts",
         "touch /tmp/cloudinit-start.txt",
-        "sudo /usr/local/bootstrap/scripts/install_consul.sh",
-    ]
-  }  
-
-  provisioner "remote-exec" {
-
-    connection {
-        type     = "ssh"
-        user     = "vagrant"
-        password = "vagrant"
-        host = "${self.default_ip_address}"
-    }
-
-    scripts = [
         "sudo /usr/local/bootstrap/scripts/install_consul.sh",
         "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
         "sudo /usr/local/bootstrap/scripts/install_vault.sh",
         "sudo /usr/local/bootstrap/scripts/install_webserver.sh",
-    ]
-  }
-
-  provisioner "remote-exec" {
-
-    connection {
-        type     = "ssh"
-        user     = "vagrant"
-        password = "vagrant"
-        host = "${self.default_ip_address}"
-    }
-
-    inline = [
         "touch /tmp/cloudinit-finish.txt",
     ]
-  }  
+  }   
 
   depends_on = ["vsphere_virtual_machine.godev01vm", "vsphere_virtual_machine.godev02vm"]  
 
