@@ -30,6 +30,8 @@ VaultServiceIDFactory
 *.ovf
 *.mf
 *.nvram
+plan
+
 
 
 
