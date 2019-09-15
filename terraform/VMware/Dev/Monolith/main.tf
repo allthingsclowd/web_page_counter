@@ -167,9 +167,14 @@ resource "vsphere_virtual_machine" "redis01vm" {
         host = "${self.default_ip_address}"
     }
 
-    scripts = [
-        "/Users/grazzer/vagrant_workspace/pipeline/scripts/install_redis.sh",
-    ]
+    inline = [
+        "touch /tmp/cloudinit-start.txt",
+        "sudo /usr/local/bootstrap/scripts/install_consul.sh",
+        "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
+        "sudo /usr/local/bootstrap/scripts/install_vault.sh",
+        "sudo /usr/local/bootstrap/scripts/install_redis.sh",
+        "touch /tmp/cloudinit-finish.txt",
+    ]    
   }  
 
 
