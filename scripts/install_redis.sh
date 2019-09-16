@@ -203,7 +203,6 @@ configure_redis () {
   fi
 
   sleep 15
-  sudo service redis-server status
   echo "Redis Server Build Complete"
 
 }

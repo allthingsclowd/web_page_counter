@@ -10,6 +10,84 @@ env_consul_version=0.9.0
 golang_version=1.13
 # TODO: Add checksums to ensure integrity of binaries downloaded
 
+install_webpagecounter_binaries () {
+    # Added loop below to overcome Travis-CI/Github download issue
+    RETRYDOWNLOAD="1"
+    pushd /usr/local/bin
+    while [ ${RETRYDOWNLOAD} -lt 10 ] && [ ! -f /usr/local/bin/webcounter ]
+    do
+        echo "Webpagecounter Binaries Download - Take ${RETRYDOWNLOAD}" 
+        # download binariesfrom latest release
+        sudo bash -c 'curl -s -L https://api.github.com/repos/allthingsclowd/web_page_counter/releases/latest \
+        | grep "browser_download_url" \
+        | cut -d : -f 2,3 \
+        | tr -d \" | wget -q -i - '
+        RETRYDOWNLOAD=$[${RETRYDOWNLOAD}+1]
+        sleep 5
+    done
+
+    [  -f /usr/local/bin/webcounter  ] &>/dev/null || {
+        echo 'Failed to download webpagecounter binaries from https://api.github.com/repos/allthingsclowd/web_page_counter/releases/latest'
+        exit 1
+    }
+
+    sudo chmod +x /usr/local/bin/webcounter
+    popd    
+}
+
+install_factory_secretid_binaries () {
+    # Added loop below to overcome Travis-CI download issue
+    RETRYDOWNLOAD="1"
+    pushd /usr/local/bin
+    while [ ${RETRYDOWNLOAD} -lt 10 ] && [ ! -f /usr/local/bin/VaultServiceIDFactory ]
+    do
+        echo "Vault SecretID Service Download - Take ${RETRYDOWNLOAD}"
+        # download binary and template file from latest release
+        sudo bash -c 'curl -s -L https://api.github.com/repos/allthingsclowd/VaultServiceIDFactory/releases/latest \
+        | grep "browser_download_url" \
+        | cut -d : -f 2,3 \
+        | tr -d \" | wget -q -i - '
+        RETRYDOWNLOAD=$[${RETRYDOWNLOAD}+1]
+        sleep 5
+    done
+
+    [  -f /usr/local/bin/VaultServiceIDFactory  ] &>/dev/null || {
+        echo 'Failed to download Vault Secret ID Factory Service'
+        exit 1
+    }
+
+    sudo chmod +x /usr/local/bin/VaultServiceIDFactory
+    popd   
+}
+
+install_web_front_end_binaries () {
+    # Added loop below to overcome Travis-CI download issue
+    RETRYDOWNLOAD="1"
+    sudo mkdir -p /tmp/wpc-fe
+    pushd /tmp/wpc-fe
+    while [ ${RETRYDOWNLOAD} -lt 10 ] && [ ! -f /var/www/wpc-fe/index.html ]
+    do 
+        echo "Web Front End Download - Take ${RETRYDOWNLOAD}"
+        # download binary and template file from latest release
+        sudo bash -c 'curl -s -L https://api.github.com/repos/allthingsclowd/wep_page_counter_front-end/releases/latest \
+        | grep "browser_download_url" \
+        | cut -d : -f 2,3 \
+        | tr -d \" | wget -q -i - '
+        [ -f webcounterpagefrontend.tar.gz ] && sudo tar -xvf webcounterpagefrontend.tar.gz -C /var/www
+        RETRYDOWNLOAD=$[${RETRYDOWNLOAD}+1]
+        sleep 5
+    done
+
+    popd
+
+    [  -f /var/www/wpc-fe/index.html  ] &>/dev/null || {
+        echo 'Web Front End Download Failed'
+        exit 1
+    } 
+   
+}
+
+
 install_hashicorp_binaries () {
 
     # check consul binary
@@ -149,6 +227,9 @@ which /usr/local/go &>/dev/null || {
 }
 
 install_hashicorp_binaries
+install_webpagecounter_binaries
+install_factory_secretid_binaries
+install_web_front_end_binaries
 install_chef_inspec
 
 # Reboot with the new kernel
