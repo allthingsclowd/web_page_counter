@@ -270,6 +270,18 @@ resource "vsphere_virtual_machine" "web01vm" {
 
   }
 
+  provisioner "file" {
+    source      = "/Users/grazzer/vagrant_workspace/pipeline/var.env"
+    destination = "/usr/local/bootstrap/var.env"
+
+    connection {
+        type     = "ssh"
+        user     = "vagrant"
+        password = "vagrant"
+        host = "${self.default_ip_address}"
+    }
+  }
+
   provisioner "remote-exec" {
     
     connection {
