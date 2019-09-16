@@ -16,7 +16,7 @@ install_webpagecounter_binaries () {
     pushd /usr/local/bin
     while [ ${RETRYDOWNLOAD} -lt 10 ] && [ ! -f /usr/local/bin/webcounter ]
     do
-        echo 'Webpagecounter Binaries Download - Take ${RETRYDOWNLOAD}' 
+        echo "Webpagecounter Binaries Download - Take ${RETRYDOWNLOAD}" 
         # download binariesfrom latest release
         sudo bash -c 'curl -s -L https://api.github.com/repos/allthingsclowd/web_page_counter/releases/latest \
         | grep "browser_download_url" \
