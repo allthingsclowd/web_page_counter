@@ -98,6 +98,12 @@ setup_environment () {
     BOOTSTRAPACL=`cat /usr/local/bootstrap/.bootstrap_acl`
     export CONSUL_HTTP_TOKEN=${BOOTSTRAPACL}
 
+    export VAULT_TOKEN=reallystrongpassword
+    export VAULT_ADDR=https://192.168.9.11:8322
+    export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
+    export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
+    export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
+
     echo 'End Setup of Vault Environment'
 }
 
@@ -292,6 +298,9 @@ EOF
     # Create the approle backend
     curl \
         --location \
+        --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
+        --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
+        --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
         --request POST \
         --data @approle.json \
@@ -307,6 +316,9 @@ EOF
     # Write the policy
     curl \
         --location \
+        --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
+        --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
+        --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \        
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
         --request PUT \
         --data @id-factory-secret-read.json \
@@ -315,6 +327,9 @@ EOF
     # List ACL policies
     sudo curl \
         --location \
+        --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
+        --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
+        --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \        
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
         --request LIST \
         ${VAULT_ADDR}/v1/sys/policy | jq .
@@ -351,6 +366,9 @@ EOF
         # Create the AppRole role
         curl \
             --location \
+            --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
+            --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
+            --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
             --header "X-Vault-Token: ${VAULT_TOKEN}" \
             --request POST \
             --data @id-factory-approle-role.json \
@@ -359,6 +377,9 @@ EOF
         # Update the static AppRole role-id
         curl \
             --location \
+            --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
+            --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
+            --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
             --header "X-Vault-Token: ${VAULT_TOKEN}" \
             --request POST \
             --data @id-factory-static-role-id.json \
@@ -406,6 +427,11 @@ get_approle_id () {
 bootstrap_secret_data () {
     
     echo 'Set environmental bootstrapping data in VAULT'
+    export VAULT_TOKEN=reallystrongpassword
+    export VAULT_ADDR=https://192.168.9.11:8322
+    export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
+    export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
+    export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
     REDIS_MASTER_PASSWORD=`openssl rand -base64 32`
     APPROLEID=`cat /usr/local/bootstrap/.appRoleID`
     DB_VAULT_TOKEN=`cat /usr/local/bootstrap/.database-token`
@@ -490,16 +516,23 @@ install_vault () {
         #delete old token if present
         [ -f /usr/local/bootstrap/.vault-token ] && sudo rm /usr/local/bootstrap/.vault-token
 
+        # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
+        sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server-key.pem /etc/pki/tls/private/hashistack-server-key.pem
+        sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server.pem /etc/pki/tls/certs/hashistack-server.pem
+        sudo groupadd consulcerts
+        sudo chgrp -R consulcerts /etc/pki/tls /etc/vault.d
+        sudo chmod -R 770 /etc/pki/tls /etc/vault.d
+        create_service_user vault
+        sudo usermod -a -G consulcerts vault
+        sudo -u vault cp -r /usr/local/bootstrap/conf/vault.d/* /etc/vault.d/.
+
         #start vault
         if [ "${TRAVIS}" == "true" ]; then
-            create_service_user vault
-            sudo usermod -a -G consulcerts vault
-            sudo -u vault cp -r /usr/local/bootstrap/conf/vault.d/* /etc/vault.d/.
             sudo /usr/local/bin/vault server -dev -dev-root-token-id="reallystrongpassword" -dev-listen-address=${IP}:8200 -config=/etc/vault.d/vault.hcl &> ${LOG} &
             sleep 15
             cat ${LOG}
         else
-            create_service vault "HashiCorp's Sercret Management Service" "/usr/local/bin/vault server -dev -dev-root-token-id="reallystrongpassword" -dev-listen-address=${IP}:8200 -config=/usr/local/bootstrap/conf/vault.d/vault.hcl"
+            create_service vault "HashiCorp's Sercret Management Service" "/usr/local/bin/vault server -dev -dev-root-token-id="reallystrongpassword" -config=/etc/vault.d/vault.hcl"
             sudo usermod -a -G consulcerts vault
             sudo systemctl start vault
             #sudo systemctl status vault
