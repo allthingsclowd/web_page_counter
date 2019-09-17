@@ -3,7 +3,7 @@
 golang_version=1.13
 
 echo "Start Golang installation"
-which /usr/local/go &>/dev/null || {
+which /usr/local/go/bin/go &>/dev/null || {
     echo "Create a temporary directory"
     sudo mkdir -p /tmp/go_src
     pushd /tmp/go_src
