@@ -8,7 +8,8 @@ AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP
 export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
 /usr/local/go/bin/go get ./...
-/usr/local/go/bin/go build -o webcounter main.go
+/usr/local/go/bin/go get -u github.com/gobuffalo/packr/packr
+packr build -o webcounter main.go
 ./webcounter -consulACL=${CONSUL_HTTP_TOKEN} -ip="0.0.0.0" -consulIp="127.0.0.1:8321" &
 
 # delay added to allow webcounter startup
