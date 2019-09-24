@@ -13,6 +13,8 @@ import (
 	"bytes"
 	"time"
 
+	"github.com/gobuffalo/packr"
+
 	"github.com/DataDog/datadog-go/statsd"
 	"github.com/go-redis/redis"
 	"github.com/gorilla/mux"
@@ -87,6 +89,12 @@ func main() {
 	http.Handle("/", r)
 	http.ListenAndServe(portDetail.String(), r)
 
+	// Serve frontend from binary too
+	box := packr.NewBox("./webfrontend")
+
+	http.Handle("/", http.FileServer(box))
+	http.ListenAndServe(":3000", nil)
+
 }
 
 func enableCors(w *http.ResponseWriter) {
@@ -97,8 +105,6 @@ func enableCors(w *http.ResponseWriter) {
 	(*w).Header().Set("PageCountServer", thisServer)
 	(*w).Header().Set("PageCountPort", targetPort)
 }
-
-
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	pagehits, err := redisClient.Incr("pagehits").Result()
