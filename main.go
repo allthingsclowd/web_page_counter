@@ -87,13 +87,13 @@ func main() {
 	r.HandleFunc("/crash", crashHandler).Methods("POST")
 	r.HandleFunc("/crash", optionsHandler).Methods("OPTIONS")
 	http.Handle("/", r)
-	http.ListenAndServe(portDetail.String(), r)
+	go http.ListenAndServe(portDetail.String(), r)
 
 	// Serve frontend from binary too
 	box := packr.NewBox("./webfrontend")
 
 	http.Handle("/", http.FileServer(box))
-	http.ListenAndServe(":3000", nil)
+	go http.ListenAndServe(":3000", nil)
 
 }
 
