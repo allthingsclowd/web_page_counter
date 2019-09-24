@@ -18,20 +18,20 @@ sleep 2
 ps -ef | grep webcounter
 
 # check web frontend
-echo "APPLICATION HEALTH"
-curl -s http://127.0.0.1:3000
+echo "Web Frontend"
+curl http://127.0.0.1:3000
 
 # check health
 echo "APPLICATION HEALTH"
-curl -s http://127.0.0.1:8314/health
+curl http://127.0.0.1:8314/health
 
-curl -s http://localhost:8080/health
+curl http://localhost:8080/health
 
-curl -s http://localhost:8080
+curl http://localhost:8080
 
-curl -s http://127.0.0.1:8080/health
+curl http://127.0.0.1:8080/health
 
-curl -s http://127.0.0.1:8080
+curl http://127.0.0.1:8080
 
 page_hit_counter=`lynx --dump http://127.0.0.1:8080`
 echo $page_hit_counter
