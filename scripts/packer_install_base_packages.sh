@@ -227,7 +227,7 @@ which /usr/local/go &>/dev/null || {
 }
 
 install_hashicorp_binaries
-install_webpagecounter_binaries
+# install_webpagecounter_binaries
 install_factory_secretid_binaries
 install_web_front_end_binaries
 install_chef_inspec
