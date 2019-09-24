@@ -15,7 +15,11 @@ packr build -o webcounter main.go
 # delay added to allow webcounter startup
 sleep 2
 
-ps -ef | grep webcounter 
+ps -ef | grep webcounter
+
+# check web frontend
+echo "APPLICATION HEALTH"
+curl -s http://127.0.0.1:3000
 
 # check health
 echo "APPLICATION HEALTH"
