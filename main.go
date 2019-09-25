@@ -12,6 +12,7 @@ import (
 	"strings"
 	"bytes"
 	"time"
+	"log"
 
 	"github.com/gobuffalo/packr"
 
@@ -86,16 +87,16 @@ func main() {
 	r.HandleFunc("/health", optionsHandler).Methods("OPTIONS")
 	r.HandleFunc("/crash", crashHandler).Methods("POST")
 	r.HandleFunc("/crash", optionsHandler).Methods("OPTIONS")
-	http.Handle("/", r)
+	// http.Handle("/", r)
 	go func() {
-		http.ListenAndServe(portDetail.String(), r)
+		log.Fatal(http.ListenAndServe(portDetail.String(), r))
 	}()
 
-	// Serve frontend from binary too
+	// Serve frontend from binary too on port 3000
 	box := packr.NewBox("./webfrontend")
 
 	http.Handle("/", http.FileServer(box))
-	http.ListenAndServe(":3000", nil)
+	log.Fatal(http.ListenAndServe(":3000", nil))
 
 }
 
@@ -153,7 +154,7 @@ func optionsHandler(w http.ResponseWriter, r *http.Request) {
 func crashHandler(w http.ResponseWriter, r *http.Request) {
 	
 	enableCors(&w)
-	goapphealth = "Killing service on port " + targetPort + "on server " + thisServer + "(" + targetIP + ")!"
+	goapphealth = "Killing service on port " + targetPort + "\non server " + thisServer + "\n (" + targetIP + ")!"
 	fmt.Printf("Application Status: %v \n", goapphealth)
 	fmt.Fprintf(w, "%v", goapphealth)
 	dataDog := sendDataDogEvent("WebCounter Crashed", targetPort)
