@@ -536,13 +536,14 @@ install_vault () {
         [ -f /usr/local/bootstrap/.vault-token ] && sudo rm /usr/local/bootstrap/.vault-token
 
         # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
+        mkdir -p /etc/vault.d
         sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server-key.pem /etc/pki/tls/private/hashistack-server-key.pem
         sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server.pem /etc/pki/tls/certs/hashistack-server.pem
-        sudo groupadd consulcerts
-        sudo chgrp -R consulcerts /etc/pki/tls /etc/vault.d
+        sudo groupadd vaultcerts
+        sudo chgrp -R vaultcerts /etc/pki/tls /etc/vault.d
         sudo chmod -R 770 /etc/pki/tls /etc/vault.d
         create_service_user vault
-        sudo usermod -a -G consulcerts vault
+        sudo usermod -a -G vaultcerts vault
         sudo -u vault cp -r /usr/local/bootstrap/conf/vault.d/* /etc/vault.d/.
 
         #start vault
@@ -552,7 +553,6 @@ install_vault () {
             cat ${LOG}
         else
             create_service vault "HashiCorp's Sercret Management Service" "/usr/local/bin/vault server -dev -dev-root-token-id="reallystrongpassword" -config=/etc/vault.d/vault.hcl"
-            sudo usermod -a -G consulcerts vault
             sudo systemctl start vault
             #sudo systemctl status vault
         fi
