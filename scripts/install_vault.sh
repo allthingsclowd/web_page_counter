@@ -539,11 +539,11 @@ install_vault () {
         mkdir -p /etc/vault.d
         sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server-key.pem /etc/pki/tls/private/hashistack-server-key.pem
         sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server.pem /etc/pki/tls/certs/hashistack-server.pem
-        sudo groupadd vaultcerts
-        sudo chgrp -R vaultcerts /etc/pki/tls /etc/vault.d
-        sudo chmod -R 770 /etc/pki/tls /etc/vault.d
+        # sudo groupadd vaultcerts
+        sudo chgrp -R webpagecountercerts /etc/vault.d
+        sudo chmod -R 770 /etc/vault.d
         create_service_user vault
-        sudo usermod -a -G vaultcerts vault
+        sudo usermod -a -G webpagecountercerts vault
         sudo -u vault cp -r /usr/local/bootstrap/conf/vault.d/* /etc/vault.d/.
 
         #start vault

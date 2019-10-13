@@ -8,7 +8,7 @@ job "webpagecounter" {
         driver = "raw_exec"
         config {
             command = "/usr/local/bin/webcounter"
-            args = ["-port=${NOMAD_PORT_http}", "-ip=0.0.0.0", "-consulACL=533dcbd8-6bef-d7a4-2edc-5608b7b44345", "-consulIp=192.168.9.11:8321"]
+            args = ["-port=${NOMAD_PORT_http}", "-ip=0.0.0.0", "-consulACL=f6d12eb9-c41d-7a74-1a40-4f426507cb9e", "-consulIp=192.168.9.11:8321"]
         }
         resources {
           cpu    = 20
