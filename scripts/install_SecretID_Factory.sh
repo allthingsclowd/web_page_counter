@@ -171,7 +171,7 @@ setup_environment () {
     export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
     export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
     export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
-    #export VAULT_SKIP_VERIFY=true
+    export VAULT_SKIP_VERIFY=true
 
     AGENTTOKEN=`VAULT_TOKEN=reallystrongpassword VAULT_ADDR="https://${LEADER_IP}:8322" vault kv get -field "value" kv/development/consulagentacl`
     export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
@@ -182,7 +182,12 @@ setup_environment () {
     export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
     export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
 
-
+    # Configure CA Certificates for APP on host OS
+    sudo mkdir -p /usr/local/share/ca-certificates
+    sudo apt-get install ca-certificates -y
+    #sudo openssl x509 -outform der -in /usr/local/bootstrap/certificate-config/hashistack-ca.pem -out /usr/local/bootstrap/certificate-config/hashistack-ca.crt
+    sudo cp /usr/local/bootstrap/certificate-config/hashistack-ca.pem /usr/local/share/ca-certificates/hashistack-ca.crt
+    sudo update-ca-certificates
 
     if [ -d /vagrant ]; then
         LOG="/vagrant/logs/VaultServiceIDFactory_${HOSTNAME}.log"
