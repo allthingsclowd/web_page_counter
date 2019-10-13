@@ -106,18 +106,30 @@ setup_environment () {
   if [ "${TRAVIS}" == "true" ]; then
     IP="127.0.0.1"
     LEADER_IP=${IP}
+
   fi
 
-  REDIS_MASTER_PASSWORD=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/redispassword`
-  AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/consulagentacl`
-  DB_VAULT_TOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/vaultdbtoken`
-  APPROLEID=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/approleid`
-  WRAPPED_VAULT_TOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/wrappedprovisionertoken`
+  echo 'Set environmental bootstrapping data in VAULT'
+
+  export VAULT_ADDR=https://${LEADER_IP}:8322
+  export VAULT_TOKEN=reallystrongpassword
+  export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
+  export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
+  export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
+  export VAULT_SKIP_VERIFY=true
+
   # Configure consul environment variables for use with certificates 
   export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
   export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
   export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
   export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
+
+  REDIS_MASTER_PASSWORD=`vault kv get -field "value" kv/development/redispassword`
+  AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
+  DB_VAULT_TOKEN=`vault kv get -field "value" kv/development/vaultdbtoken`
+  APPROLEID=`vault kv get -field "value" kv/development/approleid`
+  WRAPPED_VAULT_TOKEN=`vault kv get -field "value" kv/development/wrappedprovisionertoken`
+
   export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
 }
@@ -184,7 +196,7 @@ EOF
 
 configure_redis () {
   
-  sudo VAULT_TOKEN=${DB_VAULT_TOKEN} VAULT_ADDR="http://${LEADER_IP}:8200" consul-template -template "/usr/local/bootstrap/conf/master.redis.ctpl:/etc/redis/redis.conf" -once
+  consul-template -template "/usr/local/bootstrap/conf/master.redis.ctpl:/etc/redis/redis.conf" -once
   sudo chown redis:redis /etc/redis/redis.conf
   sudo chmod 640 /etc/redis/redis.conf
 

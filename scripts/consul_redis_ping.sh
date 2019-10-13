@@ -4,10 +4,15 @@ source /usr/local/bootstrap/var.env
 set -x
 
 # read redis database password from vault
-VAULT_TOKEN=`VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/vaultdbtoken`
-VAULT_ADDR="http://${LEADER_IP}:8200"
+export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
+export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
+export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
+export VAULT_SKIP_VERIFY=true
+export VAULT_ADDR="https://${LEADER_IP}:8322"
+export VAULT_TOKEN=reallystrongpassword
+VAULT_TOKEN=`vault kv get -field "value" kv/development/vaultdbtoken`
 
-TESTPASSWORD=`VAULT_ADDR="http://${LEADER_IP}:8200" VAULT_TOKEN=${VAULT_TOKEN} /usr/local/bin/vault kv get -field=value kv/development/redispassword`
+TESTPASSWORD=`VAULT_ADDR="https://${LEADER_IP}:8322" VAULT_TOKEN=${VAULT_TOKEN} /usr/local/bin/vault kv get -field=value kv/development/redispassword`
 
 echo "running client ping test"
 

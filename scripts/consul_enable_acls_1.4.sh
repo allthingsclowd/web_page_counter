@@ -191,7 +191,7 @@ step6_verify_acl_config () {
 
 step7_enable_acl_on_client () {
 
-  AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/consulagentacl`
+  AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
   export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
   sudo tee /etc/consul.d/consul_acl_1.4_setup.json <<EOF
@@ -213,7 +213,7 @@ EOF
 
 step8_verify_acl_config () {
 
-    AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/consulagentacl`
+    AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
 
     curl -s -w "\n%{http_code}" \
       --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
@@ -300,7 +300,7 @@ EOF
 
 step9_configure_nomad() {
 
-  AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/bootstraptoken`
+  AGENTTOKEN=`vault kv get -field "value" kv/development/bootstraptoken`
 
   sudo tee /usr/local/bootstrap/conf/nomad.d/nomad.hcl <<EOF
 consul {
