@@ -67,7 +67,7 @@ start_app_proxy_service () {
   # param 3 ${3}: consul host service name
 
   create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/usr/local/bootstrap/certificate-config/consul-ca.pem -client-cert=/usr/local/bootstrap/certificate-config/cli.pem -client-key=/usr/local/bootstrap/certificate-config/cli-key.pem -token=${CONSUL_HTTP_TOKEN} -sidecar-for ${3}"
-  sudo usermod -a -G consulcerts ${1}
+  sudo usermod -a -G webpagecountercerts ${1}
   sudo systemctl start ${1}
   #sudo systemctl status ${1}
   echo "${1} Proxy App Service Build Complete"
@@ -82,7 +82,7 @@ start_client_proxy_service () {
     
 
     create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/usr/local/bootstrap/certificate-config/consul-ca.pem -client-cert=/usr/local/bootstrap/certificate-config/cli.pem -client-key=/usr/local/bootstrap/certificate-config/cli-key.pem -token=${CONSUL_HTTP_TOKEN} -service ${3} -upstream ${4}:${5} -register"
-    sudo usermod -a -G consulcerts ${1}
+    sudo usermod -a -G webpagecountercerts ${1}
     sudo systemctl start ${1}
     #sudo systemctl status ${1}
     echo "${1} Proxy Client Service Build Complete"
@@ -200,7 +200,7 @@ configure_redis () {
     -vault-addr=${VAULT_ADDR} \
     -vault-token=${VAULT_TOKEN} \
     -vault-ssl-cert="/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
-    -vault-ssl-key="/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
+    -vault-ssl-key="/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
     -vault-ssl-ca-cert="/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
     -template "/usr/local/bootstrap/conf/master.redis.ctpl:/etc/redis/redis.conf" -once
   
