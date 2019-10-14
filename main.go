@@ -1,9 +1,6 @@
 package main
 
 import (
-	consul "github.com/hashicorp/consul/api"
-	vault "github.com/hashicorp/vault/api@a5be3414360eab0c00bbd6856b0ae482d27ce7dc"
-
 	"flag"
 	"fmt"
 	"html/template"
@@ -22,6 +19,8 @@ import (
 	"github.com/DataDog/datadog-go/statsd"
 	"github.com/go-redis/redis"
 	"github.com/gorilla/mux"
+	consul "github.com/hashicorp/consul/api"
+	vault "github.com/hashicorp/vault/api"
 
 )
 
