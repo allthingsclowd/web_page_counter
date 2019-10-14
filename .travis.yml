@@ -2,7 +2,7 @@ language: go
 sudo: required
 dist: bionic
 env:
-  - GO111MODULE=on
+  - GO111MODULE=auto
 addons:
   apt:
     packages:
