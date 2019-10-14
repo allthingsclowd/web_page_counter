@@ -16,7 +16,6 @@ addons:
 go:
 - '1.13'
 before_script:
-- curl https://omnitruck.chef.io/install.sh | sudo bash -s -- -P inspec
 - sudo rsync -az ${TRAVIS_BUILD_DIR}/ /usr/local/bootstrap/
 - pushd packer
 - if [ $VAGRANT_CLOUD_TOKEN ] ; then packer validate -syntax-only template.json ; fi
