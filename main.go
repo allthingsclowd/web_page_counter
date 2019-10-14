@@ -2,7 +2,7 @@ package main
 
 import (
 	consul "github.com/hashicorp/consul/api"
-	vault "github.com/hashicorp/vault/api"
+	vault "github.com/hashicorp/vault/api@a5be3414360eab0c00bbd6856b0ae482d27ce7dc"
 
 	"flag"
 	"fmt"
