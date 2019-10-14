@@ -112,6 +112,12 @@ export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
 AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
 export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
+# Configure CA Certificates for APP on host OS
+sudo mkdir -p /usr/local/share/ca-certificates
+sudo apt-get install ca-certificates -y
+#sudo openssl x509 -outform der -in /usr/local/bootstrap/certificate-config/hashistack-ca.pem -out /usr/local/bootstrap/certificate-config/hashistack-ca.crt
+sudo cp /usr/local/bootstrap/certificate-config/hashistack-ca.pem /usr/local/share/ca-certificates/hashistack-ca.crt
+sudo update-ca-certificates
 
 if [ "${TRAVIS}" == "true" ]; then
   IP="127.0.0.1"
@@ -133,6 +139,9 @@ start_client_proxy_service goclientproxy "SecretID Service Client Proxy" "approl
 
 # create intention to connect from goapp to secret-id service
 create_intention_between_services "goclientproxy" "approle"
+
+# FORCE DOWNLOAD OF NEW WEBCOUNTER Binary
+sudo rm -rf /usr/local/bin/webcounter
 
 # Added loop below to overcome Travis-CI/Github download issue
 RETRYDOWNLOAD="1"
@@ -164,7 +173,7 @@ nomad job stop webpagecounter &>/dev/null
 killall webcounter &>/dev/null
 
 sed -i 's/consulACL=.*",/consulACL='${CONSUL_HTTP_TOKEN}'",/g' /usr/local/bootstrap/scripts/nomad_job.hcl
-sed -i 's/consulIp=.*"/consulIp='${LEADER_IP}':8321"/g' /usr/local/bootstrap/scripts/nomad_job.hcl
+sed -i 's/consulIP=.*"/consulIP='${LEADER_IP}':8321"/g' /usr/local/bootstrap/scripts/nomad_job.hcl
 
 echo 'Review Nomad Job File'
 cat /usr/local/bootstrap/scripts/nomad_job.hcl
