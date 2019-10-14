@@ -283,6 +283,10 @@ create_app_token () {
     tls_cert_file = "/etc/pki/tls/certs/hashistack-server.pem"
     tls_key_file = "/etc/pki/tls/private/hashistack-server-key.pem"
   }
+
+  # Advertise the non-loopback interface
+  api_addr = "https://${LEADER_IP}:8322"
+  cluster_addr = "https://${LEADER_IP}:8322"
 EOF
 
   sudo tee /usr/local/bootstrap/conf/nomad.d/nomad.hcl <<EOF
