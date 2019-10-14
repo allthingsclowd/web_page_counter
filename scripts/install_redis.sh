@@ -196,7 +196,14 @@ EOF
 
 configure_redis () {
   
-  consul-template -template "/usr/local/bootstrap/conf/master.redis.ctpl:/etc/redis/redis.conf" -once
+  consul-template \
+    -vault-addr=${VAULT_ADDR} \
+    -vault-token=${VAULT_TOKEN} \
+    -vault-ssl-cert="/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
+    -vault-ssl-key="/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
+    -vault-ssl-ca-cert="/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
+    -template "/usr/local/bootstrap/conf/master.redis.ctpl:/etc/redis/redis.conf" -once
+  
   sudo chown redis:redis /etc/redis/redis.conf
   sudo chmod 640 /etc/redis/redis.conf
 
