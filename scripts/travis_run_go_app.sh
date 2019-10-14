@@ -9,7 +9,7 @@ export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
 /usr/local/go/bin/go get ./...
 /usr/local/go/bin/go build -o webcounter -i main.go
-./webcounter -consulACL=${CONSUL_HTTP_TOKEN} -ip="0.0.0.0" -consulIp="127.0.0.1:8321" &
+./webcounter -consulACL=${CONSUL_HTTP_TOKEN} -ip="0.0.0.0" -consulIP="127.0.0.1:8321" &
 
 # delay added to allow webcounter startup
 sleep 2
