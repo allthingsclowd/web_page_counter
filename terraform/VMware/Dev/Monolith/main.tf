@@ -271,7 +271,7 @@ resource "vsphere_virtual_machine" "web01vm" {
   }
 
   provisioner "file" {
-    source      = "/Users/grazzer/vagrant_workspace/pipeline/var.env"
+    source      = "../../../../var.env"
     destination = "/usr/local/bootstrap/var.env"
 
     connection {
