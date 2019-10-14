@@ -99,7 +99,7 @@ setup_environment () {
     export CONSUL_HTTP_TOKEN=${BOOTSTRAPACL}
 
     export VAULT_TOKEN=reallystrongpassword
-    export VAULT_ADDR=https://192.168.9.11:8322
+    export VAULT_ADDR=https://127.0.0.1:8322
     export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
     export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
     export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
@@ -438,7 +438,7 @@ bootstrap_secret_data () {
     
     echo 'Set environmental bootstrapping data in VAULT'
     export VAULT_TOKEN=reallystrongpassword
-    export VAULT_ADDR=https://192.168.9.11:8322
+    export VAULT_ADDR=https://127.0.0.1:8322
     export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
     export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
     export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
@@ -536,7 +536,7 @@ install_vault () {
         [ -f /usr/local/bootstrap/.vault-token ] && sudo rm /usr/local/bootstrap/.vault-token
 
         # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
-        mkdir -p /etc/vault.d
+        sudo mkdir -p /etc/vault.d
         sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server-key.pem /etc/pki/tls/private/hashistack-server-key.pem
         sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server.pem /etc/pki/tls/certs/hashistack-server.pem
         # sudo groupadd vaultcerts
@@ -548,7 +548,7 @@ install_vault () {
 
         #start vault
         if [ "${TRAVIS}" == "true" ]; then
-            sudo /usr/local/bin/vault server -dev -dev-root-token-id="reallystrongpassword" -dev-listen-address=${IP}:8200 -config=/etc/vault.d/vault.hcl &> ${LOG} &
+            sudo /usr/local/bin/vault server -dev -dev-root-token-id="reallystrongpassword" -config=/etc/vault.d/vault.hcl &> ${LOG} &
             sleep 15
             cat ${LOG}
         else
