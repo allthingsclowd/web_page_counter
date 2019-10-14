@@ -17,6 +17,7 @@ setup_environment () {
 
     if [ "${TRAVIS}" == "true" ]; then
     IP=${IP:-127.0.0.1}
+    LEADER_IP=${IP}
     fi
 
     # Configure consul environment variables for use with certificates 
