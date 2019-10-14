@@ -1,6 +1,9 @@
 package main
 
 import (
+	consul "github.com/hashicorp/consul/api"
+	vault "github.com/hashicorp/vault/api"
+
 	"flag"
 	"fmt"
 	"html/template"
@@ -19,8 +22,7 @@ import (
 	"github.com/DataDog/datadog-go/statsd"
 	"github.com/go-redis/redis"
 	"github.com/gorilla/mux"
-	consul "github.com/hashicorp/consul/api"
-	vault "github.com/hashicorp/vault/api"
+
 )
 
 var (
@@ -40,7 +42,7 @@ var targetIP string
 var thisServer string
 var appRoleID *string
 var consulACL *string
-var consulIp *string
+var consulIP *string
 var factoryIPPtr *string
 var vaultAddress string
 
@@ -51,7 +53,7 @@ func main() {
 	ipPtr := flag.String("ip", "127.0.0.1", "Default's to all interfaces by using 127.0.0.1")
 	appRoleID = flag.String("appRole", "id-factory", "Application Role Name to be used to bootstrap access to Vault's secrets")
 	consulACL = flag.String("consulACL", "oi-someone-forgot-to-set-me", "Application ACL from Consul")
-	consulIp = flag.String("consulIp", "127.0.0.1:8321", "Consul Server IP Address")
+	consulIP = flag.String("consulIP", "127.0.0.1:8321", "Consul Server IP Address")
 	flag.Parse()
 	targetPort = strconv.Itoa(*portPtr)
 	targetIP = *ipPtr
@@ -294,7 +296,7 @@ func redisInit() (string, string) {
 
 	// Get a new Consul client
 	consulConfig := consul.DefaultConfig()
-	consulConfig.Address = *consulIp
+	consulConfig.Address = *consulIP
 	consulConfig.Scheme = "https"
 	consulConfig.Token = *consulACL
 	consulConfig.TLSConfig = consul.TLSConfig{
