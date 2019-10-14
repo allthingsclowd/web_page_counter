@@ -198,7 +198,7 @@ configure_redis () {
   
   consul-template \
     -vault-addr=${VAULT_ADDR} \
-    -vault-token=${VAULT_TOKEN} \
+    -vault-token=${DB_VAULT_TOKEN} \
     -vault-ssl-cert="/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
     -vault-ssl-key="/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
     -vault-ssl-ca-cert="/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
