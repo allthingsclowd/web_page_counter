@@ -196,7 +196,7 @@ EOF
 
 configure_redis () {
   
-  consul-template \
+  sudo consul-template \
     -vault-addr=${VAULT_ADDR} \
     -vault-token=${DB_VAULT_TOKEN} \
     -vault-ssl-cert="/usr/local/bootstrap/certificate-config/hashistack-client.pem" \

@@ -5,7 +5,7 @@
     tls_ca_file = "/etc/pki/tls/certs/consul-ca.pem"
     tls_cert_file = "/etc/pki/tls/certs/server.pem"
     tls_key_file = "/etc/pki/tls/private/server-key.pem"
-    token = "4f4239de-9d6f-5b43-ce1f-adce0b6335aa"
+    token = "4ea395c7-1aab-c2c0-c022-a0a50a97fe6e"
   }
 
   ui = true
