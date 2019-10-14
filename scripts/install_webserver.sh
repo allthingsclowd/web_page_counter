@@ -16,12 +16,21 @@ if [ "${TRAVIS}" == "true" ]; then
   LEADER_IP="127.0.0.1"
 fi
 
+echo 'Set environmental bootstrapping data in VAULT'
+
+export VAULT_ADDR=https://${LEADER_IP}:8322
+export VAULT_TOKEN=reallystrongpassword
+export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
+export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
+export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
+export VAULT_SKIP_VERIFY=true
+
 # Configure consul environment variables for use with certificates 
 export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
 export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
 export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
 export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
-AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/consulagentacl`
+AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
 export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
 

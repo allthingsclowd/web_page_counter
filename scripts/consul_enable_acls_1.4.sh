@@ -17,6 +17,7 @@ setup_environment () {
 
     if [ "${TRAVIS}" == "true" ]; then
     IP=${IP:-127.0.0.1}
+    LEADER_IP=${IP}
     fi
 
     # Configure consul environment variables for use with certificates 
@@ -24,6 +25,12 @@ setup_environment () {
     export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
     export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
     export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
+
+    export VAULT_TOKEN=reallystrongpassword
+    export VAULT_ADDR=https://192.168.9.11:8322
+    export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
+    export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
+    export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
     
 
     export AGENT_CONFIG="-config-dir=/etc/consul.d -enable-script-checks=true"
@@ -185,7 +192,7 @@ step6_verify_acl_config () {
 
 step7_enable_acl_on_client () {
 
-  AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/consulagentacl`
+  AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
   export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
   sudo tee /etc/consul.d/consul_acl_1.4_setup.json <<EOF
@@ -207,7 +214,7 @@ EOF
 
 step8_verify_acl_config () {
 
-    AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/consulagentacl`
+    AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
 
     curl -s -w "\n%{http_code}" \
       --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
@@ -270,6 +277,17 @@ create_app_token () {
   }
 
   ui = true
+
+  listener "tcp" {
+    address = "0.0.0.0:8322"
+    tls_disable = 0
+    tls_cert_file = "/etc/pki/tls/certs/hashistack-server.pem"
+    tls_key_file = "/etc/pki/tls/private/hashistack-server-key.pem"
+  }
+
+  # Advertise the non-loopback interface
+  api_addr = "https://${LEADER_IP}:8322"
+  cluster_addr = "https://${LEADER_IP}:8322"
 EOF
 
   sudo tee /usr/local/bootstrap/conf/nomad.d/nomad.hcl <<EOF
@@ -287,7 +305,7 @@ EOF
 
 step9_configure_nomad() {
 
-  AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/bootstraptoken`
+  AGENTTOKEN=`vault kv get -field "value" kv/development/bootstraptoken`
 
   sudo tee /usr/local/bootstrap/conf/nomad.d/nomad.hcl <<EOF
 consul {

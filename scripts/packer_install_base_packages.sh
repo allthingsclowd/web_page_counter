@@ -161,8 +161,8 @@ install_hashicorp_binaries () {
         [ -f nomad_${nomad_version}_linux_amd64.zip ] || {
             sudo wget -q https://releases.hashicorp.com/nomad/${nomad_version}/nomad_${nomad_version}_linux_amd64.zip
         }
-        unzip nomad_${nomad_version}_linux_amd64.zip
-        chmod +x nomad
+        sudo unzip nomad_${nomad_version}_linux_amd64.zip
+        sudo chmod +x nomad
         sudo rm nomad_${nomad_version}_linux_amd64.zip
         popd
         nomad -version

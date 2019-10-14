@@ -4,12 +4,12 @@ set -x
 # delayed added to ensure consul has started on host - intermittent failures
 sleep 2
 
-AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/consulagentacl`
+AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="https://${LEADER_IP}:8322" vault kv get -field "value" kv/development/consulagentacl`
 export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
 /usr/local/go/bin/go get ./...
-/usr/local/go/bin/go build -o webcounter main.go
-./webcounter -consulACL=${CONSUL_HTTP_TOKEN} -ip="0.0.0.0" -consulIp="127.0.0.1:8321" &
+/usr/local/go/bin/go build -o webcounter -i main.go
+./webcounter -consulACL=${CONSUL_HTTP_TOKEN} -ip="0.0.0.0" -consulIP="127.0.0.1:8321" &
 
 # delay added to allow webcounter startup
 sleep 2

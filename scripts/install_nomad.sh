@@ -81,13 +81,22 @@ setup_environment () {
     LEADER_IP=${IP}
   fi
 
+  echo 'Set environmental bootstrapping data in VAULT'
+  export VAULT_TOKEN=reallystrongpassword
+  export VAULT_ADDR=https://192.168.9.11:8322
+  export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
+  export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
+  export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
+
   # Configure consul environment variables for use with certificates 
   export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
   export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
   export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
   export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
-  AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/consulagentacl`
+  AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
   export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
+
+
 
   which wget unzip &>/dev/null || {
     apt-get update
@@ -116,12 +125,12 @@ install_nomad() {
   if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
     if [ "${TRAVIS}" == "true" ]; then
       create_service_user nomad
-      sudo usermod -a -G consulcerts nomad
+      sudo usermod -a -G webpagecountercerts nomad
       sudo -u nomad /usr/local/bin/nomad agent -server -bind=${IP} -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/etc/nomad.d >${LOG} &
     else
       NOMAD_ADDR=http://${IP}:4646 /usr/local/bin/nomad agent-info 2>/dev/null || {
         create_service nomad "HashiCorp's Nomad Server - A Modern Platform and Cloud Agnostic Scheduler" "/usr/local/bin/nomad agent -log-level=DEBUG -server -bind=${IP} -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/etc/nomad.d"
-        sudo usermod -a -G consulcerts nomad
+        sudo usermod -a -G webpagecountercerts nomad
         cp -apr /usr/local/bootstrap/conf/nomad.d /etc
         sudo systemctl start nomad
         #sudo systemctl status nomad
@@ -134,7 +143,7 @@ install_nomad() {
 
     NOMAD_ADDR=http://${IP}:4646 /usr/local/bin/nomad agent-info 2>/dev/null || {
       create_service nomad "HashiCorp's Nomad Agent - A Modern Platform and Cloud Agnostic Scheduler" "/usr/local/bin/nomad agent -log-level=DEBUG -client -bind=${IP} -data-dir=/usr/local/nomad -join=192.168.9.11 -config=/etc/nomad.d"
-      sudo usermod -a -G consulcerts nomad
+      sudo usermod -a -G webpagecountercerts nomad
       cp -apr /usr/local/bootstrap/conf/nomad.d /etc
       sudo systemctl start nomad
       #sudo systemctl status nomad

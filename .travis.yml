@@ -29,7 +29,7 @@ before_script:
 - bash scripts/install_redis.sh
 - bash scripts/install_nomad.sh
 - bash scripts/install_SecretID_Factory.sh
-- bash scripts/install_golang.sh
+# - bash scripts/install_golang.sh
 - pwd
 - ls -al /usr/local/bootstrap/
 - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
@@ -37,7 +37,13 @@ before_script:
 script:
 - source /usr/local/bootstrap/var.env
 - cat /usr/local/bootstrap/var.env
-- sudo VAULT_ADDR=http://127.0.0.1:8200 vault status
+- echo 'Set environmental bootstrapping data in VAULT'
+- export VAULT_TOKEN=reallystrongpassword
+- export VAULT_ADDR=https://127.0.0.1:8322
+- export VAULT_CLIENT_KEY=certificate-config/hashistack-client-key.pem
+- export VAULT_CLIENT_CERT=certificate-config/hashistack-client.pem
+- export VAULT_CACERT=certificate-config/hashistack-ca.pem
+- vault status
 # Configure consul environment variables for use with certificates 
 - export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
 - export CONSUL_CACERT=certificate-config/consul-ca.pem

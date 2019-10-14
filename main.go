@@ -12,12 +12,22 @@ import (
 	"strings"
 	"bytes"
 	"time"
+	"crypto/tls"
+	"crypto/x509"
+	"log"
 
 	"github.com/DataDog/datadog-go/statsd"
 	"github.com/go-redis/redis"
 	"github.com/gorilla/mux"
 	consul "github.com/hashicorp/consul/api"
 	vault "github.com/hashicorp/vault/api"
+
+)
+
+var (
+	certFile = flag.String("cert", "/usr/local/bootstrap/certificate-config/hashistack-client.pem", "A PEM eoncoded certificate file.")
+	keyFile  = flag.String("key", "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem", "A PEM encoded private key file.")
+	caFile   = flag.String("CA", "/usr/local/bootstrap/certificate-config/hashistack-ca.pem", "A PEM eoncoded CA's certificate file.")
 )
 
 var templates *template.Template
@@ -31,7 +41,7 @@ var targetIP string
 var thisServer string
 var appRoleID *string
 var consulACL *string
-var consulIp *string
+var consulIP *string
 var factoryIPPtr *string
 var vaultAddress string
 
@@ -42,7 +52,7 @@ func main() {
 	ipPtr := flag.String("ip", "127.0.0.1", "Default's to all interfaces by using 127.0.0.1")
 	appRoleID = flag.String("appRole", "id-factory", "Application Role Name to be used to bootstrap access to Vault's secrets")
 	consulACL = flag.String("consulACL", "oi-someone-forgot-to-set-me", "Application ACL from Consul")
-	consulIp = flag.String("consulIp", "127.0.0.1:8321", "Consul Server IP Address")
+	consulIP = flag.String("consulIP", "127.0.0.1:8321", "Consul Server IP Address")
 	flag.Parse()
 	targetPort = strconv.Itoa(*portPtr)
 	targetIP = *ipPtr
@@ -177,12 +187,38 @@ func getVaultKV(consulClient consul.Client, vaultKey string) string {
 
 	// Read in the Vault service details from consul
 	vaultService := getConsulSVC(consulClient, "vault")
-	vaultAddress = "http://" + vaultService
+	vaultAddress = "https://" + vaultService
 	fmt.Printf("Secret Store Address : >> %v \n", vaultAddress)
+
+	// Possibly move this Vault client TLS out of here
+	// Load client cert
+	cert, err := tls.LoadX509KeyPair(*certFile, *keyFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Load CA cert
+	caCert, err := ioutil.ReadFile(*caFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caCert)
+
+	// Setup HTTPS client
+	tlsConfig := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+		RootCAs:      caCertPool,
+	//    InsecureSkipVerify: true,
+	}
+	tlsConfig.BuildNameToCertificate()
+	transport := &http.Transport{TLSClientConfig: tlsConfig}
+	httpClient := &http.Client{Transport: transport}
 
 	// Get a handle to the Vault Secret KV API
 	vaultClient, err := vault.NewClient(&vault.Config{
 		Address: vaultAddress,
+		HttpClient: httpClient,
 	})
 	if err != nil {
 		fmt.Printf("Failed to get VAULT client >> %v \n", err)
@@ -259,7 +295,7 @@ func redisInit() (string, string) {
 
 	// Get a new Consul client
 	consulConfig := consul.DefaultConfig()
-	consulConfig.Address = *consulIp
+	consulConfig.Address = *consulIP
 	consulConfig.Scheme = "https"
 	consulConfig.Token = *consulACL
 	consulConfig.TLSConfig = consul.TLSConfig{
@@ -461,18 +497,44 @@ func http2Call (url string, data []byte, action string, token string) string {
     //fmt.Println("URL:>", url)
 
     req, err := http.NewRequest(action, url, bytes.NewBuffer(data))
+	
+	httpClient := &http.Client{}
 
 	if token != "none" {
 		fmt.Printf("Setting HEADER to : %v\n", token)
 		req.Header.Set("X-Vault-Token", token)
 		fmt.Printf("HEADER set to : %v\n", req.Header)
+
+		// Possibly move this Vault client TLS out of here
+		// Load client cert
+		cert, err := tls.LoadX509KeyPair(*certFile, *keyFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Load CA cert
+		caCert, err := ioutil.ReadFile(*caFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		caCertPool := x509.NewCertPool()
+		caCertPool.AppendCertsFromPEM(caCert)
+
+		// Setup HTTPS client
+		tlsConfig := &tls.Config{
+			Certificates: []tls.Certificate{cert},
+			RootCAs:      caCertPool,
+		//    InsecureSkipVerify: true,
+		}
+		tlsConfig.BuildNameToCertificate()
+		transport := &http.Transport{TLSClientConfig: tlsConfig}
+		httpClient = &http.Client{Transport: transport}
+
 	}
+	
 	req.Header.Set("Content-Type", "application/json")
 	fmt.Printf("HEADER set to : %v\n", req.Header)
-	
-
-    client := &http.Client{}
-    resp, err := client.Do(req)
+    resp, err := httpClient.Do(req)
     if err != nil {
 		fmt.Printf("Problems Reaching: %v\n", err)
         //panic(err)

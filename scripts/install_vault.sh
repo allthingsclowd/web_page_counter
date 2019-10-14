@@ -98,6 +98,12 @@ setup_environment () {
     BOOTSTRAPACL=`cat /usr/local/bootstrap/.bootstrap_acl`
     export CONSUL_HTTP_TOKEN=${BOOTSTRAPACL}
 
+    export VAULT_TOKEN=reallystrongpassword
+    export VAULT_ADDR=https://127.0.0.1:8322
+    export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
+    export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
+    export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
+
     echo 'End Setup of Vault Environment'
 }
 
@@ -105,9 +111,9 @@ configure_vault_KV_audit_logs () {
     
     echo 'Start Vault KV Version Selection and Audit Log Enablement'
     export VAULT_TOKEN=`cat /usr/local/bootstrap/.vault-token`
-    export VAULT_ADDR="http://${IP}:8200"
+    # export VAULT_ADDR="http://${IP}:8200"
     # enable secret KV version 1
-    sudo VAULT_TOKEN=${VAULT_TOKEN} VAULT_ADDR="http://${IP}:8200" vault secrets enable -version=1 kv
+    vault secrets enable -version=1 kv
 
 #     # configure Audit Backend
 #     tee audit-backend-file.json <<EOF
@@ -143,10 +149,10 @@ configure_vault_database_role () {
 EOF
 
     # create the admin policy in vault
-    sudo VAULT_TOKEN=${VAULT_TOKEN} VAULT_ADDR="http://${IP}:8200" vault policy write database_admin database_policy.hcl
+    VAULT_TOKEN=${VAULT_TOKEN} vault policy write database_admin database_policy.hcl
 
     # create an admin token
-    DATABASE_TOKEN=`sudo VAULT_TOKEN=${VAULT_TOKEN} VAULT_ADDR="http://${IP}:8200" vault token create -policy=database_admin -field=token`
+    DATABASE_TOKEN=`vault token create -policy=database_admin -field=token`
     sudo echo -n ${DATABASE_TOKEN} > /usr/local/bootstrap/.database-token
 
     sudo chmod ugo+r /usr/local/bootstrap/.database-token
@@ -212,10 +218,10 @@ configure_vault_admin_role () {
 EOF
 
     # create the admin policy in vault
-    sudo VAULT_TOKEN=${VAULT_TOKEN} VAULT_ADDR="http://${IP}:8200" vault policy write admin admin_policy.hcl
+    vault policy write admin admin_policy.hcl
 
     # create an admin token
-    ADMIN_TOKEN=`sudo VAULT_TOKEN=${VAULT_TOKEN} VAULT_ADDR="http://${IP}:8200" vault token create -policy=admin -field=token`
+    ADMIN_TOKEN=`vault token create -policy=admin -field=token`
     sudo echo -n ${ADMIN_TOKEN} > /usr/local/bootstrap/.admin-token
 
     sudo chmod ugo+r /usr/local/bootstrap/.admin-token
@@ -265,10 +271,10 @@ configure_vault_provisioner_role_wrapped () {
 EOF
 
     # create provisioner policy
-    sudo VAULT_TOKEN=${VAULT_TOKEN} VAULT_ADDR="http://${IP}:8200" vault policy write provisioner provisioner_policy.hcl
+    vault policy write provisioner provisioner_policy.hcl
 
     # create a wrapped provisioner token by adding -wrap-ttl=60m
-    WRAPPED_PROVISIONER_TOKEN=`sudo VAULT_TOKEN=${VAULT_TOKEN} VAULT_ADDR="http://${IP}:8200" vault token create -policy=provisioner -wrap-ttl=60m -field=wrapping_token`
+    WRAPPED_PROVISIONER_TOKEN=`vault token create -policy=provisioner -wrap-ttl=60m -field=wrapping_token`
     sudo echo -n ${WRAPPED_PROVISIONER_TOKEN} > /usr/local/bootstrap/.wrapped-provisioner-token
 
     sudo chmod ugo+r /usr/local/bootstrap/.wrapped-provisioner-token
@@ -279,6 +285,7 @@ EOF
 configure_vault_app_role () {
 
     echo 'Start Vault App-Role Configuration'
+    
     #Enable & Configure AppRole Auth Backend
 
     # AppRole auth backend config
@@ -292,6 +299,9 @@ EOF
     # Create the approle backend
     curl \
         --location \
+        --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
+        --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
+        --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
         --request POST \
         --data @approle.json \
@@ -307,6 +317,9 @@ EOF
     # Write the policy
     curl \
         --location \
+        --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
+        --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
+        --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
         --request PUT \
         --data @id-factory-secret-read.json \
@@ -315,6 +328,9 @@ EOF
     # List ACL policies
     sudo curl \
         --location \
+        --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
+        --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
+        --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
         --request LIST \
         ${VAULT_ADDR}/v1/sys/policy | jq .
@@ -322,6 +338,9 @@ EOF
     # Check if AppRole Exists
     APPROLEID=`curl  \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
+    --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
+    --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
+    --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
     ${VAULT_ADDR}/v1/auth/approle/role/id-factory/role-id | jq -r .data.role_id`
 
     if [ "${APPROLEID}" == null ]; then
@@ -351,6 +370,9 @@ EOF
         # Create the AppRole role
         curl \
             --location \
+            --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
+            --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
+            --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
             --header "X-Vault-Token: ${VAULT_TOKEN}" \
             --request POST \
             --data @id-factory-approle-role.json \
@@ -359,6 +381,9 @@ EOF
         # Update the static AppRole role-id
         curl \
             --location \
+            --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
+            --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
+            --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
             --header "X-Vault-Token: ${VAULT_TOKEN}" \
             --request POST \
             --data @id-factory-static-role-id.json \
@@ -366,6 +391,9 @@ EOF
 
         APPROLEID=`curl  \
             --header "X-Vault-Token: ${VAULT_TOKEN}" \
+            --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
+            --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
+            --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
             ${VAULT_ADDR}/v1/auth/approle/role/id-factory/role-id | jq -r .data.role_id`
 
     fi
@@ -380,15 +408,15 @@ revoke_root_token () {
     
     echo 'Start Vault Root Token Revocation'
     # revoke ROOT token now that admin token has been created
-    sudo VAULT_TOKEN=${VAULT_TOKEN} VAULT_ADDR="http://${IP}:8200" vault token revoke ${VAULT_TOKEN}
+    vault token revoke ${VAULT_TOKEN}
 
     # Verify root token revoked
-    sudo VAULT_TOKEN=${VAULT_TOKEN} VAULT_ADDR="http://${IP}:8200" vault status
+    VAULT_TOKEN=${VAULT_TOKEN} vault status
 
     # Set new admin vault token & verify
     export VAULT_TOKEN=${ADMIN_TOKEN}
-    sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault login ${ADMIN_TOKEN}
-    sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault status
+    VAULT_TOKEN=${ADMIN_TOKEN} vault login ${ADMIN_TOKEN}
+    VAULT_TOKEN=${ADMIN_TOKEN} vault status
     echo 'Vault Root Token Revocation Complete'    
 }
 
@@ -398,6 +426,9 @@ get_approle_id () {
     # retrieve the appRole-id from the approle
     APPROLEID=`curl  \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
+    --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
+    --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
+    --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
     ${VAULT_ADDR}/v1/auth/approle/role/id-factory/role-id | jq -r .data.role_id`
     echo 'Get APP-ROLE ID Complete'
 
@@ -406,6 +437,11 @@ get_approle_id () {
 bootstrap_secret_data () {
     
     echo 'Set environmental bootstrapping data in VAULT'
+    export VAULT_TOKEN=reallystrongpassword
+    export VAULT_ADDR=https://127.0.0.1:8322
+    export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
+    export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
+    export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
     REDIS_MASTER_PASSWORD=`openssl rand -base64 32`
     APPROLEID=`cat /usr/local/bootstrap/.appRoleID`
     DB_VAULT_TOKEN=`cat /usr/local/bootstrap/.database-token`
@@ -413,14 +449,14 @@ bootstrap_secret_data () {
     WRAPPEDPROVISIONERTOKEN=`cat /usr/local/bootstrap/.wrapped-provisioner-token`
     BOOTSTRAPACL=`cat /usr/local/bootstrap/.bootstrap_acl`
     # Put Redis Password in Vault
-    sudo VAULT_ADDR="http://${IP}:8200" vault login ${ADMIN_TOKEN}
+    vault login ${ADMIN_TOKEN}
     # FAILS???? sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault policy list
-    sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/redispassword value=${REDIS_MASTER_PASSWORD}
-    sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/consulagentacl value=${AGENTTOKEN}
-    sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/vaultdbtoken value=${DB_VAULT_TOKEN}
-    sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/approleid value=${APPROLEID}
-    sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/wrappedprovisionertoken value=${WRAPPEDPROVISIONERTOKEN}
-    sudo VAULT_TOKEN=${ADMIN_TOKEN} VAULT_ADDR="http://${IP}:8200" vault kv put kv/development/bootstraptoken value=${BOOTSTRAPACL}
+    vault kv put kv/development/redispassword value=${REDIS_MASTER_PASSWORD}
+    vault kv put kv/development/consulagentacl value=${AGENTTOKEN}
+    vault kv put kv/development/vaultdbtoken value=${DB_VAULT_TOKEN}
+    vault kv put kv/development/approleid value=${APPROLEID}
+    vault kv put kv/development/wrappedprovisionertoken value=${WRAPPEDPROVISIONERTOKEN}
+    vault kv put kv/development/bootstraptoken value=${BOOTSTRAPACL}
 
 }
 
@@ -430,6 +466,9 @@ get_secret_id () {
     # Generate a new secret-id
     SECRET_ID=`curl \
         --location \
+        --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
+        --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
+        --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
         --request POST \
         ${VAULT_ADDR}/v1/auth/approle/role/id-factory/secret-id | jq -r .data.secret_id`
@@ -449,18 +488,24 @@ EOF
 
     APPTOKEN=`curl \
         --request POST \
+        --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
+        --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
+        --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
         --data @id-factory-secret-id-login.json \
         ${VAULT_ADDR}/v1/auth/approle/login | jq -r .auth.client_token`
 
 
     echo "Reading secret using newly acquired token"
-    sudo VAULT_ADDR="http://${IP}:8200" vault login ${APPTOKEN}
-    sudo VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/redispassword
+    vault login ${APPTOKEN}
+    vault kv get -field "value" kv/development/redispassword
 
     echo "Reading secret using newly acquired token"
 
     RESULT=`curl \
         --header "X-Vault-Token: ${APPTOKEN}" \
+        --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
+        --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
+        --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
         ${VAULT_ADDR}/v1/kv/development/redispassword | jq -r .data.value`
 
     if [ "${RESULT}" != "${REDIS_MASTER_PASSWORD}" ];then
@@ -490,17 +535,24 @@ install_vault () {
         #delete old token if present
         [ -f /usr/local/bootstrap/.vault-token ] && sudo rm /usr/local/bootstrap/.vault-token
 
+        # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
+        sudo mkdir -p /etc/vault.d
+        sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server-key.pem /etc/pki/tls/private/hashistack-server-key.pem
+        sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server.pem /etc/pki/tls/certs/hashistack-server.pem
+        # sudo groupadd vaultcerts
+        sudo chgrp -R webpagecountercerts /etc/vault.d
+        sudo chmod -R 770 /etc/vault.d
+        create_service_user vault
+        sudo usermod -a -G webpagecountercerts vault
+        sudo -u vault cp -r /usr/local/bootstrap/conf/vault.d/* /etc/vault.d/.
+
         #start vault
         if [ "${TRAVIS}" == "true" ]; then
-            create_service_user vault
-            sudo usermod -a -G consulcerts vault
-            sudo -u vault cp -r /usr/local/bootstrap/conf/vault.d/* /etc/vault.d/.
-            sudo /usr/local/bin/vault server -dev -dev-root-token-id="reallystrongpassword" -dev-listen-address=${IP}:8200 -config=/etc/vault.d/vault.hcl &> ${LOG} &
+            sudo /usr/local/bin/vault server -dev -dev-root-token-id="reallystrongpassword" -config=/etc/vault.d/vault.hcl &> ${LOG} &
             sleep 15
             cat ${LOG}
         else
-            create_service vault "HashiCorp's Sercret Management Service" "/usr/local/bin/vault server -dev -dev-root-token-id="reallystrongpassword" -dev-listen-address=${IP}:8200 -config=/usr/local/bootstrap/conf/vault.d/vault.hcl"
-            sudo usermod -a -G consulcerts vault
+            create_service vault "HashiCorp's Sercret Management Service" "/usr/local/bin/vault server -dev -dev-root-token-id="reallystrongpassword" -config=/etc/vault.d/vault.hcl"
             sudo systemctl start vault
             #sudo systemctl status vault
         fi

@@ -128,7 +128,7 @@ start_app_proxy_service () {
   # param 2 ${2}: app-proxy service description
 
   create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/usr/local/bootstrap/certificate-config/consul-ca.pem -client-cert=/usr/local/bootstrap/certificate-config/cli.pem -client-key=/usr/local/bootstrap/certificate-config/cli-key.pem -token=${AGENTTOKEN} -sidecar-for ${1}"
-  sudo usermod -a -G consulcerts ${1}
+  sudo usermod -a -G webpagecountercerts ${1}
   sudo systemctl start ${1}
   #sudo systemctl status ${1}
   echo "${1} Proxy App Service Build Complete"
@@ -143,7 +143,7 @@ start_client_proxy_service () {
     
 
     create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/usr/local/bootstrap/certificate-config/consul-ca.pem -client-cert=/usr/local/bootstrap/certificate-config/cli.pem -client-key=/usr/local/bootstrap/certificate-config/cli-key.pem -token=${AGENTTOKEN} -service ${1} -upstream ${3}:${4}"
-    sudo usermod -a -G consulcerts ${1}
+    sudo usermod -a -G webpagecountercerts ${1}
     sudo systemctl start ${1}
     #sudo systemctl status ${1}
     echo "${1} Proxy Client Service Build Complete"
@@ -165,7 +165,15 @@ setup_environment () {
         VAULT_IP=${IP}
     fi
 
-    AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/consulagentacl`
+    echo 'Set environmental bootstrapping data in VAULT'
+
+    export VAULT_ADDR=https://${VAULT_IP}:8322
+    export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
+    export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
+    export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
+    export VAULT_SKIP_VERIFY=true
+
+    AGENTTOKEN=`VAULT_TOKEN=reallystrongpassword VAULT_ADDR="https://${LEADER_IP}:8322" vault kv get -field "value" kv/development/consulagentacl`
     export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
     # Configure consul environment variables for use with certificates 
@@ -174,8 +182,12 @@ setup_environment () {
     export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
     export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
 
-    export VAULT_ADDR=http://${VAULT_IP}:8200
-    export VAULT_SKIP_VERIFY=true
+    # Configure CA Certificates for APP on host OS
+    sudo mkdir -p /usr/local/share/ca-certificates
+    sudo apt-get install ca-certificates -y
+    #sudo openssl x509 -outform der -in /usr/local/bootstrap/certificate-config/hashistack-ca.pem -out /usr/local/bootstrap/certificate-config/hashistack-ca.crt
+    sudo cp /usr/local/bootstrap/certificate-config/hashistack-ca.pem /usr/local/share/ca-certificates/hashistack-ca.crt
+    sudo update-ca-certificates
 
     if [ -d /vagrant ]; then
         LOG="/vagrant/logs/VaultServiceIDFactory_${HOSTNAME}.log"
@@ -242,7 +254,7 @@ verify_go_application () {
         IP=127.0.0.1
         curl -s http://127.0.0.1:8314/health 
         # Initialise with Vault Token
-        WRAPPED_VAULT_TOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/wrappedprovisionertoken`
+        WRAPPED_VAULT_TOKEN=`VAULT_TOKEN=reallystrongpassword VAULT_ADDR="https://${LEADER_IP}:8322" vault kv get -field "value" kv/development/wrappedprovisionertoken`
         
         curl -s --header "Content-Type: application/json" \
         --request POST \
@@ -267,7 +279,7 @@ verify_go_application () {
         echo "SECRET_ID : ${SECRET_ID}"
         
         # retrieve the appRole-id from the approle - /usr/local/bootstrap/.appRoleID
-        APPROLEID=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/approleid`
+        APPROLEID=`VAULT_TOKEN=reallystrongpassword VAULT_ADDR="https://${LEADER_IP}:8322" vault kv get -field "value" kv/development/approleid`
 
         echo "APPROLEID : ${APPROLEID}"
 
@@ -309,7 +321,7 @@ EOF
         IP=127.0.0.1
         curl -s http://127.0.0.1:8314/health 
         # Initialise with Vault Token
-        WRAPPED_VAULT_TOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/wrappedprovisionertoken`
+        WRAPPED_VAULT_TOKEN=`VAULT_TOKEN=reallystrongpassword VAULT_ADDR="https://${LEADER_IP}:8322" vault kv get -field "value" kv/development/wrappedprovisionertoken`
    
         curl -s --header "Content-Type: application/json" \
         --request POST \
@@ -334,7 +346,7 @@ EOF
         echo "SECRET_ID : ${SECRET_ID}"
         
         # retrieve the appRole-id from the approle - /usr/local/bootstrap/.appRoleID
-        APPROLEID=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/approleid`
+        APPROLEID=`VAULT_TOKEN=reallystrongpassword VAULT_ADDR="https://${LEADER_IP}:8322" vault kv get -field "value" kv/development/approleid`
 
         echo "APPROLEID : ${APPROLEID}"
 
@@ -381,7 +393,7 @@ install_go_application
 
 # initialise the factory service with the provisioner token
 
-WRAPPED_TOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="http://${LEADER_IP}:8200" vault kv get -field "value" kv/development/wrappedprovisionertoken`
+WRAPPED_TOKEN=`VAULT_TOKEN=reallystrongpassword VAULT_ADDR="https://${LEADER_IP}:8322" vault kv get -field "value" kv/development/wrappedprovisionertoken`
 curl --header 'Content-Type: application/json' \
     --request POST \
     --data "{\"token\":\""${WRAPPED_TOKEN}"\"}" \
