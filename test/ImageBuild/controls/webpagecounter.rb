@@ -186,14 +186,14 @@ control 'secret-id' do
   end
 end
 
-control 'web-page-counter' do         
-  impact 1.0                      
-  title 'web-page-counter exists'
-  desc 'verify that web-page-counter is installed'
-  describe file('/usr/local/bin/webcounter') do 
-    it { should exist }
-  end
-end
+# control 'web-page-counter' do         
+#   impact 1.0                      
+#   title 'web-page-counter exists'
+#   desc 'verify that web-page-counter is installed'
+#   describe file('/usr/local/bin/webcounter') do 
+#     it { should exist }
+#   end
+# end
 
 control 'web-front-end' do         
   impact 1.0                      
