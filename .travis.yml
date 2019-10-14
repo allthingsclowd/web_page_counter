@@ -1,9 +1,6 @@
 language: go
 sudo: required
 dist: bionic
-env:
-  - GO111MODULE=on
-install: true
 addons:
   apt:
     packages:
@@ -16,11 +13,45 @@ addons:
 go:
 - '1.13'
 before_script:
+- curl https://omnitruck.chef.io/install.sh | sudo bash -s -- -P inspec
 - sudo rsync -az ${TRAVIS_BUILD_DIR}/ /usr/local/bootstrap/
 - pushd packer
 - if [ $VAGRANT_CLOUD_TOKEN ] ; then packer validate -syntax-only template.json ; fi
 - popd
+- cat /usr/local/bootstrap/var.env
+- sed -i 's/LEADER_IP=192.168.9.11/LEADER_IP=127.0.0.1/g' /usr/local/bootstrap/var.env
+- sed -i 's/REDIS_MASTER_IP=192.168.9.200/REDIS_MASTER_IP=127.0.0.1/g' /usr/local/bootstrap/var.env
+- cat /usr/local/bootstrap/var.env
+- bash scripts/packer_install_base_packages.sh
+- bash scripts/install_consul.sh
+- bash scripts/consul_enable_acls_1.4.sh
+- bash scripts/install_vault.sh
+- bash scripts/install_redis.sh
+- bash scripts/install_nomad.sh
+- bash scripts/install_SecretID_Factory.sh
+# - bash scripts/install_golang.sh
+- pwd
+- ls -al /usr/local/bootstrap/
+- sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
+- echo 314159265359 > /usr/local/bootstrap/.appRoleID
 script:
+- source /usr/local/bootstrap/var.env
+- cat /usr/local/bootstrap/var.env
+- echo 'Set environmental bootstrapping data in VAULT'
+- export VAULT_TOKEN=reallystrongpassword
+- export VAULT_ADDR=https://127.0.0.1:8322
+- export VAULT_CLIENT_KEY=certificate-config/hashistack-client-key.pem
+- export VAULT_CLIENT_CERT=certificate-config/hashistack-client.pem
+- export VAULT_CACERT=certificate-config/hashistack-ca.pem
+- vault status
+# Configure consul environment variables for use with certificates 
+- export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
+- export CONSUL_CACERT=certificate-config/consul-ca.pem
+- export CONSUL_CLIENT_CERT=certificate-config/cli.pem
+- export CONSUL_CLIENT_KEY=certificate-config/cli-key.pem
+- consul version
+- go version
+- inspec exec --chef-license=accept test/ImageBuild
 - bash scripts/travis_run_go_app.sh
 deploy:
   provider: releases
