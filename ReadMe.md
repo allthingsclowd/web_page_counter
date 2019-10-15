@@ -51,6 +51,11 @@ Consul's service mesh capability is also leveraged to secure access to the Redis
 ![image](https://user-images.githubusercontent.com/9472095/46105187-45e6a500-c1cd-11e8-93c2-24fe935f6e7b.png)
 
 ## TODO
+- Add TLS to Nomad
+- Review possibility of integrating Consul Connect Layer 7 demos
+- Start building out documentation for workshops
+- Refactor EVERYTHING - General tidy up! Scripts getting very untidy and not battle hardened due to timimg constraints
+ 
 
 ### New Features
 
@@ -154,3 +159,4 @@ Consul's service mesh capability is also leveraged to secure access to the Redis
 * Configured consul intentions for REDIS and APPROLE services
 * Updated Documentation
 * Added Chef's Inspec test framework to test packer builds before release to production
+* Added TLS to Vault Services and verified on VMware and Virtualbox
