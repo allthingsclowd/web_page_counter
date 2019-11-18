@@ -65,7 +65,7 @@ control 'consul-binary-version-1.0' do
   title 'consul binary version check'
   desc 'verify that the consul binary is the correct version'
   describe command('consul version') do
-   its('stdout') { should match /Consul v1.6.1/ }
+   its('stdout') { should match /Consul v1.6.2/ }
   end
 end
 
@@ -78,14 +78,14 @@ control 'consul-template-binary-exists-1.0' do
   end
 end
 
-# control 'consul-template-binary-version-1.0' do                      
-#   impact 1.0                                
-#   title 'consul-template binary version check'
-#   desc 'verify that the consul-template binary is the correct version'
-#   describe command('consul-template -version') do
-#    its('stdout') { should match /v0.21.3/ }
-#   end
-# end
+control 'consul-template-binary-version-1.0' do                      
+  impact 1.0                                
+  title 'consul-template binary version check'
+  desc 'verify that the consul-template binary is the correct version'
+  describe command('consul-template -version') do
+   its('stdout') { should match /v0.23.0/ }
+  end
+end
 
 control 'envconsul-binary-exists-1.0' do         
   impact 1.0                      
@@ -96,14 +96,14 @@ control 'envconsul-binary-exists-1.0' do
   end
 end
 
-# control 'envconsul-binary-version-1.0' do                      
-#   impact 1.0                                
-#   title 'envconsul binary version check'
-#   desc 'verify that the envconsul binary is the correct version'
-#   describe command('envconsul -version') do
-#    its('stdout') { should match /v0.9.0/ }
-#   end
-# end
+control 'envconsul-binary-version-1.0' do                      
+  impact 1.0                                
+  title 'envconsul binary version check'
+  desc 'verify that the envconsul binary is the correct version'
+  describe command('envconsul -version') do
+   its('stdout') { should match /v0.9.1/ }
+  end
+end
 
 control 'vault-binary-exists-1.0' do         
   impact 1.0                      
@@ -119,7 +119,7 @@ control 'vault-binary-version-1.0' do
   title 'vault binary version check'
   desc 'verify that the vault binary is the correct version'
   describe command('vault version') do
-   its('stdout') { should match /v1.2.3/ }
+   its('stdout') { should match /v1.3.0/ }
   end
 end
 
@@ -137,7 +137,7 @@ control 'nomad-binary-version-1.0' do
   title 'nomad binary version check'
   desc 'verify that the nomad binary is the correct version'
   describe command('nomad version') do
-   its('stdout') { should match /v0.9.5/ }
+   its('stdout') { should match /v0.10.1/ }
   end
 end
 
@@ -155,7 +155,7 @@ control 'terraform-binary-version-1.0' do
   title 'terraform binary version check'
   desc 'verify that the terraform binary is the correct version'
   describe command('terraform version') do
-   its('stdout') { should match /v0.12.8/ }
+   its('stdout') { should match /v0.12.15/ }
   end
 end
 
