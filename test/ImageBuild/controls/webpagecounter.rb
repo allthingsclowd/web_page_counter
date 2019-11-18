@@ -78,14 +78,14 @@ control 'consul-template-binary-exists-1.0' do
   end
 end
 
-control 'consul-template-binary-version-1.0' do                      
-  impact 1.0                                
-  title 'consul-template binary version check'
-  desc 'verify that the consul-template binary is the correct version'
-  describe command('consul-template -version') do
-   its('stdout') { should match /v0.23.0/ }
-  end
-end
+# control 'consul-template-binary-version-1.0' do                      
+#   impact 1.0                                
+#   title 'consul-template binary version check'
+#   desc 'verify that the consul-template binary is the correct version'
+#   describe command('consul-template -version') do
+#    its('stdout') { should match /v0.23.0/ }
+#   end
+# end
 
 control 'envconsul-binary-exists-1.0' do         
   impact 1.0                      
@@ -96,14 +96,14 @@ control 'envconsul-binary-exists-1.0' do
   end
 end
 
-control 'envconsul-binary-version-1.0' do                      
-  impact 1.0                                
-  title 'envconsul binary version check'
-  desc 'verify that the envconsul binary is the correct version'
-  describe command('envconsul -version') do
-   its('stdout') { should match /v0.9.1/ }
-  end
-end
+# control 'envconsul-binary-version-1.0' do                      
+#   impact 1.0                                
+#   title 'envconsul binary version check'
+#   desc 'verify that the envconsul binary is the correct version'
+#   describe command('envconsul -version') do
+#    its('stdout') { should match /v0.9.1/ }
+#   end
+# end
 
 control 'vault-binary-exists-1.0' do         
   impact 1.0                      
