@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 
 # Binary versions to check for
-consul_version=1.6.1
-vault_version=1.2.3
-nomad_version=0.9.5
-terraform_version=0.12.8
-consul_template_version=0.21.3
-env_consul_version=0.9.0
-golang_version=1.13
+[ -f /usr/local/bootstrap/var.env ]
+    source /usr/local/bootstrap/var.env
+    
+[ -f ../var.env ]
+    source /usr/local/bootstrap/var.env
+
 # TODO: Add checksums to ensure integrity of binaries downloaded
 
 install_webpagecounter_binaries () {
