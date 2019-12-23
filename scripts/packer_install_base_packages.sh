@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 
 # Binary versions to check for
-[ -f /usr/local/bootstrap/var.env ]
+[ -f /usr/local/bootstrap/var.env ] && {
+    cat /usr/local/bootstrap/var.env
     source /usr/local/bootstrap/var.env
+}
     
-[ -f ../var.env ]
+[ -f ../var.env ] && {
+    cat ../var.env
     source ../var.env
+}
 
 # TODO: Add checksums to ensure integrity of binaries downloaded
 
