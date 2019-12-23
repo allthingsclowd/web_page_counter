@@ -272,9 +272,12 @@ func getConsulKV(consulClient consul.Client, key string) string {
 
 func getConsulSVC(consulClient consul.Client, key string) string {
 
+	fmt.Printf("DEBUG: service key >> %v \n", key)
 	var serviceDetail strings.Builder
 	// get handle to catalog service api
 	sd := consulClient.Catalog()
+
+	fmt.Printf("DEBUG: myCatalog >> %v \n", sd)
 
 	myService, _, err := sd.Service(key, "", nil)
 	if err != nil {
