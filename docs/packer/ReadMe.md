@@ -16,6 +16,10 @@ Okay, so technically it's possible to add even more binaries and configuration t
 
 [Packer](https://www.packer.io/intro/index.html) is an automation tool that was used to build a [Vagrant](https://www.vagrantup.com/) base image and uploaded to VagrantCloud. Packer can also be used to generate images for most other popular platforms - Amazon, Google Cloud, Azure, VMware, OpenStack etc..
 
+``` bash
+packer build -force -only=web-page-counter-vmware,web-page-counter-vbox template.json
+```
+
 The following configuration was used to build the base image
 
 ``` json

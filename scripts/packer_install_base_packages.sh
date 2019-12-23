@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 
 # Binary versions to check for
-[ -f /usr/local/bootstrap/var.env ]
+[ -f /usr/local/bootstrap/var.env ] && {
+    cat /usr/local/bootstrap/var.env
     source /usr/local/bootstrap/var.env
+}
     
-[ -f ../var.env ]
-    source /usr/local/bootstrap/var.env
+[ -f ../var.env ] && {
+    cat ../var.env
+    source ../var.env
+}
 
 # TODO: Add checksums to ensure integrity of binaries downloaded
 
@@ -16,17 +20,14 @@ install_webpagecounter_binaries () {
     while [ ${RETRYDOWNLOAD} -lt 10 ] && [ ! -f /usr/local/bin/webcounter ]
     do
         echo "Webpagecounter Binaries Download - Take ${RETRYDOWNLOAD}" 
-        # download binariesfrom latest release
-        sudo bash -c 'curl -s -L https://api.github.com/repos/allthingsclowd/web_page_counter/releases/latest \
-        | grep "browser_download_url" \
-        | cut -d : -f 2,3 \
-        | tr -d \" | wget -q -i - '
-        RETRYDOWNLOAD=$[${RETRYDOWNLOAD}+1]
+        # download binaries version
+        
+        sudo wget -q https://github.com/allthingsclowd/web_page_counter/releases/download/${webpagecounter_version}/webcounter
         sleep 5
     done
 
     [  -f /usr/local/bin/webcounter  ] &>/dev/null || {
-        echo 'Failed to download webpagecounter binaries from https://api.github.com/repos/allthingsclowd/web_page_counter/releases/latest'
+        echo "https://github.com/allthingsclowd/web_page_counter/releases/download/${webpagecounter_version}/webcounter"
         exit 1
     }
 
@@ -42,10 +43,7 @@ install_factory_secretid_binaries () {
     do
         echo "Vault SecretID Service Download - Take ${RETRYDOWNLOAD}"
         # download binary and template file from latest release
-        sudo bash -c 'curl -s -L https://api.github.com/repos/allthingsclowd/VaultServiceIDFactory/releases/latest \
-        | grep "browser_download_url" \
-        | cut -d : -f 2,3 \
-        | tr -d \" | wget -q -i - '
+        sudo wget -q https://github.com/allthingsclowd/VaultServiceIDFactory/releases/download/${secretid_service_version}/VaultServiceIDFactory
         RETRYDOWNLOAD=$[${RETRYDOWNLOAD}+1]
         sleep 5
     done
@@ -68,10 +66,7 @@ install_web_front_end_binaries () {
     do 
         echo "Web Front End Download - Take ${RETRYDOWNLOAD}"
         # download binary and template file from latest release
-        sudo bash -c 'curl -s -L https://api.github.com/repos/allthingsclowd/wep_page_counter_front-end/releases/latest \
-        | grep "browser_download_url" \
-        | cut -d : -f 2,3 \
-        | tr -d \" | wget -q -i - '
+        sudo wget -q https://github.com/allthingsclowd/web_page_counter_front-end/releases/download/${webpagecounter_frontend_version}/webcounterpagefrontend.tar.gz
         [ -f webcounterpagefrontend.tar.gz ] && sudo tar -xvf webcounterpagefrontend.tar.gz -C /var/www
         RETRYDOWNLOAD=$[${RETRYDOWNLOAD}+1]
         sleep 5
@@ -86,86 +81,30 @@ install_web_front_end_binaries () {
    
 }
 
+install_binary () {
+    
+    pushd /usr/local/bin
+    [ -f ${1}_${2}_linux_amd64.zip ] || {
+        sudo wget -q https://releases.hashicorp.com/${1}/${2}/${1}_${2}_linux_amd64.zip
+    }
+    sudo unzip -o ${1}_${2}_linux_amd64.zip
+    sudo chmod +x ${1}
+    sudo rm ${1}_${2}_linux_amd64.zip
+    popd
+    ${1} --version
+}
 
 install_hashicorp_binaries () {
 
-    # check consul binary
-    [ -f /usr/local/bin/consul ] &>/dev/null || {
-        pushd /usr/local/bin
-        [ -f consul_${consul_version}_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/consul/${consul_version}/consul_${consul_version}_linux_amd64.zip
-        }
-        sudo unzip consul_${consul_version}_linux_amd64.zip
-        sudo chmod +x consul
-        sudo rm consul_${consul_version}_linux_amd64.zip
-        popd
-        consul --version
-    }
+    install_binary packer ${packer_version}
+    install_binary vagrant ${vagrant_version}
+    install_binary vault ${vault_version}
+    install_binary terraform ${terraform_version}
+    install_binary consul ${consul_version}
+    install_binary nomad ${nomad_version}
+    install_binary envconsul ${env_consul_version}
+    install_binary consul-template ${consul_template_version}
 
-    # check consul-template binary
-    [ -f /usr/local/bin/consul-template ] &>/dev/null || {
-        pushd /usr/local/bin
-        [ -f consul-template_${consul_template_version}_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/consul-template/${consul_template_version}/consul-template_${consul_template_version}_linux_amd64.zip
-        }
-        sudo unzip consul-template_${consul_template_version}_linux_amd64.zip
-        sudo chmod +x consul-template
-        sudo rm consul-template_${consul_template_version}_linux_amd64.zip
-        popd
-        consul-template -version
-    }
-
-    # check envconsul binary
-    [ -f /usr/local/bin/envconsul ] &>/dev/null || {
-        pushd /usr/local/bin
-        [ -f envconsul_${env_consul_version}_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/envconsul/${env_consul_version}/envconsul_${env_consul_version}_linux_amd64.zip
-        }
-        sudo unzip envconsul_${env_consul_version}_linux_amd64.zip
-        sudo chmod +x envconsul
-        sudo rm envconsul_${env_consul_version}_linux_amd64.zip
-        popd
-        envconsul -version
-    }
-
-    # check vault binary
-    [ -f /usr/local/bin/vault ] &>/dev/null || {
-        pushd /usr/local/bin
-        [ -f vault_${vault_version}_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/vault/${vault_version}/vault_${vault_version}_linux_amd64.zip
-        }
-        sudo unzip vault_${vault_version}_linux_amd64.zip
-        sudo chmod +x vault
-        sudo rm vault_${vault_version}_linux_amd64.zip
-        popd
-        vault -version
-    }
-
-    # check terraform binary
-    [ -f /usr/local/bin/terraform ] &>/dev/null || {
-        pushd /usr/local/bin
-        [ -f terraform_${terraform_version}_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip
-        }
-        sudo unzip terraform_${terraform_version}_linux_amd64.zip
-        sudo chmod +x terraform
-        sudo rm terraform_${terraform_version}_linux_amd64.zip
-        popd
-        terraform -version
-    }
-
-    # check for nomad binary
-    [ -f /usr/local/bin/nomad ] &>/dev/null || {
-        pushd /usr/local/bin
-        [ -f nomad_${nomad_version}_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/nomad/${nomad_version}/nomad_${nomad_version}_linux_amd64.zip
-        }
-        sudo unzip nomad_${nomad_version}_linux_amd64.zip
-        sudo chmod +x nomad
-        sudo rm nomad_${nomad_version}_linux_amd64.zip
-        popd
-        nomad -version
-    }
 }
 
 install_chef_inspec () {

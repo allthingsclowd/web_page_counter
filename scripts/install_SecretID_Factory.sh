@@ -19,7 +19,6 @@ register_secret_id_service_with_consul () {
       "EnableTagOverride": false,
       "checks": [
           {
-            "id": "api",
             "name": "Factory Service SecretID",
             "http": "http://127.0.0.1:8314/health",
             "tls_skip_verify": true,
