@@ -89,6 +89,33 @@ install_web_front_end_binaries () {
 
 install_hashicorp_binaries () {
 
+    # check packer binary
+    [ -f /usr/local/bin/packer ] &>/dev/null || {
+        pushd /usr/local/bin
+        [ -f packer_${packer_version}_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/packer/${packer_version}/packer_${packer_version}_linux_amd64.zip
+        }
+        sudo unzip packer_${packer_version}_linux_amd64.zip
+        sudo chmod +x packer
+        sudo rm packer_${packer_version}_linux_amd64.zip
+        popd
+        packer --version
+    }
+
+    # check vagrant binary
+    [ -f /usr/local/bin/vagrant ] &>/dev/null || {
+        pushd /usr/local/bin
+        [ -f vagrant_${vagrant_version}_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/vagrant/${vagrant_version}/vagrant_${vagrant_version}_linux_amd64.zip
+        }
+        sudo unzip vagrant_${vagrant_version}_linux_amd64.zip
+        sudo chmod +x vagrant
+        sudo rm vagrant_${vagrant_version}_linux_amd64.zip
+        popd
+        vagrant --version
+    }
+
+
     # check consul binary
     [ -f /usr/local/bin/consul ] &>/dev/null || {
         pushd /usr/local/bin

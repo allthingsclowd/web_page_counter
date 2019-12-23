@@ -141,6 +141,42 @@ control 'nomad-binary-version-1.0' do
   end
 end
 
+control 'vagrant-binary-exists-1.0' do         
+  impact 1.0                      
+  title 'vagrant binary exists'
+  desc 'verify that the vagrant binary is installed'
+  describe file('/usr/local/bin/vagrant') do 
+    it { should exist }
+  end
+end
+
+control 'vagrant-binary-version-1.0' do                      
+  impact 1.0                                
+  title 'vagrant binary version check'
+  desc 'verify that the vagrant binary is the correct version'
+  describe command('vagrant version') do
+   its('stdout') { should match /v2.2.6/ }
+  end
+end
+
+control 'packer-binary-exists-1.0' do         
+  impact 1.0                      
+  title 'packer binary exists'
+  desc 'verify that the packer binary is installed'
+  describe file('/usr/local/bin/packer') do 
+    it { should exist }
+  end
+end
+
+control 'packer-binary-version-1.0' do                      
+  impact 1.0                                
+  title 'packer binary version check'
+  desc 'verify that the packer binary is the correct version'
+  describe command('packer version') do
+   its('stdout') { should match /v1.5.1/ }
+  end
+end
+
 control 'terraform-binary-exists-1.0' do         
   impact 1.0                      
   title 'terraform binary exists'
