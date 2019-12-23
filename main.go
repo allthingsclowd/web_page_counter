@@ -293,7 +293,8 @@ func getConsulSVC(consulClient consul.Client, key string) string {
 		return serviceDetail.String()
 	}
 	
-	return ("Failed to locate service >> %v \n", key)
+	fmt.Printf("DEBUG: Failed to locate service >> %v \n", key)
+	return fmt.Sprintf("Failed to locate service >> %v \n", key)
 	
 }
 
