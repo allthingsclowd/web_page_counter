@@ -112,7 +112,7 @@ install_hashicorp_binaries () {
     install_binary consul ${consul_version}
     install_binary nomad ${nomad_version}
     install_binary envconsul ${env_consul_version}
-    install_binary consul_template ${consul_template_version}
+    install_binary consul-template ${consul_template_version}
 
 }
 
