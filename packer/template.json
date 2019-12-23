@@ -236,7 +236,7 @@
       ],
       "type": "shell",
       "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
-      "only": ["{{ user `build_name` }}-vmware"]
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },
     {
       "destination": "/usr/local/bootstrap/",
