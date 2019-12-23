@@ -20,17 +20,14 @@ install_webpagecounter_binaries () {
     while [ ${RETRYDOWNLOAD} -lt 10 ] && [ ! -f /usr/local/bin/webcounter ]
     do
         echo "Webpagecounter Binaries Download - Take ${RETRYDOWNLOAD}" 
-        # download binariesfrom latest release
-        sudo bash -c 'curl -s -L https://api.github.com/repos/allthingsclowd/web_page_counter/releases/latest \
-        | grep "browser_download_url" \
-        | cut -d : -f 2,3 \
-        | tr -d \" | wget -q -i - '
-        RETRYDOWNLOAD=$[${RETRYDOWNLOAD}+1]
+        # download binaries version
+        
+        sudo wget -q https://github.com/allthingsclowd/web_page_counter/releases/download/${webpagecounter_version}/webcounter
         sleep 5
     done
 
     [  -f /usr/local/bin/webcounter  ] &>/dev/null || {
-        echo 'Failed to download webpagecounter binaries from https://api.github.com/repos/allthingsclowd/web_page_counter/releases/latest'
+        echo "https://github.com/allthingsclowd/web_page_counter/releases/download/${webpagecounter_version}/webcounter"
         exit 1
     }
 
@@ -46,10 +43,7 @@ install_factory_secretid_binaries () {
     do
         echo "Vault SecretID Service Download - Take ${RETRYDOWNLOAD}"
         # download binary and template file from latest release
-        sudo bash -c 'curl -s -L https://api.github.com/repos/allthingsclowd/VaultServiceIDFactory/releases/latest \
-        | grep "browser_download_url" \
-        | cut -d : -f 2,3 \
-        | tr -d \" | wget -q -i - '
+        sudo wget -q https://github.com/allthingsclowd/VaultServiceIDFactory/releases/download/${secretid_service_version}/VaultServiceIDFactory
         RETRYDOWNLOAD=$[${RETRYDOWNLOAD}+1]
         sleep 5
     done
@@ -72,10 +66,7 @@ install_web_front_end_binaries () {
     do 
         echo "Web Front End Download - Take ${RETRYDOWNLOAD}"
         # download binary and template file from latest release
-        sudo bash -c 'curl -s -L https://api.github.com/repos/allthingsclowd/wep_page_counter_front-end/releases/latest \
-        | grep "browser_download_url" \
-        | cut -d : -f 2,3 \
-        | tr -d \" | wget -q -i - '
+        sudo wget -q https://github.com/allthingsclowd/web_page_counter_front-end/releases/download/${webpagecounter_frontend_version}/webcounterpagefrontend.tar.gz
         [ -f webcounterpagefrontend.tar.gz ] && sudo tar -xvf webcounterpagefrontend.tar.gz -C /var/www
         RETRYDOWNLOAD=$[${RETRYDOWNLOAD}+1]
         sleep 5
