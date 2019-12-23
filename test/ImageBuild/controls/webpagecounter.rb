@@ -65,7 +65,7 @@ control 'consul-binary-version-1.0' do
   title 'consul binary version check'
   desc 'verify that the consul binary is the correct version'
   describe command('consul version') do
-   its('stdout') { should match /Consul v1.6.2/ }
+   its('stdout') { should match /Consul v1.7.0-beta2/ }
   end
 end
 
@@ -119,7 +119,7 @@ control 'vault-binary-version-1.0' do
   title 'vault binary version check'
   desc 'verify that the vault binary is the correct version'
   describe command('vault version') do
-   its('stdout') { should match /v1.3.0/ }
+   its('stdout') { should match /v1.3.1/ }
   end
 end
 
@@ -137,7 +137,7 @@ control 'nomad-binary-version-1.0' do
   title 'nomad binary version check'
   desc 'verify that the nomad binary is the correct version'
   describe command('nomad version') do
-   its('stdout') { should match /v0.10.1/ }
+   its('stdout') { should match /v0.10.2/ }
   end
 end
 
@@ -155,7 +155,7 @@ control 'vagrant-binary-version-1.0' do
   title 'vagrant binary version check'
   desc 'verify that the vagrant binary is the correct version'
   describe command('vagrant version') do
-   its('stdout') { should match /v2.2.6/ }
+   its('stdout') { should match /2.2.6/ }
   end
 end
 
@@ -191,7 +191,7 @@ control 'terraform-binary-version-1.0' do
   title 'terraform binary version check'
   desc 'verify that the terraform binary is the correct version'
   describe command('terraform version') do
-   its('stdout') { should match /v0.12.15/ }
+   its('stdout') { should match /v0.12.18/ }
   end
 end
 

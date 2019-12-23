@@ -86,113 +86,30 @@ install_web_front_end_binaries () {
    
 }
 
+install_binary () {
+    
+    pushd /usr/local/bin
+    [ -f packer_${2}_linux_amd64.zip ] || {
+        sudo wget -q https://releases.hashicorp.com/packer/${2}/packer_${2}_linux_amd64.zip
+    }
+    sudo unzip ${1}_${2}_linux_amd64.zip
+    sudo chmod +x ${1}
+    sudo rm ${1}_${packer_version}_linux_amd64.zip
+    popd
+    ${1} --version
+}
 
 install_hashicorp_binaries () {
 
-    # check packer binary
-    [ -f /usr/local/bin/packer ] &>/dev/null || {
-        pushd /usr/local/bin
-        [ -f packer_${packer_version}_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/packer/${packer_version}/packer_${packer_version}_linux_amd64.zip
-        }
-        sudo unzip packer_${packer_version}_linux_amd64.zip
-        sudo chmod +x packer
-        sudo rm packer_${packer_version}_linux_amd64.zip
-        popd
-        packer --version
-    }
+    install_binary packer ${packer_version}
+    install_binary vagrant ${vagrant_version}
+    install_binary vault ${vault_version}
+    install_binary terraform ${terraform_version}
+    install_binary consul ${consul_version}
+    install_binary nomad ${nomad_version}
+    install_binary envconsul ${env_consul_version}
+    install_binary consul_template ${consul_template_version}
 
-    # check vagrant binary
-    [ -f /usr/local/bin/vagrant ] &>/dev/null || {
-        pushd /usr/local/bin
-        [ -f vagrant_${vagrant_version}_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/vagrant/${vagrant_version}/vagrant_${vagrant_version}_linux_amd64.zip
-        }
-        sudo unzip vagrant_${vagrant_version}_linux_amd64.zip
-        sudo chmod +x vagrant
-        sudo rm vagrant_${vagrant_version}_linux_amd64.zip
-        popd
-        vagrant --version
-    }
-
-
-    # check consul binary
-    [ -f /usr/local/bin/consul ] &>/dev/null || {
-        pushd /usr/local/bin
-        [ -f consul_${consul_version}_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/consul/${consul_version}/consul_${consul_version}_linux_amd64.zip
-        }
-        sudo unzip consul_${consul_version}_linux_amd64.zip
-        sudo chmod +x consul
-        sudo rm consul_${consul_version}_linux_amd64.zip
-        popd
-        consul --version
-    }
-
-    # check consul-template binary
-    [ -f /usr/local/bin/consul-template ] &>/dev/null || {
-        pushd /usr/local/bin
-        [ -f consul-template_${consul_template_version}_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/consul-template/${consul_template_version}/consul-template_${consul_template_version}_linux_amd64.zip
-        }
-        sudo unzip consul-template_${consul_template_version}_linux_amd64.zip
-        sudo chmod +x consul-template
-        sudo rm consul-template_${consul_template_version}_linux_amd64.zip
-        popd
-        consul-template -version
-    }
-
-    # check envconsul binary
-    [ -f /usr/local/bin/envconsul ] &>/dev/null || {
-        pushd /usr/local/bin
-        [ -f envconsul_${env_consul_version}_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/envconsul/${env_consul_version}/envconsul_${env_consul_version}_linux_amd64.zip
-        }
-        sudo unzip envconsul_${env_consul_version}_linux_amd64.zip
-        sudo chmod +x envconsul
-        sudo rm envconsul_${env_consul_version}_linux_amd64.zip
-        popd
-        envconsul -version
-    }
-
-    # check vault binary
-    [ -f /usr/local/bin/vault ] &>/dev/null || {
-        pushd /usr/local/bin
-        [ -f vault_${vault_version}_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/vault/${vault_version}/vault_${vault_version}_linux_amd64.zip
-        }
-        sudo unzip vault_${vault_version}_linux_amd64.zip
-        sudo chmod +x vault
-        sudo rm vault_${vault_version}_linux_amd64.zip
-        popd
-        vault -version
-    }
-
-    # check terraform binary
-    [ -f /usr/local/bin/terraform ] &>/dev/null || {
-        pushd /usr/local/bin
-        [ -f terraform_${terraform_version}_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip
-        }
-        sudo unzip terraform_${terraform_version}_linux_amd64.zip
-        sudo chmod +x terraform
-        sudo rm terraform_${terraform_version}_linux_amd64.zip
-        popd
-        terraform -version
-    }
-
-    # check for nomad binary
-    [ -f /usr/local/bin/nomad ] &>/dev/null || {
-        pushd /usr/local/bin
-        [ -f nomad_${nomad_version}_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/nomad/${nomad_version}/nomad_${nomad_version}_linux_amd64.zip
-        }
-        sudo unzip nomad_${nomad_version}_linux_amd64.zip
-        sudo chmod +x nomad
-        sudo rm nomad_${nomad_version}_linux_amd64.zip
-        popd
-        nomad -version
-    }
 }
 
 install_chef_inspec () {
