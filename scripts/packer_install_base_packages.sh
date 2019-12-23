@@ -89,12 +89,12 @@ install_web_front_end_binaries () {
 install_binary () {
     
     pushd /usr/local/bin
-    [ -f packer_${2}_linux_amd64.zip ] || {
-        sudo wget -q https://releases.hashicorp.com/packer/${2}/packer_${2}_linux_amd64.zip
+    [ -f ${1}_${2}_linux_amd64.zip ] || {
+        sudo wget -q https://releases.hashicorp.com/${1}/${2}/${1}_${2}_linux_amd64.zip
     }
     sudo unzip -o ${1}_${2}_linux_amd64.zip
     sudo chmod +x ${1}
-    sudo rm ${1}_${packer_version}_linux_amd64.zip
+    sudo rm ${1}_${2}_linux_amd64.zip
     popd
     ${1} --version
 }
