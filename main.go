@@ -284,12 +284,17 @@ func getConsulSVC(consulClient consul.Client, key string) string {
 		fmt.Printf("Failed to discover Redis Service : e.g. curl -s http://localhost:8500/v1/catalog/service/redis >> %v \n", err)
 		return "0"
 	}
-	fmt.Printf("DEBUG: myService >> %v \n", myService)
-	serviceDetail.WriteString(string(myService[0].Address))
-	serviceDetail.WriteString(":")
-	serviceDetail.WriteString(strconv.Itoa(myService[0].ServicePort))
 
-	return serviceDetail.String()
+	if len(myService) > 0 {
+		fmt.Printf("DEBUG: myService >> %v \n", myService)
+		serviceDetail.WriteString(string(myService[0].Address))
+		serviceDetail.WriteString(":")
+		serviceDetail.WriteString(strconv.Itoa(myService[0].ServicePort))
+		return serviceDetail.String()
+	}
+	
+	return ("Failed to locate service >> %v \n", key)
+	
 }
 
 func redisInit() (string, string) {

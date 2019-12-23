@@ -242,7 +242,7 @@
       "destination": "/usr/local/bootstrap/",
       "source": "../var.env",
       "type": "file",
-      "only": ["{{ user `build_name` }}-vmware"]
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },
     {
       "destination": "/usr/local/bootstrap/",
