@@ -5,7 +5,7 @@
     source /usr/local/bootstrap/var.env
     
 [ -f ../var.env ]
-    source /usr/local/bootstrap/var.env
+    source ../var.env
 
 # TODO: Add checksums to ensure integrity of binaries downloaded
 
