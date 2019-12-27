@@ -120,26 +120,26 @@ create_service_user () {
 create_consul_service () {
     
     create_service consul "HashiCorp Consul Server SD & KV Service" "/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -config-dir=/etc/consul.d -enable-script-checks=true -data-dir=/usr/local/consul -bootstrap-expect=1"
-    # sudo systemctl disable consul
+    sudo systemctl disable consul
 }
 
 create_vault_service () {
     
     sudo setcap cap_ipc_lock=+ep /usr/local/bin/vault
     create_vault_service vault "HashiCorp's Sercret Management Service" "/usr/local/bin/vault server -dev -dev-root-token-id="reallystrongpassword" -config=/etc/vault.d/vault.hcl"
-    # sudo systemctl disable vault
+    sudo systemctl disable vault
 }
 
 create_nomad_service () {
     
     create_service nomad "HashiCorp's Nomad Server - A Modern Platform and Cloud Agnostic Scheduler" "/usr/local/bin/nomad agent -log-level=DEBUG -server -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/etc/nomad.d"
-    # sudo systemctl disable nomad
+    sudo systemctl disable nomad
 }
 
 create_envoy_service () {
     
     create_service envoy "Envoy Proxy Server" "/usr/bin/envoy"
-    # sudo systemctl disable envoy
+    sudo systemctl disable envoy
 }
 
 create_consul_service
