@@ -321,7 +321,7 @@
     },
     {
       "type": "inspec",
-      "profile": "../test/ImageBuild"
+      "profile": "../test/ImageBuild-VMware"
     }
   ],
   "post-processors": [
