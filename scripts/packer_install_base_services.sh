@@ -44,8 +44,6 @@ LimitNOFILE=65536
 WantedBy=multi-user.target
 EOF
 
-  sudo systemctl daemon-reload
-
   fi
 
 }
@@ -103,8 +101,6 @@ LimitMEMLOCK=infinity
 [Install]
 WantedBy=multi-user.target
 EOF
-
-  sudo systemctl daemon-reload
 
   fi
 
