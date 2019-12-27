@@ -162,7 +162,7 @@ resource "vsphere_virtual_machine" "redis01vm" {
 } 
 
 resource "vsphere_virtual_machine" "godevvms" {
-  count = 5
+  count = 10
   name             = "godev-${count.index + 1}"
   resource_pool_id = "${data.vsphere_resource_pool.pool.id}"
   datastore_id     = "${data.vsphere_datastore.datastore.id}"

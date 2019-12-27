@@ -213,6 +213,24 @@ control 'golang-version-1.0' do
   end
 end
 
+control 'envoy-exists-1.0' do         
+  impact 1.0                      
+  title 'envoy proxy exists'
+  desc 'verify that envoy is installed'
+  describe file('/usr/bin/envoy') do 
+    it { should exist }
+  end
+end
+
+control 'envoy-version-1.0' do                      
+  impact 1.0                                
+  title 'envoy version check'
+  desc 'verify that envoy is the correct version'
+  describe command('/usr/bin/envoy --version') do
+   its('stdout') { should match /1.12.2/ }
+  end
+end
+
 control 'secret-id' do         
   impact 1.0                      
   title 'secret-id binary'
