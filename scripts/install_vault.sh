@@ -552,7 +552,7 @@ install_vault () {
             sleep 15
             cat ${LOG}
         else
-            create_service vault "HashiCorp's Sercret Management Service" "/usr/local/bin/vault server -dev -dev-root-token-id="reallystrongpassword" -config=/etc/vault.d/vault.hcl"
+            create_service vault "HashiCorp's Sercret Management Service" "/usr/local/bin/vault server -dev -dev-root-token-id=\"reallystrongpassword\" -config=/etc/vault.d/vault.hcl"
             sudo systemctl start vault
             #sudo systemctl status vault
         fi
