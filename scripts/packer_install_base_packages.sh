@@ -118,6 +118,26 @@ install_chef_inspec () {
 
 }
 
+install_envoy () {
+
+    pushd /tmp
+    sudo apt-get update
+    sudo apt-get install -y \
+        apt-transport-https \
+        ca-certificates \
+        curl \
+        gnupg-agent \
+        software-properties-common
+    curl -sL 'https://getenvoy.io/gpg' | sudo apt-key add -
+    apt-key fingerprint 6FF974DB
+    sudo add-apt-repository \
+        "deb [arch=amd64] https://dl.bintray.com/tetrate/getenvoy-deb \
+        $(lsb_release -cs) \
+        stable"
+    sudo apt-get update && sudo apt-get install -y getenvoy-envoy=1.12.2.p0.g55af249-1p49.g8b1f2e3
+    envoy --version
+}
+
 sudo apt-get clean
 sudo apt-get update
 sudo apt-get upgrade -y
@@ -169,6 +189,7 @@ install_webpagecounter_binaries
 install_factory_secretid_binaries
 install_web_front_end_binaries
 install_chef_inspec
+install_envoy
 
 # Reboot with the new kernel
 shutdown -r now
