@@ -202,13 +202,14 @@ install_consul () {
         sudo -u consul cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
         sudo -u consul /usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
       else
-        create_service consul "HashiCorp Consul Server SD & KV Service" "/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1"
+        # create_service consul "HashiCorp Consul Server SD & KV Service" "/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1"
         # ensure consul service has permissions to access certificates
         sudo usermod -a -G webpagecountercerts consul
         sudo -u consul cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
         # sudo -u consul /usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
         sudo systemctl start consul
-        ##sudo systemctl status consul
+        sudo systemctl enable consul
+        sudo systemctl status consul
       fi
       sleep 15
       # upload vars to consul kv
@@ -225,10 +226,11 @@ install_consul () {
     echo "Starting a Consul Agent"
     /usr/local/bin/consul members 2>/dev/null || {
 
-        create_service consul "HashiCorp Consul Agent Service"  "/usr/local/bin/consul agent -log-level=debug -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -join=${LEADER_IP}"
+        # create_service consul "HashiCorp Consul Agent Service"  "/usr/local/bin/consul agent -log-level=debug -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -join=${LEADER_IP}"
         # ensure consul service has permissions to access certificates
         sudo usermod -a -G webpagecountercerts consul
         sudo systemctl start consul
+        sudo systemctl enable consul
         echo $HOSTNAME
         hostname
         ##sudo systemctl status consul
