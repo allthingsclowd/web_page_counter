@@ -135,7 +135,7 @@ install_nomad() {
         cp -apr /usr/local/bootstrap/conf/nomad.d /etc
         sudo systemctl start nomad
         sudo systemctl enable nomad
-        sudo systemctl status nomad
+        # sudo systemctl status nomad
         
       }
     fi
@@ -150,7 +150,7 @@ install_nomad() {
       cp -apr /usr/local/bootstrap/conf/nomad.d /etc
       sudo systemctl start nomad
       sudo systemctl enable nomad
-      sudo systemctl status nomad
+      # sudo systemctl status nomad
       sleep 15
     }
 

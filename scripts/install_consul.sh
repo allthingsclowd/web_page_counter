@@ -210,7 +210,6 @@ install_consul () {
         # sudo -u consul /usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
         sudo systemctl start consul
         sudo systemctl enable consul
-        sudo systemctl status consul
       fi
       sleep 15
       # upload vars to consul kv
@@ -235,7 +234,6 @@ install_consul () {
         sudo systemctl enable consul
         echo $HOSTNAME
         hostname
-        ##sudo systemctl status consul
         sleep 15
     }
   fi
