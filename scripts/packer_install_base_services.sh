@@ -20,7 +20,7 @@ create_service () {
 Description=${2}
 Requires=network-online.target
 After=network-online.target
-ConditionFileNotEmpty=/etc/${1}.d/${1}.hcl
+ConditionDirectoryNotEmpty=/etc/${1}.d/
 StartLimitIntervalSec=60
 StartLimitBurst=3
 
@@ -69,7 +69,7 @@ Description=${2}
 Documentation=https://www.vaultproject.io/docs/
 Requires=network-online.target
 After=network-online.target
-ConditionFileNotEmpty=/etc/${1}.d/${1}.hcl
+ConditionDirectoryNotEmpty=/etc/${1}.d/
 StartLimitIntervalSec=60
 StartLimitBurst=3
 
