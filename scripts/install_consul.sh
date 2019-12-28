@@ -208,8 +208,8 @@ install_consul () {
         sudo usermod -a -G webpagecountercerts consul
         sudo -u consul cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
         # sudo -u consul /usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
-        sudo systemctl start consul
         sudo systemctl enable consul
+        sudo systemctl start consul
       fi
       sleep 15
       # upload vars to consul kv
@@ -230,8 +230,8 @@ install_consul () {
         # create_service consul "HashiCorp Consul Agent Service"  "/usr/local/bin/consul agent -log-level=debug -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -join=${LEADER_IP}"
         # ensure consul service has permissions to access certificates
         sudo usermod -a -G webpagecountercerts consul
-        sudo systemctl start consul
         sudo systemctl enable consul
+        sudo systemctl start consul
         echo $HOSTNAME
         hostname
         sleep 15

@@ -133,8 +133,9 @@ install_nomad() {
         sudo sed -i "/ExecStart/c\ExecStart=/usr/local/bin/nomad agent -log-level=DEBUG -server -bind=${IP} -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/etc/nomad.d" /etc/systemd/system/nomad.service
         sudo usermod -a -G webpagecountercerts nomad
         cp -apr /usr/local/bootstrap/conf/nomad.d /etc
-        sudo systemctl start nomad
         sudo systemctl enable nomad
+        sudo systemctl start nomad
+        
         # sudo systemctl status nomad
         
       }
@@ -148,8 +149,8 @@ install_nomad() {
       sudo sed -i "/ExecStart/c\ExecStart=/usr/local/bin/nomad agent -log-level=DEBUG -client -bind=${IP} -data-dir=/usr/local/nomad -join=${LEADER_IP} -config=/etc/nomad.d" /etc/systemd/system/nomad.service
       sudo usermod -a -G webpagecountercerts nomad
       cp -apr /usr/local/bootstrap/conf/nomad.d /etc
-      sudo systemctl start nomad
       sudo systemctl enable nomad
+      sudo systemctl start nomad
       # sudo systemctl status nomad
       sleep 15
     }
