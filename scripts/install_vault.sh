@@ -542,7 +542,7 @@ install_vault () {
         # sudo groupadd vaultcerts
         sudo chgrp -R webpagecountercerts /etc/vault.d
         sudo chmod -R 770 /etc/vault.d
-        create_service_user vault
+        #create_service_user vault
         sudo usermod -a -G webpagecountercerts vault
         sudo -u vault cp -r /usr/local/bootstrap/conf/vault.d/* /etc/vault.d/.
 
