@@ -25,7 +25,7 @@ StartLimitIntervalSec=60
 StartLimitBurst=3
 
 [Service]
-Type=notify
+Type=${4}
 User=${1}
 Group=${1}
 PIDFile=/var/run/${1}/${1}.pid
@@ -143,7 +143,7 @@ create_service_user () {
 
 create_consul_service () {
     
-    create_service consul "HashiCorp Consul Server SD & KV Service" "/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} -join=${IP} -config-dir=/etc/consul.d -enable-script-checks=true -data-dir=/usr/local/consul -bootstrap-expect=1"
+    create_service consul "HashiCorp Consul Server SD & KV Service" "/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} -join=${IP} -config-dir=/etc/consul.d -enable-script-checks=true -data-dir=/usr/local/consul -bootstrap-expect=1" notify
     sudo systemctl disable consul
 }
 
@@ -156,13 +156,13 @@ create_vault_service () {
 
 create_nomad_service () {
     
-    create_service nomad "HashiCorp's Nomad Server - A Modern Platform and Cloud Agnostic Scheduler" "/usr/local/bin/nomad agent -log-level=DEBUG -server -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/etc/nomad.d"
+    create_service nomad "HashiCorp's Nomad Server - A Modern Platform and Cloud Agnostic Scheduler" "/usr/local/bin/nomad agent -log-level=DEBUG -server -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/etc/nomad.d" simple
     sudo systemctl disable nomad
 }
 
 create_envoy_service () {
     
-    create_service envoy "Envoy Proxy Server" "/usr/bin/envoy"
+    create_service envoy "Envoy Proxy Server" "/usr/bin/envoy" simple
     sudo systemctl disable envoy
 }
 
