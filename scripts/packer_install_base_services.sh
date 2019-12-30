@@ -137,8 +137,9 @@ create_service_user () {
     sudo groupadd -f -r ${1}
     sudo useradd -g ${1} --system --home-dir /etc/${1}.d --create-home --shell /bin/false ${1}
     sudo mkdir --parents /opt/${1} /usr/local/${1} /etc/${1}.d
-    sudo chgrp ${1} /opt/${1} /usr/local/${1} /etc/${1}.d
+    sudo chown -R ${1}:${1} /opt/${1} /usr/local/${1} /etc/${1}.d
     sudo chown :${1} /usr/local/bin/${1}
+    
   fi
 
 }
