@@ -2,18 +2,18 @@
 
 generate_certificate_config () {
 
-  sudo mkdir -p /etc/pki/tls/private
-  sudo mkdir -p /etc/pki/tls/certs
-  sudo mkdir -p /etc/consul.d
-  sudo cp -r /usr/local/bootstrap/certificate-config/${5}-key.pem /etc/pki/tls/private/${5}-key.pem
-  sudo cp -r /usr/local/bootstrap/certificate-config/${5}.pem /etc/pki/tls/certs/${5}.pem
-  sudo cp -r /usr/local/bootstrap/certificate-config/consul-ca.pem /etc/pki/tls/certs/consul-ca.pem
+  # sudo mkdir -p /etc/pki/tls/private
+  # sudo mkdir -p /etc/pki/tls/certs
+  # sudo mkdir -p /etc/consul.d
+  # sudo cp -r /usr/local/bootstrap/certificate-config/${5}-key.pem /etc/pki/tls/private/${5}-key.pem
+  # sudo cp -r /usr/local/bootstrap/certificate-config/${5}.pem /etc/pki/tls/certs/${5}.pem
+  # sudo cp -r /usr/local/bootstrap/certificate-config/consul-ca.pem /etc/pki/tls/certs/consul-ca.pem
   sudo tee /etc/consul.d/consul_cert_setup.json <<EOF
   {
   "datacenter": "allthingscloud1",
   "data_dir": "/usr/local/consul",
   "log_level": "INFO",
-  "server": ${1},
+  "server": true,
   "node_name": "${HOSTNAME}",
   "addresses": {
       "https": "0.0.0.0"
@@ -24,9 +24,9 @@ generate_certificate_config () {
   },
   "verify_incoming": true,
   "verify_outgoing": true,
-  "key_file": "$2",
-  "cert_file": "$3",
-  "ca_file": "$4"
+  "key_file": "/etc/consul.d/pki/tls/private/consul/server-key.pem",
+  "cert_file": "/etc/consul.d/pki/tls/certs/consul/server.pem",
+  "ca_file": "/etc/consul.d/pki/tls/certs/consul/consul-ca.pem"
   }
 EOF
 
@@ -185,10 +185,10 @@ install_consul () {
   export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
   
   # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
-  generate_certificate_config true "/etc/pki/tls/private/server-key.pem" "/etc/pki/tls/certs/server.pem" "/etc/pki/tls/certs/consul-ca.pem" server
-  sudo groupadd webpagecountercerts
-  sudo chgrp -R webpagecountercerts /etc/pki/tls
-  sudo chmod -R 770 /etc/pki/tls
+  generate_certificate_config
+  # sudo groupadd webpagecountercerts
+  # sudo chgrp -R webpagecountercerts /etc/pki/tls
+  # sudo chmod -R 770 /etc/pki/tls
 
   # check for consul hostname or travis => server
   if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
@@ -205,7 +205,7 @@ install_consul () {
         # create_service consul "HashiCorp Consul Server SD & KV Service" "/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1"
         # ensure consul service has permissions to access certificates
         sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -join=${IP} -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1" /etc/systemd/system/consul.service
-        sudo usermod -a -G webpagecountercerts consul
+        # sudo usermod -a -G webpagecountercerts consul
         sudo -u consul cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
         # sudo -u consul /usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
         sudo systemctl enable consul
@@ -229,7 +229,7 @@ install_consul () {
         sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/consul agent -log-level=debug -client=0.0.0.0 -join=${IP} -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -join=${LEADER_IP}" /etc/systemd/system/consul.service
         # create_service consul "HashiCorp Consul Agent Service"  "/usr/local/bin/consul agent -log-level=debug -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -join=${LEADER_IP}"
         # ensure consul service has permissions to access certificates
-        sudo usermod -a -G webpagecountercerts consul
+        # sudo usermod -a -G webpagecountercerts consul
         sudo systemctl enable consul
         sudo systemctl start consul
         echo $HOSTNAME

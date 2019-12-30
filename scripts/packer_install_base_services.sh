@@ -106,20 +106,46 @@ EOF
 
 }
 
+configure_certificates () {
+    # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
+
+    # move vault certificates into place
+    sudo -u vault mkdir --parents /etc/vault.d/pki/tls/private/vault /etc/vault.d/pki/tls/certs/vault
+    sudo -u vault mkdir --parents /etc/vault.d/pki/tls/private/consul /etc/vault.d/pki/tls/certs/consul
+    sudo -u vault cp -r /usr/local/bootstrap/certificate-config/hashistack-server-key.pem /etc/vault.d/pki/tls/private/vault/hashistack-server-key.pem
+    sudo -u vault cp -r /usr/local/bootstrap/certificate-config/hashistack-server.pem /etc/pki/tls/certs/vault/hashistack-server.pem
+
+    sudo -u vault cp -r /usr/local/bootstrap/certificate-config/server-key.pem /etc/vault.d/pki/tls/private/consul/server-key.pem
+    sudo -u vault cp -r /usr/local/bootstrap/certificate-config/server.pem /etc/vault.d/pki/tls/certs/consul/server.pem
+    sudo -u vault cp -r /usr/local/bootstrap/certificate-config/consul-ca.pem /etc/vault.d/pki/tls/certs/consul/consul-ca.pem
+
+    # move consul certificates into place
+    sudo -u consul mkdir --parents /etc/consul.d/pki/tls/private/vault /etc/consul.d/pki/tls/certs/vault
+    sudo -u consul mkdir --parents /etc/consul.d/pki/tls/private/consul /etc/consul.d/pki/tls/certs/consul
+    
+    sudo -u consul cp -r /usr/local/bootstrap/certificate-config/server-key.pem /etc/consul.d/pki/tls/private/consul/server-key.pem
+    sudo -u consul cp -r /usr/local/bootstrap/certificate-config/server.pem /etc/consul.d/pki/tls/certs/consul/server.pem
+    sudo -u consul cp -r /usr/local/bootstrap/certificate-config/consul-ca.pem /etc/consul.d/pki/tls/certs/consul/consul-ca.pem
+    
+}
+
 create_service_user () {
   
   if ! grep ${1} /etc/passwd >/dev/null 2>&1; then
+    
     echo "Creating ${1} user to run the ${1} service"
-    sudo useradd --system --home /etc/${1}.d --shell /bin/false ${1}
+    sudo groupadd -f -r ${1}
+    sudo useradd -g ${1} --system --home-dir /etc/${1}.d --create-home --shell /bin/false ${1}
     sudo mkdir --parents /opt/${1} /usr/local/${1} /etc/${1}.d
-    sudo chown --recursive ${1}:${1} /opt/${1} /etc/${1}.d /usr/local/${1}
+    sudo chgrp ${1} /opt/${1} /usr/local/${1} /etc/${1}.d
+    sudo chown :${1} /usr/local/bin/${1}
   fi
 
 }
 
 create_consul_service () {
     
-    create_service consul "HashiCorp Consul Server SD & KV Service" "/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -config-dir=/etc/consul.d -enable-script-checks=true -data-dir=/usr/local/consul -bootstrap-expect=1"
+    create_service consul "HashiCorp Consul Server SD & KV Service" "/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} -join=${IP} -config-dir=/etc/consul.d -enable-script-checks=true -data-dir=/usr/local/consul -bootstrap-expect=1"
     sudo systemctl disable consul
 }
 
@@ -146,3 +172,5 @@ create_consul_service
 create_vault_service
 create_nomad_service
 create_envoy_service
+
+configure_certificates

@@ -536,14 +536,14 @@ install_vault () {
         [ -f /usr/local/bootstrap/.vault-token ] && sudo rm /usr/local/bootstrap/.vault-token
 
         # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
-        sudo mkdir -p /etc/vault.d
-        sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server-key.pem /etc/pki/tls/private/hashistack-server-key.pem
-        sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server.pem /etc/pki/tls/certs/hashistack-server.pem
+        # sudo mkdir -p /etc/vault.d
+        # sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server-key.pem /etc/pki/tls/private/hashistack-server-key.pem
+        # sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server.pem /etc/pki/tls/certs/hashistack-server.pem
         # sudo groupadd vaultcerts
-        sudo chgrp -R webpagecountercerts /etc/vault.d
-        sudo chmod -R 770 /etc/vault.d
+        # sudo chgrp -R webpagecountercerts /etc/vault.d
+        # sudo chmod -R 770 /etc/vault.d
         #create_service_user vault
-        sudo usermod -a -G webpagecountercerts vault
+        # sudo usermod -a -G webpagecountercerts vault
         sudo -u vault cp -r /usr/local/bootstrap/conf/vault.d/* /etc/vault.d/.
 
         #start vault
