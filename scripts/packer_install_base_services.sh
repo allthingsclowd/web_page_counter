@@ -76,8 +76,6 @@ StartLimitBurst=3
 [Service]
 User=${1}
 Group=${1}
-ProtectSystem=full
-ProtectHome=read-only
 PrivateTmp=yes
 PrivateDevices=yes
 SecureBits=keep-caps
@@ -113,7 +111,7 @@ configure_certificates () {
     sudo -u vault mkdir --parents /etc/vault.d/pki/tls/private/vault /etc/vault.d/pki/tls/certs/vault
     sudo -u vault mkdir --parents /etc/vault.d/pki/tls/private/consul /etc/vault.d/pki/tls/certs/consul
     sudo -u vault cp -r /usr/local/bootstrap/certificate-config/hashistack-server-key.pem /etc/vault.d/pki/tls/private/vault/hashistack-server-key.pem
-    sudo -u vault cp -r /usr/local/bootstrap/certificate-config/hashistack-server.pem /etc/pki/tls/certs/vault/hashistack-server.pem
+    sudo -u vault cp -r /usr/local/bootstrap/certificate-config/hashistack-server.pem /etc/vault.d/pki/tls/certs/vault/hashistack-server.pem
 
     sudo -u vault cp -r /usr/local/bootstrap/certificate-config/server-key.pem /etc/vault.d/pki/tls/private/consul/server-key.pem
     sudo -u vault cp -r /usr/local/bootstrap/certificate-config/server.pem /etc/vault.d/pki/tls/certs/consul/server.pem
@@ -138,8 +136,7 @@ create_service_user () {
     sudo useradd -g ${1} --system --home-dir /etc/${1}.d --create-home --shell /bin/false ${1}
     sudo mkdir --parents /opt/${1} /usr/local/${1} /etc/${1}.d
     sudo chown -R ${1}:${1} /opt/${1} /usr/local/${1} /etc/${1}.d
-    sudo chown :${1} /usr/local/bin/${1}
-    
+
   fi
 
 }
