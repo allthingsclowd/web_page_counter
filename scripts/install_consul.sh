@@ -131,10 +131,11 @@ install_consul () {
 
     /usr/local/bin/consul members 2>/dev/null || {
       if [ "${TRAVIS}" == "true" ]; then
-        sudo cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
+        
         
         sudo mkdir --parents /etc/consul.d/pki/tls/private/vault /etc/consul.d/pki/tls/certs/vault
         sudo mkdir --parents /etc/consul.d/pki/tls/private/consul /etc/consul.d/pki/tls/certs/consul
+        sudo cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
         
         sudo cp -r /usr/local/bootstrap/certificate-config/server-key.pem /etc/consul.d/pki/tls/private/consul/server-key.pem
         sudo cp -r /usr/local/bootstrap/certificate-config/server.pem /etc/consul.d/pki/tls/certs/consul/server.pem
