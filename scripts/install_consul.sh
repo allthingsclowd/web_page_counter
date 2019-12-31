@@ -140,11 +140,12 @@ install_consul () {
         sudo cp -r /usr/local/bootstrap/certificate-config/server-key.pem /etc/consul.d/pki/tls/private/consul/server-key.pem
         sudo cp -r /usr/local/bootstrap/certificate-config/server.pem /etc/consul.d/pki/tls/certs/consul/server.pem
         sudo cp -r /usr/local/bootstrap/certificate-config/consul-ca.pem /etc/consul.d/pki/tls/certs/consul/consul-ca.pem
-  
+        sudo ls -al /etc/consul.d/pki/tls/certs/consul/
+        sudo ls -al /etc/consul.d/pki/tls/private/consul/
         sudo /usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${TRAVIS_BUILD_DIR}/${LOG} &
         sleep 5
-        ls -al ${TRAVIS_BUILD_DIR}/${LOG}
-        cat ${TRAVIS_BUILD_DIR}/${LOG}
+        sudo ls -al ${TRAVIS_BUILD_DIR}/${LOG}
+        sudo cat ${TRAVIS_BUILD_DIR}/${LOG}
       else
         sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -join=${IP} -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1" /etc/systemd/system/consul.service
         sudo -u consul cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
