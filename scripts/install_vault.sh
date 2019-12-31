@@ -1,62 +1,5 @@
 #!/usr/bin/env bash
 
-create_service () {
-
-  if [ ! -f /etc/systemd/system/${1}.service ]; then
-    
-    create_service_user ${1}
-    
-    sudo tee /etc/systemd/system/${1}.service <<EOF
-### BEGIN INIT INFO
-# Provides:          ${1}
-# Required-Start:    $local_fs $remote_fs
-# Required-Stop:     $local_fs $remote_fs
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: ${1} agent
-# Description:       ${2}
-### END INIT INFO
-
-[Unit]
-Description=${2}
-Requires=network-online.target
-After=network-online.target
-
-[Service]
-User=${1}
-Group=${1}
-PIDFile=/var/run/${1}/${1}.pid
-PermissionsStartOnly=true
-ExecStartPre=-/bin/mkdir -p /var/run/${1}
-ExecStartPre=/bin/chown -R ${1}:${1} /var/run/${1}
-ExecStart=${3}
-ExecReload=/bin/kill -HUP ${MAINPID}
-KillMode=process
-KillSignal=SIGTERM
-Restart=on-failure
-RestartSec=2s
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-  sudo systemctl daemon-reload
-
-  fi
-
-}
-
-create_service_user () {
-  
-  if ! grep ${1} /etc/passwd >/dev/null 2>&1; then
-    echo "Creating ${1} user to run the ${1} service"
-    sudo useradd --system --home /etc/${1}.d --shell /bin/false ${1}
-    sudo mkdir --parents /opt/${1} /usr/local/${1} /etc/${1}.d
-    sudo chown --recursive ${1}:${1} /opt/${1} /etc/${1}.d /usr/local/${1}
-  fi
-
-}
-
 setup_environment () {
     
     set -x
@@ -535,26 +478,29 @@ install_vault () {
         #delete old token if present
         [ -f /usr/local/bootstrap/.vault-token ] && sudo rm /usr/local/bootstrap/.vault-token
 
-        # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
-        sudo mkdir -p /etc/vault.d
-        sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server-key.pem /etc/pki/tls/private/hashistack-server-key.pem
-        sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server.pem /etc/pki/tls/certs/hashistack-server.pem
-        # sudo groupadd vaultcerts
-        sudo chgrp -R webpagecountercerts /etc/vault.d
-        sudo chmod -R 770 /etc/vault.d
-        create_service_user vault
-        sudo usermod -a -G webpagecountercerts vault
-        sudo -u vault cp -r /usr/local/bootstrap/conf/vault.d/* /etc/vault.d/.
+ 
 
         #start vault
         if [ "${TRAVIS}" == "true" ]; then
+            sudo mkdir --parents /etc/vault.d/pki/tls/private/vault /etc/vault.d/pki/tls/certs/vault
+            sudo mkdir --parents /etc/vault.d/pki/tls/private/consul /etc/vault.d/pki/tls/certs/consul
+
+            sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server-key.pem /etc/vault.d/pki/tls/private/vault/hashistack-server-key.pem
+            sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server.pem /etc/vault.d/pki/tls/certs/vault/hashistack-server.pem
+
+            sudo cp -r /usr/local/bootstrap/certificate-config/server-key.pem /etc/vault.d/pki/tls/private/consul/server-key.pem
+            sudo cp -r /usr/local/bootstrap/certificate-config/server.pem /etc/vault.d/pki/tls/certs/consul/server.pem
+            sudo cp -r /usr/local/bootstrap/certificate-config/consul-ca.pem /etc/vault.d/pki/tls/certs/consul/consul-ca.pem
+
+            sudo cp -r /usr/local/bootstrap/conf/vault.d/* /etc/vault.d/.
             sudo /usr/local/bin/vault server -dev -dev-root-token-id="reallystrongpassword" -config=/etc/vault.d/vault.hcl &> ${LOG} &
             sleep 15
             cat ${LOG}
         else
-            create_service vault "HashiCorp's Sercret Management Service" "/usr/local/bin/vault server -dev -dev-root-token-id="reallystrongpassword" -config=/etc/vault.d/vault.hcl"
+            sudo -u vault cp -r /usr/local/bootstrap/conf/vault.d/* /etc/vault.d/.
+            sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/vault server -dev -dev-root-token-id=\"reallystrongpassword\" -config=/etc/vault.d/vault.hcl" /etc/systemd/system/vault.service
+            sudo systemctl enable vault
             sudo systemctl start vault
-            #sudo systemctl status vault
         fi
         echo vault started
         sleep 15 

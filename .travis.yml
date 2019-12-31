@@ -23,6 +23,7 @@ before_script:
 - sed -i 's/REDIS_MASTER_IP=192.168.9.200/REDIS_MASTER_IP=127.0.0.1/g' /usr/local/bootstrap/var.env
 - cat /usr/local/bootstrap/var.env
 - bash scripts/packer_install_base_packages.sh
+# - bash scripts/packer_install_base_services.sh
 - bash scripts/install_consul.sh
 - bash scripts/consul_enable_acls_1.4.sh
 - bash scripts/install_vault.sh
@@ -50,7 +51,7 @@ script:
 - export CONSUL_CLIENT_KEY=certificate-config/cli-key.pem
 - consul version
 - go version
-- inspec exec --chef-license=accept test/ImageBuild
+- inspec exec --chef-license=accept test/ImageBuild-Travis
 - bash scripts/travis_run_go_app.sh
 deploy:
   provider: releases

@@ -1,63 +1,5 @@
 #!/usr/bin/env bash
 
-create_service () {
-  if [ ! -f /etc/systemd/system/${1}.service ]; then
-    
-    create_service_user ${1}
-    
-    sudo tee /etc/systemd/system/${1}.service <<EOF
-### BEGIN INIT INFO
-# Provides:          ${1}
-# Required-Start:    $local_fs $remote_fs
-# Required-Stop:     $local_fs $remote_fs
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: ${1} agent
-# Description:       ${2}
-### END INIT INFO
-
-[Unit]
-Description=${2}
-Requires=network-online.target
-After=network-online.target
-
-[Service]
-User=${1}
-Group=${1}
-PIDFile=/var/run/${1}/${1}.pid
-PermissionsStartOnly=true
-ExecStartPre=-/bin/mkdir -p /var/run/${1}
-ExecStartPre=/bin/chown -R ${1}:${1} /var/run/${1}
-ExecStart=${3}
-ExecReload=/bin/kill -HUP ${MAINPID}
-KillMode=process
-KillSignal=SIGTERM
-Restart=on-failure
-RestartSec=2s
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-  sudo systemctl daemon-reload
-
-  fi
-
-}
-
-create_service_user () {
-  
-  if ! grep ${1} /etc/passwd >/dev/null 2>&1; then
-    echo "Creating ${1} user to run the consul service"
-    sudo cp -arp /usr/local/bootstrap/conf/nomad.d /etc
-    sudo useradd --system --home /etc/${1}.d --shell /bin/false ${1}
-    sudo mkdir --parents /opt/${1} /usr/local/${1} /etc/${1}.d
-    sudo chown --recursive ${1}:${1} /opt/${1} /etc/${1}.d /usr/local/${1}
-  fi
-
-}
-
-
 setup_environment () {
   set -x
 
@@ -124,16 +66,21 @@ install_nomad() {
   # check for nomad hostname => server
   if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
     if [ "${TRAVIS}" == "true" ]; then
-      create_service_user nomad
-      sudo usermod -a -G webpagecountercerts nomad
-      sudo -u nomad /usr/local/bin/nomad agent -server -bind=${IP} -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/etc/nomad.d >${LOG} &
+      sudo  mkdir --parents /etc/nomad.d/pki/tls/private/nomad /etc/nomad.d/pki/tls/certs/nomad
+      sudo  mkdir --parents /etc/nomad.d/pki/tls/private/consul /etc/nomad.d/pki/tls/certs/consul
+
+      sudo  cp -r /usr/local/bootstrap/certificate-config/server-key.pem /etc/nomad.d/pki/tls/private/consul/server-key.pem
+      sudo  cp -r /usr/local/bootstrap/certificate-config/server.pem /etc/nomad.d/pki/tls/certs/consul/server.pem
+      sudo  cp -r /usr/local/bootstrap/certificate-config/consul-ca.pem /etc/nomad.d/pki/tls/certs/consul/consul-ca.pem
+   
+      sudo cp -apr /usr/local/bootstrap/conf/nomad.d /etc
+      sudo /usr/local/bin/nomad agent -server -bind=${IP} -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/etc/nomad.d >${LOG} &
     else
       NOMAD_ADDR=http://${IP}:4646 /usr/local/bin/nomad agent-info 2>/dev/null || {
-        create_service nomad "HashiCorp's Nomad Server - A Modern Platform and Cloud Agnostic Scheduler" "/usr/local/bin/nomad agent -log-level=DEBUG -server -bind=${IP} -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/etc/nomad.d"
-        sudo usermod -a -G webpagecountercerts nomad
+        sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/nomad agent -log-level=DEBUG -server -bind=${IP} -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/etc/nomad.d" /etc/systemd/system/nomad.service
         cp -apr /usr/local/bootstrap/conf/nomad.d /etc
+        sudo systemctl enable nomad
         sudo systemctl start nomad
-        #sudo systemctl status nomad
         
       }
     fi
@@ -142,11 +89,10 @@ install_nomad() {
   else
 
     NOMAD_ADDR=http://${IP}:4646 /usr/local/bin/nomad agent-info 2>/dev/null || {
-      create_service nomad "HashiCorp's Nomad Agent - A Modern Platform and Cloud Agnostic Scheduler" "/usr/local/bin/nomad agent -log-level=DEBUG -client -bind=${IP} -data-dir=/usr/local/nomad -join=192.168.9.11 -config=/etc/nomad.d"
-      sudo usermod -a -G webpagecountercerts nomad
+      sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/nomad agent -log-level=DEBUG -client -bind=${IP} -data-dir=/usr/local/nomad -join=${LEADER_IP} -config=/etc/nomad.d" /etc/systemd/system/nomad.service
       cp -apr /usr/local/bootstrap/conf/nomad.d /etc
+      sudo systemctl enable nomad
       sudo systemctl start nomad
-      #sudo systemctl status nomad
       sleep 15
     }
 

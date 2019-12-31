@@ -298,6 +298,7 @@
       "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
       "scripts": [
         "../scripts/packer_install_base_packages.sh",
+        "../scripts/packer_install_base_services.sh",
         "../scripts/packer_configure_vagrant_user.sh",
         "../scripts/packer_virtualbox_cleanup.sh"
       ],
@@ -310,6 +311,7 @@
       "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
       "scripts": [
         "../scripts/packer_install_base_packages.sh",
+        "../scripts/packer_install_base_services.sh",
         "../scripts/packer_configure_vagrant_user.sh",
         "../scripts/packer_install_vmtools.sh"
       ],
@@ -320,7 +322,7 @@
     },
     {
       "type": "inspec",
-      "profile": "../test/ImageBuild"
+      "profile": "../test/ImageBuild-VMware"
     }
   ],
   "post-processors": [

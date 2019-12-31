@@ -150,7 +150,7 @@ sudo apt-get remove -y plymouth-theme-ubuntu-text
 sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="quiet"/GRUB_CMDLINE_LINUX_DEFAULT=""/' /etc/default/grub
 sudo update-grub
 
-sudo apt-get install -y wget -q unzip git redis-server nginx lynx jq curl net-tools
+sudo apt-get install -y -q wget tmux unzip git redis-server nginx lynx jq curl net-tools
 
 # disable services that are not used by all hosts
 sudo systemctl stop redis-server
