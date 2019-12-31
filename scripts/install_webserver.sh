@@ -60,7 +60,6 @@ register_nginx_service_with_consul () {
       "EnableTagOverride": false,
       "check": 
         {
-          "id": "api",
           "name": "HTTP API on port 9090",
           "http": "http://${IP}:9090/health",
           "tls_skip_verify": true,
