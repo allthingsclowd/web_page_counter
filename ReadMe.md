@@ -55,7 +55,6 @@ Consul's service mesh capability is also leveraged to secure access to the Redis
 - Review possibility of integrating Consul Connect Layer 7 demos
 - Start building out documentation for workshops
 - add SSH CA public key to image and remove insecure build ssh user
-- add UDP encryption to Consul (never bothered up until now, should be trivial)
 - possibly enable pki engine on vault and secure frontend of nginx service
 - migrate from internal consul connect proxy to envoy
 - test out L7 envoy features
@@ -171,3 +170,4 @@ Consul's service mesh capability is also leveraged to secure access to the Redis
 * Refactor EVERYTHING - General tidy up! Scripts getting very untidy and not battle hardened due to timimg constraints
     - moved users and services to packer build
     - added TLS certificates to packer build
+* add UDP encryption to Consul (never bothered up until now, should be trivial)
