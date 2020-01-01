@@ -9,7 +9,7 @@ generate_certificate_config () {
   {
   "datacenter": "allthingscloud1",
   "data_dir": "/usr/local/consul",
-  "encrypt" : "ReplaceWithConsulKeygenOutput",
+  "encrypt" : "${ConsulKeygenOutput}",
   "log_level": "INFO",
   "server": true,
   "node_name": "${HOSTNAME}",
@@ -38,6 +38,8 @@ setup_environment () {
   IFACE=`route -n | awk '$1 == "192.168.9.0" {print $8;exit}'`
   CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.9" {print $2}'`
   IP=${CIDR%%/24}
+  
+  export ConsulKeygenOutput=`/usr/local/bin/consul keygen`
 
   if [ -d /vagrant ]; then
     LOG="/vagrant/logs/consul_${HOSTNAME}.log"
