@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
 generate_certificate_config () {
+  if [ ! -d /etc/consul.d ]; then
+    sudo mkdir --parents /etc/consul.d
+  fi
 
   sudo tee /etc/consul.d/consul_cert_setup.json <<EOF
   {
@@ -123,7 +126,7 @@ install_consul () {
   export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
   
   # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
-  
+  generate_certificate_config
 
   # check for consul hostname or travis => server
   if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
@@ -138,7 +141,7 @@ install_consul () {
         sudo cp -r /usr/local/bootstrap/certificate-config/server-key.pem /etc/consul.d/pki/tls/private/consul/server-key.pem
         sudo cp -r /usr/local/bootstrap/certificate-config/server.pem /etc/consul.d/pki/tls/certs/consul/server.pem
         sudo cp -r /usr/local/bootstrap/certificate-config/consul-ca.pem /etc/consul.d/pki/tls/certs/consul/consul-ca.pem
-        generate_certificate_config
+        
         sudo ls -al /etc/consul.d/pki/tls/certs/consul/
         sudo ls -al /etc/consul.d/pki/tls/private/consul/
         sudo /usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${TRAVIS_BUILD_DIR}/${LOG} &
@@ -146,7 +149,7 @@ install_consul () {
         sudo ls -al ${TRAVIS_BUILD_DIR}/${LOG}
         sudo cat ${TRAVIS_BUILD_DIR}/${LOG}
       else
-        generate_certificate_config
+        
         sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -join=${IP} -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1" /etc/systemd/system/consul.service
         sudo -u consul cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
         sudo systemctl enable consul
@@ -166,7 +169,7 @@ install_consul () {
   else
     echo "Starting a Consul Agent"
     /usr/local/bin/consul members 2>/dev/null || {
-        generate_certificate_config
+        
         sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/consul agent -log-level=debug -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -join=${LEADER_IP}" /etc/systemd/system/consul.service
 
         sudo systemctl enable consul
