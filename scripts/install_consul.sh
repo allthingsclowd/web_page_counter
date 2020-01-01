@@ -9,6 +9,7 @@ generate_certificate_config () {
   {
   "datacenter": "allthingscloud1",
   "data_dir": "/usr/local/consul",
+  "encrypt" : "ReplaceWithConsulKeygenOutput",
   "log_level": "INFO",
   "server": true,
   "node_name": "${HOSTNAME}",
