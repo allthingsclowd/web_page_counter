@@ -54,7 +54,15 @@ Consul's service mesh capability is also leveraged to secure access to the Redis
 - Add TLS to Nomad
 - Review possibility of integrating Consul Connect Layer 7 demos
 - Start building out documentation for workshops
-- Refactor EVERYTHING - General tidy up! Scripts getting very untidy and not battle hardened due to timimg constraints
+- add SSH CA public key to image and remove insecure build ssh user
+- add UDP encryption to Consul (never bothered up until now, should be trivial)
+- possibly enable pki engine on vault and secure frontend of nginx service
+- migrate from internal consul connect proxy to envoy
+- test out L7 envoy features
+- create packer images for Azure, GCP and AWS
+- reverify Vagrant file deployment
+- build terraform monolith for Azure, GCP & AWS
+- transform terraform monolith to Good IAC examples using HC best practices
  
 
 ### New Features
@@ -160,3 +168,6 @@ Consul's service mesh capability is also leveraged to secure access to the Redis
 * Updated Documentation
 * Added Chef's Inspec test framework to test packer builds before release to production
 * Added TLS to Vault Services and verified on VMware and Virtualbox
+* Refactor EVERYTHING - General tidy up! Scripts getting very untidy and not battle hardened due to timimg constraints
+    - moved users and services to packer build
+    - added TLS certificates to packer build
