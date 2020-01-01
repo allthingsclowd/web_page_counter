@@ -166,7 +166,7 @@ install_consul () {
   else
     echo "Starting a Consul Agent"
     /usr/local/bin/consul members 2>/dev/null || {
-
+        generate_certificate_config
         sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/consul agent -log-level=debug -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -join=${LEADER_IP}" /etc/systemd/system/consul.service
 
         sudo systemctl enable consul
