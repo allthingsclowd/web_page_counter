@@ -39,7 +39,7 @@ setup_environment () {
   CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.9" {print $2}'`
   IP=${CIDR%%/24}
   
-  export ConsulKeygenOutput=`/usr/local/bin/consul keygen`
+  # export ConsulKeygenOutput=`/usr/local/bin/consul keygen` [e.g. mUIJq6TITeenfVa2yMSi6yLwxrz2AYcC0dXissYpOxE=]
 
   if [ -d /vagrant ]; then
     LOG="/vagrant/logs/consul_${HOSTNAME}.log"
