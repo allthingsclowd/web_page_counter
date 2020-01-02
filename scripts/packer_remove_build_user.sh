@@ -1,12 +1,13 @@
 #!/bin/bash
 
-# Remove Vagrant Build User if it exists (used on vmware builds)
-if id vagrant; then 
-    echo 'vagrant build user exists'; 
-    echo 'securing image by deleting vagant build user';
-    sudo deluser --remove-home vagrant && echo 'vagrant user successfully deleted' || echo 'CAUTION: unable to delete vagrant user';
-else 
-    echo 'vagrant build user does not exist';
+if ! crontab -l | grep deluser; then
+    echo 'Setting up crontab to delete user'
+    (crontab -l ; echo "@reboot deluser --remove-home vagrant")| crontab -
+    crontab -l
+else
+    echo 'Resetting crontab back to what was originally there...possibly blank'
+    (crontab -l | grep -v 'deluser --remove-home vagrant' )| crontab -
+    crontab -l
 fi
 
 exit 0
