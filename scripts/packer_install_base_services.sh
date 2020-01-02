@@ -136,8 +136,12 @@ configure_certificates () {
    
     # copy ssh CA certificate onto host
     sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-ca.pub /etc/ssh/hashistack-ca.pub
+    sudo chmod 644 /etc/ssh/hashistack-ca.pub
+    sudo cp -r /usr/local/bootstrap/certificate-config/ssh_host_ecdsa_key-cert.pub /etc/ssh/ssh_host_ecdsa_key-cert.pub
+    sudo chmod 644 /etc/ssh/ssh_host_ecdsa_key-cert.pub
     # enable ssh CA certificate
     grep -qxF 'TrustedUserCAKeys /etc/ssh/hashistack-ca.pub' /etc/ssh/sshd_config || echo 'TrustedUserCAKeys /etc/ssh/hashistack-ca.pub' | sudo tee -a /etc/ssh/sshd_config
+    grep -qxF 'HostCertificate /etc/ssh/ssh_host_ecdsa_key-cert.pub' /etc/ssh/sshd_config || echo 'HostCertificate /etc/ssh/ssh_host_ecdsa_key-cert.pub' | sudo tee -a /etc/ssh/sshd_config
 }
 
 create_service_user () {
