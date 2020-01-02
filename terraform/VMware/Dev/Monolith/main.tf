@@ -1,7 +1,7 @@
 provider "vsphere" {
-  user           = "${var.vsphere_user}"
-  password       = "${var.vsphere_password}"
-  vsphere_server = "${var.vsphere_server}"
+  user           = var.vsphere_user
+  password       = var.vsphere_password
+  vsphere_server = var.vsphere_server
 
   # If you have a self-signed cert
   allow_unverified_ssl = true
@@ -13,48 +13,48 @@ data "vsphere_datacenter" "dc" {
 
 data "vsphere_datastore" "datastore" {
   name          = "IntelDS2"
-  datacenter_id = "${data.vsphere_datacenter.dc.id}"
+  datacenter_id = data.vsphere_datacenter.dc.id
 }
 
 data "vsphere_resource_pool" "pool" {
   name          = "webpagecounter"
-  datacenter_id = "${data.vsphere_datacenter.dc.id}"
+  datacenter_id = data.vsphere_datacenter.dc.id
 }
 
 data "vsphere_network" "network" {
   name          = "DC1 VM Network"
-  datacenter_id = "${data.vsphere_datacenter.dc.id}"
+  datacenter_id = data.vsphere_datacenter.dc.id
 }
 
 data "vsphere_virtual_machine" "template" {
   name          = "web-page-counter"
-  datacenter_id = "${data.vsphere_datacenter.dc.id}"
+  datacenter_id = data.vsphere_datacenter.dc.id
 }
 
 resource "vsphere_virtual_machine" "leader01vm" {
   name             = "leader01"
-  resource_pool_id = "${data.vsphere_resource_pool.pool.id}"
-  datastore_id     = "${data.vsphere_datastore.datastore.id}"
+  resource_pool_id = data.vsphere_resource_pool.pool.id
+  datastore_id     = data.vsphere_datastore.datastore.id
 
   num_cpus = 1
   memory   = 1024
-  guest_id = "${data.vsphere_virtual_machine.template.guest_id}"
+  guest_id = data.vsphere_virtual_machine.template.guest_id
 
-  scsi_type = "${data.vsphere_virtual_machine.template.scsi_type}"
+  scsi_type = data.vsphere_virtual_machine.template.scsi_type
 
   network_interface {
-    network_id   = "${data.vsphere_network.network.id}"
-    adapter_type = "${data.vsphere_virtual_machine.template.network_interface_types[0]}"
+    network_id   = data.vsphere_network.network.id
+    adapter_type = data.vsphere_virtual_machine.template.network_interface_types[0]
   }
 
   disk {
     label            = "disk0"
-    size             = "${data.vsphere_virtual_machine.template.disks.0.size}"
-    thin_provisioned = "${data.vsphere_virtual_machine.template.disks.0.thin_provisioned}"
+    size             = data.vsphere_virtual_machine.template.disks.0.size
+    thin_provisioned = data.vsphere_virtual_machine.template.disks.0.thin_provisioned
   }
 
   clone {
-    template_uuid = "${data.vsphere_virtual_machine.template.id}"
+    template_uuid = data.vsphere_virtual_machine.template.id
     customize {
       network_interface {
         ipv4_address = "192.168.9.11"
@@ -78,9 +78,9 @@ resource "vsphere_virtual_machine" "leader01vm" {
     connection {
         type     = "ssh"
         user     = "root"
-        private_key = "${var.ssh_private_key}"
-        certificate = "${var.ssh_certificate}"
-        host = "${self.default_ip_address}"
+        private_key = var.ssh_private_key
+        certificate = var.ssh_certificate
+        host = self.default_ip_address
     }
 
     inline = [
@@ -97,28 +97,28 @@ resource "vsphere_virtual_machine" "leader01vm" {
 
 resource "vsphere_virtual_machine" "redis01vm" {
   name             = "redis01"
-  resource_pool_id = "${data.vsphere_resource_pool.pool.id}"
-  datastore_id     = "${data.vsphere_datastore.datastore.id}"
+  resource_pool_id = data.vsphere_resource_pool.pool.id
+  datastore_id     = data.vsphere_datastore.datastore.id
 
   num_cpus = 1
   memory   = 1024
-  guest_id = "${data.vsphere_virtual_machine.template.guest_id}"
+  guest_id = data.vsphere_virtual_machine.template.guest_id
 
-  scsi_type = "${data.vsphere_virtual_machine.template.scsi_type}"
+  scsi_type = data.vsphere_virtual_machine.template.scsi_type
 
   network_interface {
-    network_id   = "${data.vsphere_network.network.id}"
-    adapter_type = "${data.vsphere_virtual_machine.template.network_interface_types[0]}"
+    network_id   = data.vsphere_network.network.id
+    adapter_type = data.vsphere_virtual_machine.template.network_interface_types[0]
   }
 
   disk {
     label            = "disk0"
-    size             = "${data.vsphere_virtual_machine.template.disks.0.size}"
-    thin_provisioned = "${data.vsphere_virtual_machine.template.disks.0.thin_provisioned}"
+    size             = data.vsphere_virtual_machine.template.disks.0.size
+    thin_provisioned = data.vsphere_virtual_machine.template.disks.0.thin_provisioned
   }
 
   clone {
-    template_uuid = "${data.vsphere_virtual_machine.template.id}"
+    template_uuid = data.vsphere_virtual_machine.template.id
     customize {
       network_interface {
         ipv4_address = "192.168.9.200"
@@ -142,9 +142,9 @@ resource "vsphere_virtual_machine" "redis01vm" {
     connection {
         type     = "ssh"
         user     = "root"
-        private_key = "${var.ssh_private_key}"
-        certificate = "${var.ssh_certificate}"
-        host = "${self.default_ip_address}"
+        private_key = var.ssh_private_key
+        certificate = var.ssh_certificate
+        host = self.default_ip_address
     }
 
     inline = [
@@ -159,35 +159,35 @@ resource "vsphere_virtual_machine" "redis01vm" {
 
 
 
-  depends_on = ["vsphere_virtual_machine.leader01vm"]
+  depends_on = [vsphere_virtual_machine.leader01vm]
 
 } 
 
 resource "vsphere_virtual_machine" "godevvms" {
   count = 10
   name             = "godev-${count.index + 1}"
-  resource_pool_id = "${data.vsphere_resource_pool.pool.id}"
-  datastore_id     = "${data.vsphere_datastore.datastore.id}"
+  resource_pool_id = data.vsphere_resource_pool.pool.id
+  datastore_id     = data.vsphere_datastore.datastore.id
 
   num_cpus = 1
   memory   = 1024
-  guest_id = "${data.vsphere_virtual_machine.template.guest_id}"
+  guest_id = data.vsphere_virtual_machine.template.guest_id
 
-  scsi_type = "${data.vsphere_virtual_machine.template.scsi_type}"
+  scsi_type = data.vsphere_virtual_machine.template.scsi_type
 
   network_interface {
-    network_id   = "${data.vsphere_network.network.id}"
-    adapter_type = "${data.vsphere_virtual_machine.template.network_interface_types[0]}"
+    network_id   = data.vsphere_network.network.id
+    adapter_type = data.vsphere_virtual_machine.template.network_interface_types[0]
   }
 
   disk {
     label            = "disk0"
-    size             = "${data.vsphere_virtual_machine.template.disks.0.size}"
-    thin_provisioned = "${data.vsphere_virtual_machine.template.disks.0.thin_provisioned}"
+    size             = data.vsphere_virtual_machine.template.disks.0.size
+    thin_provisioned = data.vsphere_virtual_machine.template.disks.0.thin_provisioned
   }
 
   clone {
-    template_uuid = "${data.vsphere_virtual_machine.template.id}"
+    template_uuid = data.vsphere_virtual_machine.template.id
     customize {
       network_interface {
         ipv4_address = "192.168.9.${count.index + 21}"
@@ -211,9 +211,9 @@ resource "vsphere_virtual_machine" "godevvms" {
     connection {
         type     = "ssh"
         user     = "root"
-        private_key = "${var.ssh_private_key}"
-        certificate = "${var.ssh_certificate}"
-        host = "${self.default_ip_address}"
+        private_key = var.ssh_private_key
+        certificate = var.ssh_certificate
+        host = self.default_ip_address
     }
 
     inline = [
@@ -227,34 +227,34 @@ resource "vsphere_virtual_machine" "godevvms" {
     ]
   }   
 
-  depends_on = ["vsphere_virtual_machine.leader01vm", "vsphere_virtual_machine.redis01vm"]
+  depends_on = [vsphere_virtual_machine.leader01vm, vsphere_virtual_machine.redis01vm]
 
 }
 
 resource "vsphere_virtual_machine" "web01vm" {
   name             = "web01"
-  resource_pool_id = "${data.vsphere_resource_pool.pool.id}"
-  datastore_id     = "${data.vsphere_datastore.datastore.id}"
+  resource_pool_id = data.vsphere_resource_pool.pool.id
+  datastore_id     = data.vsphere_datastore.datastore.id
 
   num_cpus = 1
   memory   = 1024
-  guest_id = "${data.vsphere_virtual_machine.template.guest_id}"
+  guest_id = data.vsphere_virtual_machine.template.guest_id
 
-  scsi_type = "${data.vsphere_virtual_machine.template.scsi_type}"
+  scsi_type = data.vsphere_virtual_machine.template.scsi_type
 
   network_interface {
-    network_id   = "${data.vsphere_network.network.id}"
-    adapter_type = "${data.vsphere_virtual_machine.template.network_interface_types[0]}"
+    network_id   = data.vsphere_network.network.id
+    adapter_type = data.vsphere_virtual_machine.template.network_interface_types[0]
   }
 
   disk {
     label            = "disk0"
-    size             = "${data.vsphere_virtual_machine.template.disks.0.size}"
-    thin_provisioned = "${data.vsphere_virtual_machine.template.disks.0.thin_provisioned}"
+    size             = data.vsphere_virtual_machine.template.disks.0.size
+    thin_provisioned = data.vsphere_virtual_machine.template.disks.0.thin_provisioned
   }
 
   clone {
-    template_uuid = "${data.vsphere_virtual_machine.template.id}"
+    template_uuid = data.vsphere_virtual_machine.template.id
     customize {
       network_interface {
         ipv4_address = "192.168.9.250"
@@ -280,9 +280,9 @@ resource "vsphere_virtual_machine" "web01vm" {
     connection {
         type     = "ssh"
         user     = "root"
-        private_key = "${var.ssh_private_key}"
-        certificate = "${var.ssh_certificate}"
-        host = "${self.default_ip_address}"
+        private_key = var.ssh_private_key
+        certificate = var.ssh_certificate
+        host = self.default_ip_address
     }
   }
 
@@ -291,9 +291,9 @@ resource "vsphere_virtual_machine" "web01vm" {
     connection {
         type     = "ssh"
         user     = "root"
-        private_key = "${var.ssh_private_key}"
-        certificate = "${var.ssh_certificate}"
-        host = "${self.default_ip_address}"
+        private_key = var.ssh_private_key
+        certificate = var.ssh_certificate
+        host = self.default_ip_address
     }
 
     inline = [
@@ -306,6 +306,6 @@ resource "vsphere_virtual_machine" "web01vm" {
     ]
   }   
 
-  depends_on = ["vsphere_virtual_machine.godevvms"]  
+  depends_on = [vsphere_virtual_machine.godevvms]  
 
 } 
