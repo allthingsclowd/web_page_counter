@@ -408,4 +408,61 @@ end
 
 See the `test/ImageBuild` for the complete Inspec test profile
 
+## Securing Access to the Image using SSH Certificates
+Clearly, using a username/password (in this case vagrant/vagrant) is never a good idea post the initial build configuration.
+
+I'd recommend leveraging SSH access following Facebook's [guidance](https://engineering.fb.com/security/scalable-and-secure-access-with-ssh/) 
+
+- Create the new CA
+
+``` bash
+umask 77  # you really want to protect this :-)
+mkdir ~/my-ca && cd ~/my-ca
+
+ssh-keygen -C CA -f ca
+```
+
+- Configure SSH server to trust it by changing the line in `/etc/ssh/sshd_config`:
+
+``` bash
+grep -qxF 'TrustedUserCAKeys /etc/ssh/ca.pub' /etc/ssh/sshd_config || echo 'TrustedUserCAKeys /etc/ssh/ca.pub' | sudo tee -a /etc/ssh/sshd_config
+
+sudo systemctl restart ssh
+```
+
+e.g. `grep -qxF 'TrustedUserCAKeys /etc/ssh/hashistack-ca.pub' /etc/ssh/sshd_config || echo 'TrustedUserCAKeys /etc/ssh/hashistack-ca.pub' | sudo tee -a /etc/ssh/sshd_config`
+
+- And of course, copy the public ca key over to the target servers
+
+- Generate a key to access the servers (not performed on CA server IRL)
+
+ ``` bash
+ssh-keygen -t ecdsa -f ~/.ssh/my-test-keys
+ ```
+
+- In your `.ssh/` directory, you'll see `my-test-keys` and `my-test-keys.pub`. Copy `my-test-keys.pub` to the CA server and get it signed.
+
+- On the CA server
+
+```bash
+ssh-keygen -s ca -I grazzer -n root -V -5m:+30d -z 1 my-test-keys.pub
+```
+
+e.g. `ssh-keygen -s ~/hashistack-ca/hashistack-ca -I grazzer -n root -V -5m:+30d -z 1 ~/.ssh/my-test-keys.pub`
+
+- You should have `my-test-keys-cert.pub` now. Copy this back to the user terminal and place it under `.ssh/`.
+
+- Test the login as follows:
+
+``` bash
+ssh root@any-system-that-trusts-my-ca
+```
+
+e.g. `ssh -i ~/.ssh/my-test-keys -i ~/.ssh/my-test-keys-cert.pub root@192.168.2.105`
+
+### Note: 
+As I've deviated from ssh default key and certificate names I need to explicitly inform ssh of where to locate the keys and certificates used with the `-i` flag above
+
+The certificate generated above is Valid `-V` from 5 minutes ago for the next 30 days `-5m:+30d`. Ideally keep this as short as possible - for my dev/play environment security is not a real concern - 30 days is fine. 
+
 [:back:](../../ReadMe.md)

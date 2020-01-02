@@ -77,8 +77,9 @@ resource "vsphere_virtual_machine" "leader01vm" {
     
     connection {
         type     = "ssh"
-        user     = "vagrant"
-        password = "vagrant"
+        user     = "root"
+        private_key = "${var.ssh_private_key}"
+        certificate = "${var.ssh_certificate}"
         host = "${self.default_ip_address}"
     }
 
@@ -140,8 +141,9 @@ resource "vsphere_virtual_machine" "redis01vm" {
     
     connection {
         type     = "ssh"
-        user     = "vagrant"
-        password = "vagrant"
+        user     = "root"
+        private_key = "${var.ssh_private_key}"
+        certificate = "${var.ssh_certificate}"
         host = "${self.default_ip_address}"
     }
 
@@ -208,8 +210,9 @@ resource "vsphere_virtual_machine" "godevvms" {
     
     connection {
         type     = "ssh"
-        user     = "vagrant"
-        password = "vagrant"
+        user     = "root"
+        private_key = "${var.ssh_private_key}"
+        certificate = "${var.ssh_certificate}"
         host = "${self.default_ip_address}"
     }
 
@@ -276,8 +279,9 @@ resource "vsphere_virtual_machine" "web01vm" {
 
     connection {
         type     = "ssh"
-        user     = "vagrant"
-        password = "vagrant"
+        user     = "root"
+        private_key = "${var.ssh_private_key}"
+        certificate = "${var.ssh_certificate}"
         host = "${self.default_ip_address}"
     }
   }
@@ -286,8 +290,9 @@ resource "vsphere_virtual_machine" "web01vm" {
     
     connection {
         type     = "ssh"
-        user     = "vagrant"
-        password = "vagrant"
+        user     = "root"
+        private_key = "${var.ssh_private_key}"
+        certificate = "${var.ssh_certificate}"
         host = "${self.default_ip_address}"
     }
 

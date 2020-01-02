@@ -134,6 +134,10 @@ configure_certificates () {
     sudo -u nomad cp -r /usr/local/bootstrap/certificate-config/server.pem /etc/nomad.d/pki/tls/certs/consul/server.pem
     sudo -u nomad cp -r /usr/local/bootstrap/certificate-config/consul-ca.pem /etc/nomad.d/pki/tls/certs/consul/consul-ca.pem
    
+    # copy ssh CA certificate onto host
+    sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-ca.pub /etc/ssh/hashistack-ca.pub
+    # enable ssh CA certificate
+    grep -qxF 'TrustedUserCAKeys /etc/ssh/hashistack-ca.pub' /etc/ssh/sshd_config || echo 'TrustedUserCAKeys /etc/ssh/hashistack-ca.pub' | sudo tee -a /etc/ssh/sshd_config
 }
 
 create_service_user () {
