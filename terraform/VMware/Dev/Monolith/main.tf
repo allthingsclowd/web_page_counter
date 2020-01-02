@@ -142,8 +142,8 @@ resource "vsphere_virtual_machine" "redis01vm" {
     connection {
         type     = "ssh"
         user     = "root"
-        private_key = var.ssh_private_key
-        certificate = var.ssh_certificate
+        private_key = file(var.ssh_private_key)
+        certificate = file(var.ssh_certificate)
         host = self.default_ip_address
     }
 
@@ -211,8 +211,8 @@ resource "vsphere_virtual_machine" "godevvms" {
     connection {
         type     = "ssh"
         user     = "root"
-        private_key = var.ssh_private_key
-        certificate = var.ssh_certificate
+        private_key = file(var.ssh_private_key)
+        certificate = file(var.ssh_certificate)
         host = self.default_ip_address
     }
 
@@ -280,8 +280,8 @@ resource "vsphere_virtual_machine" "web01vm" {
     connection {
         type     = "ssh"
         user     = "root"
-        private_key = var.ssh_private_key
-        certificate = var.ssh_certificate
+        private_key = file(var.ssh_private_key)
+        certificate = file(var.ssh_certificate)
         host = self.default_ip_address
     }
   }
@@ -291,8 +291,8 @@ resource "vsphere_virtual_machine" "web01vm" {
     connection {
         type     = "ssh"
         user     = "root"
-        private_key = var.ssh_private_key
-        certificate = var.ssh_certificate
+        private_key = file(var.ssh_private_key)
+        certificate = file(var.ssh_certificate)
         host = self.default_ip_address
     }
 

@@ -439,7 +439,7 @@ e.g. `grep -qxF 'TrustedUserCAKeys /etc/ssh/hashistack-ca.pub' /etc/ssh/sshd_con
  ``` bash
 ssh-keygen -t ecdsa -f ~/.ssh/my-test-keys
  ```
-
+e.g. `ssh-keygen -s ~/hashistack-ca/hashistack-ca -I user_graham -n root -V +52W ~/.ssh/id_rsa.pub`
 - In your `.ssh/` directory, you'll see `my-test-keys` and `my-test-keys.pub`. Copy `my-test-keys.pub` to the CA server and get it signed.
 
 - On the CA server
