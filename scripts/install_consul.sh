@@ -11,14 +11,15 @@ generate_certificate_config () {
   "data_dir": "/usr/local/consul",
   "encrypt" : "${ConsulKeygenOutput}",
   "log_level": "INFO",
-  "server": true,
+  "server": ${1},
   "node_name": "${HOSTNAME}",
   "addresses": {
       "https": "0.0.0.0"
   },
   "ports": {
       "https": 8321,
-      "http": -1
+      "http": -1,
+      "grpc": 8502
   },
   "verify_incoming": true,
   "verify_outgoing": true,
@@ -127,13 +128,13 @@ install_consul () {
   export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
   export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
   export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
-  
-  # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
-  generate_certificate_config
 
   # check for consul hostname or travis => server
   if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
     echo "Starting a Consul Server"
+
+    # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
+    generate_certificate_config true
 
     /usr/local/bin/consul members 2>/dev/null || {
       if [ "${TRAVIS}" == "true" ]; then
@@ -171,6 +172,9 @@ install_consul () {
     }
   else
     echo "Starting a Consul Agent"
+    
+    generate_certificate_config false
+
     /usr/local/bin/consul members 2>/dev/null || {
         
         sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/consul agent -log-level=debug -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -join=${LEADER_IP}" /etc/systemd/system/consul.service
