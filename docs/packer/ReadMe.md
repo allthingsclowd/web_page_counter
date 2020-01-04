@@ -431,7 +431,7 @@ Certificate Authority (CA) Server | Host Server(s) | Client(s)
 
 ## Step 1 on CA server - Create Host Signing Key
 
-``` bsh
+```console
 
 graham@graz-baz:~/.WiP $ ssh-keygen -t rsa -N '' -C HOST-CA -b 4096 -f host-ca
 Generating public/private rsa key pair.
@@ -468,7 +468,7 @@ Notes:
 
 ## Step 2 on target host server(s) - Create a new host ssh key pair (optional, if keys exist)
 
-``` bsh
+```console
 root@redis01:# sudo ssh-keygen -N '' -C HOST-KEY -t rsa -b 4096 -h -f /etc/ssh/ssh_host_rsa_key
 Generating public/private rsa key pair.
 /etc/ssh/ssh_host_rsa_key already exists.
@@ -517,7 +517,7 @@ Notes:
 
 ## Step 3 on CA server - Copy over public host key(s)
 
-``` bsh
+```console
 
 graham@graz-baz:~/.WiP $ mkdir tmp-keys
 graham@graz-baz:~/.WiP $ cd tmp-keys/
@@ -533,7 +533,7 @@ graham@graz-baz:~/.WiP/tmp-keys $
 
 ## Step 4 on CA server - Create signed ssh host certificate
 
-``` bsh
+```console
 
 graham@graz-baz:~/.WiP/tmp-keys $ ssh-keygen -s ../host-ca -I dev_host_server -h -V -5m:+52w ssh_host_rsa_key.pub
 Signed host key ssh_host_rsa_key-cert.pub: id "dev_host_server" serial 0 valid from 2020-01-03T16:51:35 to 2021-01-01T16:56:35
@@ -553,7 +553,7 @@ graham@graz-baz:~/.WiP/tmp-keys $
 
 On CA Server
 
-``` bsh
+```console
 
 graham@graz-baz:~/.WiP/tmp-keys $ scp ssh_host_rsa_key-cert.pub root@192.168.9.200:/etc/ssh/ssh_host_rsa_key-cert.pub
 ssh_host_rsa_key-cert.pub                                                                                        100% 2359   973.0KB/s   00:00
@@ -562,7 +562,7 @@ graham@graz-baz:~/.WiP/tmp-keys $
 
 On Host Server
 
-``` bsh
+```console
 root@redis01:~# ls -al /etc/ssh/
 total 600
 drwxr-xr-x  2 root root   4096 Jan  3 14:38 .
@@ -585,7 +585,7 @@ root@redis01:~#
 
 ## Step 6 on CA server - tidy up
 
-``` bsh
+```console
 
 graham@graz-baz:~/.WiP/tmp-keys $ ls -al
 total 16
@@ -603,7 +603,7 @@ graham@graz-baz:~/.WiP/tmp-keys $
 
 ## Step 7 on Host server - Configure ssh to use new host certificate
 
-``` bsh
+```console
 
 root@redis01:~# grep -qxF 'HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub' /etc/ssh/sshd_config || echo 'HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub' | sudo tee -a /etc/ssh/sshd_config
 HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub
@@ -631,7 +631,7 @@ root@redis01:~#
 
 ## Step 8 on CA server - Capture details of Host CA public key
 
-``` bsh
+```console
 graham@graz-baz:~/.WiP $ ls
 host-ca  host-ca.pub  tmp-keys
 graham@graz-baz:~/.WiP $ cat host-ca.pub
@@ -642,7 +642,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDFmZo/bkvhmUEjx3erXC+rZ1R3htLHtz0VzZNpgQD2
 
 **Before the host-ca public key is added:**
 
-```bsh
+```console
 graham@graz-baz:~/web_page_counter/terraform/VMware/Dev/Monolith $ ssh -v root@192.168.9.200
 OpenSSH_7.4p1 Raspbian-10+deb9u7, OpenSSL 1.0.2u  20 Dec 2019
 debug1: Reading configuration data /etc/ssh/ssh_config
@@ -684,7 +684,7 @@ Are you sure you want to continue connecting (yes/no)?
 
 **Adding the host-ca public key :**
 
-``` bsh
+```console
 
 graham@graz-baz:~/web_page_counter/terraform/VMware/Dev/Monolith $ grep -qxF 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDFmZo/bkvhmUEjx3erXC+rZ1R3htLHtz0VzZNpgQD2sT2KZLW3yBiKYIKgxICM04MQsVHY1k5y4ek/tgnw05m5KOO5KTHxxKjcBKf2EyvwG0o8vnzo6UgweqXEePigAzSGQfcsGp75tVu3qmeLKXtJOo1WaWmTSNH4Qoq89xRiPslCVDi1i2VEPxJi3+eeFL5WO+nBK9Xt28DaXY4B43sgC1KC6DSRUR2JhlgPGMKP2eTE5+UaEldyPVzdIl2j3tLsaURfr+cZ6ryPEE9phT1bjcOSC3A88NrROZH1FvpZpG6NQPXusTWjre/NIz2TdG44AopbFRKAEpMVFw67AJ6oDWHPTrh2TGh3SQEIIZTdhudZIHnwiSBuKUOqyV65KH/mmy5gr8X2miHbM+qh6ISjqwPN6TjAhUPgkjxtwa7K+tDseBoFsrRIgP65hHAIlEFodHUI8Lu3P5HswH39z8ouEDR+qU54z9JO/E0Mw9YQPk19A6jr7o9/06wqSXfkVmS1VwvyZI90Zqrtg4+lZ3Zq/GLDqpxTlakfEAddOd9Ns01GgeSab4mKDwB6r2VTsunXQ4DDJkzxm9ioJmX7Ctv9J50Hqqcv+kiM8jJHrsB4IIrc0Cc/qb08YAo//i44JTuPxs2+FS2ifDmQA+TK5fJxwUIQJ6KDQ+0wB+T6yeYMJw== HOST-CA' ~/.ssh/known_hosts || echo '@cert-authority * ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDFmZo/bkvhmUEjx3erXC+rZ1R3htLHtz0VzZNpgQD2sT2KZLW3yBiKYIKgxICM04MQsVHY1k5y4ek/tgnw05m5KOO5KTHxxKjcBKf2EyvwG0o8vnzo6UgweqXEePigAzSGQfcsGp75tVu3qmeLKXtJOo1WaWmTSNH4Qoq89xRiPslCVDi1i2VEPxJi3+eeFL5WO+nBK9Xt28DaXY4B43sgC1KC6DSRUR2JhlgPGMKP2eTE5+UaEldyPVzdIl2j3tLsaURfr+cZ6ryPEE9phT1bjcOSC3A88NrROZH1FvpZpG6NQPXusTWjre/NIz2TdG44AopbFRKAEpMVFw67AJ6oDWHPTrh2TGh3SQEIIZTdhudZIHnwiSBuKUOqyV65KH/mmy5gr8X2miHbM+qh6ISjqwPN6TjAhUPgkjxtwa7K+tDseBoFsrRIgP65hHAIlEFodHUI8Lu3P5HswH39z8ouEDR+qU54z9JO/E0Mw9YQPk19A6jr7o9/06wqSXfkVmS1VwvyZI90Zqrtg4+lZ3Zq/GLDqpxTlakfEAddOd9Ns01GgeSab4mKDwB6r2VTsunXQ4DDJkzxm9ioJmX7Ctv9J50Hqqcv+kiM8jJHrsB4IIrc0Cc/qb08YAo//i44JTuPxs2+FS2ifDmQA+TK5fJxwUIQJ6KDQ+0wB+T6yeYMJw== HOST-CA' | tee -a ~/.ssh/known_hosts
 @cert-authority * ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDFmZo/bkvhmUEjx3erXC+rZ1R3htLHtz0VzZNpgQD2sT2KZLW3yBiKYIKgxICM04MQsVHY1k5y4ek/tgnw05m5KOO5KTHxxKjcBKf2EyvwG0o8vnzo6UgweqXEePigAzSGQfcsGp75tVu3qmeLKXtJOo1WaWmTSNH4Qoq89xRiPslCVDi1i2VEPxJi3+eeFL5WO+nBK9Xt28DaXY4B43sgC1KC6DSRUR2JhlgPGMKP2eTE5+UaEldyPVzdIl2j3tLsaURfr+cZ6ryPEE9phT1bjcOSC3A88NrROZH1FvpZpG6NQPXusTWjre/NIz2TdG44AopbFRKAEpMVFw67AJ6oDWHPTrh2TGh3SQEIIZTdhudZIHnwiSBuKUOqyV65KH/mmy5gr8X2miHbM+qh6ISjqwPN6TjAhUPgkjxtwa7K+tDseBoFsrRIgP65hHAIlEFodHUI8Lu3P5HswH39z8ouEDR+qU54z9JO/E0Mw9YQPk19A6jr7o9/06wqSXfkVmS1VwvyZI90Zqrtg4+lZ3Zq/GLDqpxTlakfEAddOd9Ns01GgeSab4mKDwB6r2VTsunXQ4DDJkzxm9ioJmX7Ctv9J50Hqqcv+kiM8jJHrsB4IIrc0Cc/qb08YAo//i44JTuPxs2+FS2ifDmQA+TK5fJxwUIQJ6KDQ+0wB+T6yeYMJw== HOST-CA
@@ -696,7 +696,7 @@ graham@graz-baz:~/web_page_counter/terraform/VMware/Dev/Monolith $
 
 **And the big test...**
 
-``` bsh
+```console
 graham@graz-baz:~/web_page_counter/terraform/VMware/Dev/Monolith $ ssh -v root@192.168.9.200
 OpenSSH_7.4p1 Raspbian-10+deb9u7, OpenSSL 1.0.2u  20 Dec 2019
 debug1: Reading configuration data /etc/ssh/ssh_config
@@ -739,7 +739,7 @@ debug1: rekey after 134217728 blocks
 
 ## Step 10 on CA server - Create a client CA signing key
 
-``` bsh
+```console
 
 $ ssh-keygen -t rsa -N '' -C CLIENT-CA -b 4096 -f client-ca
 Generating public/private rsa key pair.
@@ -776,7 +776,7 @@ $
 
 ## Step 11 on CA server - Copy public client CA signing key to ALL target hosts
 
-``` bsh
+```console
 
 $ scp client-ca.pub root@192.168.9.200:/etc/ssh/client-ca.pub
 client-ca.pub                                                                                                         
@@ -785,7 +785,7 @@ $
 
 ## Step 12 on target Hosts - Configure to use new public client CA key
 
-``` bsh
+```console
 
 vagrant@redis01:~$ sudo mv .ssh/client-ca.pub /etc/ssh/.
 vagrant@redis01:~$ chmod 644 /etc/ssh/client-ca.pub
@@ -811,7 +811,7 @@ vagrant@redis01:~$
 
 ## Step 13 on CA server - Create individual client signed certificates
 
-``` bsh
+```console
 
 $ ssh-keygen -s ../client-ca -I graham-dev -n root,vagrant,graham,pi -V -5:+52w -z 1 id_rsa.pub
 Signed user key id_rsa-cert.pub: id "graham-dev" serial 1 for root,vagrant,graham,pi valid from 2020-01-03T23:05:07 to 2021-01-01T23:05:12
@@ -824,7 +824,7 @@ $
 
 ## Step 14 on client(s) - Test new ssh certificate access
 
-``` bsh
+```console
 $ ssh -v root@192.168.9.200
 OpenSSH_7.9p1, LibreSSL 2.7.3
 debug1: Reading configuration data /etc/ssh/ssh_config
