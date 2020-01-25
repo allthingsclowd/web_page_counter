@@ -138,13 +138,13 @@ configure_certificates () {
     sudo -u nomad cp -r /usr/local/bootstrap/certificate-config/consul/consul-server.pem /etc/nomad.d/pki/tls/certs/consul/consul-server.pem   
    
     # copy ssh CA certificate onto host
-    sudo cp -r /usr/local/bootstrap/certificate-config/ssh_host_rsa_key.pub /etc/ssh/ssh_host_rsa_key.pub
+    sudo cp -r /usr/local/bootstrap/certificate-config/ssh_host/ssh_host_rsa_key.pub /etc/ssh/ssh_host_rsa_key.pub
     sudo chmod 644 /etc/ssh/ssh_host_rsa_key.pub
-    sudo cp -r /usr/local/bootstrap/certificate-config/ssh_host_rsa_key-cert.pub /etc/ssh/ssh_host_rsa_key-cert.pub
+    sudo cp -r /usr/local/bootstrap/certificate-config/ssh_host/ssh_host_rsa_key-cert.pub /etc/ssh/ssh_host_rsa_key-cert.pub
     sudo chmod 644 /etc/ssh/ssh_host_rsa_key-cert.pub
-    sudo cp -r /usr/local/bootstrap/certificate-config/client-ca.pub /etc/ssh/client-ca.pub
+    sudo cp -r /usr/local/bootstrap/certificate-config/ssh_host/client-ca.pub /etc/ssh/client-ca.pub
     sudo chmod 644 /etc/ssh/client-ca.pub
-    sudo cp -r /usr/local/bootstrap/certificate-config/ssh_host_rsa_key /etc/ssh/ssh_host_rsa_key
+    sudo cp -r /usr/local/bootstrap/certificate-config/ssh_host/ssh_host_rsa_key /etc/ssh/ssh_host_rsa_key
     sudo chmod 600 /etc/ssh/ssh_host_rsa_key
     # enable ssh CA certificate
     grep -qxF 'TrustedUserCAKeys /etc/ssh/client-ca.pub' /etc/ssh/sshd_config || echo 'TrustedUserCAKeys /etc/ssh/client-ca.pub' | sudo tee -a /etc/ssh/sshd_config
