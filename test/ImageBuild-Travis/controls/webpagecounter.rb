@@ -229,7 +229,7 @@ control 'envoy-version-1.0' do
   title 'envoy version check'
   desc 'verify that envoy is the correct version'
   describe command('/usr/bin/envoy --version') do
-   its('stdout') { should match /1.11.1/ }
+   its('stdout') { should match /1.12.2/ }
   end
 end
 
