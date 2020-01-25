@@ -23,9 +23,9 @@ generate_certificate_config () {
   },
   "verify_incoming": true,
   "verify_outgoing": true,
-  "key_file": "/etc/consul.d/pki/tls/private/consul/server-key.pem",
-  "cert_file": "/etc/consul.d/pki/tls/certs/consul/server.pem",
-  "ca_file": "/etc/consul.d/pki/tls/certs/consul/consul-ca.pem"
+  "key_file": "/etc/consul.d/pki/tls/certs/consul/consul-server-key.pem",
+  "cert_file": "/etc/consul.d/pki/tls/certs/consul/consul-server.pem",
+  "ca_file": "/etc/consul.d/pki/tls/certs/consul/hashistack-ca.pem"
   }
 EOF
 
@@ -125,9 +125,9 @@ install_consul () {
 
   # Configure consul environment variables for use with certificates 
   export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-  export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
-  export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
-  export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
+  export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
+  export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/consul/consul-client.pem
+  export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem
 
   # check for consul hostname or travis => server
   if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
@@ -142,9 +142,9 @@ install_consul () {
         sudo mkdir --parents /etc/consul.d/pki/tls/private/consul /etc/consul.d/pki/tls/certs/consul
         sudo cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
         
-        sudo cp -r /usr/local/bootstrap/certificate-config/server-key.pem /etc/consul.d/pki/tls/private/consul/server-key.pem
-        sudo cp -r /usr/local/bootstrap/certificate-config/server.pem /etc/consul.d/pki/tls/certs/consul/server.pem
-        sudo cp -r /usr/local/bootstrap/certificate-config/consul-ca.pem /etc/consul.d/pki/tls/certs/consul/consul-ca.pem
+        sudo cp -r /usr/local/bootstrap/certificate-config/server-key.pem /etc/consul.d/pki/tls/certs/consul/consul-server-key.pem
+        sudo cp -r /usr/local/bootstrap/certificate-config/server.pem /etc/consul.d/pki/tls/certs/consul/consul-server.pem
+        sudo cp -r /usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem /etc/consul.d/pki/tls/certs/consul/hashistack-ca.pem
         
         sudo ls -al /etc/consul.d/pki/tls/certs/consul/
         sudo ls -al /etc/consul.d/pki/tls/private/consul/

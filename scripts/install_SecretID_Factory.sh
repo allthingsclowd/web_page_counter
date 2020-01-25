@@ -34,26 +34,26 @@ EOF
   # Register the service in consul via the local Consul agent api
   sudo curl \
       --request PUT \
-      --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
-      --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
-      --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+      --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
+      --key "/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem" \
+      --cert "/usr/local/bootstrap/certificate-config/consul/consul-client.pem" \
       --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
       --data @secretid_service.json \
       ${CONSUL_HTTP_ADDR}/v1/agent/service/register
 
   # List the locally registered services via local Consul api
   sudo curl \
-    --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
-    --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
-    --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+    --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
+    --key "/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem" \
+    --cert "/usr/local/bootstrap/certificate-config/consul/consul-client.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     ${CONSUL_HTTP_ADDR}/v1/agent/services | jq -r .
 
   # List the services regestered on the Consul server
   sudo curl \
-    --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
-    --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
-    --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+    --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
+    --key "/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem" \
+    --cert "/usr/local/bootstrap/certificate-config/consul/consul-client.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     ${CONSUL_HTTP_ADDR}/v1/catalog/services | jq -r .
    
@@ -126,7 +126,7 @@ start_app_proxy_service () {
   # param 1 ${1}: app-proxy name
   # param 2 ${2}: app-proxy service description
 
-  create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/usr/local/bootstrap/certificate-config/consul-ca.pem -client-cert=/usr/local/bootstrap/certificate-config/cli.pem -client-key=/usr/local/bootstrap/certificate-config/cli-key.pem -token=${AGENTTOKEN} -sidecar-for ${1}"
+  create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem -client-cert=/usr/local/bootstrap/certificate-config/consul/consul-client.pem -client-key=/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem -token=${AGENTTOKEN} -sidecar-for ${1}"
   sudo usermod -a -G webpagecountercerts ${1}
   sudo systemctl start ${1}
   #sudo systemctl status ${1}
@@ -141,7 +141,7 @@ start_client_proxy_service () {
     # param 4 ${4}: client-proxy local service port number
     
 
-    create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/usr/local/bootstrap/certificate-config/consul-ca.pem -client-cert=/usr/local/bootstrap/certificate-config/cli.pem -client-key=/usr/local/bootstrap/certificate-config/cli-key.pem -token=${AGENTTOKEN} -service ${1} -upstream ${3}:${4}"
+    create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem -client-cert=/usr/local/bootstrap/certificate-config/consul/consul-client.pem -client-key=/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem -token=${AGENTTOKEN} -service ${1} -upstream ${3}:${4}"
     sudo usermod -a -G webpagecountercerts ${1}
     sudo systemctl start ${1}
     #sudo systemctl status ${1}
@@ -167,9 +167,9 @@ setup_environment () {
     echo 'Set environmental bootstrapping data in VAULT'
 
     export VAULT_ADDR=https://${VAULT_IP}:8322
-    export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
-    export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
-    export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
+    export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem
+    export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/vault/vault-client.pem
+    export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
     export VAULT_SKIP_VERIFY=true
 
     AGENTTOKEN=`VAULT_TOKEN=reallystrongpassword VAULT_ADDR="https://${LEADER_IP}:8322" vault kv get -field "value" kv/development/consulagentacl`
@@ -177,15 +177,15 @@ setup_environment () {
 
     # Configure consul environment variables for use with certificates 
     export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-    export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
-    export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
-    export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
+    export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
+    export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/consul/consul-client.pem
+    export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem
 
     # Configure CA Certificates for APP on host OS
     sudo mkdir -p /usr/local/share/ca-certificates
     sudo apt-get install ca-certificates -y
-    #sudo openssl x509 -outform der -in /usr/local/bootstrap/certificate-config/hashistack-ca.pem -out /usr/local/bootstrap/certificate-config/hashistack-ca.crt
-    sudo cp /usr/local/bootstrap/certificate-config/hashistack-ca.pem /usr/local/share/ca-certificates/hashistack-ca.crt
+    #sudo openssl x509 -outform der -in /usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem -out /usr/local/bootstrap/certificate-config/hashistack-ca.crt
+    sudo cp /usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem /usr/local/share/ca-certificates/hashistack-ca.crt
     sudo update-ca-certificates
 
     if [ -d /vagrant ]; then

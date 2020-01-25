@@ -26,15 +26,15 @@ setup_environment () {
   echo 'Set environmental bootstrapping data in VAULT'
   export VAULT_TOKEN=reallystrongpassword
   export VAULT_ADDR=https://192.168.9.11:8322
-  export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
-  export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
-  export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
+  export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem
+  export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/vault/vault-client.pem
+  export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
 
   # Configure consul environment variables for use with certificates 
   export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-  export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
-  export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
-  export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
+  export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
+  export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/consul/consul-client.pem
+  export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem
   AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
   export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
@@ -71,7 +71,7 @@ install_nomad() {
 
       sudo  cp -r /usr/local/bootstrap/certificate-config/server-key.pem /etc/nomad.d/pki/tls/private/consul/server-key.pem
       sudo  cp -r /usr/local/bootstrap/certificate-config/server.pem /etc/nomad.d/pki/tls/certs/consul/server.pem
-      sudo  cp -r /usr/local/bootstrap/certificate-config/consul-ca.pem /etc/nomad.d/pki/tls/certs/consul/consul-ca.pem
+      sudo  cp -r /usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem /etc/nomad.d/pki/tls/certs/consul/consul-ca.pem
    
       sudo cp -apr /usr/local/bootstrap/conf/nomad.d /etc
       sudo /usr/local/bin/nomad agent -server -bind=${IP} -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/etc/nomad.d >${LOG} &

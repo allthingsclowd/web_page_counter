@@ -25,9 +25,9 @@ import (
 )
 
 var (
-	certFile = flag.String("cert", "/usr/local/bootstrap/certificate-config/hashistack-client.pem", "A PEM eoncoded certificate file.")
-	keyFile  = flag.String("key", "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem", "A PEM encoded private key file.")
-	caFile   = flag.String("CA", "/usr/local/bootstrap/certificate-config/hashistack-ca.pem", "A PEM eoncoded CA's certificate file.")
+	certFile = flag.String("cert", "/usr/local/bootstrap/certificate-config/vault/vault-client.pem", "A PEM eoncoded certificate file.")
+	keyFile  = flag.String("key", "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem", "A PEM encoded private key file.")
+	caFile   = flag.String("CA", "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem", "A PEM eoncoded CA's certificate file.")
 )
 
 var templates *template.Template
@@ -309,9 +309,9 @@ func redisInit() (string, string) {
 	consulConfig.Scheme = "https"
 	consulConfig.Token = *consulACL
 	consulConfig.TLSConfig = consul.TLSConfig{
-		CAFile:             "/usr/local/bootstrap/certificate-config/consul-ca.pem",
-		CertFile:           "/usr/local/bootstrap/certificate-config/cli.pem",
-		KeyFile:            "/usr/local/bootstrap/certificate-config/cli-key.pem",
+		CAFile:             "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem",
+		CertFile:           "/usr/local/bootstrap/certificate-config/consul/consul-client.pem",
+		KeyFile:            "/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem",
 		Address:			"127.0.0.1",
 	  }
 	fmt.Printf("ConsulConfig: %+v \n", consulConfig)
