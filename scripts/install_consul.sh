@@ -145,8 +145,8 @@ install_consul () {
         sudo mkdir --parents /etc/consul.d/pki/tls/private/vault /etc/consul.d/pki/tls/certs/vault /etc/consul.d/pki/tls/certs/hashistack
         sudo mkdir --parents /etc/consul.d/pki/tls/private/consul /etc/consul.d/pki/tls/certs/consul
         
-        sudo cp -r /usr/local/bootstrap/certificate-config/consul/consul-client-key.pem /etc/consul.d/pki/tls/private/consul/consul-client-key.pem
-        sudo cp -r /usr/local/bootstrap/certificate-config/consul/consul-client.pem /etc/consul.d/pki/tls/certs/consul/consul-client.pem
+        sudo cp -r /usr/local/bootstrap/certificate-config/consul/consul-server-key.pem /etc/consul.d/pki/tls/private/consul/consul-server-key.pem
+        sudo cp -r /usr/local/bootstrap/certificate-config/consul/consul-server.pem /etc/consul.d/pki/tls/certs/consul/consul-server.pem
         sudo cp -r /usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem /etc/consul.d/pki/tls/certs/hashistack/hashistack-ca.pem
         
   
