@@ -494,6 +494,9 @@ install_vault () {
             sudo cp -r /usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem /etc/vault.d/pki/tls/certs/hashistack/hashistack-ca.pem
 
             sudo cp -r /usr/local/bootstrap/conf/vault.d/* /etc/vault.d/.
+
+            sudo ls -al /etc/vault.d/pki/tls/certs/hashistack/hashistack-ca.pem /etc/vault.d/pki/tls/private/consul/consul-server-key.pem /etc/vault.d/pki/tls/certs/consul/consul-server.pem /etc/vault.d/pki/tls/private/vault/vault-server-key.pem /etc/vault.d/pki/tls/certs/vault/vault-server.pem
+            sudo cat /etc/vault.d/vault.hcl
             sudo /usr/local/bin/vault server -dev -dev-root-token-id="reallystrongpassword" -config=/etc/vault.d/vault.hcl &> ${LOG} &
             sleep 15
             cat ${LOG}
