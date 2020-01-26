@@ -7,7 +7,7 @@ generate_certificate_config () {
 
   sudo tee /etc/consul.d/consul_ssl_setup.hcl <<EOF
 
-datacenter = "allthingscloud1"
+datacenter = "hashistack.ie"
 data_dir = "/usr/local/consul"
 encrypt = "${ConsulKeygenOutput}"
 log_level = "INFO"
@@ -147,7 +147,7 @@ install_consul () {
         
         sudo cp -r /usr/local/bootstrap/certificate-config/consul/consul-server-key.pem /etc/consul.d/pki/tls/private/consul/consul-server-key.pem
         sudo cp -r /usr/local/bootstrap/certificate-config/consul/consul-server.pem /etc/consul.d/pki/tls/certs/consul/consul-server.pem
-        sudo cp -r /usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem /etc/consul.d/pki/tls/certs/consul/hashistack-ca.pem
+        sudo cp -r /usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem /etc/consul.d/pki/tls/certs/hashistack/hashistack-ca.pem
         
   
         

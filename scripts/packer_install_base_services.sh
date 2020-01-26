@@ -124,7 +124,7 @@ configure_certificates () {
     
     sudo -u consul cp -r /usr/local/bootstrap/certificate-config/consul/consul-server-key.pem /etc/consul.d/pki/tls/private/consul/consul-server-key.pem
     sudo -u consul cp -r /usr/local/bootstrap/certificate-config/consul/consul-server.pem /etc/consul.d/pki/tls/certs/consul/consul-server.pem
-    sudo -u consul cp -r /usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem /etc/consul.d/pki/tls/certs/consul/hashistack-ca.pem
+    sudo -u consul cp -r /usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem /etc/consul.d/pki/tls/certs/hashistack/hashistack-ca.pem
     
     # move consul certificates for nomad in place
     sudo -u nomad mkdir --parents /etc/nomad.d/pki/tls/private/nomad /etc/nomad.d/pki/tls/certs/nomad /etc/nomad.d/pki/tls/certs/hashistack
