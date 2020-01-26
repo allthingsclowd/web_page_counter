@@ -42,7 +42,7 @@ setup_environment () {
     export CONSUL_HTTP_TOKEN=${BOOTSTRAPACL}
 
     export VAULT_TOKEN=reallystrongpassword
-    export VAULT_ADDR=https://127.0.0.1:8322
+    export VAULT_ADDR=https://${LEADER_IP}:8322
     export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem
     export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/vault/vault-client.pem
     export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
@@ -381,7 +381,7 @@ bootstrap_secret_data () {
     
     echo 'Set environmental bootstrapping data in VAULT'
     export VAULT_TOKEN=reallystrongpassword
-    export VAULT_ADDR=https://127.0.0.1:8322
+    export VAULT_ADDR=https://${LEADER_IP}:8322
     export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem
     export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/vault/vault-client.pem
     export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem

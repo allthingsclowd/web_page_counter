@@ -28,7 +28,7 @@ setup_environment () {
     export CONSUL_GRPC_ADDR=https://127.0.0.1:8502
 
     export VAULT_TOKEN=reallystrongpassword
-    export VAULT_ADDR=https://127.0.0.1:8322
+    export VAULT_ADDR=https://${LEADER_IP}:8322
     export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem
     export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/consul/consul-client.pem
     export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
