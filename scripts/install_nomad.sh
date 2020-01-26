@@ -74,8 +74,8 @@ install_nomad() {
       sudo cp -r /usr/local/bootstrap/certificate-config/nomad/nomad-server.pem /etc/nomad.d/pki/tls/certs/nomad/nomad-server.pem
       sudo cp -r /usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem /etc/nomad.d/pki/tls/certs/hashistack/hashistack-ca.pem
 
-      sudo cp -r /usr/local/bootstrap/certificate-config/consul/consul-server-key.pem /etc/nomad.d/pki/tls/private/consul/consul-server-key.pem
-      sudo cp -r /usr/local/bootstrap/certificate-config/consul/consul-server.pem /etc/nomad.d/pki/tls/certs/consul/consul-server.pem 
+      sudo cp -r /usr/local/bootstrap/certificate-config/consul/consul-client-key.pem /etc/nomad.d/pki/tls/private/consul/consul-client-key.pem
+      sudo cp -r /usr/local/bootstrap/certificate-config/consul/consul-client.pem /etc/nomad.d/pki/tls/certs/consul/consul-client.pem 
    
       sudo cp -apr /usr/local/bootstrap/conf/nomad.d /etc
       sudo /usr/local/bin/nomad agent -server -bind=${IP} -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/etc/nomad.d >${LOG} &

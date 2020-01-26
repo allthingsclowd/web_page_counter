@@ -303,8 +303,8 @@ create_app_token () {
     scheme = "https"
     path    = "vault/"
     tls_ca_file = "/etc/vault.d/pki/tls/certs/hashistack/hashistack-ca.pem"
-    tls_cert_file = "/etc/vault.d/pki/tls/certs/consul/consul-server.pem"
-    tls_key_file = "/etc/vault.d/pki/tls/private/consul/consul-server-key.pem"
+    tls_cert_file = "/etc/vault.d/pki/tls/certs/consul/consul-client.pem"
+    tls_key_file = "/etc/vault.d/pki/tls/private/consul/consul-client-key.pem"
     token = "${VAULTSESSIONTOKEN}"
   }
 
@@ -327,8 +327,8 @@ consul {
   address = "127.0.0.1:8321"
   ssl       = true
   ca_file   = "/etc/nomad.d/pki/tls/certs/hashistack/hashistack-ca.pem"
-  cert_file = "/etc/nomad.d/pki/tls/certs/consul/consul-server.pem"
-  key_file  = "/etc/nomad.d/pki/tls/private/consul/consul-server-key.pem"
+  cert_file = "/etc/nomad.d/pki/tls/certs/consul/consul-client.pem"
+  key_file  = "/etc/nomad.d/pki/tls/private/consul/consul-client-key.pem"
   token = "${CONSUL_HTTP_TOKEN}"
   }
 EOF
@@ -344,8 +344,8 @@ consul {
   address = "127.0.0.1:8321"
   ssl       = true
   ca_file   = "/etc/nomad.d/pki/tls/certs/hashistack/hashistack-ca.pem"
-  cert_file = "/etc/nomad.d/pki/tls/certs/consul/consul-server.pem"
-  key_file  = "/etc/nomad.d/pki/tls/private/consul/consul-server-key.pem"
+  cert_file = "/etc/nomad.d/pki/tls/certs/consul/consul-client.pem"
+  key_file  = "/etc/nomad.d/pki/tls/private/consul/consul-client-key.pem"
   token = "${AGENTTOKEN}"
   }
 EOF
