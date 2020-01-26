@@ -5,29 +5,32 @@ generate_certificate_config () {
     sudo mkdir --parents /etc/consul.d
   fi
 
-  sudo tee /etc/consul.d/consul_cert_setup.json <<EOF
-  {
-  "datacenter": "allthingscloud1",
-  "data_dir": "/usr/local/consul",
-  "encrypt" : "${ConsulKeygenOutput}",
-  "log_level": "INFO",
-  "server": ${1},
-  "node_name": "${HOSTNAME}",
-  "addresses": {
-      "https": "0.0.0.0"
-  },
-  "ports": {
-      "https": 8321,
-      "http": -1,
-      "grpc": 8502
-  },
-  "verify_incoming": true,
-  "verify_outgoing": true,
-  "key_file": "/etc/consul.d/pki/tls/certs/consul/consul-server-key.pem",
-  "cert_file": "/etc/consul.d/pki/tls/certs/consul/consul-server.pem",
-  "ca_file": "/etc/consul.d/pki/tls/certs/consul/hashistack-ca.pem"
-  }
+  sudo tee /etc/consul.d/consul_ssl_setup.hcl <<EOF
+
+datacenter = "allthingscloud1"
+data_dir = "/usr/local/consul"
+encrypt = "${ConsulKeygenOutput}"
+log_level = "INFO"
+server = ${1}
+node_name = "${HOSTNAME}"
+addresses {
+    https = "0.0.0.0"
+}
+ports {
+    https = 8321
+    http = -1
+    grpc = 8502
+}
+connect {
+    enabled = true
+}
+verify_incoming = true
+verify_outgoing = true
+key_file = "/etc/consul.d/pki/tls/private/consul/consul-server-key.pem"
+cert_file = "/etc/consul.d/pki/tls/certs/consul/consul-server.pem"
+ca_file = "/etc/consul.d/pki/tls/certs/hashistack/hashistack-ca.pem"
 EOF
+
 
 }
 
@@ -36,8 +39,8 @@ setup_environment () {
   sleep 5
   source /usr/local/bootstrap/var.env
   
-  IFACE=`route -n | awk '$1 == "192.168.9.0" {print $8;exit}'`
-  CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.9" {print $2}'`
+  IFACE=`route -n | awk '$1 == "192.168.4.0" {print $8;exit}'`
+  CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.4" {print $2}'`
   IP=${CIDR%%/24}
   
   # export ConsulKeygenOutput=`/usr/local/bin/consul keygen` [e.g. mUIJq6TITeenfVa2yMSi6yLwxrz2AYcC0dXissYpOxE=]
@@ -138,16 +141,38 @@ install_consul () {
 
     /usr/local/bin/consul members 2>/dev/null || {
       if [ "${TRAVIS}" == "true" ]; then
-        sudo mkdir --parents /etc/consul.d/pki/tls/private/vault /etc/consul.d/pki/tls/certs/vault
+        # move vault certificates into place
+        sudo mkdir --parents /etc/vault.d/pki/tls/private/vault /etc/vault.d/pki/tls/certs/vault /etc/vault.d/pki/tls/certs/hashistack
+        sudo mkdir --parents /etc/vault.d/pki/tls/private/consul /etc/vault.d/pki/tls/certs/consul
+
+        sudo cp -r /usr/local/bootstrap/certificate-config/vault/vault-server-key.pem /etc/vault.d/pki/tls/private/vault/vault-server-key.pem
+        sudo cp -r /usr/local/bootstrap/certificate-config/vault/vault-server.pem /etc/vault.d/pki/tls/certs/vault/vault-server.pem
+        # Consul certs for Vault
+        sudo cp -r /usr/local/bootstrap/certificate-config/consul/consul-server-key.pem /etc/vault.d/pki/tls/private/consul/consul-server-key.pem
+        sudo cp -r /usr/local/bootstrap/certificate-config/consul/consul-server.pem /etc/vault.d/pki/tls/certs/consul/consul-server.pem
+        sudo cp -r /usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem /etc/vault.d/pki/tls/certs/hashistack/hashistack-ca.pem
+
+        # move consul certificates into place
+        sudo mkdir --parents /etc/consul.d/pki/tls/private/vault /etc/consul.d/pki/tls/certs/vault /etc/consul.d/pki/tls/certs/hashistack
         sudo mkdir --parents /etc/consul.d/pki/tls/private/consul /etc/consul.d/pki/tls/certs/consul
-        sudo cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
         
-        sudo cp -r /usr/local/bootstrap/certificate-config/server-key.pem /etc/consul.d/pki/tls/certs/consul/consul-server-key.pem
-        sudo cp -r /usr/local/bootstrap/certificate-config/server.pem /etc/consul.d/pki/tls/certs/consul/consul-server.pem
+        sudo cp -r /usr/local/bootstrap/certificate-config/consul/consul-server-key.pem /etc/consul.d/pki/tls/private/consul/consul-server-key.pem
+        sudo cp -r /usr/local/bootstrap/certificate-config/consul/consul-server.pem /etc/consul.d/pki/tls/certs/consul/consul-server.pem
         sudo cp -r /usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem /etc/consul.d/pki/tls/certs/consul/hashistack-ca.pem
         
-        sudo ls -al /etc/consul.d/pki/tls/certs/consul/
-        sudo ls -al /etc/consul.d/pki/tls/private/consul/
+        # move consul certificates for nomad in place
+        sudo mkdir --parents /etc/nomad.d/pki/tls/private/nomad /etc/nomad.d/pki/tls/certs/nomad /etc/nomad.d/pki/tls/certs/hashistack
+        sudo mkdir --parents /etc/nomad.d/pki/tls/private/consul /etc/nomad.d/pki/tls/certs/consul
+
+        sudo cp -r /usr/local/bootstrap/certificate-config/nomad/nomad-server-key.pem /etc/nomad.d/pki/tls/private/nomad/nomad-server-key.pem
+        sudo cp -r /usr/local/bootstrap/certificate-config/nomad/nomad-server.pem /etc/nomad.d/pki/tls/certs/nomad/nomad-server.pem
+        sudo cp -r /usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem /etc/nomad.d/pki/tls/certs/hashistack/hashistack-ca.pem
+
+        sudo cp -r /usr/local/bootstrap/certificate-config/consul/consul-server-key.pem /etc/nomad.d/pki/tls/private/consul/consul-server-key.pem
+        sudo cp -r /usr/local/bootstrap/certificate-config/consul/consul-server.pem /etc/nomad.d/pki/tls/certs/consul/consul-server.pem   
+        
+        sudo ls -al /etc/consul.d/pki/tls/certs/consul/ /etc/consul.d/pki/tls/private/consul/
+        # sudo ls -al /etc/consul.d/pki/tls/private/consul/
         sudo /usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${TRAVIS_BUILD_DIR}/${LOG} &
         sleep 5
         sudo ls -al ${TRAVIS_BUILD_DIR}/${LOG}
@@ -155,7 +180,7 @@ install_consul () {
       else
         
         sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -join=${IP} -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1" /etc/systemd/system/consul.service
-        sudo -u consul cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
+        #sudo -u consul cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
         sudo systemctl enable consul
         sudo systemctl start consul
       fi

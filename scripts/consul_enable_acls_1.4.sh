@@ -4,8 +4,8 @@ set -x
 setup_environment () {
     source /usr/local/bootstrap/var.env
 
-    IFACE=`route -n | awk '$1 == "192.168.9.0" {print $8;exit}'`
-    CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.9" {print $2}'`
+    IFACE=`route -n | awk '$1 == "192.168.4.0" {print $8;exit}'`
+    CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.4" {print $2}'`
     IP=${CIDR%%/24}
 
     if [ -d /vagrant ]; then
@@ -25,11 +25,12 @@ setup_environment () {
     export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
     export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/consul/consul-client.pem
     export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem
+    export CONSUL_GRPC_ADDR=https://127.0.0.1:8502
 
     export VAULT_TOKEN=reallystrongpassword
-    export VAULT_ADDR=https://192.168.9.11:8322
-    export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem
-    export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/vault/vault-client.pem
+    export VAULT_ADDR=https://192.168.4.11:8322
+    export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem
+    export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/consul/consul-client.pem
     export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
     
 
@@ -55,15 +56,24 @@ create_acl_policy () {
 
 step1_enable_acls_on_server () {
 
-  sudo tee /etc/consul.d/consul_acl_1.4_setup.json <<EOF
-  {
-    "primary_datacenter": "allthingscloud1",
-    "acl" : {
-      "enabled" : true,
-      "default_policy" : "deny",
-      "down_policy" : "extend-cache"
+#   sudo tee /etc/consul.d/consul_acl_1.4_setup.json <<EOF
+#   {
+#     "primary_datacenter": "allthingscloud1",
+#     "acl" : {
+#       "enabled" : true,
+#       "default_policy" : "deny",
+#       "down_policy" : "extend-cache"
+#     }
+#   }
+# EOF
+
+  sudo tee /etc/consul.d/consul_acl_1.4_server_setup.hcl <<EOF 
+primary_datacenter = "allthingscloud1"
+acl {
+    enabled = true
+    default_policy = "deny"
+    down_policy = "extend-cache"
     }
-  }
 EOF
   # read in new configs
   restart_consul
@@ -146,18 +156,30 @@ step4_create_an_agent_token () {
 
 step5_add_agent_token_on_server () {
 
-  sudo tee /etc/consul.d/consul_acl_1.4_setup.json <<EOF
-  {
-  "primary_datacenter": "allthingscloud1",
-  "acl" : {
-    "enabled" : true,
-    "default_policy" : "deny",
-    "down_policy" : "extend-cache",
-    "tokens" : {
-      "agent" : "${AGENTTOKEN}"
+#   sudo tee /etc/consul.d/consul_acl_1.4_setup.json <<EOF
+#   {
+#   "primary_datacenter": "allthingscloud1",
+#   "acl" : {
+#     "enabled" : true,
+#     "default_policy" : "deny",
+#     "down_policy" : "extend-cache",
+#     "tokens" : {
+#       "agent" : "${AGENTTOKEN}"
+#     }
+#   }
+# }
+# EOF
+
+  sudo tee /etc/consul.d/consul_acl_1.4_server_setup.hcl <<EOF 
+primary_datacenter = "allthingscloud1"
+acl {
+    enabled = true
+    default_policy = "deny"
+    down_policy = "extend-cache"
+    tokens {
+        agent = "${AGENTTOKEN}"
+            }
     }
-  }
-}
 EOF
   # read in new configs
   restart_consul
@@ -195,17 +217,27 @@ step7_enable_acl_on_client () {
   AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
   export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
-  sudo tee /etc/consul.d/consul_acl_1.4_setup.json <<EOF
-  {
-  "acl" : {
-    "enabled" : true,
-    "default_policy" : "deny",
-    "down_policy" : "extend-cache",
-    "tokens" : {
-      "agent" : "${AGENTTOKEN}"
-    }
+#   sudo tee /etc/consul.d/consul_acl_1.4_setup.json <<EOF
+#   {
+#   "acl" : {
+#     "enabled" : true,
+#     "default_policy" : "deny",
+#     "down_policy" : "extend-cache",
+#     "tokens" : {
+#       "agent" : "${AGENTTOKEN}"
+#     }
+#   }
+# }
+# EOF
+  sudo tee /etc/consul.d/consul_acl_1.4_setup.hcl <<EOF
+  acl {
+      enabled =  true
+      default_policy = "deny"
+      down_policy =  "extend-cache"
+      tokens {
+          agent = "${AGENTTOKEN}"
+              }
   }
-}
 EOF
   # read in new configs
   restart_consul
