@@ -39,8 +39,8 @@ setup_environment () {
   sleep 5
   source /usr/local/bootstrap/var.env
   
-  IFACE=`route -n | awk '$1 == "192.168.4.0" {print $8;exit}'`
-  CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.4" {print $2}'`
+  IFACE=`route -n | awk '$1 == "192.168.9.0" {print $8;exit}'`
+  CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.9" {print $2}'`
   IP=${CIDR%%/24}
   
   # export ConsulKeygenOutput=`/usr/local/bin/consul keygen` [e.g. mUIJq6TITeenfVa2yMSi6yLwxrz2AYcC0dXissYpOxE=]

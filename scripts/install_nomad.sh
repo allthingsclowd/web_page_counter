@@ -25,7 +25,7 @@ setup_environment () {
 
   echo 'Set environmental bootstrapping data in VAULT'
   export VAULT_TOKEN=reallystrongpassword
-  export VAULT_ADDR=https://192.168.9.11:8322
+  export VAULT_ADDR=https://127.0.0.1:8322
   export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem
   export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/vault/vault-client.pem
   export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
@@ -35,6 +35,7 @@ setup_environment () {
   export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
   export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/consul/consul-client.pem
   export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem
+  vault status
   AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
   export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 

@@ -4,8 +4,8 @@ set -x
 setup_environment () {
     source /usr/local/bootstrap/var.env
 
-    IFACE=`route -n | awk '$1 == "192.168.4.0" {print $8;exit}'`
-    CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.4" {print $2}'`
+    IFACE=`route -n | awk '$1 == "192.168.9.0" {print $8;exit}'`
+    CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.9" {print $2}'`
     IP=${CIDR%%/24}
 
     if [ -d /vagrant ]; then
@@ -28,7 +28,7 @@ setup_environment () {
     export CONSUL_GRPC_ADDR=https://127.0.0.1:8502
 
     export VAULT_TOKEN=reallystrongpassword
-    export VAULT_ADDR=https://192.168.4.11:8322
+    export VAULT_ADDR=https://127.0.0.1:8322
     export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem
     export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/consul/consul-client.pem
     export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
