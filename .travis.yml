@@ -40,15 +40,15 @@ script:
 - echo 'Set environmental bootstrapping data in VAULT'
 - export VAULT_TOKEN=reallystrongpassword
 - export VAULT_ADDR=https://127.0.0.1:8322
-- export VAULT_CLIENT_KEY=certificate-config/hashistack-client-key.pem
-- export VAULT_CLIENT_CERT=certificate-config/hashistack-client.pem
-- export VAULT_CACERT=certificate-config/hashistack-ca.pem
+- export VAULT_CLIENT_KEY=certificate-config/vault/vault-client-key.pem
+- export VAULT_CLIENT_CERT=certificate-config/vault/vault-client.pem
+- export VAULT_CACERT=certificate-config/hashistack/hashistack-ca.pem
 - vault status
 # Configure consul environment variables for use with certificates 
 - export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-- export CONSUL_CACERT=certificate-config/consul-ca.pem
-- export CONSUL_CLIENT_CERT=certificate-config/cli.pem
-- export CONSUL_CLIENT_KEY=certificate-config/cli-key.pem
+- export CONSUL_CACERT=certificate-config/hashistack/hashistack-ca.pem
+- export CONSUL_CLIENT_CERT=certificate-config/consul/consul-client.pem
+- export CONSUL_CLIENT_KEY=certificate-config/consul/consul-client-key.pem
 - consul version
 - go version
 - inspec exec --chef-license=accept test/ImageBuild-Travis
