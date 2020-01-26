@@ -482,12 +482,13 @@ install_vault () {
 
         #start vault
         if [ "${TRAVIS}" == "true" ]; then
+            # move vault certificates into place
             sudo mkdir --parents /etc/vault.d/pki/tls/private/vault /etc/vault.d/pki/tls/certs/vault /etc/vault.d/pki/tls/certs/hashistack
             sudo mkdir --parents /etc/vault.d/pki/tls/private/consul /etc/vault.d/pki/tls/certs/consul
 
             sudo cp -r /usr/local/bootstrap/certificate-config/vault/vault-server-key.pem /etc/vault.d/pki/tls/private/vault/vault-server-key.pem
             sudo cp -r /usr/local/bootstrap/certificate-config/vault/vault-server.pem /etc/vault.d/pki/tls/certs/vault/vault-server.pem
-
+            # Consul certs for Vault
             sudo cp -r /usr/local/bootstrap/certificate-config/consul/consul-server-key.pem /etc/vault.d/pki/tls/private/consul/consul-server-key.pem
             sudo cp -r /usr/local/bootstrap/certificate-config/consul/consul-server.pem /etc/vault.d/pki/tls/certs/consul/consul-server.pem
             sudo cp -r /usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem /etc/vault.d/pki/tls/certs/hashistack/hashistack-ca.pem
