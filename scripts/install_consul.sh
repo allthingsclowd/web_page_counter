@@ -7,7 +7,7 @@ generate_certificate_config () {
 
   sudo tee /etc/consul.d/consul_ssl_setup.hcl <<EOF
 
-datacenter = "hashistack.ie"
+datacenter = "hashistack"
 data_dir = "/usr/local/consul"
 encrypt = "${ConsulKeygenOutput}"
 log_level = "INFO"
