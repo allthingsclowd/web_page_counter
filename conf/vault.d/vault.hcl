@@ -3,9 +3,9 @@
     scheme = "https"
     path    = "vault/"
     tls_ca_file = "/etc/vault.d/pki/tls/certs/hashistack/hashistack-ca.pem"
-    tls_cert_file = "/etc/vault.d/pki/tls/certs/consul/consul-server.pem"
-    tls_key_file = "/etc/vault.d/pki/tls/private/consul/consul-server-key.pem"
-    token = "a8e501fb-5f2b-098f-b5bc-71c213e33dc4"
+    tls_cert_file = "/etc/vault.d/pki/tls/certs/consul/consul-client.pem"
+    tls_key_file = "/etc/vault.d/pki/tls/private/consul/consul-client-key.pem"
+    token = "1029c418-a1b8-3d5a-2584-77858877dde1"
   }
 
   ui = true

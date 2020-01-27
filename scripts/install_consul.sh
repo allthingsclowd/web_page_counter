@@ -26,9 +26,9 @@ connect {
 }
 verify_incoming = true
 verify_outgoing = true
-key_file = "/etc/consul.d/pki/tls/private/consul/consul-server-key.pem"
-cert_file = "/etc/consul.d/pki/tls/certs/consul/consul-server.pem"
-ca_file = "/etc/consul.d/pki/tls/certs/hashistack/hashistack-ca.pem"
+key_file = "${2}"
+cert_file = "${3}"
+ca_file = "${4}"
 EOF
 
 
@@ -137,7 +137,7 @@ install_consul () {
     echo "Starting a Consul Server"
 
     # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
-    generate_certificate_config true
+    generate_certificate_config true "/etc/consul.d/pki/tls/private/consul/consul-server-key.pem" "/etc/consul.d/pki/tls/certs/consul/consul-server.pem" "/etc/consul.d/pki/tls/certs/hashistack/hashistack-ca.pem"
 
     /usr/local/bin/consul members 2>/dev/null || {
       if [ "${TRAVIS}" == "true" ]; then
@@ -178,7 +178,7 @@ install_consul () {
   else
     echo "Starting a Consul Agent"
     
-    generate_certificate_config false
+    generate_certificate_config false "/etc/consul.d/pki/tls/private/consul/consul-server-key.pem" "/etc/consul.d/pki/tls/certs/consul/consul-server.pem" "/etc/consul.d/pki/tls/certs/hashistack/hashistack-ca.pem"
 
     /usr/local/bin/consul members 2>/dev/null || {
         
