@@ -108,8 +108,8 @@ configure_certificates () {
     # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
 
     # Temp - dump all certs into directory for testing mTLS later
-    mkdir --parents /tmp/HashiStack_Certs
-    cp -R /usr/local/bootstrap/certificate-config /tmp/HashiStack_Certs
+    sudo mkdir --parents /tmp/HashiStack_Certs
+    sudo cp -R /usr/local/bootstrap/certificate-config /tmp/HashiStack_Certs
 
     # move vault certificates into place
     sudo -u vault mkdir --parents /etc/vault.d/pki/tls/private/vault /etc/vault.d/pki/tls/certs/vault /etc/vault.d/pki/tls/certs/hashistack
