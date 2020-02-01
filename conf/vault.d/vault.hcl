@@ -5,7 +5,7 @@
     tls_ca_file = "/etc/vault.d/pki/tls/certs/hashistack/hashistack-ca.pem"
     tls_cert_file = "/etc/vault.d/pki/tls/certs/consul/consul-client.pem"
     tls_key_file = "/etc/vault.d/pki/tls/private/consul/consul-client-key.pem"
-    token = ""
+    token = "d1619eb4-43f4-9316-131a-0a606fae23c4"
   }
 
   ui = true
