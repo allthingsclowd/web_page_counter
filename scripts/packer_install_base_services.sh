@@ -110,15 +110,17 @@ create_root_CA_certificate () {
   # ${2} - duration in days that CA is valid for
 
   # create file layout for the certs
-  sudo mkdir /etc/ssl/CA
-
-  pushd /etc/ssl/CA
+  [ -d /etc/ssl/CA ] &>/dev/null || {
+    sudo mkdir /etc/ssl/CA
+  }
+  sudo pushd /etc/ssl/CA
   sudo /usr/local/bin/consul tls ca create -domain=${1} -days=${2}
   sudo mv /etc/ssl/CA/${1}-agent-ca.pem /etc/ssl/certs/.
   sudo mv /etc/ssl/CA/${1}-agent-ca-key.pem /etc/ssl/private/.
   sudo chmod -R 644 /etc/ssl/certs
   sudo chmod -R 600 /etc/ssl/private
-  popd
+  sudo ls -al /etc/ssl/certs /etc/ssl/private
+  sudo popd
 
 }
 
