@@ -403,39 +403,6 @@ bootstrap_secret_data () {
 
 }
 
-create_certificate () {
-  # ${1} domain e.g. consul
-  # ${2} data centre e..g. DC1
-  # ${3} certificate duration in days
-  # ${4} additional ip addresses
-  # ${5} cert type either server, client or cli
-  
-  [ -f /etc/${1}.d/pki/tls/private/${1}-${5}-key.pem ] &>/dev/null || {
-    echo "Start generating ${5} certificates for data centre ${2} with domain ${1}" 
-    sudo pushd /etc/${1}.d/pki/tls/private
-    sudo /usr/local/bin/consul tls cert create \
-                                -domain=${1} \
-                                -dc=${2} \
-                                -key=/etc/ssl/private/${1}-agent-ca-key.pem \
-                                -ca=/etc/ssl/certs/${1}-agent-ca.pem$ \
-                                -days=${3} \
-                                -additional-ipaddress=${4} \
-                                -${5} 
-                                
-    sudo mv ${2}-${5}-${1}-0.pem /etc/${1}.d/pki/tls/certs/${1}-${5}.pem
-    sudo mv ${2}-${5}-${1}-0-key.pem /etc/${1}.d/pki/tls/private/${1}-${5}-key.pem
-
-    sudo -u ${1} chmod 644 /etc/${1}.d/pki/tls/certs/${1}-${5}.pem
-    sudo -u ${1} chmod 600 /etc/${1}.d/pki/tls/private/${1}-${5}-key.pem  
-
-    # debug
-    sudo ls -al /etc/${1}.d/pki/tls/private/
-    sudo ls -al /etc/${1}.d/pki/tls/certs/
-    sudo popd
-    echo "Finished generating ${5} certificates for data centre ${2} with domain ${1}" 
-  }
-}
-
 get_secret_id () {
 
     echo 'Start Generate Secret-ID'
@@ -519,8 +486,8 @@ install_vault () {
             sudo -u vault chmod -R 600 /etc/vault.d/pki/tls/private
 
             # create certificates - using consul helper :shrug:?
-            create_certificate vault hashistack1 30 ${IP} server
-            create_certificate vault hashistack1 30 ${IP} client
+            sudo /usr/local/bootstrap/scripts/create_certificate.sh vault hashistack1 30 ${IP} server
+            sudo /usr/local/bootstrap/scripts/create_certificate.sh vault hashistack1 30 ${IP} client
 
             sudo cp -r /usr/local/bootstrap/conf/vault.d/* /etc/vault.d/.
 
@@ -531,8 +498,8 @@ install_vault () {
             cat ${LOG}
         else
             # create certificates - using consul helper :shrug:?
-            create_certificate vault hashistack1 30 ${IP} server
-            create_certificate vault hashistack1 30 ${IP} client
+            sudo /usr/local/bootstrap/scripts/create_certificate.sh vault hashistack1 30 ${IP} server
+            sudo /usr/local/bootstrap/scripts/create_certificate.sh vault hashistack1 30 ${IP} client
 
             sudo -u vault cp -r /usr/local/bootstrap/conf/vault.d/* /etc/vault.d/.
             sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/vault server -dev -dev-root-token-id=\"reallystrongpassword\" -config=/etc/vault.d/vault.hcl" /etc/systemd/system/vault.service
