@@ -68,7 +68,7 @@ step1_enable_acls_on_server () {
 # EOF
 
   sudo tee /etc/consul.d/consul_acl_1.4_server_setup.hcl <<EOF 
-primary_datacenter = "hashistack"
+primary_datacenter = "hashistack1"
 acl {
     enabled = true
     default_policy = "deny"
