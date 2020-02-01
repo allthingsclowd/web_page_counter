@@ -132,7 +132,7 @@ create_certificate () {
   
   [ -f /etc/${1}.d/pki/tls/private/${1}-${5}-key.pem ] &>/dev/null || {
     echo "Start generating ${5} certificates for data centre ${2} with domain ${1}" 
-    pushd /etc/${1}.d/pki/tls/private
+    sudo pushd /etc/${1}.d/pki/tls/private
     sudo /usr/local/bin/consul tls cert create \
                                 -domain=${1} \
                                 -dc=${2} \
@@ -151,7 +151,7 @@ create_certificate () {
     # debug
     sudo ls -al /etc/${1}.d/pki/tls/private/
     sudo ls -al /etc/${1}.d/pki/tls/certs/
-    popd
+    sudo popd
     echo "Finished generating ${5} certificates for data centre ${2} with domain ${1}" 
   }
 }
