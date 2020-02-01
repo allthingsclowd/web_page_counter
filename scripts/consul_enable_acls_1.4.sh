@@ -29,9 +29,9 @@ setup_environment () {
 
     export VAULT_TOKEN=reallystrongpassword
     export VAULT_ADDR=https://${LEADER_IP}:8322
-    export VAULT_CLIENT_KEY=/etc/consul.d/pki/tls/private/consul-client-key.pem
-    export VAULT_CLIENT_CERT=/etc/consul.d/pki/tls/certs/consul-client.pem
-    export VAULT_CACERT=/etc/ssl/certs/vault-agent-ca.pem
+    export VAULT_CLIENT_KEY=/etc/vault.d/pki/tls/private/vault-client-key.pem
+    export VAULT_CLIENT_CERT=/etc/vault.d/pki/tls/certs/vault-client.pem
+    export VAULT_CACERT=/etc/ssl/certs/consul-agent-ca.pem
     
 
     export AGENT_CONFIG="-config-dir=/etc/consul.d -enable-script-checks=true"
