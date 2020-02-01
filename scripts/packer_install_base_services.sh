@@ -108,19 +108,25 @@ create_root_CA_certificate () {
 
   # ${1} - domain name - e.g. consul
   # ${2} - duration in days that CA is valid for
-
+  
+  if [ "${TRAVIS}" == "true" ]; then
+    ROOTCERTPATH=tmp
+  else
+    ROOTCERTPATH=etc
+  fi
+  
   # create file layout for the certs
-  [ -d /etc/ssl/CA ] &>/dev/null || {
-    sudo mkdir /etc/ssl/CA
+  [ -d /${ROOTCERTPATH}/ssl/CA ] &>/dev/null || {
+    sudo mkdir --parent /${ROOTCERTPATH}/ssl/CA /${ROOTCERTPATH}/ssl/certs
   }
-  sudo pushd /etc/ssl/CA
+  pushd /${ROOTCERTPATH}/ssl/CA
   sudo /usr/local/bin/consul tls ca create -domain=${1} -days=${2}
-  sudo mv /etc/ssl/CA/${1}-agent-ca.pem /etc/ssl/certs/.
-  sudo mv /etc/ssl/CA/${1}-agent-ca-key.pem /etc/ssl/private/.
-  sudo chmod -R 644 /etc/ssl/certs
-  sudo chmod -R 600 /etc/ssl/private
-  sudo ls -al /etc/ssl/certs /etc/ssl/private
-  sudo popd
+  sudo mv /${ROOTCERTPATH}/ssl/CA/${1}-agent-ca.pem /${ROOTCERTPATH}/ssl/certs/.
+  sudo mv /${ROOTCERTPATH}/ssl/CA/${1}-agent-ca-key.pem /${ROOTCERTPATH}/ssl/private/.
+  sudo chmod -R 644 /${ROOTCERTPATH}/ssl/certs
+  sudo chmod -R 600 /${ROOTCERTPATH}/ssl/private
+  sudo ls -al /${ROOTCERTPATH}/ssl/certs /${ROOTCERTPATH}/ssl/private
+  popd
 
 }
 
