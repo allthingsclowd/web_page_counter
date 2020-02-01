@@ -20,16 +20,16 @@ echo 'Set environmental bootstrapping data in VAULT'
 
 export VAULT_ADDR=https://${LEADER_IP}:8322
 export VAULT_TOKEN=reallystrongpassword
-export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem
-export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/vault/vault-client.pem
-export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
+export VAULT_CLIENT_KEY=/etc/vault.d/pki/tls/private/vault-client-key.pem
+export VAULT_CLIENT_CERT=/etc/vault.d/pki/tls/certs/vault-client.pem
+export VAULT_CACERT=/etc/ssl/certs/vault-agent-ca.pem
 export VAULT_SKIP_VERIFY=true
 
 # Configure consul environment variables for use with certificates 
 export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
-export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/consul/consul-client.pem
-export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem
+export CONSUL_CACERT=/etc/ssl/certs/consul-agent-ca.pem
+export CONSUL_CLIENT_CERT=/etc/consul.d/pki/tls/certs/consul-client.pem
+export CONSUL_CLIENT_KEY=/etc/consul.d/pki/tls/private/consul-client-key.pem
 AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
 export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
@@ -74,26 +74,26 @@ EOF
   # Register the service in consul via the local Consul agent api
   curl \
     --request PUT \
-    --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
-    --key "/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem" \
-    --cert "/usr/local/bootstrap/certificate-config/consul/consul-client.pem" \
+    --cacert "/etc/ssl/certs/consul-agent-ca.pem" \
+    --key "/etc/consul.d/pki/tls/private/consul-client-key.pem" \
+    --cert "/etc/consul.d/pki/tls/certs/consul-client.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     --data @nginx_service.json \
     ${CONSUL_HTTP_ADDR}/v1/agent/service/register
 
   # List the locally registered services via local Consul api
   curl \
-    --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
-    --key "/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem" \
-    --cert "/usr/local/bootstrap/certificate-config/consul/consul-client.pem" \
+    --cacert "/etc/ssl/certs/consul-agent-ca.pem" \
+    --key "/etc/consul.d/pki/tls/private/consul-client-key.pem" \
+    --cert "/etc/consul.d/pki/tls/certs/consul-client.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     ${CONSUL_HTTP_ADDR}/v1/agent/services | jq -r .
 
   # List the services regestered on the Consul server
   curl \
-    --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
-    --key "/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem" \
-    --cert "/usr/local/bootstrap/certificate-config/consul/consul-client.pem" \
+    --cacert "/etc/ssl/certs/consul-agent-ca.pem" \
+    --key "/etc/consul.d/pki/tls/private/consul-client-key.pem" \
+    --cert "/etc/consul.d/pki/tls/certs/consul-client.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     ${CONSUL_HTTP_ADDR}/v1/catalog/services | jq -r .
    
@@ -149,9 +149,9 @@ sudo /usr/local/bin/consul-template \
      -consul-addr=${CONSUL_HTTP_ADDR} \
      -consul-ssl \
      -consul-token=${CONSUL_HTTP_TOKEN} \
-     -consul-ssl-cert="/usr/local/bootstrap/certificate-config/consul/consul-client.pem" \
-     -consul-ssl-key="/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem" \
-     -consul-ssl-ca-cert="/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
+     -consul-ssl-cert="/etc/consul.d/pki/tls/certs/consul-client.pem" \
+     -consul-ssl-key="/etc/consul.d/pki/tls/private/consul-client-key.pem" \
+     -consul-ssl-ca-cert="/etc/ssl/certs/consul-agent-ca.pem" \
      -template "/usr/local/bootstrap/conf/nginx.ctpl:/etc/nginx/conf.d/goapp.conf:/usr/local/bootstrap/scripts/updateBackendCount.sh" &
    
 sleep 1

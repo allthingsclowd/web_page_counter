@@ -123,34 +123,68 @@ install_terraform () {
 
 }
 
+create_certificate () {
+  # ${1} domain e.g. consul
+  # ${2} data centre e..g. DC1
+  # ${3} certificate duration in days
+  # ${4} additional ip addresses
+  # ${5} cert type either server, client or cli
+  
+  [ -f /etc/${1}.d/pki/tls/private/${1}-${5}-key.pem ] &>/dev/null || {
+    echo "Start generating ${5} certificates for data centre ${2} with domain ${1}" 
+    pushd /etc/${1}.d/pki/tls/private
+    sudo /usr/local/bin/consul tls cert create \
+                                -domain=${1} \
+                                -dc=${2} \
+                                -key=/etc/ssl/private/${1}-agent-ca-key.pem \
+                                -ca=/etc/ssl/certs/${1}-agent-ca.pem$ \
+                                -days=${3} \
+                                -additional-ipaddress=${4} \
+                                -${5} 
+                                
+    sudo mv ${2}-${5}-${1}-0.pem /etc/${1}.d/pki/tls/certs/${1}-${5}.pem
+    sudo mv ${2}-${5}-${1}-0-key.pem /etc/${1}.d/pki/tls/private/${1}-${5}-key.pem
+
+    sudo -u ${1} chmod 644 /etc/${1}.d/pki/tls/certs/${1}-${5}.pem
+    sudo -u ${1} chmod 600 /etc/${1}.d/pki/tls/private/${1}-${5}-key.pem  
+
+    # debug
+    sudo ls -al /etc/${1}.d/pki/tls/private/
+    sudo ls -al /etc/${1}.d/pki/tls/certs/
+    popd
+    echo "Finished generating ${5} certificates for data centre ${2} with domain ${1}" 
+  }
+}
+
 install_consul () {
   AGENT_CONFIG="-config-dir=/etc/consul.d -enable-script-checks=true"
 
+
+  create_certificate consul hashistack1 30 ${IP} client
   # Configure consul environment variables for use with certificates 
   export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-  export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
-  export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/consul/consul-client.pem
-  export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem
+  export CONSUL_CACERT=/etc/ssl/certs/consul-agent-ca.pem
+  export CONSUL_CLIENT_CERT=/etc/consul.d/pki/tls/certs/consul-client.pem
+  export CONSUL_CLIENT_KEY=/etc/consul.d/pki/tls/private/consul-client-key.pem
 
   # check for consul hostname or travis => server
   if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
-    echo "Starting a Consul Server"
+    echo "Starting a Consul Agent in Server Mode"
 
-    # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
-    generate_certificate_config true "/etc/consul.d/pki/tls/private/consul/consul-server-key.pem" "/etc/consul.d/pki/tls/certs/consul/consul-server.pem" "/etc/consul.d/pki/tls/certs/hashistack/hashistack-ca.pem"
+    generate_certificate_config true "/etc/consul.d/pki/tls/private/consul/consul-server-key.pem" "/etc/consul.d/pki/tls/certs/consul/consul-server.pem" "/etc/ssl/certs/consul-agent-ca.pem"
 
     /usr/local/bin/consul members 2>/dev/null || {
       if [ "${TRAVIS}" == "true" ]; then
-        # move consul certificates into place
-        sudo mkdir --parents /etc/consul.d/pki/tls/private/vault /etc/consul.d/pki/tls/certs/vault /etc/consul.d/pki/tls/certs/hashistack
-        sudo mkdir --parents /etc/consul.d/pki/tls/private/consul /etc/consul.d/pki/tls/certs/consul
+
+        sudo -u consul mkdir --parents /etc/consul.d/pki/tls/private/nomad /etc/consul.d/pki/tls/certs/nomad
+        sudo -u consul mkdir --parents /etc/consul.d/pki/tls/private/consul /etc/consul.d/pki/tls/certs/consul
+        sudo -u consul mkdir --parents /etc/consul.d/pki/tls/private/vault /etc/consul.d/pki/tls/certs/vault
+        sudo -u consul chmod -R 644 /etc/consul.d/pki/tls/certs/nomad /etc/consul.d/pki/tls/certs/consul /etc/consul.d/pki/tls/certs/vault
+        sudo -u consul chmod -R 600 /etc/consul.d/pki/tls/private/vault /etc/consul.d/pki/tls/private/consul /etc/consul.d/pki/tls/private/nomad
         
-        sudo cp -r /usr/local/bootstrap/certificate-config/consul/consul-server-key.pem /etc/consul.d/pki/tls/private/consul/consul-server-key.pem
-        sudo cp -r /usr/local/bootstrap/certificate-config/consul/consul-server.pem /etc/consul.d/pki/tls/certs/consul/consul-server.pem
-        sudo cp -r /usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem /etc/consul.d/pki/tls/certs/hashistack/hashistack-ca.pem
-        
-  
-        
+        # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
+        create_certificate consul hashistack1 30 ${IP} server
+
         sudo ls -al /etc/consul.d/pki/tls/certs/consul/ /etc/consul.d/pki/tls/private/consul/
         # sudo ls -al /etc/consul.d/pki/tls/private/consul/
         sudo /usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${TRAVIS_BUILD_DIR}/${LOG} &
@@ -158,7 +192,8 @@ install_consul () {
         sudo ls -al ${TRAVIS_BUILD_DIR}/${LOG}
         sudo cat ${TRAVIS_BUILD_DIR}/${LOG}
       else
-        
+        # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
+        create_certificate consul hashistack1 30 ${IP} server
         sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -join=${IP} -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1" /etc/systemd/system/consul.service
         #sudo -u consul cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
         sudo systemctl enable consul
@@ -176,9 +211,9 @@ install_consul () {
       done < /usr/local/bootstrap/var.env
     }
   else
-    echo "Starting a Consul Agent"
+    echo "Starting a Consul Agent in Client Mode"
     
-    generate_certificate_config false "/etc/consul.d/pki/tls/private/consul/consul-server-key.pem" "/etc/consul.d/pki/tls/certs/consul/consul-server.pem" "/etc/consul.d/pki/tls/certs/hashistack/hashistack-ca.pem"
+    generate_certificate_config false "/etc/consul.d/pki/tls/private/consul-client-key.pem" "/etc/consul.d/pki/tls/certs/consul-client.pem" "/etc/ssl/certs/consul-agent-ca.pem"
 
     /usr/local/bin/consul members 2>/dev/null || {
         

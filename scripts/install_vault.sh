@@ -35,17 +35,17 @@ setup_environment () {
 
     # Configure consul environment variables for use with certificates 
     export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-    export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
-    export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/consul/consul-client.pem
-    export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem
+    export CONSUL_CACERT=/etc/ssl/certs/consul-agent-ca.pem
+    export CONSUL_CLIENT_CERT=/etc/consul.d/pki/tls/certs/consul-client.pem
+    export CONSUL_CLIENT_KEY=/etc/consul.d/pki/tls/private/consul-client-key.pem
     BOOTSTRAPACL=`cat /usr/local/bootstrap/.bootstrap_acl`
     export CONSUL_HTTP_TOKEN=${BOOTSTRAPACL}
 
     export VAULT_TOKEN=reallystrongpassword
     export VAULT_ADDR=https://${LEADER_IP}:8322
-    export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem
-    export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/vault/vault-client.pem
-    export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
+    export VAULT_CLIENT_KEY=/etc/vault.d/pki/tls/private/vault-client-key.pem
+    export VAULT_CLIENT_CERT=/etc/vault.d/pki/tls/certs/vault-client.pem
+    export VAULT_CACERT=/etc/ssl/certs/vault-agent-ca.pem
 
     echo 'End Setup of Vault Environment'
 }
@@ -242,9 +242,9 @@ EOF
     # Create the approle backend
     curl \
         --location \
-        --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
-        --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
-        --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
+        --cacert "/etc/ssl/certs/consul-agent-ca.pem" \
+        --key "/etc/vault.d/pki/tls/private/vault-client-key.pem" \
+        --cert "/etc/vault.d/pki/tls/certs/vault-client.pem" \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
         --request POST \
         --data @approle.json \
@@ -260,9 +260,9 @@ EOF
     # Write the policy
     curl \
         --location \
-        --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
-        --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
-        --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
+        --cacert "/etc/ssl/certs/consul-agent-ca.pem" \
+        --key "/etc/vault.d/pki/tls/private/vault-client-key.pem" \
+        --cert "/etc/vault.d/pki/tls/certs/vault-client.pem" \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
         --request PUT \
         --data @id-factory-secret-read.json \
@@ -271,9 +271,9 @@ EOF
     # List ACL policies
     sudo curl \
         --location \
-        --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
-        --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
-        --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
+        --cacert "/etc/ssl/certs/consul-agent-ca.pem" \
+        --key "/etc/vault.d/pki/tls/private/vault-client-key.pem" \
+        --cert "/etc/vault.d/pki/tls/certs/vault-client.pem" \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
         --request LIST \
         ${VAULT_ADDR}/v1/sys/policy | jq .
@@ -281,9 +281,9 @@ EOF
     # Check if AppRole Exists
     APPROLEID=`curl  \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
-    --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
-    --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
-    --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
+    --cacert "/etc/ssl/certs/consul-agent-ca.pem" \
+    --key "/etc/vault.d/pki/tls/private/vault-client-key.pem" \
+    --cert "/etc/vault.d/pki/tls/certs/vault-client.pem" \
     ${VAULT_ADDR}/v1/auth/approle/role/id-factory/role-id | jq -r .data.role_id`
 
     if [ "${APPROLEID}" == null ]; then
@@ -313,9 +313,9 @@ EOF
         # Create the AppRole role
         curl \
             --location \
-            --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
-            --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
-            --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
+            --cacert "/etc/ssl/certs/consul-agent-ca.pem" \
+            --key "/etc/vault.d/pki/tls/private/vault-client-key.pem" \
+            --cert "/etc/vault.d/pki/tls/certs/vault-client.pem" \
             --header "X-Vault-Token: ${VAULT_TOKEN}" \
             --request POST \
             --data @id-factory-approle-role.json \
@@ -324,9 +324,9 @@ EOF
         # Update the static AppRole role-id
         curl \
             --location \
-            --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
-            --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
-            --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
+            --cacert "/etc/ssl/certs/consul-agent-ca.pem" \
+            --key "/etc/vault.d/pki/tls/private/vault-client-key.pem" \
+            --cert "/etc/vault.d/pki/tls/certs/vault-client.pem" \
             --header "X-Vault-Token: ${VAULT_TOKEN}" \
             --request POST \
             --data @id-factory-static-role-id.json \
@@ -334,9 +334,9 @@ EOF
 
         APPROLEID=`curl  \
             --header "X-Vault-Token: ${VAULT_TOKEN}" \
-            --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
-            --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
-            --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
+            --cacert "/etc/ssl/certs/consul-agent-ca.pem" \
+            --key "/etc/vault.d/pki/tls/private/vault-client-key.pem" \
+            --cert "/etc/vault.d/pki/tls/certs/vault-client.pem" \
             ${VAULT_ADDR}/v1/auth/approle/role/id-factory/role-id | jq -r .data.role_id`
 
     fi
@@ -369,9 +369,9 @@ get_approle_id () {
     # retrieve the appRole-id from the approle
     APPROLEID=`curl  \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
-    --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
-    --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
-    --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
+    --cacert "/etc/ssl/certs/consul-agent-ca.pem" \
+    --key "/etc/vault.d/pki/tls/private/vault-client-key.pem" \
+    --cert "/etc/vault.d/pki/tls/certs/vault-client.pem" \
     ${VAULT_ADDR}/v1/auth/approle/role/id-factory/role-id | jq -r .data.role_id`
     echo 'Get APP-ROLE ID Complete'
 
@@ -382,9 +382,9 @@ bootstrap_secret_data () {
     echo 'Set environmental bootstrapping data in VAULT'
     export VAULT_TOKEN=reallystrongpassword
     export VAULT_ADDR=https://${LEADER_IP}:8322
-    export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem
-    export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/vault/vault-client.pem
-    export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
+    export VAULT_CLIENT_KEY=/etc/vault.d/pki/tls/private/vault-client-key.pem
+    export VAULT_CLIENT_CERT=/etc/vault.d/pki/tls/certs/vault-client.pem
+    export VAULT_CACERT=/etc/ssl/certs/vault-agent-ca.pem
     REDIS_MASTER_PASSWORD=`openssl rand -base64 32`
     APPROLEID=`cat /usr/local/bootstrap/.appRoleID`
     DB_VAULT_TOKEN=`cat /usr/local/bootstrap/.database-token`
@@ -403,15 +403,48 @@ bootstrap_secret_data () {
 
 }
 
+create_certificate () {
+  # ${1} domain e.g. consul
+  # ${2} data centre e..g. DC1
+  # ${3} certificate duration in days
+  # ${4} additional ip addresses
+  # ${5} cert type either server, client or cli
+  
+  [ -f /etc/${1}.d/pki/tls/private/${1}-${5}-key.pem ] &>/dev/null || {
+    echo "Start generating ${5} certificates for data centre ${2} with domain ${1}" 
+    pushd /etc/${1}.d/pki/tls/private
+    sudo /usr/local/bin/consul tls cert create \
+                                -domain=${1} \
+                                -dc=${2} \
+                                -key=/etc/ssl/private/${1}-agent-ca-key.pem \
+                                -ca=/etc/ssl/certs/${1}-agent-ca.pem$ \
+                                -days=${3} \
+                                -additional-ipaddress=${4} \
+                                -${5} 
+                                
+    sudo mv ${2}-${5}-${1}-0.pem /etc/${1}.d/pki/tls/certs/${1}-${5}.pem
+    sudo mv ${2}-${5}-${1}-0-key.pem /etc/${1}.d/pki/tls/private/${1}-${5}-key.pem
+
+    sudo -u ${1} chmod 644 /etc/${1}.d/pki/tls/certs/${1}-${5}.pem
+    sudo -u ${1} chmod 600 /etc/${1}.d/pki/tls/private/${1}-${5}-key.pem  
+
+    # debug
+    sudo ls -al /etc/${1}.d/pki/tls/private/
+    sudo ls -al /etc/${1}.d/pki/tls/certs/
+    popd
+    echo "Finished generating ${5} certificates for data centre ${2} with domain ${1}" 
+  }
+}
+
 get_secret_id () {
 
     echo 'Start Generate Secret-ID'
     # Generate a new secret-id
     SECRET_ID=`curl \
         --location \
-        --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
-        --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
-        --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
+        --cacert "/etc/ssl/certs/consul-agent-ca.pem" \
+        --key "/etc/vault.d/pki/tls/private/vault-client-key.pem" \
+        --cert "/etc/vault.d/pki/tls/certs/vault-client.pem" \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
         --request POST \
         ${VAULT_ADDR}/v1/auth/approle/role/id-factory/secret-id | jq -r .data.secret_id`
@@ -431,9 +464,9 @@ EOF
 
     APPTOKEN=`curl \
         --request POST \
-        --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
-        --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
-        --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
+        --cacert "/etc/ssl/certs/consul-agent-ca.pem" \
+        --key "/etc/vault.d/pki/tls/private/vault-client-key.pem" \
+        --cert "/etc/vault.d/pki/tls/certs/vault-client.pem" \
         --data @id-factory-secret-id-login.json \
         ${VAULT_ADDR}/v1/auth/approle/login | jq -r .auth.client_token`
 
@@ -446,9 +479,9 @@ EOF
 
     RESULT=`curl \
         --header "X-Vault-Token: ${APPTOKEN}" \
-        --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
-        --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
-        --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
+        --cacert "/etc/ssl/certs/consul-agent-ca.pem" \
+        --key "/etc/vault.d/pki/tls/private/vault-client-key.pem" \
+        --cert "/etc/vault.d/pki/tls/certs/vault-client.pem" \
         ${VAULT_ADDR}/v1/kv/development/redispassword | jq -r .data.value`
 
     if [ "${RESULT}" != "${REDIS_MASTER_PASSWORD}" ];then
@@ -478,20 +511,16 @@ install_vault () {
         #delete old token if present
         [ -f /usr/local/bootstrap/.vault-token ] && sudo rm /usr/local/bootstrap/.vault-token
 
- 
-
         #start vault
         if [ "${TRAVIS}" == "true" ]; then
-            # move vault certificates into place
-            sudo mkdir --parents /etc/vault.d/pki/tls/private/vault /etc/vault.d/pki/tls/certs/vault /etc/vault.d/pki/tls/certs/hashistack
-            sudo mkdir --parents /etc/vault.d/pki/tls/private/consul /etc/vault.d/pki/tls/certs/consul
 
-            sudo cp -r /usr/local/bootstrap/certificate-config/vault/vault-server-key.pem /etc/vault.d/pki/tls/private/vault/vault-server-key.pem
-            sudo cp -r /usr/local/bootstrap/certificate-config/vault/vault-server.pem /etc/vault.d/pki/tls/certs/vault/vault-server.pem
-            # Consul certs for Vault
-            sudo cp -r /usr/local/bootstrap/certificate-config/consul/consul-client-key.pem /etc/vault.d/pki/tls/private/consul/consul-client-key.pem
-            sudo cp -r /usr/local/bootstrap/certificate-config/consul/consul-client.pem /etc/vault.d/pki/tls/certs/consul/consul-client.pem
-            sudo cp -r /usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem /etc/vault.d/pki/tls/certs/hashistack/hashistack-ca.pem
+            sudo -u vault mkdir --parents /etc/vault.d/pki/tls/private /etc/vault.d/pki/tls/certs
+            sudo -u vault chmod -R 644 /etc/vault.d/pki/tls/certs
+            sudo -u vault chmod -R 600 /etc/vault.d/pki/tls/private
+
+            # create certificates - using consul helper :shrug:?
+            create_certificate vault hashistack1 30 ${IP} server
+            create_certificate vault hashistack1 30 ${IP} client
 
             sudo cp -r /usr/local/bootstrap/conf/vault.d/* /etc/vault.d/.
 
@@ -501,6 +530,10 @@ install_vault () {
             sleep 15
             cat ${LOG}
         else
+            # create certificates - using consul helper :shrug:?
+            create_certificate vault hashistack1 30 ${IP} server
+            create_certificate vault hashistack1 30 ${IP} client
+
             sudo -u vault cp -r /usr/local/bootstrap/conf/vault.d/* /etc/vault.d/.
             sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/vault server -dev -dev-root-token-id=\"reallystrongpassword\" -config=/etc/vault.d/vault.hcl" /etc/systemd/system/vault.service
             sudo systemctl enable vault

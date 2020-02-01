@@ -1,33 +1,32 @@
 package main
 
 import (
+	"bytes"
+	"crypto/tls"
+	"crypto/x509"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"html/template"
 	"io/ioutil"
-	"encoding/json"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
-	"bytes"
 	"time"
-	"crypto/tls"
-	"crypto/x509"
-	"log"
 
 	"github.com/DataDog/datadog-go/statsd"
 	"github.com/go-redis/redis"
 	"github.com/gorilla/mux"
 	consul "github.com/hashicorp/consul/api"
 	vault "github.com/hashicorp/vault/api"
-
 )
 
 var (
-	certFile = flag.String("cert", "/usr/local/bootstrap/certificate-config/vault/vault-client.pem", "A PEM eoncoded certificate file.")
-	keyFile  = flag.String("key", "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem", "A PEM encoded private key file.")
-	caFile   = flag.String("CA", "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem", "A PEM eoncoded CA's certificate file.")
+	certFile = flag.String("cert", "/etc/vault.d/pki/tls/certs/vault-client.pem", "A PEM eoncoded certificate file.")
+	keyFile  = flag.String("key", "/etc/vault.d/pki/tls/private/vault-client-key.pem", "A PEM encoded private key file.")
+	caFile   = flag.String("CA", "/etc/ssl/certs/consul-agent-ca.pem", "A PEM eoncoded CA's certificate file.")
 )
 
 var templates *template.Template
@@ -108,8 +107,6 @@ func enableCors(w *http.ResponseWriter) {
 	(*w).Header().Set("PageCountPort", targetPort)
 }
 
-
-
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	pagehits, err := redisClient.Incr("pagehits").Result()
 
@@ -134,7 +131,6 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
@@ -153,7 +149,7 @@ func optionsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func crashHandler(w http.ResponseWriter, r *http.Request) {
-	
+
 	enableCors(&w)
 	goapphealth = "Killing service on port " + targetPort + "on server " + thisServer + "(" + targetIP + ")!"
 	fmt.Printf("Application Status: %v \n", goapphealth)
@@ -172,7 +168,7 @@ func convert4connect(serviceURL string) string {
 	// initialise new string builder variable
 	var connectedService strings.Builder
 	// stick the service port number into servicePort[1]
-	servicePort:= strings.SplitAfter(serviceURL, ":")
+	servicePort := strings.SplitAfter(serviceURL, ":")
 
 	// consul connect will use the loopback interface - ensure that the proxy that's configured outside this also uses the same port number for convenience
 	connectedService.WriteString("127.0.0.1")
@@ -209,7 +205,7 @@ func getVaultKV(consulClient consul.Client, vaultKey string) string {
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{cert},
 		RootCAs:      caCertPool,
-	//    InsecureSkipVerify: true,
+		//    InsecureSkipVerify: true,
 	}
 	tlsConfig.BuildNameToCertificate()
 	transport := &http.Transport{TLSClientConfig: tlsConfig}
@@ -217,7 +213,7 @@ func getVaultKV(consulClient consul.Client, vaultKey string) string {
 
 	// Get a handle to the Vault Secret KV API
 	vaultClient, err := vault.NewClient(&vault.Config{
-		Address: vaultAddress,
+		Address:    vaultAddress,
 		HttpClient: httpClient,
 	})
 	if err != nil {
@@ -292,10 +288,10 @@ func getConsulSVC(consulClient consul.Client, key string) string {
 		serviceDetail.WriteString(strconv.Itoa(myService[0].ServicePort))
 		return serviceDetail.String()
 	}
-	
+
 	fmt.Printf("DEBUG: Failed to locate service >> %v \n", key)
 	return fmt.Sprintf("Failed to locate service >> %v \n", key)
-	
+
 }
 
 func redisInit() (string, string) {
@@ -309,11 +305,11 @@ func redisInit() (string, string) {
 	consulConfig.Scheme = "https"
 	consulConfig.Token = *consulACL
 	consulConfig.TLSConfig = consul.TLSConfig{
-		CAFile:             "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem",
-		CertFile:           "/usr/local/bootstrap/certificate-config/consul/consul-client.pem",
-		KeyFile:            "/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem",
-		Address:			"127.0.0.1",
-	  }
+		CAFile:   "/etc/ssl/certs/consul-agent-ca.pem",
+		CertFile: "/etc/consul.d/pki/tls/certs/consul-client.pem",
+		KeyFile:  "/etc/consul.d/pki/tls/private/consul-client-key.pem",
+		Address:  "127.0.0.1",
+	}
 	fmt.Printf("ConsulConfig: %+v \n", consulConfig)
 
 	consulClient, err := consul.NewClient(consulConfig)
@@ -391,7 +387,7 @@ func incrementDataDogCounter(myNameSpace string, myTag string, myCounter string)
 	return true
 }
 
-// SendDataDogEvent 
+// SendDataDogEvent
 func sendDataDogEvent(title string, eventMessage string) bool {
 	// get a pointer to the datadog agent
 	ddClient, err := statsd.New("127.0.0.1:8125")
@@ -408,7 +404,7 @@ func sendDataDogEvent(title string, eventMessage string) bool {
 		fmt.Printf("Failed to send new event to DataDog Agent: %v. Check the DataDog agent is installed and running \n", err)
 		return false
 	}
-	
+
 	return true
 }
 
@@ -424,32 +420,32 @@ func queryVault(vaultAddress string, url string, token string, data map[string]i
 	apiCall := vaultAddress + url
 	bytesRepresentation, err := json.Marshal(data)
 
-    req, err := http.NewRequest(action, apiCall, bytes.NewBuffer(bytesRepresentation))
-    req.Header.Set("X-Vault-Token", token)
-    req.Header.Set("Content-Type", "application/json")
+	req, err := http.NewRequest(action, apiCall, bytes.NewBuffer(bytesRepresentation))
+	req.Header.Set("X-Vault-Token", token)
+	req.Header.Set("Content-Type", "application/json")
 
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    if err != nil {
-        panic(err)
-    }
-    defer resp.Body.Close()
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
 
-    fmt.Println("response Status:", resp.Status)
+	fmt.Println("response Status:", resp.Status)
 	fmt.Println("response Headers:", resp.Header)
-	
+
 	var result map[string]interface{}
 
 	json.NewDecoder(resp.Body).Decode(&result)
 
-	fmt.Println("\n\nresponse result: ",result)
-	fmt.Println("\n\nresponse result .auth:",result["auth"].(map[string]interface{})["client_token"])
+	fmt.Println("\n\nresponse result: ", result)
+	fmt.Println("\n\nresponse result .auth:", result["auth"].(map[string]interface{})["client_token"])
 
 	return result
 }
 
 func getVaultToken(factoryAddress string, appRole string) string {
-	
+
 	fmt.Println("\nDebug Factory Service Vars Start")
 	fmt.Println("\nFACTORY ADDRESS:>", factoryAddress)
 	fmt.Println("\nAPP ROLE:>", appRole)
@@ -460,7 +456,7 @@ func getVaultToken(factoryAddress string, appRole string) string {
 	secretAPI := factoryBaseURL + "/approlename"
 	vaultUnwrapAPI := vaultAddress + "/v1/sys/wrapping/unwrap"
 
-	factoryStatusResponse := http2Call(healthAPI,nil,"GET","none")
+	factoryStatusResponse := http2Call(healthAPI, nil, "GET", "none")
 	fmt.Println("\nHealth API Response:>", factoryStatusResponse)
 
 	var jsonStr = []byte(`{"RoleName":"id-factory"}`)
@@ -468,12 +464,12 @@ func getVaultToken(factoryAddress string, appRole string) string {
 	fmt.Println("\nWrapped Secret API Response:>", factoryWrappedSecretResponse)
 
 	unwrappedSecretIDResponse := http2Call(vaultUnwrapAPI, nil, "POST", factoryWrappedSecretResponse)
-	
+
 	var result map[string]interface{}
 
- 	json.Unmarshal([]byte(unwrappedSecretIDResponse),&result)
+	json.Unmarshal([]byte(unwrappedSecretIDResponse), &result)
 
-	fmt.Println("\n\nresponse result: ",result["data"].(map[string]interface{})["secret_id"])
+	fmt.Println("\n\nresponse result: ", result["data"].(map[string]interface{})["secret_id"])
 	secretID := (result["data"].(map[string]interface{})["secret_id"]).(string)
 
 	// Get the static approle id - this could be baked into a base image
@@ -491,23 +487,21 @@ func getVaultToken(factoryAddress string, appRole string) string {
 	}
 
 	fmt.Printf("Secret ID in map : >> %v \n", data)
-	
+
 	// Use the AppRole Login api call to get the application's Vault Token which will grant it access to the REDIS database credentials
-	appRoletokenResponse := queryVault(vaultAddress,"/v1/auth/approle/login","",data,"POST")
+	appRoletokenResponse := queryVault(vaultAddress, "/v1/auth/approle/login", "", data, "POST")
 
 	appRoletoken := (appRoletokenResponse["auth"].(map[string]interface{})["client_token"]).(string)
-
 
 	return appRoletoken
 }
 
+func http2Call(url string, data []byte, action string, token string) string {
 
-func http2Call (url string, data []byte, action string, token string) string {
+	//fmt.Println("URL:>", url)
 
-    //fmt.Println("URL:>", url)
+	req, err := http.NewRequest(action, url, bytes.NewBuffer(data))
 
-    req, err := http.NewRequest(action, url, bytes.NewBuffer(data))
-	
 	httpClient := &http.Client{}
 
 	if token != "none" {
@@ -534,25 +528,25 @@ func http2Call (url string, data []byte, action string, token string) string {
 		tlsConfig := &tls.Config{
 			Certificates: []tls.Certificate{cert},
 			RootCAs:      caCertPool,
-		//    InsecureSkipVerify: true,
+			//    InsecureSkipVerify: true,
 		}
 		tlsConfig.BuildNameToCertificate()
 		transport := &http.Transport{TLSClientConfig: tlsConfig}
 		httpClient = &http.Client{Transport: transport}
 
 	}
-	
+
 	req.Header.Set("Content-Type", "application/json")
 	fmt.Printf("HEADER set to : %v\n", req.Header)
-    resp, err := httpClient.Do(req)
-    if err != nil {
+	resp, err := httpClient.Do(req)
+	if err != nil {
 		fmt.Printf("Problems Reaching: %v\n", err)
-        //panic(err)
-    }
-    defer resp.Body.Close()
+		//panic(err)
+	}
+	defer resp.Body.Close()
 
-    fmt.Println("response Status:", resp.Status)
-    fmt.Println("response Headers:", resp.Header)
+	fmt.Println("response Status:", resp.Status)
+	fmt.Println("response Headers:", resp.Header)
 	body, _ := ioutil.ReadAll(resp.Body)
 	result := string(body)
 	fmt.Println("response Body:", result)

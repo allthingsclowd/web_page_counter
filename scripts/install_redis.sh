@@ -66,7 +66,7 @@ start_app_proxy_service () {
   # param 2 ${2}: app-proxy service description
   # param 3 ${3}: consul host service name
 
-  create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem -client-cert=/usr/local/bootstrap/certificate-config/consul/consul-client.pem -client-key=/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem -token=${CONSUL_HTTP_TOKEN} -sidecar-for ${3}"
+  create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/etc/ssl/certs/consul-agent-ca.pem -client-cert=/etc/consul.d/pki/tls/certs/consul-client.pem -client-key=/etc/consul.d/pki/tls/private/consul-client-key.pem -token=${CONSUL_HTTP_TOKEN} -sidecar-for ${3}"
   sudo usermod -a -G webpagecountercerts ${1}
   sudo systemctl start ${1}
   #sudo systemctl status ${1}
@@ -81,7 +81,7 @@ start_client_proxy_service () {
     # param 4 ${4}: client-proxy local service port number
     
 
-    create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem -client-cert=/usr/local/bootstrap/certificate-config/consul/consul-client.pem -client-key=/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem -token=${CONSUL_HTTP_TOKEN} -service ${3} -upstream ${4}:${5} -register"
+    create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/etc/ssl/certs/consul-agent-ca.pem -client-cert=/etc/consul.d/pki/tls/certs/consul-client.pem -client-key=/etc/consul.d/pki/tls/private/consul-client-key.pem -token=${CONSUL_HTTP_TOKEN} -service ${3} -upstream ${4}:${5} -register"
     sudo usermod -a -G webpagecountercerts ${1}
     sudo systemctl start ${1}
     #sudo systemctl status ${1}
@@ -113,16 +113,16 @@ setup_environment () {
 
   export VAULT_ADDR=https://${LEADER_IP}:8322
   export VAULT_TOKEN=reallystrongpassword
-  export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem
-  export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/vault/vault-client.pem
-  export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
+  export VAULT_CLIENT_KEY=/etc/vault.d/pki/tls/private/vault-client-key.pem
+  export VAULT_CLIENT_CERT=/etc/vault.d/pki/tls/certs/vault-client.pem
+  export VAULT_CACERT=/etc/ssl/certs/vault-agent-ca.pem
   export VAULT_SKIP_VERIFY=true
 
   # Configure consul environment variables for use with certificates 
   export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-  export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
-  export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/consul/consul-client.pem
-  export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem
+  export CONSUL_CACERT=/etc/ssl/certs/consul-agent-ca.pem
+  export CONSUL_CLIENT_CERT=/etc/consul.d/pki/tls/certs/consul-client.pem
+  export CONSUL_CLIENT_KEY=/etc/consul.d/pki/tls/private/consul-client-key.pem
 
   REDIS_MASTER_PASSWORD=`vault kv get -field "value" kv/development/redispassword`
   AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
@@ -167,26 +167,26 @@ EOF
   # Register the service in consul via the local Consul agent api
   sudo curl \
       --request PUT \
-      --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
-      --key "/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem" \
-      --cert "/usr/local/bootstrap/certificate-config/consul/consul-client.pem" \
+      --cacert "/etc/ssl/certs/consul-agent-ca.pem" \
+      --key "/etc/consul.d/pki/tls/private/consul-client-key.pem" \
+      --cert "/etc/consul.d/pki/tls/certs/consul-client.pem" \
       --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
       --data @redis_service.json \
       ${CONSUL_HTTP_ADDR}/v1/agent/service/register
 
   # List the locally registered services via local Consul api
   sudo curl \
-    --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
-    --key "/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem" \
-    --cert "/usr/local/bootstrap/certificate-config/consul/consul-client.pem" \
+    --cacert "/etc/ssl/certs/consul-agent-ca.pem" \
+    --key "/etc/consul.d/pki/tls/private/consul-client-key.pem" \
+    --cert "/etc/consul.d/pki/tls/certs/consul-client.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     ${CONSUL_HTTP_ADDR}/v1/agent/services | jq -r .
 
   # List the services regestered on the Consul server
   sudo curl \
-    --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
-    --key "/usr/local/bootstrap/certificate-config/consul/consul-client-key.pem" \
-    --cert "/usr/local/bootstrap/certificate-config/consul/consul-client.pem" \
+    --cacert "/etc/ssl/certs/consul-agent-ca.pem" \
+    --key "/etc/consul.d/pki/tls/private/consul-client-key.pem" \
+    --cert "/etc/consul.d/pki/tls/certs/consul-client.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     ${CONSUL_HTTP_ADDR}/v1/catalog/services | jq -r .
    
@@ -199,9 +199,9 @@ configure_redis () {
   sudo consul-template \
     -vault-addr=${VAULT_ADDR} \
     -vault-token=${DB_VAULT_TOKEN} \
-    -vault-ssl-cert="/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
-    -vault-ssl-key="/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
-    -vault-ssl-ca-cert="/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
+    -vault-ssl-cert="/etc/vault.d/pki/tls/certs/vault-client.pem" \
+    -vault-ssl-key="/etc/vault.d/pki/tls/private/vault-client-key.pem" \
+    -vault-ssl-ca-cert="/etc/ssl/certs/consul-agent-ca.pem" \
     -template "/usr/local/bootstrap/conf/master.redis.ctpl:/etc/redis/redis.conf" -once
   
   sudo chown redis:redis /etc/redis/redis.conf

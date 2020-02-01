@@ -4,5 +4,5 @@ consul {
   ca_file   = "/etc/nomad.d/pki/tls/certs/hashistack/hashistack-ca.pem"
   cert_file = "/etc/nomad.d/pki/tls/certs/consul/consul-client.pem"
   key_file  = "/etc/nomad.d/pki/tls/private/consul/consul-client-key.pem"
-  token = "3657575e-beb0-db74-51ed-7c3ff0f41e04"
+  token = "3a01d389-a3e9-312f-324c-df87cc3a82a2"
   }
