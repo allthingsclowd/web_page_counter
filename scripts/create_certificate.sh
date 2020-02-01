@@ -8,9 +8,11 @@ setup_environment () {
   IFACE=`route -n | awk '$1 == "192.168.9.0" {print $8;exit}'`
   CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.9" {print $2}'`
   IP=${CIDR%%/24}
+  ROOTCERTPATH=etc
   
   if [ "${TRAVIS}" == "true" ]; then
     IP=${IP:-127.0.0.1}
+    ROOTCERTPATH=tmp
   fi
 
 }
@@ -21,10 +23,11 @@ create_certificate () {
   # ${3} certificate duration in days
   # ${4} additional ip addresses
   # ${5} cert type either server, client or cli
-  
-  [ -f /etc/${1}.d/pki/tls/private/${1}-${5}-key.pem ] &>/dev/null || {
-    echo "Start generating ${5} certificates for data centre ${2} with domain ${1}" 
-    sudo pushd /etc/${1}.d/pki/tls/private
+
+  [ -f /${ROOTCERTPATH}/${1}.d/pki/tls/private/${1}-${5}-key.pem ] &>/dev/null || {
+    echo "Start generating ${5} certificates for data centre ${2} with domain ${1}"
+    sudo mkdir --parent /${ROOTCERTPATH}/${1}.d/pki/tls/private /${ROOTCERTPATH}/${1}.d/pki/tls/certs
+    pushd /${ROOTCERTPATH}/${1}.d/pki/tls/private
     sudo /usr/local/bin/consul tls cert create \
                                 -domain=${1} \
                                 -dc=${2} \
@@ -34,16 +37,16 @@ create_certificate () {
                                 -additional-ipaddress=${4} \
                                 -${5} 
                                 
-    sudo mv ${2}-${5}-${1}-0.pem /etc/${1}.d/pki/tls/certs/${1}-${5}.pem
-    sudo mv ${2}-${5}-${1}-0-key.pem /etc/${1}.d/pki/tls/private/${1}-${5}-key.pem
+    sudo mv ${2}-${5}-${1}-0.pem /${ROOTCERTPATH}/${1}.d/pki/tls/certs/${1}-${5}.pem
+    sudo mv ${2}-${5}-${1}-0-key.pem /${ROOTCERTPATH}/${1}.d/pki/tls/private/${1}-${5}-key.pem
 
-    sudo -u ${1} chmod 644 /etc/${1}.d/pki/tls/certs/${1}-${5}.pem
-    sudo -u ${1} chmod 600 /etc/${1}.d/pki/tls/private/${1}-${5}-key.pem  
+    sudo -u ${1} chmod 644 /${ROOTCERTPATH}/${1}.d/pki/tls/certs/${1}-${5}.pem
+    sudo -u ${1} chmod 600 /${ROOTCERTPATH}/${1}.d/pki/tls/private/${1}-${5}-key.pem  
 
     # debug
-    sudo ls -al /etc/${1}.d/pki/tls/private/
-    sudo ls -al /etc/${1}.d/pki/tls/certs/
-    sudo popd
+    sudo ls -al /${ROOTCERTPATH}/${1}.d/pki/tls/private/
+    sudo ls -al /${ROOTCERTPATH}/${1}.d/pki/tls/certs/
+    popd
     echo "Finished generating ${5} certificates for data centre ${2} with domain ${1}" 
   }
 }
