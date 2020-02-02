@@ -24,9 +24,15 @@ import (
 )
 
 var (
-	certFile = flag.String("cert", "/etc/vault.d/pki/tls/certs/vault-client.pem", "A PEM eoncoded certificate file.")
-	keyFile  = flag.String("key", "/etc/vault.d/pki/tls/private/vault-client-key.pem", "A PEM encoded private key file.")
-	caFile   = flag.String("CA", "/etc/ssl/certs/consul-agent-ca.pem", "A PEM eoncoded CA's certificate file.")
+	ccertFile = flag.String("consulcert", "/etc/consul.d/pki/tls/certs/consul-client.pem", "A PEM eoncoded consul certificate file.")
+	ckeyFile  = flag.String("consulkey", "/etc/consul.d/pki/tls/private/consul-client-key.pem", "A PEM encoded consul private key file.")
+	ccaFile   = flag.String("consulCA", "/etc/ssl/certs/consul-agent-ca.pem", "A PEM eoncoded consul CA's certificate file.")
+)
+
+var (
+	vcertFile = flag.String("vaultcert", "/etc/vault.d/pki/tls/certs/vault-client.pem", "A PEM eoncoded vault certificate file.")
+	vkeyFile  = flag.String("vaultkey", "/etc/vault.d/pki/tls/private/vault-client-key.pem", "A PEM encoded vault private key file.")
+	vcaFile   = flag.String("vaultCA", "/etc/ssl/certs/vault-agent-ca.pem", "A PEM eoncoded CA's vault certificate file.")
 )
 
 var templates *template.Template
@@ -188,13 +194,13 @@ func getVaultKV(consulClient consul.Client, vaultKey string) string {
 
 	// Possibly move this Vault client TLS out of here
 	// Load client cert
-	cert, err := tls.LoadX509KeyPair(*certFile, *keyFile)
+	cert, err := tls.LoadX509KeyPair(*vcertFile, *vkeyFile)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Load CA cert
-	caCert, err := ioutil.ReadFile(*caFile)
+	caCert, err := ioutil.ReadFile(*vcaFile)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -305,9 +311,9 @@ func redisInit() (string, string) {
 	consulConfig.Scheme = "https"
 	consulConfig.Token = *consulACL
 	consulConfig.TLSConfig = consul.TLSConfig{
-		CAFile:   "/etc/ssl/certs/consul-agent-ca.pem",
-		CertFile: "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem",
-		KeyFile:  "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem",
+		CAFile:   *ccaFile,
+		CertFile: *vcertFile,
+		KeyFile:  *vkeyFile,
 		Address:  "127.0.0.1",
 	}
 	fmt.Printf("ConsulConfig: %+v \n", consulConfig)
