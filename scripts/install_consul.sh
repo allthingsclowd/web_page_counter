@@ -150,7 +150,7 @@ install_consul () {
         # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
         sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} server
 
-        sudo ls -al /${ROOTCERTPATH}/consul.d/pki/tls/certs/consul/ /${ROOTCERTPATH}/consul.d/pki/tls/private/consul/
+        sudo ls -al /${ROOTCERTPATH}/consul.d/pki/tls/certs/ /${ROOTCERTPATH}/consul.d/pki/tls/private/ /${ROOTCERTPATH}/ssl/certs /${ROOTCERTPATH}/ssl/private
         # sudo ls -al /${ROOTCERTPATH}/consul.d/pki/tls/private/consul/
         sudo /usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${TRAVIS_BUILD_DIR}/${LOG} &
         sleep 5
@@ -166,6 +166,7 @@ install_consul () {
       fi
       sleep 15
       # upload vars to consul kv
+      ls -al /${ROOTCERTPATH}/consul.d/pki/tls/certs/ /${ROOTCERTPATH}/consul.d/pki/tls/private/ /${ROOTCERTPATH}/ssl/certs /${ROOTCERTPATH}/ssl/private
       echo "Quick test of the Consul KV store - upload the var.env parameters"
       while read a b; do
         k=${b%%=*}
