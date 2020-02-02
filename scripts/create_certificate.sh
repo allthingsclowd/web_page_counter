@@ -25,8 +25,8 @@ create_certificate () {
     sudo /usr/local/bin/consul tls cert create \
                                 -domain=${1} \
                                 -dc=${2} \
-                                -key=/etc/ssl/private/${1}-agent-ca-key.pem \
-                                -ca=/etc/ssl/certs/${1}-agent-ca.pem$ \
+                                -key=/${ROOTCERTPATH}/ssl/private/${1}-agent-ca-key.pem \
+                                -ca=/${ROOTCERTPATH}/ssl/certs/${1}-agent-ca.pem$ \
                                 -days=${3} \
                                 -additional-ipaddress=${4} \
                                 -${5} 
