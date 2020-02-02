@@ -9,7 +9,15 @@ export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
 /usr/local/go/bin/go get ./...
 /usr/local/go/bin/go build -o webcounter -i main.go
-./webcounter -consulACL=${CONSUL_HTTP_TOKEN} -ip="0.0.0.0" -consulIP="127.0.0.1:8321" &
+./webcounter -consulACL=${CONSUL_HTTP_TOKEN} \
+             -ip="0.0.0.0" \
+             -consulIP="127.0.0.1:8321" \
+             -ccaFile="/tmp/ssl/consul-agent-ca.pem" \
+             -vcaFile="/tmp/ssl/vault-agent-ca.pem" \
+             -ccertFile="/tmp/consul.d/pki/tls/certs/consul-client.pem" \
+             -vcertFile="/tmp/vault.d/pki/tls/certs/vault-client.pem" \
+             -ckeyFile="/tmp/consul.d/pki/tls/private/consul-client-key.pem" \
+             -vkeyFile="/tmp/vault.d/pki/tls/private/vault-client-key.pem" &
 
 # delay added to allow webcounter startup
 sleep 2
