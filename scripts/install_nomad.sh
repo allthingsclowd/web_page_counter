@@ -82,7 +82,7 @@ install_nomad() {
       # create certificates - using consul helper :shrug:?
       sudo /usr/local/bootstrap/scripts/create_certificate.sh create_certificate nomad hashistack1 30 ${IP} server
       # Travis-CI grant access to /tmp for all users
-      sudo chmod -R 644 /${ROOTCERTPATH}
+      sudo chmod -R 777 /${ROOTCERTPATH}
       
       sudo /usr/local/bin/nomad agent -server -bind=${IP} -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/${ROOTCERTPATH}/nomad.d >${LOG} &
     else
