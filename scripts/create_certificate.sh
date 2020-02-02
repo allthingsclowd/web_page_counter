@@ -9,6 +9,15 @@ setup_environment () {
   CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.9" {print $2}'`
   IP=${CIDR%%/24}
  
+  if [ "${TRAVIS}" == "true" ]; then
+    ROOTCERTPATH=tmp
+    IP=${IP:-127.0.0.1}
+    LEADER_IP=${IP}
+  else
+    ROOTCERTPATH=etc
+  fi
+
+  export ROOTCERTPATH 
 }
 
 create_certificate () {

@@ -22,14 +22,14 @@ export VAULT_ADDR=https://${LEADER_IP}:8322
 export VAULT_TOKEN=reallystrongpassword
 export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem
 export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem
-export VAULT_CACERT=/etc/ssl/certs/vault-agent-ca.pem
+export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem
 export VAULT_SKIP_VERIFY=true
 
 # Configure consul environment variables for use with certificates 
 export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-export CONSUL_CACERT=/etc/ssl/certs/consul-agent-ca.pem
-export CONSUL_CLIENT_CERT=/etc/consul.d/pki/tls/certs/consul-client.pem
-export CONSUL_CLIENT_KEY=/etc/consul.d/pki/tls/private/consul-client-key.pem
+export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem
+export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem
+export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem
 AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
 export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
@@ -74,26 +74,26 @@ EOF
   # Register the service in consul via the local Consul agent api
   curl \
     --request PUT \
-    --cacert "/etc/ssl/certs/consul-agent-ca.pem" \
-    --key "/etc/consul.d/pki/tls/private/consul-client-key.pem" \
-    --cert "/etc/consul.d/pki/tls/certs/consul-client.pem" \
+    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
+    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     --data @nginx_service.json \
     ${CONSUL_HTTP_ADDR}/v1/agent/service/register
 
   # List the locally registered services via local Consul api
   curl \
-    --cacert "/etc/ssl/certs/consul-agent-ca.pem" \
-    --key "/etc/consul.d/pki/tls/private/consul-client-key.pem" \
-    --cert "/etc/consul.d/pki/tls/certs/consul-client.pem" \
+    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
+    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     ${CONSUL_HTTP_ADDR}/v1/agent/services | jq -r .
 
   # List the services regestered on the Consul server
   curl \
-    --cacert "/etc/ssl/certs/consul-agent-ca.pem" \
-    --key "/etc/consul.d/pki/tls/private/consul-client-key.pem" \
-    --cert "/etc/consul.d/pki/tls/certs/consul-client.pem" \
+    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
+    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     ${CONSUL_HTTP_ADDR}/v1/catalog/services | jq -r .
    
