@@ -312,8 +312,8 @@ func redisInit() (string, string) {
 	consulConfig.Token = *consulACL
 	consulConfig.TLSConfig = consul.TLSConfig{
 		CAFile:   *ccaFile,
-		CertFile: *vcertFile,
-		KeyFile:  *vkeyFile,
+		CertFile: *ccertFile,
+		KeyFile:  *ckeyFile,
 		Address:  "127.0.0.1",
 	}
 	fmt.Printf("ConsulConfig: %+v \n", consulConfig)
