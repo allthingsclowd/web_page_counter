@@ -34,8 +34,8 @@ create_certificate () {
     sudo mv ${2}-${5}-${1}-0.pem /${ROOTCERTPATH}/${1}.d/pki/tls/certs/${1}-${5}.pem
     sudo mv ${2}-${5}-${1}-0-key.pem /${ROOTCERTPATH}/${1}.d/pki/tls/private/${1}-${5}-key.pem
 
-    sudo -u ${1} chmod 644 /${ROOTCERTPATH}/${1}.d/pki/tls/certs/${1}-${5}.pem
-    sudo -u ${1} chmod 644 /${ROOTCERTPATH}/${1}.d/pki/tls/private/${1}-${5}-key.pem  
+    sudo chmod 644 /${ROOTCERTPATH}/${1}.d/pki/tls/certs/${1}-${5}.pem
+    sudo chmod 644 /${ROOTCERTPATH}/${1}.d/pki/tls/private/${1}-${5}-key.pem  
 
     # debug
     sudo ls -al /${ROOTCERTPATH}/${1}.d/pki/tls/private/
