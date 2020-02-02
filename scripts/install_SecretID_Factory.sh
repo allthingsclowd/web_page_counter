@@ -233,12 +233,21 @@ install_go_application () {
     sudo chmod +x /usr/local/bin/VaultServiceIDFactory
 
     if [ ! "${TRAVIS}" == "true" ]; then
-        create_service factory "SecretID Factory Service" "/usr/local/bin/VaultServiceIDFactory -ip=127.0.0.1 -vault=\"${VAULT_ADDR}\""
+        create_service factory "SecretID Factory Service" \
+                               "/usr/local/bin/VaultServiceIDFactory \
+                               -ip=127.0.0.1 \
+                               -vault=\"${VAULT_ADDR}\" \
+                               -vaultCA=\"/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem\" \
+                               -vaultcert=\"/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem\" \
+                               -vaultkey=\"/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem\""
         sudo systemctl start factory
         #sudo systemctl status factory
         register_secret_id_service_with_consul
     else
-        sudo /usr/local/bin/VaultServiceIDFactory -vault="${VAULT_ADDR}" &> ${LOG} &
+        sudo /usr/local/bin/VaultServiceIDFactory -vault="${VAULT_ADDR}" \
+                                                  -vaultCA="/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
+                                                  -vaultcert="/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
+                                                  -vaultkey="/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" &> ${LOG} &
     fi
 
 
