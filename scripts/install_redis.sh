@@ -205,11 +205,11 @@ configure_redis () {
     -vault-token=${DB_VAULT_TOKEN} \
     -vault-ssl-cert="/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
     -vault-ssl-key="/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
-    -vault-ssl-ca-cert="/etc/ssl/certs/consul-agent-ca.pem" \
-    -template "/usr/local/bootstrap/conf/master.redis.ctpl:/etc/redis/redis.conf" -once
+    -vault-ssl-ca-cert="/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
+    -template "/usr/local/bootstrap/conf/master.redis.ctpl:/${ROOTCERTPATH}/redis/redis.conf" -once
   
-  sudo chown redis:redis /etc/redis/redis.conf
-  sudo chmod 640 /etc/redis/redis.conf
+  sudo chown redis:redis /${ROOTCERTPATH}/redis/redis.conf
+  sudo chmod 640 /${ROOTCERTPATH}/redis/redis.conf
 
   register_redis_service_with_consul
 
@@ -221,7 +221,7 @@ configure_redis () {
     # start connect application proxy
     start_app_proxy_service redis-proxy "Redis Proxy Service" redis
   else
-    sudo service redis-server restart
+    sudo redis-server /${ROOTCERTPATH}/redis/redis.conf &
 
   fi
 
