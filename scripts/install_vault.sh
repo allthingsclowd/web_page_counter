@@ -486,9 +486,9 @@ install_vault () {
         #start vault
         if [ "${TRAVIS}" == "true" ]; then
 
-            sudo -u vault mkdir --parents /${ROOTCERTPATH}/vault.d/pki/tls/private /${ROOTCERTPATH}/vault.d/pki/tls/certs
-            sudo -u vault chmod -R 644 /${ROOTCERTPATH}/vault.d/pki/tls/certs
-            sudo -u vault chmod -R 600 /${ROOTCERTPATH}/vault.d/pki/tls/private
+            # sudo -u vault mkdir --parents /${ROOTCERTPATH}/vault.d/pki/tls/private /${ROOTCERTPATH}/vault.d/pki/tls/certs
+            # sudo -u vault chmod -R 644 /${ROOTCERTPATH}/vault.d/pki/tls/certs
+            # sudo -u vault chmod -R 600 /${ROOTCERTPATH}/vault.d/pki/tls/private
 
             # create certificates - using consul helper :shrug:?
             sudo /usr/local/bootstrap/scripts/create_certificate.sh vault hashistack1 30 ${IP} server
@@ -496,7 +496,7 @@ install_vault () {
 
             sudo cp -r /usr/local/bootstrap/conf/vault.d/* /${ROOTCERTPATH}/vault.d/.
 
-            sudo ls -al /${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem /${ROOTCERTPATH}/vault.d/pki/tls/private/consul/consul-client-key.pem /${ROOTCERTPATH}/vault.d/pki/tls/certs/consul/consul-client.pem /${ROOTCERTPATH}/vault.d/pki/tls/private/vault/vault-server-key.pem /${ROOTCERTPATH}/vault.d/pki/tls/certs/vault/vault-server.pem
+            sudo ls -al /${ROOTCERTPATH}/ssl/certs/ /${ROOTCERTPATH}/consul.d/pki/tls/private/ /${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem /${ROOTCERTPATH}/vault.d/pki/tls/private/vault-server-key.pem /${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-server.pem
             sudo cat /${ROOTCERTPATH}/vault.d/vault.hcl
             sudo /usr/local/bin/vault server -dev -dev-root-token-id="reallystrongpassword" -config=/${ROOTCERTPATH}/vault.d/vault.hcl &> ${LOG} &
             sleep 15

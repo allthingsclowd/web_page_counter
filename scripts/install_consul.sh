@@ -142,7 +142,7 @@ install_consul () {
   if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
     echo "Starting a Consul Agent in Server Mode"
 
-    generate_certificate_config true "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul/consul-server-key.pem" "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul/consul-server.pem" "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem"
+    generate_certificate_config true "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-server-key.pem" "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-server.pem" "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem"
 
     /usr/local/bin/consul members 2>/dev/null || {
       if [ "${TRAVIS}" == "true" ]; then

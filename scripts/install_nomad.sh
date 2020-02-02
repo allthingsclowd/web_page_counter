@@ -77,11 +77,6 @@ install_nomad() {
   # check for nomad hostname => server
   if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
     if [ "${TRAVIS}" == "true" ]; then
-
-      # create nomad directories
-      sudo -u nomad mkdir --parents /${ROOTCERTPATH}/nomad.d/pki/tls/private /${ROOTCERTPATH}/nomad.d/pki/tls/certs
-      sudo -u nomad chmod -R 644 /${ROOTCERTPATH}/nomad.d/pki/tls/certs
-      sudo -u nomad chmod -R 644 /${ROOTCERTPATH}/nomad.d/pki/tls/private
       
       # create certificates - using consul helper :shrug:?
       sudo /usr/local/bootstrap/scripts/create_certificate.sh create_certificate nomad hashistack1 30 ${IP} server
