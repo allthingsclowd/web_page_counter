@@ -129,15 +129,15 @@ configure_certificates () {
     # create nomad directories
     sudo -u nomad mkdir --parents /${ROOTCERTPATH}/nomad.d/pki/tls/private /${ROOTCERTPATH}/nomad.d/pki/tls/certs
     sudo -u nomad chmod -R 644 /${ROOTCERTPATH}/nomad.d/pki/tls/certs
-    sudo -u nomad chmod -R 600 /${ROOTCERTPATH}/nomad.d/pki/tls/private
+    sudo -u nomad chmod -R 644 /${ROOTCERTPATH}/nomad.d/pki/tls/private
 
     sudo -u consul mkdir --parents /${ROOTCERTPATH}/consul.d/pki/tls/private /${ROOTCERTPATH}/consul.d/pki/tls/certs
     sudo -u consul chmod -R 644 /${ROOTCERTPATH}/consul.d/pki/tls/certs
-    sudo -u consul chmod -R 600 /${ROOTCERTPATH}/consul.d/pki/tls/private
+    sudo -u consul chmod -R 644 /${ROOTCERTPATH}/consul.d/pki/tls/private
 
     sudo -u vault mkdir --parents /${ROOTCERTPATH}/vault.d/pki/tls/private /${ROOTCERTPATH}/vault.d/pki/tls/certs
     sudo -u vault chmod -R 644 /${ROOTCERTPATH}/vault.d/pki/tls/certs
-    sudo -u vault chmod -R 600 /${ROOTCERTPATH}/vault.d/pki/tls/private
+    sudo -u vault chmod -R 644 /${ROOTCERTPATH}/vault.d/pki/tls/private
   
     # copy ssh CA certificate onto host
     sudo cp -r /usr/local/bootstrap/certificate-config/ssh_host/ssh_host_rsa_key.pub /etc/ssh/ssh_host_rsa_key.pub
