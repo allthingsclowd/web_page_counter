@@ -78,10 +78,12 @@ install_nomad() {
   if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
     if [ "${TRAVIS}" == "true" ]; then
       
+      sudo cp -apr /usr/local/bootstrap/conf/nomad.d /${ROOTCERTPATH}
       # create certificates - using consul helper :shrug:?
       sudo /usr/local/bootstrap/scripts/create_certificate.sh create_certificate nomad hashistack1 30 ${IP} server
-
-      sudo cp -apr /usr/local/bootstrap/conf/nomad.d /etc
+      # Travis-CI grant access to /tmp for all users
+      sudo chmod -R 644 /${ROOTCERTPATH}
+      
       sudo /usr/local/bin/nomad agent -server -bind=${IP} -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/${ROOTCERTPATH}/nomad.d >${LOG} &
     else
       NOMAD_ADDR=http://${IP}:4646 /usr/local/bin/nomad agent-info 2>/dev/null || {

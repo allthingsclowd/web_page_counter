@@ -356,7 +356,7 @@ EOF
 restart_consul () {
     
     
-    sudo cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
+    #sudo cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
     if [ "${TRAVIS}" == "true" ]; then
         sudo killall -9 -v consul
         sleep 5
