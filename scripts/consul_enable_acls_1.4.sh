@@ -308,8 +308,8 @@ create_app_token () {
     scheme = "https"
     path    = "vault/"
     tls_ca_file = "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem"
-    tls_cert_file = "/${ROOTCERTPATH}/vault.d/pki/tls/certs/consul/consul-client.pem"
-    tls_key_file = "/${ROOTCERTPATH}/vault.d/pki/tls/private/consul/consul-client-key.pem"
+    tls_cert_file = "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem"
+    tls_key_file = "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem"
     token = "${VAULTSESSIONTOKEN}"
   }
 
@@ -318,8 +318,8 @@ create_app_token () {
   listener "tcp" {
     address = "0.0.0.0:8322"
     tls_disable = 0
-    tls_cert_file = "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault/vault-server.pem"
-    tls_key_file = "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault/vault-server-key.pem"
+    tls_cert_file = "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-server.pem"
+    tls_key_file = "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-server-key.pem"
   }
 
   # Advertise the non-loopback interface
