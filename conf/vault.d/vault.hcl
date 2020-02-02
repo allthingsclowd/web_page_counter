@@ -2,7 +2,7 @@
     address = "127.0.0.1:8321"
     scheme = "https"
     path    = "vault/"
-    tls_ca_file = "/etc/vault.d/pki/tls/certs/hashistack/hashistack-ca.pem"
+    tls_ca_file = "/etc/ssl/certs/consul-agent-ca.pem"
     tls_cert_file = "/etc/vault.d/pki/tls/certs/consul/consul-client.pem"
     tls_key_file = "/etc/vault.d/pki/tls/private/consul/consul-client-key.pem"
     token = "0573c620-9e6a-f4b2-edec-82016c0a3724"

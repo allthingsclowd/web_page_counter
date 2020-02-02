@@ -113,8 +113,8 @@ setup_environment () {
 
   export VAULT_ADDR=https://${LEADER_IP}:8322
   export VAULT_TOKEN=reallystrongpassword
-  export VAULT_CLIENT_KEY=/etc/vault.d/pki/tls/private/vault-client-key.pem
-  export VAULT_CLIENT_CERT=/etc/vault.d/pki/tls/certs/vault-client.pem
+  export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem
+  export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem
   export VAULT_CACERT=/etc/ssl/certs/vault-agent-ca.pem
   export VAULT_SKIP_VERIFY=true
 
@@ -199,8 +199,8 @@ configure_redis () {
   sudo consul-template \
     -vault-addr=${VAULT_ADDR} \
     -vault-token=${DB_VAULT_TOKEN} \
-    -vault-ssl-cert="/etc/vault.d/pki/tls/certs/vault-client.pem" \
-    -vault-ssl-key="/etc/vault.d/pki/tls/private/vault-client-key.pem" \
+    -vault-ssl-cert="/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
+    -vault-ssl-key="/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
     -vault-ssl-ca-cert="/etc/ssl/certs/consul-agent-ca.pem" \
     -template "/usr/local/bootstrap/conf/master.redis.ctpl:/etc/redis/redis.conf" -once
   

@@ -109,12 +109,6 @@ create_root_CA_certificate () {
   # ${1} - domain name - e.g. consul
   # ${2} - duration in days that CA is valid for
   
-  if [ "${TRAVIS}" == "true" ]; then
-    ROOTCERTPATH=tmp
-  else
-    ROOTCERTPATH=etc
-  fi
-  
   # create file layout for the certs
   [ -d /${ROOTCERTPATH}/ssl/CA ] &>/dev/null || {
     sudo mkdir --parent /${ROOTCERTPATH}/ssl/CA /${ROOTCERTPATH}/ssl/certs
@@ -124,7 +118,7 @@ create_root_CA_certificate () {
   sudo mv /${ROOTCERTPATH}/ssl/CA/${1}-agent-ca.pem /${ROOTCERTPATH}/ssl/certs/.
   sudo mv /${ROOTCERTPATH}/ssl/CA/${1}-agent-ca-key.pem /${ROOTCERTPATH}/ssl/private/.
   sudo chmod -R 644 /${ROOTCERTPATH}/ssl/certs
-  sudo chmod -R 600 /${ROOTCERTPATH}/ssl/private
+  sudo chmod -R 644 /${ROOTCERTPATH}/ssl/private
   sudo ls -al /${ROOTCERTPATH}/ssl/certs /${ROOTCERTPATH}/ssl/private
   popd
 
@@ -133,59 +127,18 @@ create_root_CA_certificate () {
 configure_certificates () {
 
     # create nomad directories
-    sudo -u nomad mkdir --parents /etc/nomad.d/pki/tls/private /etc/nomad.d/pki/tls/certs
-    sudo -u nomad chmod -R 644 /etc/nomad.d/pki/tls/certs
-    sudo -u nomad chmod -R 600 /etc/nomad.d/pki/tls/private
+    sudo -u nomad mkdir --parents /${ROOTCERTPATH}/nomad.d/pki/tls/private /${ROOTCERTPATH}/nomad.d/pki/tls/certs
+    sudo -u nomad chmod -R 644 /${ROOTCERTPATH}/nomad.d/pki/tls/certs
+    sudo -u nomad chmod -R 600 /${ROOTCERTPATH}/nomad.d/pki/tls/private
 
-    sudo -u consul mkdir --parents /etc/consul.d/pki/tls/private /etc/consul.d/pki/tls/certs
-    sudo -u consul chmod -R 644 /etc/consul.d/pki/tls/certs
-    sudo -u consul chmod -R 600 /etc/consul.d/pki/tls/private
+    sudo -u consul mkdir --parents /${ROOTCERTPATH}/consul.d/pki/tls/private /${ROOTCERTPATH}/consul.d/pki/tls/certs
+    sudo -u consul chmod -R 644 /${ROOTCERTPATH}/consul.d/pki/tls/certs
+    sudo -u consul chmod -R 600 /${ROOTCERTPATH}/consul.d/pki/tls/private
 
-    sudo -u vault mkdir --parents /etc/vault.d/pki/tls/private /etc/vault.d/pki/tls/certs
-    sudo -u vault chmod -R 644 /etc/vault.d/pki/tls/certs
-    sudo -u vault chmod -R 600 /etc/vault.d/pki/tls/private
-
-
-    # # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
-
-    # # Temp - dump all certs into directory for testing mTLS later
-    # sudo mkdir --parents /tmp/HashiStack_Certs
-    # sudo cp -R /usr/local/bootstrap/certificate-config /tmp/HashiStack_Certs
-
-    # # move vault certificates into place
-    # sudo -u vault mkdir --parents /etc/vault.d/pki/tls/private/vault /etc/vault.d/pki/tls/certs/vault /etc/vault.d/pki/tls/certs/hashistack
-    # sudo -u vault mkdir --parents /etc/vault.d/pki/tls/private/consul /etc/vault.d/pki/tls/certs/consul
-
-    # sudo -u vault cp -r /usr/local/bootstrap/certificate-config/vault/vault-server-key.pem /etc/vault.d/pki/tls/private/vault/vault-server-key.pem
-    # sudo -u vault cp -r /usr/local/bootstrap/certificate-config/vault/vault-server.pem /etc/vault.d/pki/tls/certs/vault/vault-server.pem
-    # # Consul certs for Vault
-    # sudo -u vault cp -r /etc/consul.d/pki/tls/private/consul-client-key.pem /etc/vault.d/pki/tls/private/consul/consul-client-key.pem
-    # sudo -u vault cp -r /etc/consul.d/pki/tls/certs/consul-client.pem /etc/vault.d/pki/tls/certs/consul/consul-client.pem
-    # sudo -u vault cp -r /etc/ssl/certs/consul-agent-ca.pem /etc/vault.d/pki/tls/certs/hashistack/hashistack-ca.pem
-
-    # # move consul certificates into place
-    # sudo -u consul mkdir --parents /etc/consul.d/pki/tls/private/vault /etc/consul.d/pki/tls/certs/vault /etc/consul.d/pki/tls/certs/hashistack
-    # sudo -u consul mkdir --parents /etc/consul.d/pki/tls/private/consul /etc/consul.d/pki/tls/certs/consul
-    
-    # # consul servers
-    # sudo -u consul cp -r /usr/local/bootstrap/certificate-config/consul/consul-server-key.pem /etc/consul.d/pki/tls/private/consul/consul-server-key.pem
-    # sudo -u consul cp -r /usr/local/bootstrap/certificate-config/consul/consul-server.pem /etc/consul.d/pki/tls/certs/consul/consul-server.pem
-    # # consul agents (clients)
-    # sudo -u consul cp -r /etc/consul.d/pki/tls/private/consul-client-key.pem /etc/consul.d/pki/tls/private/consul-client-key.pem
-    # sudo -u consul cp -r /etc/consul.d/pki/tls/certs/consul-client.pem /etc/consul.d/pki/tls/certs/consul-client.pem
-    # sudo -u consul cp -r /etc/ssl/certs/consul-agent-ca.pem /etc/consul.d/pki/tls/certs/hashistack/hashistack-ca.pem
-    
-    # # move consul certificates for nomad in place
-    # sudo -u nomad mkdir --parents /etc/nomad.d/pki/tls/private/nomad /etc/nomad.d/pki/tls/certs/nomad /etc/nomad.d/pki/tls/certs/hashistack
-    # sudo -u nomad mkdir --parents /etc/nomad.d/pki/tls/private/consul /etc/nomad.d/pki/tls/certs/consul
-
-    # sudo -u nomad cp -r /usr/local/bootstrap/certificate-config/nomad/nomad-server-key.pem /etc/nomad.d/pki/tls/private/nomad/nomad-server-key.pem
-    # sudo -u nomad cp -r /usr/local/bootstrap/certificate-config/nomad/nomad-server.pem /etc/nomad.d/pki/tls/certs/nomad/nomad-server.pem
-    # sudo -u nomad cp -r /etc/ssl/certs/consul-agent-ca.pem /etc/nomad.d/pki/tls/certs/hashistack/hashistack-ca.pem
-
-    # sudo -u nomad cp -r /etc/consul.d/pki/tls/private/consul-client-key.pem /etc/nomad.d/pki/tls/private/consul/consul-client-key.pem
-    # sudo -u nomad cp -r /etc/consul.d/pki/tls/certs/consul-client.pem /etc/nomad.d/pki/tls/certs/consul/consul-client.pem   
-   
+    sudo -u vault mkdir --parents /${ROOTCERTPATH}/vault.d/pki/tls/private /${ROOTCERTPATH}/vault.d/pki/tls/certs
+    sudo -u vault chmod -R 644 /${ROOTCERTPATH}/vault.d/pki/tls/certs
+    sudo -u vault chmod -R 600 /${ROOTCERTPATH}/vault.d/pki/tls/private
+  
     # copy ssh CA certificate onto host
     sudo cp -r /usr/local/bootstrap/certificate-config/ssh_host/ssh_host_rsa_key.pub /etc/ssh/ssh_host_rsa_key.pub
     sudo chmod 644 /etc/ssh/ssh_host_rsa_key.pub
@@ -223,13 +176,13 @@ create_consul_service () {
 create_vault_service () {
     
     sudo setcap cap_ipc_lock=+ep /usr/local/bin/vault
-    create_vault_serviced vault "HashiCorp Secret Management Service" "/usr/local/bin/vault server -dev -dev-root-token-id=\"reallystrongpassword\" -config=/etc/vault.d/vault.hcl"
+    create_vault_serviced vault "HashiCorp Secret Management Service" "/usr/local/bin/vault server -dev -dev-root-token-id=\"reallystrongpassword\" -config=/${ROOTCERTPATH}/vault.d/vault.hcl"
     sudo systemctl disable vault
 }
 
 create_nomad_service () {
     
-    create_service nomad "HashiCorp's Nomad Server - A Modern Platform and Cloud Agnostic Scheduler" "/usr/local/bin/nomad agent -log-level=DEBUG -server -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/etc/nomad.d" simple
+    create_service nomad "HashiCorp's Nomad Server - A Modern Platform and Cloud Agnostic Scheduler" "/usr/local/bin/nomad agent -log-level=DEBUG -server -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/${ROOTCERTPATH}/nomad.d" simple
     sudo systemctl disable nomad
 }
 
@@ -239,6 +192,18 @@ create_envoy_service () {
     sudo systemctl disable envoy
 }
 
+setup_environment (){
+  set -x
+  if [ "${TRAVIS}" == "true" ]; then
+    ROOTCERTPATH=tmp
+  else
+    ROOTCERTPATH=etc
+  fi
+
+  export ROOTCERTPATH
+}
+
+setup_environment
 create_consul_service
 create_vault_service
 create_nomad_service

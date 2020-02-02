@@ -8,13 +8,7 @@ setup_environment () {
   IFACE=`route -n | awk '$1 == "192.168.9.0" {print $8;exit}'`
   CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.9" {print $2}'`
   IP=${CIDR%%/24}
-  ROOTCERTPATH=etc
-  
-  if [ "${TRAVIS}" == "true" ]; then
-    IP=${IP:-127.0.0.1}
-    ROOTCERTPATH=tmp
-  fi
-
+ 
 }
 
 create_certificate () {
@@ -41,7 +35,7 @@ create_certificate () {
     sudo mv ${2}-${5}-${1}-0-key.pem /${ROOTCERTPATH}/${1}.d/pki/tls/private/${1}-${5}-key.pem
 
     sudo -u ${1} chmod 644 /${ROOTCERTPATH}/${1}.d/pki/tls/certs/${1}-${5}.pem
-    sudo -u ${1} chmod 600 /${ROOTCERTPATH}/${1}.d/pki/tls/private/${1}-${5}-key.pem  
+    sudo -u ${1} chmod 644 /${ROOTCERTPATH}/${1}.d/pki/tls/private/${1}-${5}-key.pem  
 
     # debug
     sudo ls -al /${ROOTCERTPATH}/${1}.d/pki/tls/private/
@@ -52,6 +46,6 @@ create_certificate () {
 }
 
 setup_environment
-/usr/local/bootstrap/scripts/create_certificate.sh $1 $2 $3 $4 $5
+create_certificate $1 $2 $3 $4 $5
 
 exit 0

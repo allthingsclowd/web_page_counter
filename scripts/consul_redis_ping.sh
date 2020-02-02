@@ -4,8 +4,8 @@ source /usr/local/bootstrap/var.env
 set -x
 
 # read redis database password from vault
-export VAULT_CLIENT_KEY=/etc/vault.d/pki/tls/private/vault-client-key.pem
-export VAULT_CLIENT_CERT=/etc/vault.d/pki/tls/certs/vault-client.pem
+export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem
+export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem
 export VAULT_CACERT=/etc/ssl/certs/vault-agent-ca.pem
 export VAULT_SKIP_VERIFY=true
 export VAULT_ADDR="https://${LEADER_IP}:8322"

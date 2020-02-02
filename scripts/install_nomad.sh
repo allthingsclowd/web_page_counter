@@ -18,23 +18,29 @@ setup_environment () {
     LOG="nomad.log"
   fi
 
+
   if [ "${TRAVIS}" == "true" ]; then
+    ROOTCERTPATH=tmp
     IP=${IP:-127.0.0.1}
     LEADER_IP=${IP}
+  else
+    ROOTCERTPATH=etc
   fi
+
+  export ROOTCERTPATH
 
   echo 'Set environmental bootstrapping data in VAULT'
   export VAULT_TOKEN=reallystrongpassword
   export VAULT_ADDR=https://${LEADER_IP}:8322
-  export VAULT_CLIENT_KEY=/etc/vault.d/pki/tls/private/vault-client-key.pem
-  export VAULT_CLIENT_CERT=/etc/vault.d/pki/tls/certs/vault-client.pem
-  export VAULT_CACERT=/etc/ssl/certs/vault-agent-ca.pem
+  export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem
+  export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem
+  export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem
 
   # Configure consul environment variables for use with certificates 
   export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-  export CONSUL_CACERT=/etc/ssl/certs/consul-agent-ca.pem
-  export CONSUL_CLIENT_CERT=/etc/consul.d/pki/tls/certs/consul-client.pem
-  export CONSUL_CLIENT_KEY=/etc/consul.d/pki/tls/private/consul-client-key.pem
+  export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem
+  export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem
+  export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem
   vault status
   AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
   export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
@@ -73,24 +79,22 @@ install_nomad() {
     if [ "${TRAVIS}" == "true" ]; then
 
       # create nomad directories
-      sudo -u nomad mkdir --parents /etc/nomad.d/pki/tls/private/nomad /etc/nomad.d/pki/tls/certs/nomad
-      sudo -u nomad mkdir --parents /etc/nomad.d/pki/tls/private/consul /etc/nomad.d/pki/tls/certs/consul
-      sudo -u nomad mkdir --parents /etc/nomad.d/pki/tls/private/vault /etc/nomad.d/pki/tls/certs/vault
-      sudo -u nomad chmod -R 644 /etc/nomad.d/pki/tls/certs/nomad /etc/nomad.d/pki/tls/certs/consul /etc/nomad.d/pki/tls/certs/vault
-      sudo -u nomad chmod -R 600 /etc/nomad.d/pki/tls/private/vault /etc/nomad.d/pki/tls/private/consul /etc/nomad.d/pki/tls/private/nomad
+      sudo -u nomad mkdir --parents /${ROOTCERTPATH}/nomad.d/pki/tls/private /${ROOTCERTPATH}/nomad.d/pki/tls/certs
+      sudo -u nomad chmod -R 644 /${ROOTCERTPATH}/nomad.d/pki/tls/certs
+      sudo -u nomad chmod -R 644 /${ROOTCERTPATH}/nomad.d/pki/tls/private
       
       # create certificates - using consul helper :shrug:?
       sudo /usr/local/bootstrap/scripts/create_certificate.sh create_certificate nomad hashistack1 30 ${IP} server
 
       sudo cp -apr /usr/local/bootstrap/conf/nomad.d /etc
-      sudo /usr/local/bin/nomad agent -server -bind=${IP} -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/etc/nomad.d >${LOG} &
+      sudo /usr/local/bin/nomad agent -server -bind=${IP} -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/${ROOTCERTPATH}/nomad.d >${LOG} &
     else
       NOMAD_ADDR=http://${IP}:4646 /usr/local/bin/nomad agent-info 2>/dev/null || {
         
         # create certificates - using consul helper :shrug:?
         sudo /usr/local/bootstrap/scripts/create_certificate.sh nomad hashistack1 30 ${IP} server
 
-        sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/nomad agent -log-level=DEBUG -server -bind=${IP} -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/etc/nomad.d" /etc/systemd/system/nomad.service
+        sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/nomad agent -log-level=DEBUG -server -bind=${IP} -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/${ROOTCERTPATH}/nomad.d" /etc/systemd/system/nomad.service
         cp -apr /usr/local/bootstrap/conf/nomad.d /etc
         sudo systemctl enable nomad
         sudo systemctl start nomad
@@ -104,7 +108,7 @@ install_nomad() {
     sudo /usr/local/bootstrap/scripts/create_certificate.sh nomad hashistack1 30 ${IP} client
    
     NOMAD_ADDR=http://${IP}:4646 /usr/local/bin/nomad agent-info 2>/dev/null || {
-      sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/nomad agent -log-level=DEBUG -client -bind=${IP} -data-dir=/usr/local/nomad -join=${LEADER_IP} -config=/etc/nomad.d" /etc/systemd/system/nomad.service
+      sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/nomad agent -log-level=DEBUG -client -bind=${IP} -data-dir=/usr/local/nomad -join=${LEADER_IP} -config=/${ROOTCERTPATH}/nomad.d" /etc/systemd/system/nomad.service
       cp -apr /usr/local/bootstrap/conf/nomad.d /etc
       sudo systemctl enable nomad
       sudo systemctl start nomad

@@ -29,8 +29,8 @@ setup_environment () {
 
     export VAULT_TOKEN=reallystrongpassword
     export VAULT_ADDR=https://${LEADER_IP}:8322
-    export VAULT_CLIENT_KEY=/etc/vault.d/pki/tls/private/vault-client-key.pem
-    export VAULT_CLIENT_CERT=/etc/vault.d/pki/tls/certs/vault-client.pem
+    export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem
+    export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem
     export VAULT_CACERT=/etc/ssl/certs/consul-agent-ca.pem
     
 
@@ -302,9 +302,9 @@ create_app_token () {
     address = "127.0.0.1:8321"
     scheme = "https"
     path    = "vault/"
-    tls_ca_file = "/etc/vault.d/pki/tls/certs/hashistack/hashistack-ca.pem"
-    tls_cert_file = "/etc/vault.d/pki/tls/certs/consul/consul-client.pem"
-    tls_key_file = "/etc/vault.d/pki/tls/private/consul/consul-client-key.pem"
+    tls_ca_file = "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem"
+    tls_cert_file = "/${ROOTCERTPATH}/vault.d/pki/tls/certs/consul/consul-client.pem"
+    tls_key_file = "/${ROOTCERTPATH}/vault.d/pki/tls/private/consul/consul-client-key.pem"
     token = "${VAULTSESSIONTOKEN}"
   }
 
@@ -313,8 +313,8 @@ create_app_token () {
   listener "tcp" {
     address = "0.0.0.0:8322"
     tls_disable = 0
-    tls_cert_file = "/etc/vault.d/pki/tls/certs/vault/vault-server.pem"
-    tls_key_file = "/etc/vault.d/pki/tls/private/vault/vault-server-key.pem"
+    tls_cert_file = "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault/vault-server.pem"
+    tls_key_file = "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault/vault-server-key.pem"
   }
 
   # Advertise the non-loopback interface
@@ -326,9 +326,9 @@ EOF
 consul {
   address = "127.0.0.1:8321"
   ssl       = true
-  ca_file   = "/etc/nomad.d/pki/tls/certs/hashistack/hashistack-ca.pem"
-  cert_file = "/etc/nomad.d/pki/tls/certs/consul/consul-client.pem"
-  key_file  = "/etc/nomad.d/pki/tls/private/consul/consul-client-key.pem"
+  ca_file   = "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem"
+  cert_file = "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem"
+  key_file  = "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem"
   token = "${CONSUL_HTTP_TOKEN}"
   }
 EOF
@@ -343,9 +343,9 @@ step9_configure_nomad() {
 consul {
   address = "127.0.0.1:8321"
   ssl       = true
-  ca_file   = "/etc/nomad.d/pki/tls/certs/hashistack/hashistack-ca.pem"
-  cert_file = "/etc/nomad.d/pki/tls/certs/consul/consul-client.pem"
-  key_file  = "/etc/nomad.d/pki/tls/private/consul/consul-client-key.pem"
+  ca_file   = "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem"
+  cert_file = "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem"
+  key_file  = "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem"
   token = "${AGENTTOKEN}"
   }
 EOF
