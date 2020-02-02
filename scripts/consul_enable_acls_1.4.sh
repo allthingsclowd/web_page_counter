@@ -46,6 +46,7 @@ setup_environment () {
 create_acl_policy () {
 
       curl \
+      --verbose \
       --request PUT \
       --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
       --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
@@ -87,7 +88,7 @@ EOF
 
 step2_create_bootstrap_token_on_server () {
 
-  curl -s -w "\n%{http_code}" \
+  curl -v -w "\n%{http_code}" \
         --request PUT \
         --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
         --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
@@ -124,7 +125,7 @@ step3_create_an_agent_token_policies () {
 
 step4_create_an_agent_token () {
     
-    AGENTTOKEN=$(curl \
+    AGENTTOKEN=$(curl -v \
       --request PUT \
       --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
       --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
@@ -176,7 +177,7 @@ step5_add_agent_token_on_server () {
 # EOF
 
   sudo tee /etc/consul.d/consul_acl_1.4_server_setup.hcl <<EOF 
-primary_datacenter = "hashistack"
+primary_datacenter = "hashistack1"
 acl {
     enabled = true
     default_policy = "deny"
@@ -193,7 +194,7 @@ EOF
 
 step6_verify_acl_config () {
 
-    curl -s -w "\n%{http_code}" \
+    curl -v -w "\n%{http_code}" \
       --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
       --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
       --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
@@ -253,7 +254,7 @@ step8_verify_acl_config () {
 
     AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
 
-    curl -s -w "\n%{http_code}" \
+    curl -v -w "\n%{http_code}" \
       --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
       --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
       --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
@@ -281,7 +282,7 @@ create_app_token () {
 
   create_acl_policy "vault-backend" "Vault Session Token" "node_prefix \\\"\\\" { policy = \\\"write\\\"} service_prefix \\\"\\\" { policy = \\\"write\\\" } key_prefix \\\"vault\\\" { policy = \\\"write\\\" } session_prefix \\\"\\\" { policy = \\\"write\\\" }"
   
-  VAULTSESSIONTOKEN=$(curl \
+  VAULTSESSIONTOKEN=$(curl -v \
   --request PUT \
   --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
   --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
