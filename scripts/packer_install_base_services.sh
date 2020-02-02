@@ -111,7 +111,7 @@ create_root_CA_certificate () {
   
   # create file layout for the certs
   [ -d /${ROOTCERTPATH}/ssl/CA ] &>/dev/null || {
-    sudo mkdir --parent /${ROOTCERTPATH}/ssl/CA /${ROOTCERTPATH}/ssl/certs
+    sudo mkdir --parent /${ROOTCERTPATH}/ssl/CA /${ROOTCERTPATH}/ssl/certs /${ROOTCERTPATH}/ssl/private
   }
   pushd /${ROOTCERTPATH}/ssl/CA
   sudo /usr/local/bin/consul tls ca create -domain=${1} -days=${2}
