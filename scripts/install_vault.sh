@@ -247,7 +247,7 @@ EOF
     # Create the approle backend
     curl \
         --location \
-        --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+        --cacert "/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
         --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
         --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
@@ -265,7 +265,7 @@ EOF
     # Write the policy
     curl \
         --location \
-        --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+        --cacert "/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
         --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
         --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
@@ -276,7 +276,7 @@ EOF
     # List ACL policies
     sudo curl \
         --location \
-        --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+        --cacert "/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
         --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
         --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
@@ -286,7 +286,7 @@ EOF
     # Check if AppRole Exists
     APPROLEID=`curl  \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
-    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+    --cacert "/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
     --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
     --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
     ${VAULT_ADDR}/v1/auth/approle/role/id-factory/role-id | jq -r .data.role_id`
@@ -318,7 +318,7 @@ EOF
         # Create the AppRole role
         curl \
             --location \
-            --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+            --cacert "/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
             --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
             --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
             --header "X-Vault-Token: ${VAULT_TOKEN}" \
@@ -329,7 +329,7 @@ EOF
         # Update the static AppRole role-id
         curl \
             --location \
-            --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+            --cacert "/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
             --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
             --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
             --header "X-Vault-Token: ${VAULT_TOKEN}" \
@@ -339,7 +339,7 @@ EOF
 
         APPROLEID=`curl  \
             --header "X-Vault-Token: ${VAULT_TOKEN}" \
-            --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+            --cacert "/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
             --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
             --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
             ${VAULT_ADDR}/v1/auth/approle/role/id-factory/role-id | jq -r .data.role_id`
@@ -374,7 +374,7 @@ get_approle_id () {
     # retrieve the appRole-id from the approle
     APPROLEID=`curl  \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
-    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+    --cacert "/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
     --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
     --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
     ${VAULT_ADDR}/v1/auth/approle/role/id-factory/role-id | jq -r .data.role_id`
@@ -414,7 +414,7 @@ get_secret_id () {
     # Generate a new secret-id
     SECRET_ID=`curl \
         --location \
-        --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+        --cacert "/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
         --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
         --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
@@ -436,7 +436,7 @@ EOF
 
     APPTOKEN=`curl \
         --request POST \
-        --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+        --cacert "/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
         --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
         --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
         --data @id-factory-secret-id-login.json \
@@ -451,7 +451,7 @@ EOF
 
     RESULT=`curl \
         --header "X-Vault-Token: ${APPTOKEN}" \
-        --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+        --cacert "/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
         --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
         --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
         ${VAULT_ADDR}/v1/kv/development/redispassword | jq -r .data.value`
