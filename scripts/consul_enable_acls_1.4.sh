@@ -46,7 +46,6 @@ setup_environment () {
 create_acl_policy () {
 
       curl \
-      --verbose \
       --request PUT \
       --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
       --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
@@ -88,7 +87,7 @@ EOF
 
 step2_create_bootstrap_token_on_server () {
 
-  curl -v -w "\n%{http_code}" \
+  curl -w "\n%{http_code}" \
         --request PUT \
         --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
         --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
@@ -125,7 +124,7 @@ step3_create_an_agent_token_policies () {
 
 step4_create_an_agent_token () {
     
-    AGENTTOKEN=$(curl -v \
+    AGENTTOKEN=$(curl -s \
       --request PUT \
       --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
       --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
@@ -194,7 +193,7 @@ EOF
 
 step6_verify_acl_config () {
 
-    curl -v -w "\n%{http_code}" \
+    curl -s -w "\n%{http_code}" \
       --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
       --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
       --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
@@ -254,7 +253,7 @@ step8_verify_acl_config () {
 
     AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
 
-    curl -v -w "\n%{http_code}" \
+    curl -w "\n%{http_code}" \
       --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
       --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
       --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
@@ -282,7 +281,7 @@ create_app_token () {
 
   create_acl_policy "vault-backend" "Vault Session Token" "node_prefix \\\"\\\" { policy = \\\"write\\\"} service_prefix \\\"\\\" { policy = \\\"write\\\" } key_prefix \\\"vault\\\" { policy = \\\"write\\\" } session_prefix \\\"\\\" { policy = \\\"write\\\" }"
   
-  VAULTSESSIONTOKEN=$(curl -v \
+  VAULTSESSIONTOKEN=$(curl \
   --request PUT \
   --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
   --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
@@ -368,9 +367,11 @@ restart_consul () {
         sleep 5
         sudo /usr/local/bin/consul agent -server -log-level=trace -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
         sleep 15
+        consul members
     else
         sudo systemctl restart consul
         sleep 15
+        consul members
         #sudo systemctl status consul
     fi
     
