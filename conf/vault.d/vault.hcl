@@ -3,9 +3,9 @@
     scheme = "https"
     path    = "vault/"
     tls_ca_file = "/etc/ssl/certs/consul-agent-ca.pem"
-    tls_cert_file = "/etc/vault.d/pki/tls/certs/consul/consul-client.pem"
-    tls_key_file = "/etc/vault.d/pki/tls/private/consul/consul-client-key.pem"
-    token = "0573c620-9e6a-f4b2-edec-82016c0a3724"
+    tls_cert_file = "/etc/consul.d/pki/tls/certs/consul-client.pem"
+    tls_key_file = "/etc/consul.d/pki/tls/private/consul-client-key.pem"
+    token = "1d65cb30-8878-2c80-f671-bff8f87a90dd"
   }
 
   ui = true
@@ -13,8 +13,8 @@
   listener "tcp" {
     address = "0.0.0.0:8322"
     tls_disable = 0
-    tls_cert_file = "/etc/vault.d/pki/tls/certs/vault/vault-server.pem"
-    tls_key_file = "/etc/vault.d/pki/tls/private/vault/vault-server-key.pem"
+    tls_cert_file = "/etc/vault.d/pki/tls/certs/vault-server.pem"
+    tls_key_file = "/etc/vault.d/pki/tls/private/vault-server-key.pem"
   }
 
   # Advertise the non-loopback interface

@@ -468,7 +468,14 @@ EOF
 
 install_vault () {
     
-    
+    # create certificates - using consul helper :shrug:?
+    sudo /usr/local/bootstrap/scripts/create_certificate.sh vault hashistack1 30 ${IP} server
+    sudo /usr/local/bootstrap/scripts/create_certificate.sh vault hashistack1 30 ${IP} client
+    sudo chown -R vault:vault /${ROOTCERTPATH}/vault.d
+    sudo chmod -R 755 /${ROOTCERTPATH}/vault.d
+    sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
+    sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
+
     # verify it's either the TRAVIS server or the Vault server
     if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
         echo 'Start Installation of Vault on Server'
@@ -490,10 +497,6 @@ install_vault () {
             # sudo -u vault chmod -R 644 /${ROOTCERTPATH}/vault.d/pki/tls/certs
             # sudo -u vault chmod -R 600 /${ROOTCERTPATH}/vault.d/pki/tls/private
 
-            # create certificates - using consul helper :shrug:?
-            sudo /usr/local/bootstrap/scripts/create_certificate.sh vault hashistack1 30 ${IP} server
-            sudo /usr/local/bootstrap/scripts/create_certificate.sh vault hashistack1 30 ${IP} client
-
             sudo cp -r /usr/local/bootstrap/conf/vault.d/* /${ROOTCERTPATH}/vault.d/.
 
             # Travis-CI grant access to /tmp for all users
@@ -505,10 +508,6 @@ install_vault () {
             sleep 15
             cat ${LOG}
         else
-            # create certificates - using consul helper :shrug:?
-            sudo /usr/local/bootstrap/scripts/create_certificate.sh vault hashistack1 30 ${IP} server
-            sudo /usr/local/bootstrap/scripts/create_certificate.sh vault hashistack1 30 ${IP} client
-
             sudo -u vault cp -r /usr/local/bootstrap/conf/vault.d/* /${ROOTCERTPATH}/vault.d/.
             sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/vault server -dev -dev-root-token-id=\"reallystrongpassword\" -config=/${ROOTCERTPATH}/vault.d/vault.hcl" /etc/systemd/system/vault.service
             sudo systemctl enable vault

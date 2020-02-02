@@ -105,6 +105,17 @@ else
 fi
 
 export ROOTCERTPATH
+
+sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} client
+sudo chown -R consul:consul /${ROOTCERTPATH}/consul.d
+sudo chmod -R 755 /${ROOTCERTPATH}/consul.d  
+
+sudo /usr/local/bootstrap/scripts/create_certificate.sh vault hashistack1 30 ${IP} client
+sudo chown -R vault:vault /${ROOTCERTPATH}/vault.d
+sudo chmod -R 755 /${ROOTCERTPATH}/vault.d
+sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
+sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
+
 # read redis database password from vault
 export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem
 export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem

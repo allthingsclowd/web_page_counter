@@ -29,6 +29,16 @@ setup_environment () {
 
   export ROOTCERTPATH
 
+  sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} client
+  sudo chown -R consul:consul /${ROOTCERTPATH}/consul.d
+  sudo chmod -R 755 /${ROOTCERTPATH}/consul.d  
+
+  sudo /usr/local/bootstrap/scripts/create_certificate.sh vault hashistack1 30 ${IP} client
+  sudo chown -R vault:vault /${ROOTCERTPATH}/vault.d
+  sudo chmod -R 755 /${ROOTCERTPATH}/vault.d
+  sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
+  sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
+
   echo 'Set environmental bootstrapping data in VAULT'
   export VAULT_TOKEN=reallystrongpassword
   export VAULT_ADDR=https://${LEADER_IP}:8322
@@ -90,7 +100,10 @@ install_nomad() {
         
         # create certificates - using consul helper :shrug:?
         sudo /usr/local/bootstrap/scripts/create_certificate.sh nomad hashistack1 30 ${IP} server
-
+        sudo chmod -R 755 /${ROOTCERTPATH}/nomad.d
+        sudo chown -R nomad:nomad /${ROOTCERTPATH}/nomad.d
+        sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
+        sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private        
         sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/nomad agent -log-level=DEBUG -server -bind=${IP} -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/${ROOTCERTPATH}/nomad.d" /etc/systemd/system/nomad.service
         cp -apr /usr/local/bootstrap/conf/nomad.d /etc
         sudo systemctl enable nomad
@@ -107,6 +120,10 @@ install_nomad() {
     NOMAD_ADDR=http://${IP}:4646 /usr/local/bin/nomad agent-info 2>/dev/null || {
       sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/nomad agent -log-level=DEBUG -client -bind=${IP} -data-dir=/usr/local/nomad -join=${LEADER_IP} -config=/${ROOTCERTPATH}/nomad.d" /etc/systemd/system/nomad.service
       cp -apr /usr/local/bootstrap/conf/nomad.d /etc
+      sudo chmod -R 755 /${ROOTCERTPATH}/nomad.d
+      sudo chown -R nomad:nomad /${ROOTCERTPATH}/nomad.d
+      sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
+      sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
       sudo systemctl enable nomad
       sudo systemctl start nomad
       sleep 15

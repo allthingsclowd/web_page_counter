@@ -117,8 +117,8 @@ create_root_CA_certificate () {
   sudo /usr/local/bin/consul tls ca create -domain=${1} -days=${2}
   sudo mv /${ROOTCERTPATH}/ssl/CA/${1}-agent-ca.pem /${ROOTCERTPATH}/ssl/certs/.
   sudo mv /${ROOTCERTPATH}/ssl/CA/${1}-agent-ca-key.pem /${ROOTCERTPATH}/ssl/private/.
-  sudo chmod -R 644 /${ROOTCERTPATH}/ssl/certs
-  sudo chmod -R 644 /${ROOTCERTPATH}/ssl/private
+  sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
+  sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
   sudo ls -al /${ROOTCERTPATH}/ssl/certs /${ROOTCERTPATH}/ssl/private
   popd
 

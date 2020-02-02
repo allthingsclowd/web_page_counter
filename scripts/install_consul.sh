@@ -160,6 +160,10 @@ install_consul () {
       else
         # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
         sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} server
+        sudo chmod -R 755 /${ROOTCERTPATH}/consul.d
+        sudo chown -R consul:consul /${ROOTCERTPATH}/consul.d
+        sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
+        sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
         sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -join=${IP} -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1" /etc/systemd/system/consul.service
         #sudo -u consul cp -r /usr/local/bootstrap/conf/consul.d/* /${ROOTCERTPATH}/consul.d/.
         sudo systemctl enable consul
@@ -185,7 +189,10 @@ install_consul () {
     /usr/local/bin/consul members 2>/dev/null || {
         
         sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/consul agent -log-level=debug -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -join=${LEADER_IP}" /etc/systemd/system/consul.service
-
+        sudo chmod -R 755 /${ROOTCERTPATH}/consul.d
+        sudo chown -R consul:consul /${ROOTCERTPATH}/consul.d
+        sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
+        sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
         sudo systemctl enable consul
         sudo systemctl start consul
         echo $HOSTNAME
