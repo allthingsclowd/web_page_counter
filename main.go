@@ -430,8 +430,32 @@ func queryVault(vaultAddress string, url string, token string, data map[string]i
 	req.Header.Set("X-Vault-Token", token)
 	req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	//client := &http.Client{}
+	// Load client cert
+	cert, err := tls.LoadX509KeyPair(*vcertFile, *vkeyFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Load CA cert
+	caCert, err := ioutil.ReadFile(*vcaFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caCert)
+
+	// Setup HTTPS client
+	tlsConfig := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+		RootCAs:      caCertPool,
+		//    InsecureSkipVerify: true,
+	}
+	tlsConfig.BuildNameToCertificate()
+	transport := &http.Transport{TLSClientConfig: tlsConfig}
+	httpClient := &http.Client{Transport: transport}
+
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		panic(err)
 	}
