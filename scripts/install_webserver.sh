@@ -149,9 +149,9 @@ sudo /usr/local/bin/consul-template \
      -consul-addr=${CONSUL_HTTP_ADDR} \
      -consul-ssl \
      -consul-token=${CONSUL_HTTP_TOKEN} \
-     -consul-ssl-cert="/etc/consul.d/pki/tls/certs/consul-client.pem" \
-     -consul-ssl-key="/etc/consul.d/pki/tls/private/consul-client-key.pem" \
-     -consul-ssl-ca-cert="/etc/ssl/certs/consul-agent-ca.pem" \
+     -consul-ssl-cert="/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
+     -consul-ssl-key="/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
+     -consul-ssl-ca-cert="/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
      -template "/usr/local/bootstrap/conf/nginx.ctpl:/etc/nginx/conf.d/goapp.conf:/usr/local/bootstrap/scripts/updateBackendCount.sh" &
    
 sleep 1

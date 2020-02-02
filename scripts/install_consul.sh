@@ -161,7 +161,7 @@ install_consul () {
         # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
         sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} server
         sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -join=${IP} -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1" /etc/systemd/system/consul.service
-        #sudo -u consul cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
+        #sudo -u consul cp -r /usr/local/bootstrap/conf/consul.d/* /${ROOTCERTPATH}/consul.d/.
         sudo systemctl enable consul
         sudo systemctl start consul
       fi

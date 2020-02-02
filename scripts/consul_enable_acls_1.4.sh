@@ -39,7 +39,7 @@ setup_environment () {
     export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem
     
 
-    export AGENT_CONFIG="-config-dir=/etc/consul.d -enable-script-checks=true"
+    export AGENT_CONFIG="-config-dir=/${ROOTCERTPATH}/consul.d -enable-script-checks=true"
 
 }
 
@@ -62,7 +62,7 @@ create_acl_policy () {
 
 step1_enable_acls_on_server () {
 
-#   sudo tee /etc/consul.d/consul_acl_1.4_setup.json <<EOF
+#   sudo tee /${ROOTCERTPATH}/consul.d/consul_acl_1.4_setup.json <<EOF
 #   {
 #     "primary_datacenter": "allthingscloud1",
 #     "acl" : {
@@ -73,7 +73,7 @@ step1_enable_acls_on_server () {
 #   }
 # EOF
 
-  sudo tee /etc/consul.d/consul_acl_1.4_server_setup.hcl <<EOF 
+  sudo tee /${ROOTCERTPATH}/consul.d/consul_acl_1.4_server_setup.hcl <<EOF 
 primary_datacenter = "hashistack1"
 acl {
     enabled = true
@@ -162,7 +162,7 @@ step4_create_an_agent_token () {
 
 step5_add_agent_token_on_server () {
 
-#   sudo tee /etc/consul.d/consul_acl_1.4_setup.json <<EOF
+#   sudo tee /${ROOTCERTPATH}/consul.d/consul_acl_1.4_setup.json <<EOF
 #   {
 #   "primary_datacenter": "allthingscloud1",
 #   "acl" : {
@@ -176,7 +176,7 @@ step5_add_agent_token_on_server () {
 # }
 # EOF
 
-  sudo tee /etc/consul.d/consul_acl_1.4_server_setup.hcl <<EOF 
+  sudo tee /${ROOTCERTPATH}/consul.d/consul_acl_1.4_server_setup.hcl <<EOF 
 primary_datacenter = "hashistack1"
 acl {
     enabled = true
@@ -223,7 +223,7 @@ step7_enable_acl_on_client () {
   AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
   export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
-#   sudo tee /etc/consul.d/consul_acl_1.4_setup.json <<EOF
+#   sudo tee /${ROOTCERTPATH}/consul.d/consul_acl_1.4_setup.json <<EOF
 #   {
 #   "acl" : {
 #     "enabled" : true,
@@ -235,7 +235,7 @@ step7_enable_acl_on_client () {
 #   }
 # }
 # EOF
-  sudo tee /etc/consul.d/consul_acl_1.4_setup.hcl <<EOF
+  sudo tee /${ROOTCERTPATH}/consul.d/consul_acl_1.4_setup.hcl <<EOF
   acl {
       enabled =  true
       default_policy = "deny"
@@ -362,7 +362,7 @@ EOF
 restart_consul () {
     
     
-    #sudo cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
+    #sudo cp -r /usr/local/bootstrap/conf/consul.d/* /${ROOTCERTPATH}/consul.d/.
     if [ "${TRAVIS}" == "true" ]; then
         sudo killall -9 -v consul
         sleep 5

@@ -1,4 +1,4 @@
-cat <<EOF | sudo tee /etc/consul.d/redis.json
+cat <<EOF | sudo tee /${ROOTCERTPATH}/consul.d/redis.json
 {
   "service": {
     "name": "redis",
@@ -9,7 +9,7 @@ cat <<EOF | sudo tee /etc/consul.d/redis.json
 EOF
 
 
-cat <<EOF | sudo tee /etc/consul.d/redis.json
+cat <<EOF | sudo tee /${ROOTCERTPATH}/consul.d/redis.json
 {
   "service": {
     "name": "redis",

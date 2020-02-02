@@ -169,7 +169,7 @@ create_service_user () {
 
 create_consul_service () {
     
-    create_service consul "HashiCorp Consul Server SD & KV Service" "/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} -join=${IP} -config-dir=/etc/consul.d -enable-script-checks=true -data-dir=/usr/local/consul -bootstrap-expect=1" notify
+    create_service consul "HashiCorp Consul Server SD & KV Service" "/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} -join=${IP} -config-dir=/${ROOTCERTPATH}/consul.d -enable-script-checks=true -data-dir=/usr/local/consul -bootstrap-expect=1" notify
     sudo systemctl disable consul
 }
 

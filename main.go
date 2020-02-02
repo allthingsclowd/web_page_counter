@@ -306,8 +306,8 @@ func redisInit() (string, string) {
 	consulConfig.Token = *consulACL
 	consulConfig.TLSConfig = consul.TLSConfig{
 		CAFile:   "/etc/ssl/certs/consul-agent-ca.pem",
-		CertFile: "/etc/consul.d/pki/tls/certs/consul-client.pem",
-		KeyFile:  "/etc/consul.d/pki/tls/private/consul-client-key.pem",
+		CertFile: "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem",
+		KeyFile:  "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem",
 		Address:  "127.0.0.1",
 	}
 	fmt.Printf("ConsulConfig: %+v \n", consulConfig)
