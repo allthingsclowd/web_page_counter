@@ -517,13 +517,13 @@ func http2Call(url string, data []byte, action string, token string) string {
 
 		// Possibly move this Vault client TLS out of here
 		// Load client cert
-		cert, err := tls.LoadX509KeyPair(*certFile, *keyFile)
+		cert, err := tls.LoadX509KeyPair(*vcertFile, *vkeyFile)
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		// Load CA cert
-		caCert, err := ioutil.ReadFile(*caFile)
+		caCert, err := ioutil.ReadFile(*vcaFile)
 		if err != nil {
 			log.Fatal(err)
 		}
