@@ -80,7 +80,7 @@ install_nomad() {
       
       sudo cp -apr /usr/local/bootstrap/conf/nomad.d /${ROOTCERTPATH}
       # create certificates - using consul helper :shrug:?
-      sudo /usr/local/bootstrap/scripts/create_certificate.sh create_certificate nomad hashistack1 30 ${IP} server
+      sudo /usr/local/bootstrap/scripts/create_certificate.sh nomad hashistack1 30 ${IP} server
       # Travis-CI grant access to /tmp for all users
       sudo chmod -R 777 /${ROOTCERTPATH}
       
