@@ -146,11 +146,6 @@ install_consul () {
 
     /usr/local/bin/consul members 2>/dev/null || {
       if [ "${TRAVIS}" == "true" ]; then
-
-        sudo -u consul mkdir --parents /tmp/consul.d/pki/tls/private
-        sudo -u consul mkdir --parents /tmp/consul.d/pki/tls/certs/consul
-        sudo -u consul chmod -R 644 /tmp/consul.d/pki/tls/certs/consul
-        sudo -u consul chmod -R 644 /tmp/consul.d/pki/tls/private/consul
         
         # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
         sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} server
