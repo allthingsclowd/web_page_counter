@@ -146,7 +146,8 @@ install_consul () {
 
     /usr/local/bin/consul members 2>/dev/null || {
       if [ "${TRAVIS}" == "true" ]; then
-        
+        # Travis-CI grant access to /tmp for all users
+        sudo chmod -R 644 /${ROOTCERTPATH}
         # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
         sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} server
 
