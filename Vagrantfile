@@ -52,8 +52,6 @@ Vagrant.configure("2") do |config|
     config.vm.box = "allthingscloud/web-page-counter"
     #config.vm.box_version = "0.2.1568383863"
     config.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_consul.sh", run: "always"
-    config.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh", run: "always"
-    config.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_vault.sh", run: "always"
     # config.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_dd_agent.sh", env: {"DD_API_KEY" => ENV['DD_API_KEY']}
 
     config.vm.provider "virtualbox" do |v|
@@ -63,6 +61,8 @@ Vagrant.configure("2") do |config|
 
     config.vm.define "leader01" do |leader01|
         leader01.vm.hostname = ENV['LEADER_NAME']
+        leader01.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh", run: "always"
+        leader01.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_vault.sh", run: "always"
         leader01.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_nomad.sh", run: "always"
         leader01.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_SecretID_Factory.sh", run: "always"
         leader01.vm.network "private_network", ip: ENV['LEADER_IP']
@@ -73,6 +73,8 @@ Vagrant.configure("2") do |config|
     end
 
     config.vm.define "redis01" do |redis01|
+        redis01.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_vault.sh", run: "always"
+        redis01.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh", run: "always"
         redis01.vm.hostname = ENV['REDIS_MASTER_NAME']
         redis01.vm.network "private_network", ip: ENV['REDIS_MASTER_IP']
         redis01.vm.provision :shell, inline: "/usr/local/bootstrap/scripts/install_redis.sh"
@@ -82,6 +84,8 @@ Vagrant.configure("2") do |config|
         config.vm.define "godev0#{i}" do |devsvr|
             devsvr.vm.hostname = "godev0#{i}"
             devsvr.vm.network "private_network", ip: "192.168.9.#{100+i*10}"
+            devsvr.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_vault.sh", run: "always"
+            devsvr.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh", run: "always"
             devsvr.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_nomad.sh", run: "always"
             devsvr.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_go_app.sh"
         end
