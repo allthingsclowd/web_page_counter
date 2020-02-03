@@ -29,16 +29,6 @@ setup_environment () {
 
   export ROOTCERTPATH
 
-  sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} client
-  sudo chown -R consul:consul /${ROOTCERTPATH}/consul.d
-  sudo chmod -R 755 /${ROOTCERTPATH}/consul.d  
-
-  sudo /usr/local/bootstrap/scripts/create_certificate.sh vault hashistack1 30 ${IP} client
-  sudo chown -R vault:vault /${ROOTCERTPATH}/vault.d
-  sudo chmod -R 755 /${ROOTCERTPATH}/vault.d
-  sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
-  sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
-
   echo 'Set environmental bootstrapping data in VAULT'
   export VAULT_TOKEN=reallystrongpassword
   export VAULT_ADDR=https://${LEADER_IP}:8322
