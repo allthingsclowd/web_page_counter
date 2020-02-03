@@ -442,7 +442,7 @@ create_browser_certificate () {
         sudo openssl pkcs12 -password pass:bananas -export -out ${cert}.pfx -inkey /${ROOTCERTPATH}/ssl/private/${cert}-agent-ca-key.pem -in /${ROOTCERTPATH}/ssl/certs/${cert}-agent-ca.pem -certfile /${ROOTCERTPATH}/ssl/certs/${cert}-agent-ca.pem
         
         # Stick certs in vault
-        vault kv put kv/development/browser/${cert}.pfx value="`cat /usr/local/bootstrap/certificate-config/browser/${cert}.pfx`"
+        vault kv put kv/development/browser/${cert}.pfx value=@/usr/local/bootstrap/certificate-config/browser/${cert}.pfx
         vault kv put kv/development/browser/${cert}-agent-ca.pem value="`cat /${ROOTCERTPATH}/ssl/certs/${cert}-agent-ca.pem`"
         vault kv put kv/development/browser/${cert}-agent-ca-key.pem value="`cat /${ROOTCERTPATH}/ssl/private/${cert}-agent-ca-key.pem`"
         sudo cp /${ROOTCERTPATH}/ssl/private/${cert}-agent-ca-key.pem /usr/local/bootstrap/certificate-config/browser/${cert}-agent-ca-key.pem
