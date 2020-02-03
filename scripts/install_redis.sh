@@ -66,7 +66,7 @@ start_app_proxy_service () {
   # param 2 ${2}: app-proxy service description
   # param 3 ${3}: consul host service name
 
-  create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/usr/local/bootstrap/certificate-config/consul-ca.pem -client-cert=/usr/local/bootstrap/certificate-config/cli.pem -client-key=/usr/local/bootstrap/certificate-config/cli-key.pem -token=${CONSUL_HTTP_TOKEN} -sidecar-for ${3}"
+  create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem -token=${CONSUL_HTTP_TOKEN} -sidecar-for ${3}"
   sudo usermod -a -G webpagecountercerts ${1}
   sudo systemctl start ${1}
   #sudo systemctl status ${1}
@@ -81,7 +81,7 @@ start_client_proxy_service () {
     # param 4 ${4}: client-proxy local service port number
     
 
-    create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/usr/local/bootstrap/certificate-config/consul-ca.pem -client-cert=/usr/local/bootstrap/certificate-config/cli.pem -client-key=/usr/local/bootstrap/certificate-config/cli-key.pem -token=${CONSUL_HTTP_TOKEN} -service ${3} -upstream ${4}:${5} -register"
+    create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem -token=${CONSUL_HTTP_TOKEN} -service ${3} -upstream ${4}:${5} -register"
     sudo usermod -a -G webpagecountercerts ${1}
     sudo systemctl start ${1}
     #sudo systemctl status ${1}
@@ -104,25 +104,32 @@ setup_environment () {
   fi
 
   if [ "${TRAVIS}" == "true" ]; then
-    IP="127.0.0.1"
+    ROOTCERTPATH=tmp
+    IP=${IP:-127.0.0.1}
     LEADER_IP=${IP}
-
+  else
+    ROOTCERTPATH=etc
   fi
+
+  export ROOTCERTPATH
+
+  # debug certs issue
+  sudo ls -al /${ROOTCERTPATH}/vault.d /${ROOTCERTPATH}/consul.d /${ROOTCERTPATH}/nomad.d /${ROOTCERTPATH}/ssl/private /${ROOTCERTPATH}/certs
 
   echo 'Set environmental bootstrapping data in VAULT'
 
   export VAULT_ADDR=https://${LEADER_IP}:8322
   export VAULT_TOKEN=reallystrongpassword
-  export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
-  export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
-  export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
+  export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem
+  export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem
+  export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem
   export VAULT_SKIP_VERIFY=true
 
   # Configure consul environment variables for use with certificates 
   export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-  export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
-  export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
-  export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
+  export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem
+  export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem
+  export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem
 
   REDIS_MASTER_PASSWORD=`vault kv get -field "value" kv/development/redispassword`
   AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
@@ -167,26 +174,26 @@ EOF
   # Register the service in consul via the local Consul agent api
   sudo curl \
       --request PUT \
-      --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
-      --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
-      --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+      --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+      --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
+      --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
       --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
       --data @redis_service.json \
       ${CONSUL_HTTP_ADDR}/v1/agent/service/register
 
   # List the locally registered services via local Consul api
   sudo curl \
-    --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
-    --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
-    --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
+    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     ${CONSUL_HTTP_ADDR}/v1/agent/services | jq -r .
 
   # List the services regestered on the Consul server
   sudo curl \
-    --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
-    --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
-    --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
+    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     ${CONSUL_HTTP_ADDR}/v1/catalog/services | jq -r .
    
@@ -199,13 +206,13 @@ configure_redis () {
   sudo consul-template \
     -vault-addr=${VAULT_ADDR} \
     -vault-token=${DB_VAULT_TOKEN} \
-    -vault-ssl-cert="/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
-    -vault-ssl-key="/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
-    -vault-ssl-ca-cert="/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
-    -template "/usr/local/bootstrap/conf/master.redis.ctpl:/etc/redis/redis.conf" -once
+    -vault-ssl-cert="/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
+    -vault-ssl-key="/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
+    -vault-ssl-ca-cert="/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
+    -template "/usr/local/bootstrap/conf/master.redis.ctpl:/${ROOTCERTPATH}/redis/redis.conf" -once
   
-  sudo chown redis:redis /etc/redis/redis.conf
-  sudo chmod 640 /etc/redis/redis.conf
+  sudo chown redis:redis /${ROOTCERTPATH}/redis/redis.conf
+  sudo chmod 640 /${ROOTCERTPATH}/redis/redis.conf
 
   register_redis_service_with_consul
 
@@ -217,7 +224,7 @@ configure_redis () {
     # start connect application proxy
     start_app_proxy_service redis-proxy "Redis Proxy Service" redis
   else
-    sudo service redis-server restart
+    sudo redis-server /${ROOTCERTPATH}/redis/redis.conf &
 
   fi
 

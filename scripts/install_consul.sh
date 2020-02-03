@@ -1,33 +1,36 @@
 #!/usr/bin/env bash
 
 generate_certificate_config () {
-  if [ ! -d /etc/consul.d ]; then
-    sudo mkdir --parents /etc/consul.d
+  if [ ! -d /${ROOTCERTPATH}/consul.d ]; then
+    sudo mkdir --parents /${ROOTCERTPATH}/consul.d
   fi
 
-  sudo tee /etc/consul.d/consul_cert_setup.json <<EOF
-  {
-  "datacenter": "allthingscloud1",
-  "data_dir": "/usr/local/consul",
-  "encrypt" : "${ConsulKeygenOutput}",
-  "log_level": "INFO",
-  "server": ${1},
-  "node_name": "${HOSTNAME}",
-  "addresses": {
-      "https": "0.0.0.0"
-  },
-  "ports": {
-      "https": 8321,
-      "http": -1,
-      "grpc": 8502
-  },
-  "verify_incoming": true,
-  "verify_outgoing": true,
-  "key_file": "/etc/consul.d/pki/tls/private/consul/server-key.pem",
-  "cert_file": "/etc/consul.d/pki/tls/certs/consul/server.pem",
-  "ca_file": "/etc/consul.d/pki/tls/certs/consul/consul-ca.pem"
-  }
+  sudo tee /${ROOTCERTPATH}/consul.d/consul_ssl_setup.hcl <<EOF
+
+datacenter = "hashistack1"
+data_dir = "/usr/local/consul"
+encrypt = "${ConsulKeygenOutput}"
+log_level = "INFO"
+server = ${1}
+node_name = "${HOSTNAME}"
+addresses {
+    https = "0.0.0.0"
+}
+ports {
+    https = 8321
+    http = -1
+    grpc = 8502
+}
+connect {
+    enabled = true
+}
+verify_incoming = true
+verify_outgoing = true
+key_file = "${2}"
+cert_file = "${3}"
+ca_file = "${4}"
 EOF
+
 
 }
 
@@ -49,8 +52,13 @@ setup_environment () {
   fi
 
   if [ "${TRAVIS}" == "true" ]; then
+    ROOTCERTPATH=tmp
     IP=${IP:-127.0.0.1}
+  else
+    ROOTCERTPATH=etc
   fi
+
+  export ROOTCERTPATH
 
 }
 
@@ -121,46 +129,49 @@ install_terraform () {
 }
 
 install_consul () {
-  AGENT_CONFIG="-config-dir=/etc/consul.d -enable-script-checks=true"
+  AGENT_CONFIG="-config-dir=/${ROOTCERTPATH}/consul.d -enable-script-checks=true"
 
+  sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} client
   # Configure consul environment variables for use with certificates 
   export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-  export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
-  export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
-  export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
+  export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem
+  export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem
+  export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem
 
   # check for consul hostname or travis => server
   if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
-    echo "Starting a Consul Server"
+    echo "Starting a Consul Agent in Server Mode"
 
-    # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
-    generate_certificate_config true
+    generate_certificate_config true "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-server-key.pem" "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-server.pem" "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem"
 
     /usr/local/bin/consul members 2>/dev/null || {
       if [ "${TRAVIS}" == "true" ]; then
-        sudo mkdir --parents /etc/consul.d/pki/tls/private/vault /etc/consul.d/pki/tls/certs/vault
-        sudo mkdir --parents /etc/consul.d/pki/tls/private/consul /etc/consul.d/pki/tls/certs/consul
-        sudo cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
-        
-        sudo cp -r /usr/local/bootstrap/certificate-config/server-key.pem /etc/consul.d/pki/tls/private/consul/server-key.pem
-        sudo cp -r /usr/local/bootstrap/certificate-config/server.pem /etc/consul.d/pki/tls/certs/consul/server.pem
-        sudo cp -r /usr/local/bootstrap/certificate-config/consul-ca.pem /etc/consul.d/pki/tls/certs/consul/consul-ca.pem
-        
-        sudo ls -al /etc/consul.d/pki/tls/certs/consul/
-        sudo ls -al /etc/consul.d/pki/tls/private/consul/
+
+        # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
+        sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} server
+        # Travis-CI grant access to /tmp for all users
+        sudo chmod -R 777 /${ROOTCERTPATH}
+        sudo ls -al /${ROOTCERTPATH}/consul.d/pki/tls/certs/ /${ROOTCERTPATH}/consul.d/pki/tls/private/ /${ROOTCERTPATH}/ssl/certs /${ROOTCERTPATH}/ssl/private
+        # sudo ls -al /${ROOTCERTPATH}/consul.d/pki/tls/private/consul/
         sudo /usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${TRAVIS_BUILD_DIR}/${LOG} &
         sleep 5
         sudo ls -al ${TRAVIS_BUILD_DIR}/${LOG}
         sudo cat ${TRAVIS_BUILD_DIR}/${LOG}
       else
-        
+        # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
+        sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} server
+        sudo chmod -R 755 /${ROOTCERTPATH}/consul.d
+        sudo chown -R consul:consul /${ROOTCERTPATH}/consul.d
+        sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
+        sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
         sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -join=${IP} -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1" /etc/systemd/system/consul.service
-        sudo -u consul cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
+        #sudo -u consul cp -r /usr/local/bootstrap/conf/consul.d/* /${ROOTCERTPATH}/consul.d/.
         sudo systemctl enable consul
         sudo systemctl start consul
       fi
       sleep 15
       # upload vars to consul kv
+      ls -al /${ROOTCERTPATH}/consul.d/pki/tls/certs/ /${ROOTCERTPATH}/consul.d/pki/tls/private/ /${ROOTCERTPATH}/ssl/certs /${ROOTCERTPATH}/ssl/private
       echo "Quick test of the Consul KV store - upload the var.env parameters"
       while read a b; do
         k=${b%%=*}
@@ -171,14 +182,17 @@ install_consul () {
       done < /usr/local/bootstrap/var.env
     }
   else
-    echo "Starting a Consul Agent"
+    echo "Starting a Consul Agent in Client Mode"
     
-    generate_certificate_config false
+    generate_certificate_config false "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem"
 
     /usr/local/bin/consul members 2>/dev/null || {
         
         sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/consul agent -log-level=debug -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -join=${LEADER_IP}" /etc/systemd/system/consul.service
-
+        sudo chmod -R 755 /${ROOTCERTPATH}/consul.d
+        sudo chown -R consul:consul /${ROOTCERTPATH}/consul.d
+        sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
+        sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
         sudo systemctl enable consul
         sudo systemctl start consul
         echo $HOSTNAME

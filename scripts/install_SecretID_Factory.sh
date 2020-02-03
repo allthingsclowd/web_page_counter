@@ -34,26 +34,26 @@ EOF
   # Register the service in consul via the local Consul agent api
   sudo curl \
       --request PUT \
-      --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
-      --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
-      --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+      --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+      --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
+      --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
       --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
       --data @secretid_service.json \
       ${CONSUL_HTTP_ADDR}/v1/agent/service/register
 
   # List the locally registered services via local Consul api
   sudo curl \
-    --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
-    --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
-    --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
+    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     ${CONSUL_HTTP_ADDR}/v1/agent/services | jq -r .
 
   # List the services regestered on the Consul server
   sudo curl \
-    --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
-    --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
-    --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
+    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     ${CONSUL_HTTP_ADDR}/v1/catalog/services | jq -r .
    
@@ -126,7 +126,7 @@ start_app_proxy_service () {
   # param 1 ${1}: app-proxy name
   # param 2 ${2}: app-proxy service description
 
-  create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/usr/local/bootstrap/certificate-config/consul-ca.pem -client-cert=/usr/local/bootstrap/certificate-config/cli.pem -client-key=/usr/local/bootstrap/certificate-config/cli-key.pem -token=${AGENTTOKEN} -sidecar-for ${1}"
+  create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem -token=${AGENTTOKEN} -sidecar-for ${1}"
   sudo usermod -a -G webpagecountercerts ${1}
   sudo systemctl start ${1}
   #sudo systemctl status ${1}
@@ -141,7 +141,7 @@ start_client_proxy_service () {
     # param 4 ${4}: client-proxy local service port number
     
 
-    create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/usr/local/bootstrap/certificate-config/consul-ca.pem -client-cert=/usr/local/bootstrap/certificate-config/cli.pem -client-key=/usr/local/bootstrap/certificate-config/cli-key.pem -token=${AGENTTOKEN} -service ${1} -upstream ${3}:${4}"
+    create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem -token=${AGENTTOKEN} -service ${1} -upstream ${3}:${4}"
     sudo usermod -a -G webpagecountercerts ${1}
     sudo systemctl start ${1}
     #sudo systemctl status ${1}
@@ -160,16 +160,31 @@ setup_environment () {
     VAULT_IP=${LEADER_IP}
     
     if [ "${TRAVIS}" == "true" ]; then
-        IP="127.0.0.1"
-        VAULT_IP=${IP}
+        ROOTCERTPATH=tmp
+        IP=${IP:-127.0.0.1}
+        LEADER_IP=${IP}
+    else
+        ROOTCERTPATH=etc
     fi
+
+    export ROOTCERTPATH
+
+    sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} client
+    sudo chown -R consul:consul /${ROOTCERTPATH}/consul.d
+    sudo chmod -R 755 /${ROOTCERTPATH}/consul.d  
+
+    sudo /usr/local/bootstrap/scripts/create_certificate.sh vault hashistack1 30 ${IP} client
+    sudo chown -R vault:vault /${ROOTCERTPATH}/vault.d
+    sudo chmod -R 755 /${ROOTCERTPATH}/vault.d
+    sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
+    sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
 
     echo 'Set environmental bootstrapping data in VAULT'
 
     export VAULT_ADDR=https://${VAULT_IP}:8322
-    export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
-    export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
-    export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
+    export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem
+    export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem
+    export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem
     export VAULT_SKIP_VERIFY=true
 
     AGENTTOKEN=`VAULT_TOKEN=reallystrongpassword VAULT_ADDR="https://${LEADER_IP}:8322" vault kv get -field "value" kv/development/consulagentacl`
@@ -177,15 +192,17 @@ setup_environment () {
 
     # Configure consul environment variables for use with certificates 
     export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-    export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
-    export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
-    export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
+    export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem
+    export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem
+    export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem
 
     # Configure CA Certificates for APP on host OS
     sudo mkdir -p /usr/local/share/ca-certificates
     sudo apt-get install ca-certificates -y
-    #sudo openssl x509 -outform der -in /usr/local/bootstrap/certificate-config/hashistack-ca.pem -out /usr/local/bootstrap/certificate-config/hashistack-ca.crt
-    sudo cp /usr/local/bootstrap/certificate-config/hashistack-ca.pem /usr/local/share/ca-certificates/hashistack-ca.crt
+    #sudo openssl x509 -outform der -in /etc/ssl/certs/consul-agent-ca.pem -out /usr/local/bootstrap/certificate-config/hashistack-ca.crt
+    sudo cp /etc/ssl/certs/consul-agent-ca.pem /usr/local/share/ca-certificates/consul-ca.crt
+    sudo cp /etc/ssl/certs/nomad-agent-ca.pem /usr/local/share/ca-certificates/nomad-ca.crt
+    sudo cp /etc/ssl/certs/vault-agent-ca.pem /usr/local/share/ca-certificates/vault-ca.crt
     sudo update-ca-certificates
 
     if [ -d /vagrant ]; then
@@ -226,12 +243,21 @@ install_go_application () {
     sudo chmod +x /usr/local/bin/VaultServiceIDFactory
 
     if [ ! "${TRAVIS}" == "true" ]; then
-        create_service factory "SecretID Factory Service" "/usr/local/bin/VaultServiceIDFactory -ip=127.0.0.1 -vault=\"${VAULT_ADDR}\""
+        create_service factory "SecretID Factory Service" \
+                               "/usr/local/bin/VaultServiceIDFactory \
+                               -ip=127.0.0.1 \
+                               -vault=\"${VAULT_ADDR}\" \
+                               -vaultCA=\"/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem\" \
+                               -vaultcert=\"/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem\" \
+                               -vaultkey=\"/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem\""
         sudo systemctl start factory
         #sudo systemctl status factory
         register_secret_id_service_with_consul
     else
-        sudo /usr/local/bin/VaultServiceIDFactory -vault="${VAULT_ADDR}" &> ${LOG} &
+        sudo /usr/local/bin/VaultServiceIDFactory -vault="${VAULT_ADDR}" \
+                                                  -vaultCA="/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
+                                                  -vaultcert="/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
+                                                  -vaultkey="/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" &> ${LOG} &
     fi
 
 

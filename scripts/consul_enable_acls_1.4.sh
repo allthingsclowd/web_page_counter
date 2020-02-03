@@ -16,24 +16,30 @@ setup_environment () {
     fi
 
     if [ "${TRAVIS}" == "true" ]; then
-    IP=${IP:-127.0.0.1}
-    LEADER_IP=${IP}
+      ROOTCERTPATH=tmp
+      IP=${IP:-127.0.0.1}
+      LEADER_IP=${IP}
+    else
+      ROOTCERTPATH=etc
     fi
+
+    export ROOTCERTPATH
 
     # Configure consul environment variables for use with certificates 
     export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-    export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
-    export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
-    export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
+    export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem
+    export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem
+    export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem
+    export CONSUL_GRPC_ADDR=https://127.0.0.1:8502
 
     export VAULT_TOKEN=reallystrongpassword
-    export VAULT_ADDR=https://192.168.9.11:8322
-    export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
-    export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
-    export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
+    export VAULT_ADDR=https://${LEADER_IP}:8322
+    export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem
+    export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem
+    export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem
     
 
-    export AGENT_CONFIG="-config-dir=/etc/consul.d -enable-script-checks=true"
+    export AGENT_CONFIG="-config-dir=/${ROOTCERTPATH}/consul.d -enable-script-checks=true"
 
 }
 
@@ -41,9 +47,9 @@ create_acl_policy () {
 
       curl \
       --request PUT \
-      --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
-      --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
-      --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+      --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+      --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
+      --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
       --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
       --data \
     "{
@@ -55,15 +61,24 @@ create_acl_policy () {
 
 step1_enable_acls_on_server () {
 
-  sudo tee /etc/consul.d/consul_acl_1.4_setup.json <<EOF
-  {
-    "primary_datacenter": "allthingscloud1",
-    "acl" : {
-      "enabled" : true,
-      "default_policy" : "deny",
-      "down_policy" : "extend-cache"
+#   sudo tee /${ROOTCERTPATH}/consul.d/consul_acl_1.4_setup.json <<EOF
+#   {
+#     "primary_datacenter": "allthingscloud1",
+#     "acl" : {
+#       "enabled" : true,
+#       "default_policy" : "deny",
+#       "down_policy" : "extend-cache"
+#     }
+#   }
+# EOF
+
+  sudo tee /${ROOTCERTPATH}/consul.d/consul_acl_1.4_server_setup.hcl <<EOF 
+primary_datacenter = "hashistack1"
+acl {
+    enabled = true
+    default_policy = "deny"
+    down_policy = "extend-cache"
     }
-  }
 EOF
   # read in new configs
   restart_consul
@@ -72,11 +87,11 @@ EOF
 
 step2_create_bootstrap_token_on_server () {
 
-  curl -s -w "\n%{http_code}" \
+  curl -w "\n%{http_code}" \
         --request PUT \
-        --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
-        --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
-        --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+        --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+        --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
+        --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
         https://127.0.0.1:8321/v1/acl/bootstrap |  {
             read body
             read result
@@ -109,11 +124,11 @@ step3_create_an_agent_token_policies () {
 
 step4_create_an_agent_token () {
     
-    AGENTTOKEN=$(curl \
+    AGENTTOKEN=$(curl -s \
       --request PUT \
-      --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
-      --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
-      --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+      --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+      --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
+      --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
       --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
       --data \
     '{
@@ -146,18 +161,30 @@ step4_create_an_agent_token () {
 
 step5_add_agent_token_on_server () {
 
-  sudo tee /etc/consul.d/consul_acl_1.4_setup.json <<EOF
-  {
-  "primary_datacenter": "allthingscloud1",
-  "acl" : {
-    "enabled" : true,
-    "default_policy" : "deny",
-    "down_policy" : "extend-cache",
-    "tokens" : {
-      "agent" : "${AGENTTOKEN}"
+#   sudo tee /${ROOTCERTPATH}/consul.d/consul_acl_1.4_setup.json <<EOF
+#   {
+#   "primary_datacenter": "allthingscloud1",
+#   "acl" : {
+#     "enabled" : true,
+#     "default_policy" : "deny",
+#     "down_policy" : "extend-cache",
+#     "tokens" : {
+#       "agent" : "${AGENTTOKEN}"
+#     }
+#   }
+# }
+# EOF
+
+  sudo tee /${ROOTCERTPATH}/consul.d/consul_acl_1.4_server_setup.hcl <<EOF 
+primary_datacenter = "hashistack1"
+acl {
+    enabled = true
+    default_policy = "deny"
+    down_policy = "extend-cache"
+    tokens {
+        agent = "${AGENTTOKEN}"
+            }
     }
-  }
-}
 EOF
   # read in new configs
   restart_consul
@@ -167,9 +194,9 @@ EOF
 step6_verify_acl_config () {
 
     curl -s -w "\n%{http_code}" \
-      --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
-      --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
-      --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+      --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+      --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
+      --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
       --header "X-Consul-Token: ${AGENTTOKEN}" \
       https://127.0.0.1:8321/v1/catalog/nodes | {
             read body
@@ -195,17 +222,27 @@ step7_enable_acl_on_client () {
   AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
   export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
-  sudo tee /etc/consul.d/consul_acl_1.4_setup.json <<EOF
-  {
-  "acl" : {
-    "enabled" : true,
-    "default_policy" : "deny",
-    "down_policy" : "extend-cache",
-    "tokens" : {
-      "agent" : "${AGENTTOKEN}"
-    }
+#   sudo tee /${ROOTCERTPATH}/consul.d/consul_acl_1.4_setup.json <<EOF
+#   {
+#   "acl" : {
+#     "enabled" : true,
+#     "default_policy" : "deny",
+#     "down_policy" : "extend-cache",
+#     "tokens" : {
+#       "agent" : "${AGENTTOKEN}"
+#     }
+#   }
+# }
+# EOF
+  sudo tee /${ROOTCERTPATH}/consul.d/consul_acl_1.4_setup.hcl <<EOF
+  acl {
+      enabled =  true
+      default_policy = "deny"
+      down_policy =  "extend-cache"
+      tokens {
+          agent = "${AGENTTOKEN}"
+              }
   }
-}
 EOF
   # read in new configs
   restart_consul
@@ -216,10 +253,10 @@ step8_verify_acl_config () {
 
     AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
 
-    curl -s -w "\n%{http_code}" \
-      --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
-      --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
-      --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+    curl -w "\n%{http_code}" \
+      --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+      --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
+      --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
       --header "X-Consul-Token: ${AGENTTOKEN}" \
       https://127.0.0.1:8321/v1/catalog/nodes | {
             read body
@@ -246,9 +283,9 @@ create_app_token () {
   
   VAULTSESSIONTOKEN=$(curl \
   --request PUT \
-  --cacert "/usr/local/bootstrap/certificate-config/consul-ca.pem" \
-  --key "/usr/local/bootstrap/certificate-config/client-key.pem" \
-  --cert "/usr/local/bootstrap/certificate-config/client.pem" \
+  --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+  --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
+  --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
   --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
   --data \
 '{
@@ -270,9 +307,9 @@ create_app_token () {
     address = "127.0.0.1:8321"
     scheme = "https"
     path    = "vault/"
-    tls_ca_file = "/etc/vault.d/pki/tls/certs/consul/consul-ca.pem"
-    tls_cert_file = "/etc/vault.d/pki/tls/certs/consul/server.pem"
-    tls_key_file = "/etc/vault.d/pki/tls/private/consul/server-key.pem"
+    tls_ca_file = "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem"
+    tls_cert_file = "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem"
+    tls_key_file = "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem"
     token = "${VAULTSESSIONTOKEN}"
   }
 
@@ -281,8 +318,8 @@ create_app_token () {
   listener "tcp" {
     address = "0.0.0.0:8322"
     tls_disable = 0
-    tls_cert_file = "/etc/vault.d/pki/tls/certs/vault/hashistack-server.pem"
-    tls_key_file = "/etc/vault.d/pki/tls/private/vault/hashistack-server-key.pem"
+    tls_cert_file = "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-server.pem"
+    tls_key_file = "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-server-key.pem"
   }
 
   # Advertise the non-loopback interface
@@ -294,9 +331,9 @@ EOF
 consul {
   address = "127.0.0.1:8321"
   ssl       = true
-  ca_file   = "/etc/nomad.d/pki/tls/certs/consul/consul-ca.pem"
-  cert_file = "/etc/nomad.d/pki/tls/certs/consul/server.pem"
-  key_file  = "/etc/nomad.d/pki/tls/private/consul/server-key.pem"
+  ca_file   = "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem"
+  cert_file = "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem"
+  key_file  = "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem"
   token = "${CONSUL_HTTP_TOKEN}"
   }
 EOF
@@ -311,9 +348,9 @@ step9_configure_nomad() {
 consul {
   address = "127.0.0.1:8321"
   ssl       = true
-  ca_file   = "/etc/nomad.d/pki/tls/certs/consul/consul-ca.pem"
-  cert_file = "/etc/nomad.d/pki/tls/certs/consul/server.pem"
-  key_file  = "/etc/nomad.d/pki/tls/private/consul/server-key.pem"
+  ca_file   = "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem"
+  cert_file = "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem"
+  key_file  = "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem"
   token = "${AGENTTOKEN}"
   }
 EOF
@@ -324,15 +361,17 @@ EOF
 restart_consul () {
     
     
-    sudo cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
+    #sudo cp -r /usr/local/bootstrap/conf/consul.d/* /${ROOTCERTPATH}/consul.d/.
     if [ "${TRAVIS}" == "true" ]; then
         sudo killall -9 -v consul
         sleep 5
         sudo /usr/local/bin/consul agent -server -log-level=trace -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
         sleep 15
+        consul members
     else
         sudo systemctl restart consul
         sleep 15
+        consul members
         #sudo systemctl status consul
     fi
     

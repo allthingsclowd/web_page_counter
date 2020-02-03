@@ -65,7 +65,7 @@ start_app_proxy_service () {
   # param 1 ${1}: app-proxy name
   # param 2 ${2}: app-proxy service description
 
-  create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/usr/local/bootstrap/certificate-config/consul-ca.pem -client-cert=/usr/local/bootstrap/certificate-config/cli.pem -client-key=/usr/local/bootstrap/certificate-config/cli-key.pem -token=${CONSUL_HTTP_TOKEN} -sidecar-for ${1}"
+  create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem -token=${CONSUL_HTTP_TOKEN} -sidecar-for ${1}"
   sudo usermod -a -G webpagecountercerts ${1}
   sudo systemctl start ${1}
   #sudo systemctl status ${1}
@@ -80,7 +80,7 @@ start_client_proxy_service () {
     # param 4 ${4}: client-proxy local service port number
     
 
-    create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/usr/local/bootstrap/certificate-config/consul-ca.pem -client-cert=/usr/local/bootstrap/certificate-config/cli.pem -client-key=/usr/local/bootstrap/certificate-config/cli-key.pem -token=${CONSUL_HTTP_TOKEN} -service ${1} -upstream ${3}:${4}"
+    create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem -token=${CONSUL_HTTP_TOKEN} -service ${1} -upstream ${3}:${4}"
     sudo usermod -a -G webpagecountercerts ${1}
     sudo systemctl start ${1}
     #sudo systemctl status ${1}
@@ -88,7 +88,7 @@ start_client_proxy_service () {
 }
 
 create_intention_between_services () {
-    sudo /usr/local/bin/consul intention create -http-addr=https://127.0.0.1:8321 -ca-file=/usr/local/bootstrap/certificate-config/consul-ca.pem -client-cert=/usr/local/bootstrap/certificate-config/cli.pem -client-key=/usr/local/bootstrap/certificate-config/cli-key.pem -token=${CONSUL_HTTP_TOKEN} ${1} ${2}
+    sudo /usr/local/bin/consul intention create -http-addr=https://127.0.0.1:8321 -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem -token=${CONSUL_HTTP_TOKEN} ${1} ${2}
 }
 
 
@@ -96,27 +96,47 @@ set -x
 
 source /usr/local/bootstrap/var.env
 
+if [ "${TRAVIS}" == "true" ]; then
+  ROOTCERTPATH=tmp
+  IP=${IP:-127.0.0.1}
+  LEADER_IP=${IP}
+else
+  ROOTCERTPATH=etc
+fi
+
+export ROOTCERTPATH
+
+sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} client
+sudo chown -R consul:consul /${ROOTCERTPATH}/consul.d
+sudo chmod -R 755 /${ROOTCERTPATH}/consul.d  
+
+sudo /usr/local/bootstrap/scripts/create_certificate.sh vault hashistack1 30 ${IP} client
+sudo chown -R vault:vault /${ROOTCERTPATH}/vault.d
+sudo chmod -R 755 /${ROOTCERTPATH}/vault.d
+sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
+sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
+
 # read redis database password from vault
-export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
-export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
-export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
+export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem
+export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem
+export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem
 export VAULT_SKIP_VERIFY=true
 export VAULT_ADDR="https://${LEADER_IP}:8322"
 export VAULT_TOKEN=reallystrongpassword
 
 # Configure consul environment variables for use with certificates 
 export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-export CONSUL_CACERT=/usr/local/bootstrap/certificate-config/consul-ca.pem
-export CONSUL_CLIENT_CERT=/usr/local/bootstrap/certificate-config/cli.pem
-export CONSUL_CLIENT_KEY=/usr/local/bootstrap/certificate-config/cli-key.pem
+export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem
+export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem
+export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem
 AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
 export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
 # Configure CA Certificates for APP on host OS
 sudo mkdir -p /usr/local/share/ca-certificates
 sudo apt-get install ca-certificates -y
-#sudo openssl x509 -outform der -in /usr/local/bootstrap/certificate-config/hashistack-ca.pem -out /usr/local/bootstrap/certificate-config/hashistack-ca.crt
-sudo cp /usr/local/bootstrap/certificate-config/hashistack-ca.pem /usr/local/share/ca-certificates/hashistack-ca.crt
+#sudo openssl x509 -outform der -in /etc/ssl/certs/consul-agent-ca.pem -out /usr/local/bootstrap/certificate-config/hashistack-ca.crt
+sudo cp /etc/ssl/certs/consul-agent-ca.pem /usr/local/share/ca-certificates/hashistack-ca.crt
 sudo update-ca-certificates
 
 if [ "${TRAVIS}" == "true" ]; then
