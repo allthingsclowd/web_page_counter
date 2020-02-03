@@ -150,8 +150,8 @@ resource "vsphere_virtual_machine" "redis01vm" {
     inline = [
         "touch /tmp/cloudinit-start.txt",
         "sudo /usr/local/bootstrap/scripts/install_consul.sh",
-        "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
         "sudo /usr/local/bootstrap/scripts/install_vault.sh",
+        "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
         "sudo /usr/local/bootstrap/scripts/install_redis.sh",
         "touch /tmp/cloudinit-finish.txt",
     ]    
@@ -219,8 +219,8 @@ resource "vsphere_virtual_machine" "godevvms" {
     inline = [
         "touch /tmp/cloudinit-start.txt",
         "sudo /usr/local/bootstrap/scripts/install_consul.sh",
-        "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
         "sudo /usr/local/bootstrap/scripts/install_vault.sh",
+        "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
         "sudo /usr/local/bootstrap/scripts/install_nomad.sh",
         "sudo /usr/local/bootstrap/scripts/install_go_app.sh",
         "touch /tmp/cloudinit-finish.txt",
@@ -299,8 +299,8 @@ resource "vsphere_virtual_machine" "web01vm" {
     inline = [
         "touch /tmp/cloudinit-start.txt",
         "sudo /usr/local/bootstrap/scripts/install_consul.sh",
-        "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
         "sudo /usr/local/bootstrap/scripts/install_vault.sh",
+        "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
         "sudo /usr/local/bootstrap/scripts/install_webserver.sh",
         "touch /tmp/cloudinit-finish.txt",
     ]
