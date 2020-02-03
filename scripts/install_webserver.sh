@@ -128,8 +128,14 @@ popd
 
 # Configure LBaaS Public IP for WebFrontend
 sudo sed -i 's/window.__env.apiUrl =.*;/window.__env.apiUrl = "'${DNSNAME}'";/g' /var/www/wpc-fe/env.js
+
+# debug 
+echo "Check web frontend changes"
+sudo cat /var/www/wpc-fe/env.js
+
+
  # This line causes the entire inline not to run
-      "sudo sh -c \"sed 's/api_key:.*/api_key: ${dd_api_key}' /etc/dd-agent/datadog.conf.example > /etc/dd-agent/datadog.conf\""
+ #     "sudo sh -c \"sed 's/api_key:.*/api_key: ${dd_api_key}' /etc/dd-agent/datadog.conf.example > /etc/dd-agent/datadog.conf\""
 sudo cp /usr/local/bootstrap/conf/wpc-fe.conf /etc/nginx/conf.d/wpc-fe.conf
 
 # remove nginx default website
