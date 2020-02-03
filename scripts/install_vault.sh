@@ -417,29 +417,39 @@ create_browser_certificate () {
     export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem
     export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem
 
+    sudo rm -rf /usr/local/bootstrap/certificate-config/browser
+
     certificate=(nomad vault consul)
 
-    for cert in "{certificate[@]}"; do
+    for cert in "${certificate[@]}"; do
 
         echo "Start generating browser ${cert} certificates"
-        sudo mkdir --parent /tmp/browser
-        pushd /tmp/browser
+        sudo mkdir --parent /usr/local/bootstrap/certificate-config/browser
+        pushd /usr/local/bootstrap/certificate-config/browser
         sudo /usr/local/bin/consul tls cert create \
                                     -domain=${cert} \
                                     -dc=hashistack1 \
                                     -key=/${ROOTCERTPATH}/ssl/private/${cert}-agent-ca-key.pem \
                                     -ca=/${ROOTCERTPATH}/ssl/certs/${cert}-agent-ca.pem \
-                                    -days=${30} \
+                                    -days=100 \
                                     -additional-ipaddress="127.0.0.1" \
                                     -client 
 
 
         # debug
 
-        vault kv put kv/development/browser/${cert}-agent-ca.pem value=`cat /${ROOTCERTPATH}/ssl/certs/${cert}-agent-ca.pem`
-        vault kv put kv/development/browser/${cert}-agent-ca-key.pem value=`cat /${ROOTCERTPATH}/ssl/private/${cert}-agent-ca-key.pem`
-        vault kv put kv/development/browser/hashistack1-client-${cert}-0.pem value=`cat /tmp/browser/hashistack1-client-${cert}-0.pem`
-        vault kv put kv/development/browser/hashistack1-client-${cert}-0-key.pem value=`cat /tmp/browser/hashistack1-client-${cert}-0-key.pem`
+        # Format certs for macOS
+        sudo openssl pkcs12 -password pass:bananas -export -out ${cert}.pfx -inkey /${ROOTCERTPATH}/ssl/private/${cert}-agent-ca-key.pem -in /${ROOTCERTPATH}/ssl/certs/${cert}-agent-ca.pem -certfile /${ROOTCERTPATH}/ssl/certs/${cert}-agent-ca.pem
+        
+        # Stick certs in vault
+        vault kv put kv/development/browser/${cert}.pfx value="`cat /usr/local/bootstrap/certificate-config/browser/${cert}.pfx`"
+        vault kv put kv/development/browser/${cert}-agent-ca.pem value="`cat /${ROOTCERTPATH}/ssl/certs/${cert}-agent-ca.pem`"
+        vault kv put kv/development/browser/${cert}-agent-ca-key.pem value="`cat /${ROOTCERTPATH}/ssl/private/${cert}-agent-ca-key.pem`"
+        sudo cp /${ROOTCERTPATH}/ssl/private/${cert}-agent-ca-key.pem /usr/local/bootstrap/certificate-config/browser/${cert}-agent-ca-key.pem
+        sudo cp /${ROOTCERTPATH}/ssl/certs/${cert}-agent-ca.pem /usr/local/bootstrap/certificate-config/browser/${cert}-agent-ca.pem
+        vault kv put kv/development/browser/hashistack1-client-${cert}-0.pem value="`cat /usr/local/bootstrap/certificate-config/browser/hashistack1-client-${cert}-0.pem`"
+        vault kv put kv/development/browser/hashistack1-client-${cert}-0-key.pem value="`cat /usr/local/bootstrap/certificate-config/browser/hashistack1-client-${cert}-0-key.pem`"
+        
         popd
         echo "Finished generating ${cert} browser certificates" 
 
@@ -577,6 +587,7 @@ install_vault () {
 setup_environment
 install_vault
 create_browser_certificate
+
 
 exit 0
     
