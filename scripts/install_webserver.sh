@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 set -x
 
 source /usr/local/bootstrap/var.env
@@ -9,12 +10,14 @@ CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.9" {print $2}'`
 IP=${CIDR%%/24}
 
 if [ "${TRAVIS}" == "true" ]; then
-  IP="127.0.0.1"
+  ROOTCERTPATH=tmp
+  IP=${IP:-127.0.0.1}
+  LEADER_IP=${IP}
+else
+  ROOTCERTPATH=etc
 fi
 
-if [ "${TRAVIS}" == "true" ]; then
-  LEADER_IP="127.0.0.1"
-fi
+export ROOTCERTPATH
 
 echo 'Set environmental bootstrapping data in VAULT'
 
@@ -32,7 +35,6 @@ export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.
 export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem
 AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
 export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
-
 
 enable_nginx_service () {
   # start and enable nginx service
@@ -155,4 +157,14 @@ sudo /usr/local/bin/consul-template \
      -template "/usr/local/bootstrap/conf/nginx.ctpl:/etc/nginx/conf.d/goapp.conf:/usr/local/bootstrap/scripts/updateBackendCount.sh" &
    
 sleep 1
+
+echo "Verifiy the backend is accessible through nginx service"
+sudo cat /etc/nginx/conf.d/goapp.conf
+
+echo "Verifiy the backend is accessible through nginx service"
+curl http://${IP}:9090
+
+echo "Verifiy the frontend is accessible through nginx service"
+curl http://${IP}:9091
+
 exit 0

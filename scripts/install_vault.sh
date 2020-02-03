@@ -408,6 +408,45 @@ bootstrap_secret_data () {
 
 }
 
+create_browser_certificate () {
+    
+    echo 'Set environmental bootstrapping data in VAULT'
+    export VAULT_TOKEN=reallystrongpassword
+    export VAULT_ADDR=https://${LEADER_IP}:8322
+    export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem
+    export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem
+    export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem
+
+    certificate=(nomad vault consul)
+
+    for cert in "{certificate[@]}"; do
+
+        echo "Start generating browser ${cert} certificates"
+        sudo mkdir --parent /tmp/browser
+        pushd /tmp/browser
+        sudo /usr/local/bin/consul tls cert create \
+                                    -domain=${cert} \
+                                    -dc=hashistack1 \
+                                    -key=/${ROOTCERTPATH}/ssl/private/${cert}-agent-ca-key.pem \
+                                    -ca=/${ROOTCERTPATH}/ssl/certs/${cert}-agent-ca.pem \
+                                    -days=${30} \
+                                    -additional-ipaddress="127.0.0.1" \
+                                    -client 
+
+
+        # debug
+
+        vault kv put kv/development/browser/${cert}-agent-ca.pem value=`cat /${ROOTCERTPATH}/ssl/certs/${cert}-agent-ca.pem`
+        vault kv put kv/development/browser/${cert}-agent-ca-key.pem value=`cat /${ROOTCERTPATH}/ssl/private/${cert}-agent-ca-key.pem`
+        vault kv put kv/development/browser/hashistack1-client-${cert}-0.pem value=`cat /tmp/browser/hashistack1-client-${cert}-0.pem`
+        vault kv put kv/development/browser/hashistack1-client-${cert}-0-key.pem value=`cat /tmp/browser/hashistack1-client-${cert}-0-key.pem`
+        popd
+        echo "Finished generating ${cert} browser certificates" 
+
+    done    
+
+}
+
 get_secret_id () {
 
     echo 'Start Generate Secret-ID'
@@ -535,9 +574,9 @@ install_vault () {
 
     
 }
-
 setup_environment
 install_vault
+create_browser_certificate
 
 exit 0
     

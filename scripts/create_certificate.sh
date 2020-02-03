@@ -36,7 +36,7 @@ create_certificate () {
                                 -dc=${2} \
                                 -key=/${ROOTCERTPATH}/ssl/private/${1}-agent-ca-key.pem \
                                 -ca=/${ROOTCERTPATH}/ssl/certs/${1}-agent-ca.pem \
-                                -days=${3} \
+                                -days=${30} \
                                 -additional-ipaddress=${4} \
                                 -${5} 
                                 
