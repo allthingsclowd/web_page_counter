@@ -454,6 +454,7 @@ create_browser_certificate () {
         vault kv put kv/development/browser/hashistack1-client-${cert}-0.pem value="`cat /usr/local/bootstrap/certificate-config/browser/${DATE}/hashistack1-client-${cert}-0.pem`"
         vault kv put kv/development/browser/hashistack1-client-${cert}-0-key.pem value="`cat /usr/local/bootstrap/certificate-config/browser/${DATE}/hashistack1-client-${cert}-0-key.pem`"
         
+        sudo chmod -R 777 /usr/local/bootstrap/certificate-config/browser
         popd
         echo "Finished generating ${cert} browser certificates" 
 
