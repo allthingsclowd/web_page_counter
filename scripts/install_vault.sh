@@ -419,7 +419,7 @@ create_browser_certificate () {
 
     sudo rm -rf /usr/local/bootstrap/certificate-config/browser
     
-    DATE=`date +"%D%T"`
+    DATE=`date +"%Y%m%d_%H%M%S"`
     [ -d /usr/local/bootstrap/certificate-config/browser ] && mv /usr/local/bootstrap/certificate-config/browser /usr/local/bootstrap/certificate-config/${DATE}
     mkdir -p /usr/local/bootstrap/certificate-config/browser/${DATE}
     certificate=(nomad vault consul)
