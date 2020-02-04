@@ -45,6 +45,10 @@ setup_environment () {
   AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
   export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
+  export NOMAD_CACERT=/${ROOTCERTPATH}/ssl/certs/nomad-agent-ca.pem
+  export NOMAD_CLIENT_CERT=/${ROOTCERTPATH}/nomad.d/pki/tls/certs/nomad-client.pem
+  export NOMAD_CLIENT_KEY=/${ROOTCERTPATH}/nomad.d/pki/tls/private/nomad-client-key.pem
+  export NOMAD_ADDR=https://${LEADER_IP}:4646
 
 
   which wget unzip &>/dev/null || {
@@ -78,7 +82,7 @@ install_nomad() {
   if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
     if [ "${TRAVIS}" == "true" ]; then
       
-      sudo cp -apr /usr/local/bootstrap/conf/nomad.d /${ROOTCERTPATH}
+      #sudo cp -apr /usr/local/bootstrap/conf/nomad.d /${ROOTCERTPATH}
       # create certificates - using consul helper :shrug:?
       sudo /usr/local/bootstrap/scripts/create_certificate.sh nomad hashistack1 30 ${IP} server
       # Travis-CI grant access to /tmp for all users
@@ -95,7 +99,7 @@ install_nomad() {
         sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
         sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private        
         sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/nomad agent -log-level=DEBUG -server -bind=${IP} -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/${ROOTCERTPATH}/nomad.d" /etc/systemd/system/nomad.service
-        cp -apr /usr/local/bootstrap/conf/nomad.d /etc
+        #cp -apr /usr/local/bootstrap/conf/nomad.d /etc
         sudo systemctl enable nomad
         sudo systemctl start nomad
         
@@ -107,9 +111,9 @@ install_nomad() {
 
     sudo /usr/local/bootstrap/scripts/create_certificate.sh nomad hashistack1 30 ${IP} client
    
-    NOMAD_ADDR=http://${IP}:4646 /usr/local/bin/nomad agent-info 2>/dev/null || {
+    NOMAD_ADDR=https://${IP}:4646 /usr/local/bin/nomad agent-info 2>/dev/null || {
       sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/nomad agent -log-level=DEBUG -client -bind=${IP} -data-dir=/usr/local/nomad -join=${LEADER_IP} -config=/${ROOTCERTPATH}/nomad.d" /etc/systemd/system/nomad.service
-      cp -apr /usr/local/bootstrap/conf/nomad.d /etc
+      #cp -apr /usr/local/bootstrap/conf/nomad.d /etc
       sudo chmod -R 755 /${ROOTCERTPATH}/nomad.d
       sudo chown -R nomad:nomad /${ROOTCERTPATH}/nomad.d
       sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs

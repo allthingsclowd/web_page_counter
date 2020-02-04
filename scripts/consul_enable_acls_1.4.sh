@@ -336,6 +336,35 @@ consul {
   key_file  = "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem"
   token = "${CONSUL_HTTP_TOKEN}"
   }
+
+# Increase log verbosity
+log_level = "DEBUG"
+
+# Setup data dir
+data_dir = "/usr/local/nomad"
+
+# Enable the server
+server {
+  enabled = true
+
+  # Self-elect, should be 3 or 5 for production
+  bootstrap_expect = 1
+
+  encrypt = "${ConsulKeygenOutput}"
+}
+
+# Require TLS
+tls {
+  http = true
+  rpc  = true
+
+  ca_file   = "/${ROOTCERTPATH}/ssl/certs/nomad-agent-ca.pem"
+  cert_file = "/${ROOTCERTPATH}/nomad.d/pki/tls/certs/nomad-server.pem"
+  key_file  = "/${ROOTCERTPATH}/nomad.d/pki/tls/private/nomad-server-key.pem"
+
+  verify_server_hostname = true
+  verify_https_client    = true
+}
 EOF
 
 }
@@ -353,6 +382,35 @@ consul {
   key_file  = "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem"
   token = "${AGENTTOKEN}"
   }
+
+client {
+  options = {
+    "driver.raw_exec" = "1"
+    "driver.raw_exec.enable" = "1"
+  }
+  network_interface = "enp0s8"
+
+  enabled = true
+}
+
+# Increase log verbosity
+log_level = "DEBUG"
+
+# Setup data dir
+data_dir = "/usr/local/nomad"
+
+# Require TLS
+tls {
+  http = true
+  rpc  = true
+
+  ca_file   = "/${ROOTCERTPATH}/ssl/certs/nomad-agent-ca.pem"
+  cert_file = "/${ROOTCERTPATH}/nomad.d/pki/tls/certs/nomad-client.pem"
+  key_file  = "/${ROOTCERTPATH}/nomad.d/pki/tls/private/nomad-client-key.pem"
+
+  verify_server_hostname = true
+  verify_https_client    = true
+}
 EOF
 
 } 

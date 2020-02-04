@@ -198,7 +198,12 @@ sed -i 's/consulIP=.*"/consulIP='${LEADER_IP}':8321"/g' /usr/local/bootstrap/scr
 echo 'Review Nomad Job File'
 cat /usr/local/bootstrap/scripts/nomad_job.hcl
 
-NOMAD_ADDR=http://${LEADER_IP}:4646 /usr/local/bin/nomad job run /usr/local/bootstrap/scripts/nomad_job.hcl || true
+export NOMAD_CACERT=/${ROOTCERTPATH}/ssl/certs/nomad-agent-ca.pem
+export NOMAD_CLIENT_CERT=/${ROOTCERTPATH}/nomad.d/pki/tls/certs/nomad-client.pem
+export NOMAD_CLIENT_KEY=/${ROOTCERTPATH}/nomad.d/pki/tls/private/nomad-client-key.pem
+export NOMAD_ADDR=https://${LEADER_IP}:4646
+
+/usr/local/bin/nomad job run /usr/local/bootstrap/scripts/nomad_job.hcl || true
 
 exit 0
 
