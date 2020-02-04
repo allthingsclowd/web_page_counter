@@ -352,7 +352,7 @@ server {
   # Self-elect, should be 3 or 5 for production
   bootstrap_expect = 1
 
-  encrypt = "${ConsulKeygenOutput}"
+  encrypt = "${NomadKeygenOutput}"
 }
 
 # Require TLS
@@ -375,7 +375,7 @@ step9_configure_nomad() {
 
   AGENTTOKEN=`vault kv get -field "value" kv/development/bootstraptoken`
 
-  sudo tee /usr/local/bootstrap/conf/nomad.d/nomad.hcl <<EOF
+  sudo tee /usr/local/bootstrap/conf/nomad.d/client.hcl <<EOF
 consul {
   address = "127.0.0.1:8321"
   ssl       = true
@@ -395,6 +395,8 @@ client {
   network_interface = "enp0s8"
 
   enabled = true
+
+  servers = ["${LEADER_IP}:4647"]
 }
 
 # Increase log verbosity
