@@ -1,9 +1,24 @@
+consul {
+  address = "127.0.0.1:8321"
+  ssl       = true
+  ca_file   = "/etc/ssl/certs/consul-agent-ca.pem"
+  cert_file = "/etc/consul.d/pki/tls/certs/consul-client.pem"
+  key_file  = "/etc/consul.d/pki/tls/private/consul-client-key.pem"
+  token = "d0cea87a-911f-073d-bad6-1b222ae98bb5"
+  }
+
+datacenter = "hashistack1"
+
 client {
   options = {
     "driver.raw_exec" = "1"
     "driver.raw_exec.enable" = "1"
   }
   network_interface = "enp0s8"
+
+  enabled = true
+
+  servers = ["192.168.9.11:4647"]
 }
 
 # Increase log verbosity
@@ -11,16 +26,6 @@ log_level = "DEBUG"
 
 # Setup data dir
 data_dir = "/usr/local/nomad"
-
-# Enable the client
-client {
-  enabled = true
-
-  # For demo assume we are talking to server1. For production,
-  # this should be like "nomad.service.consul:4647" and a system
-  # like Consul used for service discovery.
-  servers = ["127.0.0.1:4647"]
-}
 
 # Require TLS
 tls {

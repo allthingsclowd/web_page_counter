@@ -75,10 +75,11 @@ setup_environment () {
 
 install_nomad() {
 
-
+  echo "Installing Nomad"
 
   # check for nomad hostname => server
   if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
+    echo "Nomad Server Installation"
     # create certificates - using consul helper :shrug:?
     sudo /usr/local/bootstrap/scripts/create_certificate.sh nomad hashistack1 30 ${IP} server
     sudo /usr/local/bootstrap/scripts/create_certificate.sh nomad hashistack1 30 ${IP} client
@@ -112,19 +113,20 @@ install_nomad() {
 
   else
 
+    echo "Nomad Client Installation"
     sudo /usr/local/bootstrap/scripts/create_certificate.sh nomad hashistack1 30 ${IP} client
    
-    /usr/local/bin/nomad agent-info 2>/dev/null || {
-      sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/nomad agent -log-level=DEBUG -client -bind=${IP} -data-dir=/usr/local/nomad -join=${LEADER_IP} -config=/${ROOTCERTPATH}/nomad.d" /etc/systemd/system/nomad.service
-      cp /usr/local/bootstrap/conf/nomad.d/client.hcl /${ROOTCERTPATH}/nomad.d/client.hcl
-      sudo chmod -R 755 /${ROOTCERTPATH}/nomad.d
-      sudo chown -R nomad:nomad /${ROOTCERTPATH}/nomad.d
-      sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
-      sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
-      sudo systemctl enable nomad
-      sudo systemctl start nomad
-      sleep 15
-    }
+
+    sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/nomad agent -log-level=DEBUG -client -bind=${IP} -data-dir=/usr/local/nomad -join=${LEADER_IP} -config=/${ROOTCERTPATH}/nomad.d" /etc/systemd/system/nomad.service
+    cp /usr/local/bootstrap/conf/nomad.d/client.hcl /${ROOTCERTPATH}/nomad.d/client.hcl
+    sudo chmod -R 755 /${ROOTCERTPATH}/nomad.d
+    sudo chown -R nomad:nomad /${ROOTCERTPATH}/nomad.d
+    sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
+    sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
+    sudo systemctl enable nomad
+    sudo systemctl start nomad
+    sleep 15
+    
 
   fi
 }
