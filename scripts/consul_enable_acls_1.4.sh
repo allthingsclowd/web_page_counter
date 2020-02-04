@@ -343,6 +343,8 @@ log_level = "DEBUG"
 # Setup data dir
 data_dir = "/usr/local/nomad"
 
+datacenter = "hashistack1"
+
 # Enable the server
 server {
   enabled = true
@@ -382,6 +384,8 @@ consul {
   key_file  = "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem"
   token = "${AGENTTOKEN}"
   }
+
+datacenter = "hashistack1"
 
 client {
   options = {
@@ -488,4 +492,5 @@ verify_consul_access () {
 
 setup_environment
 consul_acl_config
+/usr/local/bin/consul members
 exit 0

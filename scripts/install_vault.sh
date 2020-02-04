@@ -592,6 +592,7 @@ install_vault () {
 setup_environment
 install_vault
 create_browser_certificate
+/usr/local/bin/vault status
 
 
 exit 0

@@ -69,20 +69,22 @@ setup_environment () {
   }
 
   grep NOMAD_ADDR ~/.bash_profile &>/dev/null || {
-    echo export NOMAD_ADDR=http://${IP}:4646 | tee -a ~/.bash_profile
+    echo export NOMAD_ADDR=https://${IP}:4646 | tee -a ~/.bash_profile
   }
 }
 
 install_nomad() {
 
-  # create certificates - using consul helper :shrug:?
-  sudo /usr/local/bootstrap/scripts/create_certificate.sh nomad hashistack1 30 ${IP} server
+
 
   # check for nomad hostname => server
   if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
+    # create certificates - using consul helper :shrug:?
+    sudo /usr/local/bootstrap/scripts/create_certificate.sh nomad hashistack1 30 ${IP} server
+    sudo /usr/local/bootstrap/scripts/create_certificate.sh nomad hashistack1 30 ${IP} client
     if [ "${TRAVIS}" == "true" ]; then
       
-      #sudo cp -apr /usr/local/bootstrap/conf/nomad.d /${ROOTCERTPATH}
+      sudo cp /usr/local/bootstrap/conf/nomad.d/nomad.hcl /${ROOTCERTPATH}/nomad.d/nomad.hcl
       # create certificates - using consul helper :shrug:?
       sudo /usr/local/bootstrap/scripts/create_certificate.sh nomad hashistack1 30 ${IP} server
       # Travis-CI grant access to /tmp for all users
@@ -90,16 +92,17 @@ install_nomad() {
       
       sudo /usr/local/bin/nomad agent -server -bind=${IP} -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/${ROOTCERTPATH}/nomad.d >${LOG} &
     else
-      NOMAD_ADDR=http://${IP}:4646 /usr/local/bin/nomad agent-info 2>/dev/null || {
+      NOMAD_ADDR=https://${IP}:4646 /usr/local/bin/nomad agent-info 2>/dev/null || {
         
         # create certificates - using consul helper :shrug:?
         sudo /usr/local/bootstrap/scripts/create_certificate.sh nomad hashistack1 30 ${IP} server
+        cp /usr/local/bootstrap/conf/nomad.d/nomad.hcl /${ROOTCERTPATH}/nomad.d/nomad.hcl
         sudo chmod -R 755 /${ROOTCERTPATH}/nomad.d
         sudo chown -R nomad:nomad /${ROOTCERTPATH}/nomad.d
         sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
         sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private        
         sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/nomad agent -log-level=DEBUG -server -bind=${IP} -data-dir=/usr/local/nomad -bootstrap-expect=1 -config=/${ROOTCERTPATH}/nomad.d" /etc/systemd/system/nomad.service
-        #cp -apr /usr/local/bootstrap/conf/nomad.d /etc
+
         sudo systemctl enable nomad
         sudo systemctl start nomad
         
@@ -111,9 +114,9 @@ install_nomad() {
 
     sudo /usr/local/bootstrap/scripts/create_certificate.sh nomad hashistack1 30 ${IP} client
    
-    NOMAD_ADDR=https://${IP}:4646 /usr/local/bin/nomad agent-info 2>/dev/null || {
+    /usr/local/bin/nomad agent-info 2>/dev/null || {
       sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/nomad agent -log-level=DEBUG -client -bind=${IP} -data-dir=/usr/local/nomad -join=${LEADER_IP} -config=/${ROOTCERTPATH}/nomad.d" /etc/systemd/system/nomad.service
-      #cp -apr /usr/local/bootstrap/conf/nomad.d /etc
+      cp /usr/local/bootstrap/conf/nomad.d/client.hcl /${ROOTCERTPATH}/nomad.d/client.hcl
       sudo chmod -R 755 /${ROOTCERTPATH}/nomad.d
       sudo chown -R nomad:nomad /${ROOTCERTPATH}/nomad.d
       sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
@@ -127,5 +130,7 @@ install_nomad() {
 }
 setup_environment
 install_nomad
+/usr/local/bin/nomad node status
+/usr/local/bin/nomad status
 
 exit 0
