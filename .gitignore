@@ -21,6 +21,7 @@ terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
 /packer_cache/
 /output-*/*
+/certificate-config/browser
 *.box
 *.iso
 *.tfstate

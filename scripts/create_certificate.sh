@@ -38,6 +38,8 @@ create_certificate () {
                                 -ca=/${ROOTCERTPATH}/ssl/certs/${1}-agent-ca.pem \
                                 -days=${3} \
                                 -additional-ipaddress=${4} \
+                                -additional-dnsname="${HOSTNAME}.hashistack.ie" \
+                                -additional-dnsname="hashistack.ie" \
                                 -${5} 
                                 
     sudo mv ${2}-${5}-${1}-0.pem /${ROOTCERTPATH}/${1}.d/pki/tls/certs/${1}-${5}.pem
