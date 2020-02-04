@@ -235,6 +235,7 @@ configure_redis () {
 
 setup_environment
 configure_redis
+sudo systemctl status redis-server
 
 exit 0
 

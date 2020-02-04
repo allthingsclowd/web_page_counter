@@ -10,11 +10,11 @@ info = <<-'EOF'
       WebPageCounter Application BackEnd (public)   -   http://${NGINX_PUBLIC_IP}:9090
       WebPageCounter Application FrontEnd -   http://${LEADER_IP}:9091
       WebPageCounter Application BackEnd  -   http://${LEADER_IP}:9090      
-      Nomad Portal  (public)  -   http://${NGINX_PUBLIC_IP}:4646
-      Vault Portal  (public)  -   http://${NGINX_PUBLIC_IP}:8200
+      Nomad Portal  (public)  -   https://${NGINX_PUBLIC_IP}:4646
+      Vault Portal  (public)  -   https://${NGINX_PUBLIC_IP}:8200
       Consul Portal (public)  -   https://${NGINX_PUBLIC_IP}:8321
-      Nomad Portal    -   http://${LEADER_IP}:4646
-      Vault Portal    -   http://${LEADER_IP}:8200
+      Nomad Portal    -   https://${LEADER_IP}:4646
+      Vault Portal    -   https://${LEADER_IP}:8200
       Consul Portal   -   https://${LEADER_IP}:8321      
       (self-signed certificates located in ../certificate-config directory)
 

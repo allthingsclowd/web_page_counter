@@ -97,24 +97,27 @@ set -x
 source /usr/local/bootstrap/var.env
 
 if [ "${TRAVIS}" == "true" ]; then
+  IP="127.0.0.1"
   ROOTCERTPATH=tmp
-  IP=${IP:-127.0.0.1}
   LEADER_IP=${IP}
 else
+  IFACE=`route -n | awk '$1 == "192.168.9.0" {print $8;exit}'`
+  CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.9" {print $2}'`
+  IP=${CIDR%%/24}
   ROOTCERTPATH=etc
 fi
 
 export ROOTCERTPATH
 
-sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} client
-sudo chown -R consul:consul /${ROOTCERTPATH}/consul.d
-sudo chmod -R 755 /${ROOTCERTPATH}/consul.d  
+# sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} client
+# sudo chown -R consul:consul /${ROOTCERTPATH}/consul.d
+# sudo chmod -R 755 /${ROOTCERTPATH}/consul.d  
 
-sudo /usr/local/bootstrap/scripts/create_certificate.sh vault hashistack1 30 ${IP} client
-sudo chown -R vault:vault /${ROOTCERTPATH}/vault.d
-sudo chmod -R 755 /${ROOTCERTPATH}/vault.d
-sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
-sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
+# sudo /usr/local/bootstrap/scripts/create_certificate.sh vault hashistack1 30 ${IP} client
+# sudo chown -R vault:vault /${ROOTCERTPATH}/vault.d
+# sudo chmod -R 755 /${ROOTCERTPATH}/vault.d
+# sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
+# sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
 
 # read redis database password from vault
 export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem
@@ -132,6 +135,11 @@ export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client
 AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
 export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
+export NOMAD_CACERT=/${ROOTCERTPATH}/ssl/certs/nomad-agent-ca.pem
+export NOMAD_CLIENT_CERT=/${ROOTCERTPATH}/nomad.d/pki/tls/certs/nomad-client.pem
+export NOMAD_CLIENT_KEY=/${ROOTCERTPATH}/nomad.d/pki/tls/private/nomad-client-key.pem
+export NOMAD_ADDR=https://${LEADER_IP}:4646
+
 # Configure CA Certificates for APP on host OS
 sudo mkdir -p /usr/local/share/ca-certificates
 sudo apt-get install ca-certificates -y
@@ -139,14 +147,7 @@ sudo apt-get install ca-certificates -y
 sudo cp /etc/ssl/certs/consul-agent-ca.pem /usr/local/share/ca-certificates/hashistack-ca.crt
 sudo update-ca-certificates
 
-if [ "${TRAVIS}" == "true" ]; then
-  IP="127.0.0.1"
-  LEADER_IP=${IP}
-else
-  IFACE=`route -n | awk '$1 == "192.168.9.0" {print $8;exit}'`
-  CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.9" {print $2}'`
-  IP=${CIDR%%/24}
-fi
+
 
 # start client client proxy
 start_client_proxy_service redisclientproxy "Redis Connect Client Proxy" "redis" "6379"
@@ -198,7 +199,7 @@ sed -i 's/consulIP=.*"/consulIP='${LEADER_IP}':8321"/g' /usr/local/bootstrap/scr
 echo 'Review Nomad Job File'
 cat /usr/local/bootstrap/scripts/nomad_job.hcl
 
-NOMAD_ADDR=http://${LEADER_IP}:4646 /usr/local/bin/nomad job run /usr/local/bootstrap/scripts/nomad_job.hcl || true
+/usr/local/bin/nomad job run /usr/local/bootstrap/scripts/nomad_job.hcl || true
 
 exit 0
 

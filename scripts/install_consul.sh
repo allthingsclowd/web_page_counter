@@ -209,4 +209,5 @@ install_prerequisite_binaries
 install_chef_inspec # used for dev/test of scripts
 install_terraform # used for testing only
 install_consul
+/usr/local/bin/consul members
 exit 0

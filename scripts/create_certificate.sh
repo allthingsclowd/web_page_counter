@@ -40,6 +40,7 @@ create_certificate () {
                                 -additional-ipaddress=${4} \
                                 -additional-dnsname="${HOSTNAME}.hashistack.ie" \
                                 -additional-dnsname="hashistack.ie" \
+                                -additional-dnsname="${5}.global.nomad" \
                                 -${5} 
                                 
     sudo mv ${2}-${5}-${1}-0.pem /${ROOTCERTPATH}/${1}.d/pki/tls/certs/${1}-${5}.pem
