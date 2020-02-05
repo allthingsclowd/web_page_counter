@@ -60,31 +60,142 @@ create_service_user () {
 
 }
 
-start_app_proxy_service () {
+register_secret_id_client_proxy_service_with_consul () {
+    
+    echo 'Start to register secret-id client service with Consul Service Discovery'
+
+    # configure web service definition
+    tee secret_id_client_service.json <<EOF
+    {
+      "Name": "secret-id-client",
+      "Tags": [
+        "secret-id-client-proxy"
+      ],
+      "Port": 9877,
+      "Meta": {
+        "SecretIDClientService": "0.0.1"
+      },
+      "connect": { 
+        "sidecar_service": {
+          "proxy": {
+            "upstreams": {
+              "destination_name": "approle"
+              "local_bind_port": 9867
+            }
+          }
+        } 
+      }
+    }
+EOF
+
+  # Register the service in consul via the local Consul agent api
+  sudo curl \
+      --request PUT \
+      --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+      --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
+      --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
+      --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
+      --data @secret_id_client_service.json \
+      ${CONSUL_HTTP_ADDR}/v1/agent/service/register
+
+  # List the locally registered services via local Consul api
+  sudo curl \
+    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
+    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
+    --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
+    ${CONSUL_HTTP_ADDR}/v1/agent/services | jq -r .
+
+  # List the services regestered on the Consul server
+  sudo curl \
+    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
+    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
+    --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
+    ${CONSUL_HTTP_ADDR}/v1/catalog/services | jq -r .
+   
+    echo 'Register Redis Client Service with Consul Service Discovery Complete'
+
+}
+
+register_redis_client_proxy_service_with_consul () {
+    
+    echo 'Start to register Redis client service with Consul Service Discovery'
+
+    # configure web service definition
+    tee redis_client_service.json <<EOF
+    {
+      "Name": "redis-client",
+      "Tags": [
+        "redis-client-proxy"
+      ],
+      "Port": 9898,
+      "Meta": {
+        "RedisClientService": "0.0.1"
+      },
+      "connect": { 
+        "sidecar_service": {
+          "proxy": {
+            "upstreams": {
+              "destination_name": "redis"
+              "local_bind_port": 9897
+            }
+          }
+        } 
+      }
+    }
+EOF
+
+  # Register the service in consul via the local Consul agent api
+  sudo curl \
+      --request PUT \
+      --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+      --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
+      --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
+      --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
+      --data @redis_client_service.json \
+      ${CONSUL_HTTP_ADDR}/v1/agent/service/register
+
+  # List the locally registered services via local Consul api
+  sudo curl \
+    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
+    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
+    --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
+    ${CONSUL_HTTP_ADDR}/v1/agent/services | jq -r .
+
+  # List the services regestered on the Consul server
+  sudo curl \
+    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
+    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
+    --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
+    ${CONSUL_HTTP_ADDR}/v1/catalog/services | jq -r .
+   
+    echo 'Register Redis Client Service with Consul Service Discovery Complete'
+
+}
+
+
+start_envoy_proxy_service () {
   # start the new service mesh proxy for the application
   # param 1 ${1}: app-proxy name
   # param 2 ${2}: app-proxy service description
+  # param 3 ${3}: consul host service name
+  # param 4 ${4}: envoy proxy admin port needs to be different if running multiple instances on same host network
 
-  create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem -token=${CONSUL_HTTP_TOKEN} -sidecar-for ${1}"
+  create_service "${1}" "${2}" "/usr/local/bin/consul connect envoy \
+                                                        -http-addr=https://127.0.0.1:8321 \
+                                                        -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem \
+                                                        -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem \
+                                                        -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem \
+                                                        -token=${CONSUL_HTTP_TOKEN} \
+                                                        -sidecar-for ${3} \
+                                                        -admin-bind localhost:${4}"
   sudo usermod -a -G webpagecountercerts ${1}
   sudo systemctl start ${1}
   #sudo systemctl status ${1}
   echo "${1} Proxy App Service Build Complete"
-}
-
-start_client_proxy_service () {
-    # start the new service mesh proxy for the client
-    # param 1 ${1}: client-proxy name
-    # param 2 ${2}: client-proxy service description
-    # param 3 ${3}: client-proxy upstream consul service name
-    # param 4 ${4}: client-proxy local service port number
-    
-
-    create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem -token=${CONSUL_HTTP_TOKEN} -service ${1} -upstream ${3}:${4}"
-    sudo usermod -a -G webpagecountercerts ${1}
-    sudo systemctl start ${1}
-    #sudo systemctl status ${1}
-    echo "${1} Proxy Client Service Build Complete"
 }
 
 create_intention_between_services () {
@@ -134,6 +245,8 @@ export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.
 export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem
 AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
 export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
+export CONSUL_HTTP_SSL=true
+export CONSUL_GRPC_ADDR=https://127.0.0.1:8502
 
 export NOMAD_CACERT=/${ROOTCERTPATH}/ssl/certs/nomad-agent-ca.pem
 export NOMAD_CLIENT_CERT=/${ROOTCERTPATH}/nomad.d/pki/tls/certs/nomad-client.pem
@@ -148,18 +261,21 @@ sudo cp /etc/ssl/certs/consul-agent-ca.pem /usr/local/share/ca-certificates/hash
 sudo update-ca-certificates
 
 
+# Create new envoy proxy services
+register_redis_client_proxy_service_with_consul
+register_secret_id_client_proxy_service_with_consul
 
-# start client client proxy
-start_client_proxy_service redisclientproxy "Redis Connect Client Proxy" "redis" "6379"
+# start client proxy
+start_envoy_proxy_service redisclientproxy "Redis Connect Client Proxy" "redis-client" 19009
 
 # create intention to connect from goapp to redis service
-create_intention_between_services "redisclientproxy" "redis" "6379"
+create_intention_between_services "redis-client" "redis"
 
-# start client client proxy
-start_client_proxy_service goclientproxy "SecretID Service Client Proxy" "approle" "8314"
+# start client proxy
+start_client_proxy_service goclientproxy "SecretID Service Client Proxy" "secret-id-client" 19010
 
 # create intention to connect from goapp to secret-id service
-create_intention_between_services "goclientproxy" "approle"
+create_intention_between_services "secret-id-client" "approle"
 
 # FORCE DOWNLOAD OF NEW WEBCOUNTER Binary
 sudo rm -rf /usr/local/bin/webcounter

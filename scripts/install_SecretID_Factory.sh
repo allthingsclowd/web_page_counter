@@ -121,31 +121,25 @@ create_service_user () {
 
 }
 
-start_app_proxy_service () {
+start_envoy_proxy_service () {
   # start the new service mesh proxy for the application
   # param 1 ${1}: app-proxy name
   # param 2 ${2}: app-proxy service description
+  # param 3 ${3}: consul host service name
+  # param 4 ${4}: envoy proxy admin port needs to be different if running multiple instances on same host network
 
-  create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem -token=${AGENTTOKEN} -sidecar-for ${1}"
+  create_service "${1}" "${2}" "/usr/local/bin/consul connect envoy \
+                                                        -http-addr=https://127.0.0.1:8321 \
+                                                        -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem \
+                                                        -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem \
+                                                        -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem \
+                                                        -token=${CONSUL_HTTP_TOKEN} \
+                                                        -sidecar-for ${3} \
+                                                        -admin-bind localhost:${4}"
   sudo usermod -a -G webpagecountercerts ${1}
   sudo systemctl start ${1}
   #sudo systemctl status ${1}
   echo "${1} Proxy App Service Build Complete"
-}
-
-start_client_proxy_service () {
-    # start the new service mesh proxy for the client
-    # param 1 ${1}: client-proxy name
-    # param 2 ${2}: client-proxy service description
-    # param 3 ${3}: client-proxy upstream consul service name
-    # param 4 ${4}: client-proxy local service port number
-    
-
-    create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem -token=${AGENTTOKEN} -service ${1} -upstream ${3}:${4}"
-    sudo usermod -a -G webpagecountercerts ${1}
-    sudo systemctl start ${1}
-    #sudo systemctl status ${1}
-    echo "${1} Proxy Client Service Build Complete"
 }
 
 
@@ -195,6 +189,8 @@ setup_environment () {
     export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem
     export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem
     export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem
+    export CONSUL_HTTP_SSL=true
+    export CONSUL_GRPC_ADDR=https://127.0.0.1:8502
 
     # Configure CA Certificates for APP on host OS
     sudo mkdir -p /usr/local/share/ca-certificates
@@ -263,7 +259,7 @@ install_go_application () {
 
     # start connect application proxy
     sleep 5
-    start_app_proxy_service approle "App Role Vailt Secret ID Factory"
+    start_envoy_proxy_service approle "App Role Vault Secret ID Factory" approle 19002
     sleep 5
 
     curl http://127.0.0.1:8314/health 
