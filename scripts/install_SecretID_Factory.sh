@@ -8,6 +8,7 @@ register_secret_id_service_with_consul () {
     tee secretid_service.json <<EOF
     {
       "Name": "approle",
+      "Id": "approle",
       "Tags": [
         "approle",
         "secret-id"
@@ -87,6 +88,7 @@ Requires=network-online.target
 After=network-online.target
 
 [Service]
+Type=simple
 User=${1}
 Group=${1}
 PIDFile=/var/run/${1}/${1}.pid
@@ -209,7 +211,7 @@ setup_environment () {
 
 }
 
-install_go_application () {
+install_secret_id_application () {
     
     sudo killall VaultServiceIDFactory &>/dev/null
 
@@ -257,16 +259,18 @@ install_go_application () {
     fi
 
 
-    # start connect application proxy
-    sleep 5
-    start_envoy_proxy_service approle "App Role Vault Secret ID Factory" approle 19002
+
+    sleep 15
+
+    # start envoy proxy
+    sudo /usr/local/bootstrap/scripts/install_envoy_proxy.sh  approle "\"App Role Vault Secret ID Factory\"" approle 19002 ${CONSUL_HTTP_TOKEN}
     sleep 5
 
     curl http://127.0.0.1:8314/health 
 
 }
 
-verify_go_application () {
+verify_go_application () {                                                                         
 
     if [ "${TRAVIS}" == "true" ]; then
 
@@ -409,7 +413,8 @@ EOF
 set -x
 echo 'Start of Factory Service Installation'
 setup_environment
-install_go_application
+install_secret_id_application
+# install_go_application
 #verify_go_application
 
 # initialise the factory service with the provisioner token
