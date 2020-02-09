@@ -8,27 +8,26 @@ register_secret_id_client_proxy_service_with_consul () {
 
     # configure web service definition
     tee secret_id_client_service.json <<EOF
-    {
-      "Name": "secret-id-client",
-      "Tags": [
-        "secret-id-client-proxy"
-      ],
-      "Port": 9877,
-      "Meta": {
-        "SecretIDClientService": "0.0.1"
-      },
-      "connect": { 
-        "sidecar_service": {
-          "proxy": {
-            "upstreams": [
-              "destination_name": "approle",
-              "local_bind_port": 9867
-            ]
-          }
-        } 
+{
+  "name": "secret-id-tunnel",
+  "kind": "connect-proxy",
+  "proxy": {
+    "destination_service_name": "approle"
+  },
+  "port": 8314,
+  "checks": [
+      {
+        "name": "Factory Service SecretID",
+        "http": "http://127.0.0.1:8314/health",
+        "tls_skip_verify": true,
+        "method": "GET",
+        "interval": "10s",
+        "timeout": "5s"
       }
-    }
+    ]
+}
 EOF
+
 
   # Register the service in consul via the local Consul agent api
   sudo curl \
@@ -66,26 +65,24 @@ register_redis_client_proxy_service_with_consul () {
 
     # configure web service definition
     tee redis_client_service.json <<EOF
+{
+  "name": "redis-client-tunnel",
+  "kind": "connect-proxy",
+  "proxy": {
+    "destination_service_name": "redis"
+  },
+  "port": 6379,
+  "checks": [
     {
-      "Name": "redis-client",
-      "Tags": [
-        "redis-client-proxy"
-      ],
-      "Port": 9898,
-      "Meta": {
-        "RedisClientService": "0.0.1"
-      },
-      "connect": { 
-        "sidecar_service": {
-          "proxy": {
-            "upstreams": [
-              "destination_name": "redis",
-              "local_bind_port": 9897
-            ]
-          }
-        } 
-      }
+      "args": ["/usr/local/bootstrap/scripts/consul_redis_ping.sh"],
+      "interval": "10s"
+    },
+    {
+        "args": ["/usr/local/bootstrap/scripts/consul_redis_verify.sh"],
+        "interval": "10s"
     }
+  ]
+}
 EOF
 
   # Register the service in consul via the local Consul agent api
@@ -174,17 +171,18 @@ sudo update-ca-certificates
 register_redis_client_proxy_service_with_consul
 register_secret_id_client_proxy_service_with_consul
 
+sleep 10
 # start envoy proxy for redis client
-sudo /usr/local/bootstrap/scripts/install_envoy_proxy.sh redisclientproxy "\"Redis Connect Client Proxy\"" "\"redis-client\"" 19009 ${CONSUL_HTTP_TOKEN}
+sudo /usr/local/bootstrap/scripts/install_envoy_proxy.sh redisclientproxy "\"Redis Connect Client Proxy\"" "\"redis-client-tunnel\"" 19009 ${CONSUL_HTTP_TOKEN}
 
 # create intention to connect from goapp to redis service
-create_intention_between_services "redis-client" "redis"
+create_intention_between_services "redis-client-tunnel" "redis"
 
 # start envoy proxy for secret id client
-/usr/local/bootstrap/scripts/install_envoy_proxy.sh goclientproxy "\"SecretID Service Client Proxy\"" "\"secret-id-client\"" 19010 ${CONSUL_HTTP_TOKEN}
+sudo /usr/local/bootstrap/scripts/install_envoy_proxy.sh goclientproxy "\"SecretID Service Client Proxy Tunnel\"" "\"secret-id-tunnel\"" 19010 ${CONSUL_HTTP_TOKEN}
 
 # create intention to connect from goapp to secret-id service
-create_intention_between_services "secret-id-client" "approle"
+create_intention_between_services "secret-id-tunnel" "approle"
 
 # FORCE DOWNLOAD OF NEW WEBCOUNTER Binary
 sudo rm -rf /usr/local/bin/webcounter

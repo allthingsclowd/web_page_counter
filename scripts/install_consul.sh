@@ -24,6 +24,7 @@ ports {
 connect {
     enabled = true
 }
+enable_central_service_config = true
 verify_incoming = true
 verify_outgoing = true
 key_file = "${2}"

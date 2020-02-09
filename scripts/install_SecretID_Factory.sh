@@ -425,8 +425,8 @@ curl --header 'Content-Type: application/json' \
     --data "{\"token\":\""${WRAPPED_TOKEN}"\"}" \
     http://127.0.0.1:8314/initialiseme
 
-echo 'Debug - Aliased check "Factory Service SecretID" failing:'
-sleep 30
+# echo 'Debug - Aliased check "Factory Service SecretID" failing:'
+# sleep 30
 
 register_secret_id_service_with_consul
 
