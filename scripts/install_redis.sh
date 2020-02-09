@@ -84,7 +84,7 @@ register_redis_service_with_consul () {
         "connect": { "sidecar_service": {} }
     }
 EOF
-
+ 
   # Register the service in consul via the local Consul agent api
   sudo curl \
       --request PUT \
@@ -136,7 +136,7 @@ configure_redis () {
     sudo systemctl enable redis-server
     
     # start envoy proxy
-    sudo /usr/local/bootstrap/scripts/install_envoy_proxy.sh redis-proxy "\"Redis Proxy Service\"" redis 19001 ${CONSUL_HTTP_TOKEN}
+    sudo /usr/local/bootstrap/scripts/install_envoy_proxy.sh redis-proxy "Redis Proxy Service" "-sidecar-for redis" 19001 ${CONSUL_HTTP_TOKEN}
   else
     sudo redis-server /${ROOTCERTPATH}/redis/redis.conf &
 

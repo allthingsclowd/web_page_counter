@@ -263,7 +263,7 @@ install_secret_id_application () {
     sleep 15
 
     # start envoy proxy
-    sudo /usr/local/bootstrap/scripts/install_envoy_proxy.sh  approle "\"App Role Vault Secret ID Factory\"" approle 19002 ${CONSUL_HTTP_TOKEN}
+    sudo /usr/local/bootstrap/scripts/install_envoy_proxy.sh  approle "App Role Vault Secret ID Factory "-sidecar-for approle" 19002 ${CONSUL_HTTP_TOKEN}
     sleep 5
 
     curl http://127.0.0.1:8314/health 

@@ -34,7 +34,7 @@ start_envoy_proxy_service () {
                                                         -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem \
                                                         -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem \
                                                         -token=${5} \
-                                                        -sidecar-for ${3} \
+                                                        ${3} \
                                                         -admin-bind localhost:${4}"
 
   sudo systemctl start ${1}
