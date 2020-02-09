@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-
+create_intention_between_services () {
+    sudo /usr/local/bin/consul intention create -http-addr=https://127.0.0.1:8321 -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem -token=${CONSUL_HTTP_TOKEN} ${1} ${2}
+}
 
 register_secret_id_client_proxy_service_with_consul () {
     
@@ -9,22 +11,30 @@ register_secret_id_client_proxy_service_with_consul () {
     # configure web service definition
     tee secret_id_client_service.json <<EOF
 {
-  "name": "secret-id-tunnel",
-  "kind": "connect-proxy",
-  "proxy": {
-    "destination_service_name": "approle"
-  },
-  "port": 8314,
-  "checks": [
-      {
-        "name": "Factory Service SecretID",
-        "http": "http://127.0.0.1:8314/health",
-        "tls_skip_verify": true,
-        "method": "GET",
-        "interval": "10s",
-        "timeout": "5s"
-      }
-    ]
+	"name": "secret-id-tunnel",
+	"kind": "connect-proxy",
+	"proxy": {
+		"destination_service_name": "webpagecounter",
+		"upstreams": [{
+			"destination_type": "service",
+			"destination_name": "approle",
+			"datacenter": "hashistack1",
+			"local_bind_address": "127.0.0.1",
+			"local_bind_port": 5009
+		}],
+		"expose": {
+			"checks": true
+		}
+	},
+	"port": 8314,
+	"checks": [{
+		"name": "Factory Service SecretID",
+		"http": "http://127.0.0.1:8314/health",
+		"tls_skip_verify": true,
+		"method": "GET",
+		"interval": "10s",
+		"timeout": "5s"
+	}]
 }
 EOF
 
@@ -69,7 +79,19 @@ register_redis_client_proxy_service_with_consul () {
   "name": "redis-client-tunnel",
   "kind": "connect-proxy",
   "proxy": {
-    "destination_service_name": "redis"
+    "destination_service_name": "webpagecounter",
+    "upstreams": [
+      {
+        "destination_type": "service",
+        "destination_name": "redis",
+        "datacenter": "hashistack1",
+        "local_bind_address": "127.0.0.1",
+        "local_bind_port": 5010
+      }
+    ],
+    "expose": {
+        "checks": true
+      }
   },
   "port": 6379,
   "checks": [
