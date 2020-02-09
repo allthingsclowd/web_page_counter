@@ -4,7 +4,7 @@ consul {
   ca_file   = "/etc/ssl/certs/consul-agent-ca.pem"
   cert_file = "/etc/consul.d/pki/tls/certs/consul-client.pem"
   key_file  = "/etc/consul.d/pki/tls/private/consul-client-key.pem"
-  token = "244d2ca0-0db1-739c-1331-c300372012b9"
+  token = "2e70f801-bfb2-0816-0da1-8baf9e403e54"
   }
 
 datacenter = "hashistack1"

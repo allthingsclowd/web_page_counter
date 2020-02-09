@@ -173,13 +173,13 @@ register_secret_id_client_proxy_service_with_consul
 
 sleep 10
 # start envoy proxy for redis client
-sudo /usr/local/bootstrap/scripts/install_envoy_proxy.sh redisclientproxy "\"Redis Connect Client Proxy\"" "\"redis-client-tunnel\"" 19009 ${CONSUL_HTTP_TOKEN}
+sudo /usr/local/bootstrap/scripts/install_envoy_proxy.sh redisclientproxy "\"Redis Connect Client Proxy\"" "\"redis\"" 19009 ${CONSUL_HTTP_TOKEN}
 
 # create intention to connect from goapp to redis service
 create_intention_between_services "redis-client-tunnel" "redis"
 
 # start envoy proxy for secret id client
-sudo /usr/local/bootstrap/scripts/install_envoy_proxy.sh goclientproxy "\"SecretID Service Client Proxy Tunnel\"" "\"secret-id-tunnel\"" 19010 ${CONSUL_HTTP_TOKEN}
+sudo /usr/local/bootstrap/scripts/install_envoy_proxy.sh goclientproxy "\"SecretID Service Client Proxy Tunnel\"" "\"approle\"" 19010 ${CONSUL_HTTP_TOKEN}
 
 # create intention to connect from goapp to secret-id service
 create_intention_between_services "secret-id-tunnel" "approle"
