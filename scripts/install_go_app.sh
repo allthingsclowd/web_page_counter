@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-create_intention_between_services () {
-    sudo /usr/local/bin/consul intention create -http-addr=https://127.0.0.1:8321 -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem -token=${CONSUL_HTTP_TOKEN} ${1} ${2}
-}
+
 
 register_secret_id_client_proxy_service_with_consul () {
     
@@ -12,14 +10,42 @@ register_secret_id_client_proxy_service_with_consul () {
     tee secret_id_client_service.json <<EOF
 {
   "name": "secret-id-tunnel",
+  "kind": "connect-proxy",
+  "proxy": {
+    "destination_service_name": "approle"
+  },
   "port": 8314,
+  "checks": [
+      {
+        "name": "Factory Service SecretID",
+        "http": "http://127.0.0.1:8314/health",
+        "tls_skip_verify": true,
+        "method": "GET",
+        "interval": "10s",
+        "timeout": "5s"
+      }
+    ]
+}
+{
+  "name": "secret-host-tunnel",
+  "port": 8314,
+  "checks": [
+      {
+        "name": "Factory Service SecretID",
+        "http": "http://127.0.0.1:8314/health",
+        "tls_skip_verify": true,
+        "method": "GET",
+        "interval": "10s",
+        "timeout": "5s"
+      }
+    ]
   "connect": {
     "sidecar_service": {
       "proxy": {
         "upstreams": [
           {
             "destination_name": "approle",
-            "local_bind_port": 5001
+            "local_bind_port": 8314
           }
         ],
         "config": {
@@ -27,15 +53,7 @@ register_secret_id_client_proxy_service_with_consul () {
         }
       }
     }
-  },
-  "checks": [{
-  "name": "Factory Service SecretID",
-  "http": "http://127.0.0.1:8314/health",
-  "tls_skip_verify": true,
-  "method": "GET",
-  "interval": "10s",
-  "timeout": "5s"
-	}]
+  }
 }
 EOF
 
@@ -77,23 +95,8 @@ register_redis_client_proxy_service_with_consul () {
     # configure web service definition
     tee redis_client_service.json <<EOF
 {
-  "name": "redis-client-tunnel",
+  "name": "redis-host-tunnel",
   "port": 6379,
-  "connect": {
-    "sidecar_service": {
-      "proxy": {
-        "upstreams": [
-          {
-            "destination_name": "redis",
-            "local_bind_port": 5002
-          }
-        ],
-        "config": {
-          "handshake_timeout_ms": 1000
-        }
-      }
-    }
-  },
   "checks": [
     {
       "args": ["/usr/local/bootstrap/scripts/consul_redis_ping.sh"],
@@ -103,7 +106,22 @@ register_redis_client_proxy_service_with_consul () {
         "args": ["/usr/local/bootstrap/scripts/consul_redis_verify.sh"],
         "interval": "10s"
     }
-  ]
+  ],
+  "connect": {
+    "sidecar_service": {
+      "proxy": {
+        "upstreams": [
+          {
+            "destination_name": "redis",
+            "local_bind_port": 6379
+          }
+        ],
+        "config": {
+          "handshake_timeout_ms": 1000
+        }
+      }
+    }
+  }
 }
 EOF
 
@@ -195,16 +213,16 @@ register_secret_id_client_proxy_service_with_consul
 
 sleep 10
 # start envoy proxy for redis client
-sudo /usr/local/bootstrap/scripts/install_envoy_proxy.sh redisclientproxy "Redis Connect Client Proxy" "-sidecar-for redis-client-tunnel" 19009 ${CONSUL_HTTP_TOKEN}
+sudo /usr/local/bootstrap/scripts/install_envoy_proxy.sh redisclientproxy "Redis Connect Client Proxy" "-sidecar-proxy redis-host-tunnel" 19009 ${CONSUL_HTTP_TOKEN}
 
 # create intention to connect from goapp to redis service
-create_intention_between_services "redis-client-tunnel" "redis"
+create_intention_between_services "redis-host-tunnel" "redis"
 
 # start envoy proxy for secret id client
-sudo /usr/local/bootstrap/scripts/install_envoy_proxy.sh goclientproxy "SecretID Service Client Proxy Tunnel" "-sidecar-for secret-id-tunnel" 19010 ${CONSUL_HTTP_TOKEN}
+sudo /usr/local/bootstrap/scripts/install_envoy_proxy.sh goclientproxy "SecretID Service Client Proxy Tunnel" "-sidecar-proxy secret-host-tunnel" 19010 ${CONSUL_HTTP_TOKEN}
 
 # create intention to connect from goapp to secret-id service
-create_intention_between_services "secret-id-tunnel" "approle"
+create_intention_between_services "secret-host-tunnel" "approle"
 
 # FORCE DOWNLOAD OF NEW WEBCOUNTER Binary
 sudo rm -rf /usr/local/bin/webcounter
