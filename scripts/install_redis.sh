@@ -1,93 +1,5 @@
 #!/usr/bin/env bash
 
-create_service () {
-  # create a new systemd service
-  # param 1 ${1}: service/serviceuser name
-  # param 2 ${2}: service description
-  # param 3 ${3}: service start command
-  if [ ! -f /etc/systemd/system/${1}.service ]; then
-    
-    create_service_user ${1}
-    
-    sudo tee /etc/systemd/system/${1}.service <<EOF
-### BEGIN INIT INFO
-# Provides:          ${1}
-# Required-Start:    $local_fs $remote_fs
-# Required-Stop:     $local_fs $remote_fs
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: ${1} service
-# Description:       ${2}
-### END INIT INFO
-
-[Unit]
-Description=${2}
-Requires=network-online.target
-After=network-online.target
-
-[Service]
-User=${1}
-Group=${1}
-PIDFile=/var/run/${1}/${1}.pid
-PermissionsStartOnly=true
-ExecStartPre=-/bin/mkdir -p /var/run/${1}
-ExecStartPre=/bin/chown -R ${1}:${1} /var/run/${1}
-ExecStart=${3}
-ExecReload=/bin/kill -HUP ${MAINPID}
-KillMode=process
-KillSignal=SIGTERM
-Restart=on-failure
-RestartSec=2s
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-  sudo systemctl daemon-reload
-
-  fi
-
-}
-
-create_service_user () {
-  
-  if ! grep ${1} /etc/passwd >/dev/null 2>&1; then
-    echo "Creating ${1} user to run the ${1} service"
-    sudo useradd --system --home /etc/${1}.d --shell /bin/false ${1}
-    sudo mkdir --parents /opt/${1} /usr/local/${1} /etc/${1}.d
-    sudo chown --recursive ${1}:${1} /opt/${1} /etc/${1}.d /usr/local/${1}
-  fi
-
-}
-
-start_app_proxy_service () {
-  # start the new service mesh proxy for the application
-  # param 1 ${1}: app-proxy name
-  # param 2 ${2}: app-proxy service description
-  # param 3 ${3}: consul host service name
-
-  create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem -token=${CONSUL_HTTP_TOKEN} -sidecar-for ${3}"
-  sudo usermod -a -G webpagecountercerts ${1}
-  sudo systemctl start ${1}
-  #sudo systemctl status ${1}
-  echo "${1} Proxy App Service Build Complete"
-}
-
-start_client_proxy_service () {
-    # start the new service mesh proxy for the client
-    # param 1 ${1}: client-proxy name
-    # param 2 ${2}: client-proxy service description
-    # param 3 ${3}: client-proxy upstream consul service name
-    # param 4 ${4}: client-proxy local service port number
-    
-
-    create_service "${1}" "${2}" "/usr/local/bin/consul connect proxy -http-addr=https://127.0.0.1:8321 -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem -token=${CONSUL_HTTP_TOKEN} -service ${3} -upstream ${4}:${5} -register"
-    sudo usermod -a -G webpagecountercerts ${1}
-    sudo systemctl start ${1}
-    #sudo systemctl status ${1}
-    echo "${1} Proxy Client Service Build Complete"
-}
-
 setup_environment () {
   set -x
   source /usr/local/bootstrap/var.env
@@ -130,6 +42,8 @@ setup_environment () {
   export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem
   export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem
   export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem
+  export CONSUL_HTTP_SSL=true
+  export CONSUL_GRPC_ADDR=https://127.0.0.1:8502
 
   REDIS_MASTER_PASSWORD=`vault kv get -field "value" kv/development/redispassword`
   AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
@@ -170,7 +84,7 @@ register_redis_service_with_consul () {
         "connect": { "sidecar_service": {} }
     }
 EOF
-
+ 
   # Register the service in consul via the local Consul agent api
   sudo curl \
       --request PUT \
@@ -221,8 +135,8 @@ configure_redis () {
     sudo systemctl start redis-server
     sudo systemctl enable redis-server
     
-    # start connect application proxy
-    start_app_proxy_service redis-proxy "Redis Proxy Service" redis
+    # start envoy proxy
+    sudo /usr/local/bootstrap/scripts/install_envoy_proxy.sh redis-proxy "Redis Proxy Service" "-sidecar-for redis" 19001 ${CONSUL_HTTP_TOKEN}
   else
     sudo redis-server /${ROOTCERTPATH}/redis/redis.conf &
 
@@ -235,6 +149,7 @@ configure_redis () {
 
 setup_environment
 configure_redis
+
 
 exit 0
 
