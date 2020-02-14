@@ -134,7 +134,7 @@ install_envoy () {
         "deb [arch=amd64] https://dl.bintray.com/tetrate/getenvoy-deb \
         $(lsb_release -cs) \
         stable"
-    sudo apt-get update && sudo apt-get install -y getenvoy-envoy=1.12.2.p0.g55af249-1p49.g8b1f2e3
+    sudo apt-get update && sudo apt-get install -y getenvoy-envoy=${envoy_proxy_version}
     envoy --version
 }
 
