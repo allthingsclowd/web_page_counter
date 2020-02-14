@@ -65,7 +65,7 @@ control 'consul-binary-version-1.0' do
   title 'consul binary version check'
   desc 'verify that the consul binary is the correct version'
   describe command('consul version') do
-   its('stdout') { should match /Consul v1.7.0-beta4/ }
+   its('stdout') { should match /Consul v1.7.0/ }
   end
 end
 
@@ -157,7 +157,7 @@ control 'vagrant-binary-version-1.0' do
   title 'vagrant binary version check'
   desc 'verify that the vagrant binary is the correct version'
   describe command('vagrant version') do
-   its('stdout') { should match /2.2.6/ }
+   its('stdout') { should match /2.2.7/ }
   end
 end
 
@@ -175,7 +175,7 @@ control 'packer-binary-version-1.0' do
   title 'packer binary version check'
   desc 'verify that the packer binary is the correct version'
   describe command('packer version') do
-   its('stdout') { should match /v1.5.1/ }
+   its('stdout') { should match /v1.5.2/ }
   end
 end
 
