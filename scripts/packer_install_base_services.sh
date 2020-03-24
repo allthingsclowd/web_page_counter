@@ -209,7 +209,7 @@ create_vault_service
 create_nomad_service
 create_envoy_service
 
-create_root_CA_certificate consul 30
-create_root_CA_certificate vault 30
-create_root_CA_certificate nomad 30
+create_root_CA_certificate consul 365
+create_root_CA_certificate vault 365
+create_root_CA_certificate nomad 365
 configure_certificates
