@@ -139,7 +139,7 @@ control 'nomad-binary-version-1.0' do
   title 'nomad binary version check'
   desc 'verify that the nomad binary is the correct version'
   describe command('nomad version') do
-   its('stdout') { should match /v0.10.4/ }
+   its('stdout') { should match /v0.11.0-beta1/ }
   end
 end
 
@@ -175,7 +175,7 @@ control 'packer-binary-version-1.0' do
   title 'packer binary version check'
   desc 'verify that the packer binary is the correct version'
   describe command('packer version') do
-   its('stdout') { should match /v1.5.4/ }
+   its('stdout') { should match /v1.5.5/ }
   end
 end
 
