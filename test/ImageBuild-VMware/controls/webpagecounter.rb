@@ -259,3 +259,51 @@ control 'web-front-end' do
     it { should exist }
   end
 end
+
+control 'consul service' do         
+  impact 1.0                      
+  title 'verify consul service and user'
+  desc 'verify consul service and user'
+  describe users.where { username =~ /consul/ } do
+    it { should exist }
+  end
+  describe service('consul') do
+    it { should be_installed }
+  end
+end
+
+control 'vault service' do         
+  impact 1.0                      
+  title 'verify vault service and user'
+  desc 'verify vault service and user'
+  describe users.where { username =~ /vault/ } do
+    it { should exist }
+  end
+  describe service('vault') do
+    it { should be_installed }
+  end
+end
+
+control 'nomad service' do         
+  impact 1.0                      
+  title 'verify nomad service and user'
+  desc 'verify nomad service and user'
+  describe users.where { username =~ /nomad/ } do
+    it { should exist }
+  end
+  describe service('nomad') do
+    it { should be_installed }
+  end
+end
+
+control 'envoy proxy service' do         
+  impact 1.0                      
+  title 'verify envoy service and user'
+  desc 'verify envoy service and user'
+  describe users.where { username =~ /envoy/ } do
+    it { should exist }
+  end
+  describe service('envoy') do
+    it { should be_installed }
+  end
+end
