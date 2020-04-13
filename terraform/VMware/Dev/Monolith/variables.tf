@@ -1,7 +1,3 @@
-variable "tfcloud_personal_api_key" {
-  description = "This is my personal TF Cloud API Key"
-}
-
 variable "vsphere_user" {
   description = "vCentre User"
 }
