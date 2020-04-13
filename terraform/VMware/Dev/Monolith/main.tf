@@ -9,6 +9,11 @@ terraform {
   }
 }
 
+resource "tls_private_key" "temp_creds" {
+  algorithm   = "ECDSA"
+  ecdsa_curve = "P384"
+}
+
 provider "vsphere" {
   user           = var.vsphere_user
   password       = var.vsphere_password
@@ -89,8 +94,8 @@ resource "vsphere_virtual_machine" "leader01vm" {
     connection {
         type     = "ssh"
         user     = "root"
-        private_key = var.ssh_private_key
-        certificate = var.ssh_certificate
+        private_key = tls_private_key.temp_creds.private_key_pem
+        certificate = tls_private_key.temp_creds.public_key_pem
         host = self.default_ip_address
     }
 
@@ -153,8 +158,8 @@ resource "vsphere_virtual_machine" "redis01vm" {
     connection {
         type     = "ssh"
         user     = "root"
-        private_key = var.ssh_private_key
-        certificate = var.ssh_certificate
+        private_key = tls_private_key.temp_creds.private_key_pem
+        certificate = tls_private_key.temp_creds.public_key_pem
         host = self.default_ip_address
     }
 
@@ -222,8 +227,8 @@ resource "vsphere_virtual_machine" "godevvms" {
     connection {
         type     = "ssh"
         user     = "root"
-        private_key = var.ssh_private_key
-        certificate = var.ssh_certificate
+        private_key = tls_private_key.temp_creds.private_key_pem
+        certificate = tls_private_key.temp_creds.public_key_pem
         host = self.default_ip_address
     }
 
@@ -291,8 +296,8 @@ resource "vsphere_virtual_machine" "web01vm" {
     connection {
         type     = "ssh"
         user     = "root"
-        private_key = var.ssh_private_key
-        certificate = var.ssh_certificate
+        private_key = tls_private_key.temp_creds.private_key_pem
+        certificate = tls_private_key.temp_creds.public_key_pem
         host = self.default_ip_address
     }
   }
@@ -302,8 +307,8 @@ resource "vsphere_virtual_machine" "web01vm" {
     connection {
         type     = "ssh"
         user     = "root"
-        private_key = var.ssh_private_key
-        certificate = var.ssh_certificate
+        private_key = tls_private_key.temp_creds.private_key_pem
+        certificate = tls_private_key.temp_creds.public_key_pem
         host = self.default_ip_address
     }
 
