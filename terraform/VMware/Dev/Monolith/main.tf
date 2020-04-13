@@ -1,3 +1,14 @@
+terraform {
+  backend "remote" {
+    hostname = "app.terraform.io"
+    organization = "allthingscloud"
+
+    workspaces {
+      name = "web-page-counter"
+    }
+  }
+}
+
 provider "vsphere" {
   user           = var.vsphere_user
   password       = var.vsphere_password
