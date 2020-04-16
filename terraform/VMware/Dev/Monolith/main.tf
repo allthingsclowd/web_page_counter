@@ -92,6 +92,11 @@ resource "vsphere_virtual_machine" "leader01vm" {
   provisioner "remote-exec" {
     
     connection {
+        bastion_host = var.bastion_host
+        bastion_port = var.bastion_port
+        bastion_user = var.bastion_user
+        bastion_private_key = var.bastion_private_key
+        bastion_certificate = var.bastion_certificate
         type     = "ssh"
         user     = "root"
         private_key = tls_private_key.temp_creds.private_key_pem
