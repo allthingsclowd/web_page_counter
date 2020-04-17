@@ -102,7 +102,7 @@ resource "vsphere_virtual_machine" "leader01vm" {
         type     = "ssh"
         user     = "root"
         private_key = tls_private_key.temp_creds.private_key_pem
-        certificate = tls_private_key.temp_creds.public_key_openssh
+        certificate = tls_private_key.temp_creds.public_key_pem
         host = self.default_ip_address
     }
 
@@ -173,7 +173,7 @@ resource "vsphere_virtual_machine" "redis01vm" {
         type     = "ssh"
         user     = "root"
         private_key = tls_private_key.temp_creds.private_key_pem
-        certificate = tls_private_key.temp_creds.public_key_openssh
+        certificate = tls_private_key.temp_creds.public_key_pem
         host = self.default_ip_address
     }
 
@@ -249,7 +249,7 @@ resource "vsphere_virtual_machine" "godevvms" {
         type     = "ssh"
         user     = "root"
         private_key = tls_private_key.temp_creds.private_key_pem
-        certificate = tls_private_key.temp_creds.public_key_openssh
+        certificate = tls_private_key.temp_creds.public_key_pem
         host = self.default_ip_address
     }
 
@@ -325,7 +325,7 @@ resource "vsphere_virtual_machine" "web01vm" {
         type     = "ssh"
         user     = "root"
         private_key = tls_private_key.temp_creds.private_key_pem
-        certificate = tls_private_key.temp_creds.public_key_openssh
+        certificate = tls_private_key.temp_creds.public_key_pem
         host = self.default_ip_address
     }
   }
@@ -343,7 +343,7 @@ resource "vsphere_virtual_machine" "web01vm" {
         type     = "ssh"
         user     = "root"
         private_key = tls_private_key.temp_creds.private_key_pem
-        certificate = tls_private_key.temp_creds.public_key_openssh
+        certificate = tls_private_key.temp_creds.public_key_pem
         host = self.default_ip_address
     }
 
