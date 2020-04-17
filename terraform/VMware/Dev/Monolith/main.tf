@@ -10,8 +10,8 @@ terraform {
 }
 
 resource "tls_private_key" "temp_creds" {
-  algorithm   = "ECDSA"
-  ecdsa_curve = "P384"
+  algorithm   = "RSA"
+  rsa_bits = "4096"
 }
 
 provider "vsphere" {
@@ -95,8 +95,9 @@ resource "vsphere_virtual_machine" "leader01vm" {
         bastion_host = var.bastion_host
         bastion_port = var.bastion_port
         bastion_user = var.bastion_user
-        bastion_private_key = var.bastion_private_key
-        bastion_certificate = var.bastion_certificate
+        bastion_password = var.bastion_password
+        // bastion_private_key = var.bastion_private_key
+        // bastion_certificate = var.bastion_certificate
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
         user     = "root"
@@ -165,8 +166,9 @@ resource "vsphere_virtual_machine" "redis01vm" {
         bastion_host = var.bastion_host
         bastion_port = var.bastion_port
         bastion_user = var.bastion_user
-        bastion_private_key = var.bastion_private_key
-        bastion_certificate = var.bastion_certificate
+        bastion_password = var.bastion_password
+        // bastion_private_key = var.bastion_private_key
+        // bastion_certificate = var.bastion_certificate
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
         user     = "root"
@@ -240,8 +242,9 @@ resource "vsphere_virtual_machine" "godevvms" {
         bastion_host = var.bastion_host
         bastion_port = var.bastion_port
         bastion_user = var.bastion_user
-        bastion_private_key = var.bastion_private_key
-        bastion_certificate = var.bastion_certificate
+        bastion_password = var.bastion_password
+        // bastion_private_key = var.bastion_private_key
+        // bastion_certificate = var.bastion_certificate
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
         user     = "root"
@@ -315,8 +318,9 @@ resource "vsphere_virtual_machine" "web01vm" {
         bastion_host = var.bastion_host
         bastion_port = var.bastion_port
         bastion_user = var.bastion_user
-        bastion_private_key = var.bastion_private_key
-        bastion_certificate = var.bastion_certificate
+        bastion_password = var.bastion_password
+        // bastion_private_key = var.bastion_private_key
+        // bastion_certificate = var.bastion_certificate
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
         user     = "root"
@@ -332,8 +336,9 @@ resource "vsphere_virtual_machine" "web01vm" {
         bastion_host = var.bastion_host
         bastion_port = var.bastion_port
         bastion_user = var.bastion_user
-        bastion_private_key = var.bastion_private_key
-        bastion_certificate = var.bastion_certificate
+        bastion_password = var.bastion_password
+        // bastion_private_key = var.bastion_private_key
+        // bastion_certificate = var.bastion_certificate
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
         user     = "root"
