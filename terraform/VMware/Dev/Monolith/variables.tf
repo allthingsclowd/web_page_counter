@@ -29,3 +29,7 @@ variable "bastion_private_key" {
 variable "bastion_certificate" {
   description = "Bastion Host Public Certificate"
 }
+
+variable "bastion_host_key" {
+  description = "Bastion Host Public CA Signing Certificate"
+}

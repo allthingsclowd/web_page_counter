@@ -97,6 +97,7 @@ resource "vsphere_virtual_machine" "leader01vm" {
         bastion_user = var.bastion_user
         bastion_private_key = var.bastion_private_key
         bastion_certificate = var.bastion_certificate
+        bastion_host_key = var.bastion_host_key
         type     = "ssh"
         user     = "root"
         private_key = tls_private_key.temp_creds.private_key_pem
@@ -161,6 +162,12 @@ resource "vsphere_virtual_machine" "redis01vm" {
   provisioner "remote-exec" {
     
     connection {
+        bastion_host = var.bastion_host
+        bastion_port = var.bastion_port
+        bastion_user = var.bastion_user
+        bastion_private_key = var.bastion_private_key
+        bastion_certificate = var.bastion_certificate
+        bastion_host_key = var.bastion_host_key
         type     = "ssh"
         user     = "root"
         private_key = tls_private_key.temp_creds.private_key_pem
@@ -230,6 +237,12 @@ resource "vsphere_virtual_machine" "godevvms" {
   provisioner "remote-exec" {
     
     connection {
+        bastion_host = var.bastion_host
+        bastion_port = var.bastion_port
+        bastion_user = var.bastion_user
+        bastion_private_key = var.bastion_private_key
+        bastion_certificate = var.bastion_certificate
+        bastion_host_key = var.bastion_host_key
         type     = "ssh"
         user     = "root"
         private_key = tls_private_key.temp_creds.private_key_pem
@@ -299,6 +312,12 @@ resource "vsphere_virtual_machine" "web01vm" {
     destination = "/usr/local/bootstrap/var.env"
 
     connection {
+        bastion_host = var.bastion_host
+        bastion_port = var.bastion_port
+        bastion_user = var.bastion_user
+        bastion_private_key = var.bastion_private_key
+        bastion_certificate = var.bastion_certificate
+        bastion_host_key = var.bastion_host_key
         type     = "ssh"
         user     = "root"
         private_key = tls_private_key.temp_creds.private_key_pem
@@ -310,6 +329,12 @@ resource "vsphere_virtual_machine" "web01vm" {
   provisioner "remote-exec" {
     
     connection {
+        bastion_host = var.bastion_host
+        bastion_port = var.bastion_port
+        bastion_user = var.bastion_user
+        bastion_private_key = var.bastion_private_key
+        bastion_certificate = var.bastion_certificate
+        bastion_host_key = var.bastion_host_key
         type     = "ssh"
         user     = "root"
         private_key = tls_private_key.temp_creds.private_key_pem
