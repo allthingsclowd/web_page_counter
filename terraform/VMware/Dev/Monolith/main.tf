@@ -87,10 +87,18 @@ resource "vsphere_virtual_machine" "leader01vm" {
   provisioner "remote-exec" {
     
     connection {
+        bastion_host = var.bastion_host
+        bastion_port = var.bastion_port
+        bastion_user = var.bastion_user
+        bastion_password = var.bastion_password
+        // bastion_private_key = var.bastion_private_key
+        // bastion_certificate = var.bastion_certificate
+        bastion_host_key = var.bastion_host_key
         type     = "ssh"
-        user     = "root"
-        private_key = var.ssh_private_key
-        certificate = var.ssh_certificate
+        user     = "vagrant"
+        password = "vagrant"
+        // private_key = var.ssh_private_key
+        // certificate = var.ssh_certificate
         host = self.default_ip_address
     }
 
@@ -151,10 +159,18 @@ resource "vsphere_virtual_machine" "redis01vm" {
   provisioner "remote-exec" {
     
     connection {
+        bastion_host = var.bastion_host
+        bastion_port = var.bastion_port
+        bastion_user = var.bastion_user
+        bastion_password = var.bastion_password
+        // bastion_private_key = var.bastion_private_key
+        // bastion_certificate = var.bastion_certificate
+        bastion_host_key = var.bastion_host_key
         type     = "ssh"
-        user     = "root"
-        private_key = var.ssh_private_key
-        certificate = var.ssh_certificate
+        user     = "vagrant"
+        password = "vagrant"
+        // private_key = var.ssh_private_key
+        // certificate = var.ssh_certificate
         host = self.default_ip_address
     }
 
@@ -220,10 +236,18 @@ resource "vsphere_virtual_machine" "godevvms" {
   provisioner "remote-exec" {
     
     connection {
+        bastion_host = var.bastion_host
+        bastion_port = var.bastion_port
+        bastion_user = var.bastion_user
+        bastion_password = var.bastion_password
+        // bastion_private_key = var.bastion_private_key
+        // bastion_certificate = var.bastion_certificate
+        bastion_host_key = var.bastion_host_key
         type     = "ssh"
-        user     = "root"
-        private_key = var.ssh_private_key
-        certificate = var.ssh_certificate
+        user     = "vagrant"
+        password = "vagrant"
+        // private_key = var.ssh_private_key
+        // certificate = var.ssh_certificate
         host = self.default_ip_address
     }
 
@@ -289,10 +313,18 @@ resource "vsphere_virtual_machine" "web01vm" {
     destination = "/usr/local/bootstrap/var.env"
 
     connection {
+        bastion_host = var.bastion_host
+        bastion_port = var.bastion_port
+        bastion_user = var.bastion_user
+        bastion_password = var.bastion_password
+        // bastion_private_key = var.bastion_private_key
+        // bastion_certificate = var.bastion_certificate
+        bastion_host_key = var.bastion_host_key
         type     = "ssh"
-        user     = "root"
-        private_key = var.ssh_private_key
-        certificate = var.ssh_certificate
+        user     = "vagrant"
+        password = "vagrant"
+        // private_key = var.ssh_private_key
+        // certificate = var.ssh_certificate
         host = self.default_ip_address
     }
   }
@@ -300,10 +332,18 @@ resource "vsphere_virtual_machine" "web01vm" {
   provisioner "remote-exec" {
     
     connection {
+        bastion_host = var.bastion_host
+        bastion_port = var.bastion_port
+        bastion_user = var.bastion_user
+        bastion_password = var.bastion_password
+        // bastion_private_key = var.bastion_private_key
+        // bastion_certificate = var.bastion_certificate
+        bastion_host_key = var.bastion_host_key
         type     = "ssh"
-        user     = "root"
-        private_key = var.ssh_private_key
-        certificate = var.ssh_certificate
+        user     = "vagrant"
+        password = "vagrant"
+        // private_key = var.ssh_private_key
+        // certificate = var.ssh_certificate
         host = self.default_ip_address
     }
 
