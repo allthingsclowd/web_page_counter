@@ -51,11 +51,11 @@ Consul's service mesh capability is also leveraged to secure access to the Redis
 ![image](https://user-images.githubusercontent.com/9472095/46105187-45e6a500-c1cd-11e8-93c2-24fe935f6e7b.png)
 
 ## TODO
+- Tidy up Terraform Cloud deployment - move to certificate authentication based bastion and local hosts 
 - Review possibility of integrating Consul Connect Layer 7 demos
 - Start building out documentation for workshops
 - add SSH CA public key to image and remove insecure build ssh user
 - possibly enable pki engine on vault and secure frontend of nginx service
-- migrate from internal consul connect proxy to envoy
 - test out L7 envoy features
 - create packer images for Azure, GCP and AWS
 - build terraform monolith for Azure, GCP & AWS
@@ -173,3 +173,5 @@ Consul's service mesh capability is also leveraged to secure access to the Redis
 * add UDP encryption to Consul (never bothered up until now, should be trivial)
 * Add TLS to Nomad
 * Verify Vagrant file deployment
+* migrate from internal consul connect proxy to envoy (did this ages ago)
+* Moved from using local Terrafrom statefile to Terraform Cloud Account with a remote backend and VCS integration.
