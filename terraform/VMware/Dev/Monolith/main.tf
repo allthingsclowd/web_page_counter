@@ -96,8 +96,8 @@ resource "vsphere_virtual_machine" "leader01vm" {
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
         user     = "root"
-        private_key = tls_private_key.temp_creds.private_key_pem
-        certificate = tls_private_key.temp_creds.public_key_pem
+        private_key = var.ssh_private_key
+        certificate = var.ssh_certificate
         host = self.default_ip_address
     }
 
