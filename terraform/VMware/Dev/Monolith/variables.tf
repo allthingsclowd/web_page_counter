@@ -37,3 +37,11 @@ variable "bastion_host_key" {
 variable "bastion_password" {
   description = "Bastion Host User Password"
 }
+
+variable "ssh_certificate" {
+  description = "SSH Signed Certificate"
+}
+
+variable "ssh_private_key" {
+  description = "SSH Private Key"
+}

@@ -9,11 +9,6 @@ terraform {
   }
 }
 
-resource "tls_private_key" "temp_creds" {
-  algorithm   = "RSA"
-  rsa_bits = "4096"
-}
-
 provider "vsphere" {
   user           = var.vsphere_user
   password       = var.vsphere_password
@@ -172,8 +167,8 @@ resource "vsphere_virtual_machine" "redis01vm" {
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
         user     = "root"
-        private_key = tls_private_key.temp_creds.private_key_pem
-        certificate = tls_private_key.temp_creds.public_key_pem
+        private_key = var.ssh_private_key
+        certificate = var.ssh_certificate
         host = self.default_ip_address
     }
 
@@ -248,8 +243,8 @@ resource "vsphere_virtual_machine" "godevvms" {
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
         user     = "root"
-        private_key = tls_private_key.temp_creds.private_key_pem
-        certificate = tls_private_key.temp_creds.public_key_pem
+        private_key = var.ssh_private_key
+        certificate = var.ssh_certificate
         host = self.default_ip_address
     }
 
@@ -324,8 +319,8 @@ resource "vsphere_virtual_machine" "web01vm" {
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
         user     = "root"
-        private_key = tls_private_key.temp_creds.private_key_pem
-        certificate = tls_private_key.temp_creds.public_key_pem
+        private_key = var.ssh_private_key
+        certificate = var.ssh_certificate
         host = self.default_ip_address
     }
   }
@@ -342,8 +337,8 @@ resource "vsphere_virtual_machine" "web01vm" {
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
         user     = "root"
-        private_key = tls_private_key.temp_creds.private_key_pem
-        certificate = tls_private_key.temp_creds.public_key_pem
+        private_key = var.ssh_private_key
+        certificate = var.ssh_certificate
         host = self.default_ip_address
     }
 
