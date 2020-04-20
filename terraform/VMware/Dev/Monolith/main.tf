@@ -96,9 +96,10 @@ resource "vsphere_virtual_machine" "leader01vm" {
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
         user     = "vagrant"
-        password = "vagrant"
-        // private_key = var.ssh_private_key
-        // certificate = var.ssh_certificate
+        // password = "vagrant"
+        private_key = var.ssh_private_key
+        certificate = var.ssh_certificate
+        host_key = var.ssh_host_key
         host = self.default_ip_address
     }
 
@@ -168,9 +169,10 @@ resource "vsphere_virtual_machine" "redis01vm" {
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
         user     = "vagrant"
-        password = "vagrant"
-        // private_key = var.ssh_private_key
-        // certificate = var.ssh_certificate
+        // password = "vagrant"
+        private_key = var.ssh_private_key
+        certificate = var.ssh_certificate
+        host_key = var.ssh_host_key
         host = self.default_ip_address
     }
 
@@ -245,9 +247,10 @@ resource "vsphere_virtual_machine" "godevvms" {
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
         user     = "vagrant"
-        password = "vagrant"
-        // private_key = var.ssh_private_key
-        // certificate = var.ssh_certificate
+        // password = "vagrant"
+        private_key = var.ssh_private_key
+        certificate = var.ssh_certificate
+        host_key = var.ssh_host_key
         host = self.default_ip_address
     }
 
@@ -322,9 +325,10 @@ resource "vsphere_virtual_machine" "web01vm" {
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
         user     = "vagrant"
-        password = "vagrant"
-        // private_key = var.ssh_private_key
-        // certificate = var.ssh_certificate
+        // password = "vagrant"
+        private_key = var.ssh_private_key
+        certificate = var.ssh_certificate
+        host_key = var.ssh_host_key
         host = self.default_ip_address
     }
   }
@@ -341,9 +345,10 @@ resource "vsphere_virtual_machine" "web01vm" {
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
         user     = "vagrant"
-        password = "vagrant"
-        // private_key = var.ssh_private_key
-        // certificate = var.ssh_certificate
+        // password = "vagrant"
+        private_key = var.ssh_private_key
+        certificate = var.ssh_certificate
+        host_key = var.ssh_host_key
         host = self.default_ip_address
     }
 
