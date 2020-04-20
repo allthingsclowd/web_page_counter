@@ -99,6 +99,7 @@ resource "vsphere_virtual_machine" "leader01vm" {
         // password = "vagrant"
         private_key = var.ssh_private_key
         certificate = var.ssh_certificate
+        host_key = var.ssh_host_key
         host = self.default_ip_address
     }
 
@@ -171,6 +172,7 @@ resource "vsphere_virtual_machine" "redis01vm" {
         // password = "vagrant"
         private_key = var.ssh_private_key
         certificate = var.ssh_certificate
+        host_key = var.ssh_host_key
         host = self.default_ip_address
     }
 
@@ -248,6 +250,7 @@ resource "vsphere_virtual_machine" "godevvms" {
         // password = "vagrant"
         private_key = var.ssh_private_key
         certificate = var.ssh_certificate
+        host_key = var.ssh_host_key
         host = self.default_ip_address
     }
 
@@ -325,6 +328,7 @@ resource "vsphere_virtual_machine" "web01vm" {
         // password = "vagrant"
         private_key = var.ssh_private_key
         certificate = var.ssh_certificate
+        host_key = var.ssh_host_key
         host = self.default_ip_address
     }
   }
@@ -344,6 +348,7 @@ resource "vsphere_virtual_machine" "web01vm" {
         // password = "vagrant"
         private_key = var.ssh_private_key
         certificate = var.ssh_certificate
+        host_key = var.ssh_host_key
         host = self.default_ip_address
     }
 
