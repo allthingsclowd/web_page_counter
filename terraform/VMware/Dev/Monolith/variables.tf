@@ -34,9 +34,9 @@ variable "bastion_host_key" {
   description = "Bastion Host Public CA Signing Certificate"
 }
 
-variable "bastion_password" {
-  description = "Bastion Host User Password"
-}
+// variable "bastion_password" {
+//  description = "Bastion Host User Password"
+// }
 
 variable "ssh_certificate" {
   description = "SSH Signed Certificate"
