@@ -1,0 +1,51 @@
+name: ImageBuild-Packer-Test
+title: InSpec Profile
+maintainer: Graham
+copyright: Graham
+copyright_email: graham@allthingscloud.eu
+license: Apache-2.0
+summary: An Example InSpec Profile with Packer
+version: 0.0.1
+supports:
+  platform: os
+attributes:
+  - name: packer_version
+    type: string
+    description: 'Correct version of Packer binary to test'
+    value: <%= ENV['packer_version'] %>
+  - name: vagrant_version
+    type: string
+    description: 'Correct version of Vagrant binary to test'
+    value: <%= ENV['vagrant_version'] %>
+  - name: consul_version
+    type: string
+    description: 'Correct version of Consul binary to test'
+    value: <%= ENV['consul_version'] %>
+  - name: vault_version
+    type: string
+    description: 'Correct version of Vault binary to test'
+    value: <%= ENV['vault_version'] %>
+  - name: nomad_version
+    type: string
+    description: 'Correct version of Nomad binary to test'
+    value: <%= ENV['nomad_version'] %>
+  - name: terraform_version
+    type: string
+    description: 'Correct version of Terraform binary to test'
+    value: <%= ENV['terraform_version'] %>
+  - name: consul_template_version
+    type: string
+    description: 'Correct version of Consul Template binary to test'
+    value: <%= ENV['consul_template_version'] %>
+  - name: envconsul_version
+    type: string
+    description: 'Correct version of Env-Consul binary to test'
+    value: <%= ENV['env_consul_version'] %>
+  # - name: go_version
+  #   type: string
+  #   description: 'Correct version of Go binary to test'
+  #   value: <%= ENV['golang_version'] %>
+  # - name: envoy_proxy_version
+  #   description: 'Correct version of Envoy Proxy binary to test'
+  #   type: string
+  #   value: <%= ENV['envoy_proxy_version'] %>

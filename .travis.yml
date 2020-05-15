@@ -54,7 +54,7 @@ script:
 - export CONSUL_CLIENT_KEY=/tmp/consul.d/pki/tls/certs/consul-client.pem
 - consul version
 - go version
-- inspec exec --chef-license=accept test/ImageBuild-Travis
+- inspec exec --chef-license=accept test/ImageBuild-Packer-Test
 - bash scripts/travis_run_go_app.sh
 deploy:
   provider: releases
