@@ -322,7 +322,7 @@
     },
     {
       "type": "inspec",
-      "profile": "../test/ImageBuild-VMware"
+      "profile": "../test/ImageBuild-Packer-Test"
     },
     {
       "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",

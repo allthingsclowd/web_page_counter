@@ -3,6 +3,18 @@
 
 title 'Verify WebPageCounter Binaries'
 
+packer_version = attribute('packer_version', value: '1.5.6', description: 'Correct version of Packer binary to test for')
+vagrant_version = attribute('vagrant_version', value: '2.2.9', description: 'Correct version of Vagrant binary to test for')
+consul_version = attribute('consul_version', value: '1.8.0', description: 'Correct version of Consul binary to test for')
+vault_version = attribute('vault_version', value: '1.4.1', description: 'Correct version of Vault binary to test for')
+nomad_version = attribute('nomad_version', value: '0.11.2', description: 'Correct version of Nomad binary to test for')
+nomad_autoscaler_version = attribute('nomad_autoscaler_version', value: '0.0.1-techpreview2', description: 'Correct version of Nomad autoscaler binary to test for')
+terraform_version = attribute('terraform_version', value: '0.12.25', description: 'Correct version of Terraform binary to test for')
+consul_template_version = attribute('consul_template_version', value: '0.25.0', description: 'Correct version of Consul Template binary to test for')
+envconsul_version = attribute('env_consul_version', value: '0.9.3', description: 'Correct version of Env-Consul binary to test for')
+go_version = attribute('golang_version', value: '1.13', description: 'Correct version of Go binary to test for')
+envoy_proxy_version = attribute('envoy_proxy_version', value: '1.14.1.p0.g3504d40-1p63.g902f20f', description: 'Correct version of Envoy binary to test for')
+
 # control => test
 control 'audit_installation_prerequisites' do
   impact 1.0
@@ -22,14 +34,6 @@ control 'audit_installation_prerequisites' do
   end
 
   describe package('git') do
-    it {should be_installed}
-  end
-
-  describe package('redis-server') do
-    it {should be_installed}
-  end
-
-  describe package('nginx') do
     it {should be_installed}
   end
 
@@ -65,7 +69,7 @@ control 'consul-binary-version-1.0' do
   title 'consul binary version check'
   desc 'verify that the consul binary is the correct version'
   describe command('consul version') do
-   its('stdout') { should match /Consul v1.7.2/ }
+   its('stdout') { should match consul_version }
   end
 end
 
@@ -121,7 +125,7 @@ control 'vault-binary-version-1.0' do
   title 'vault binary version check'
   desc 'verify that the vault binary is the correct version'
   describe command('vault version') do
-   its('stdout') { should match /v1.4.0/ }
+   its('stdout') { should match vault_version }
   end
 end
 
@@ -139,7 +143,7 @@ control 'nomad-binary-version-1.0' do
   title 'nomad binary version check'
   desc 'verify that the nomad binary is the correct version'
   describe command('nomad version') do
-   its('stdout') { should match /v0.11.0/ }
+   its('stdout') { should match nomad_version }
   end
 end
 
@@ -156,8 +160,8 @@ control 'vagrant-binary-version-1.0' do
   impact 1.0                                
   title 'vagrant binary version check'
   desc 'verify that the vagrant binary is the correct version'
-  describe command('vagrant version') do
-   its('stdout') { should match /2.2.7/ }
+  describe command('vagrant --version') do
+   its('stdout') { should match vagrant_version }
   end
 end
 
@@ -175,7 +179,25 @@ control 'packer-binary-version-1.0' do
   title 'packer binary version check'
   desc 'verify that the packer binary is the correct version'
   describe command('packer version') do
-   its('stdout') { should match /v1.5.5/ }
+   its('stdout') { should match packer_version }
+  end
+end
+
+control 'packer-binary-exists-1.0' do         
+  impact 1.0                      
+  title 'packer binary exists'
+  desc 'verify that the packer binary is installed'
+  describe file('/usr/local/bin/packer') do 
+    it { should exist }
+  end
+end
+
+control 'packer-binary-version-1.0' do                      
+  impact 1.0                                
+  title 'packer binary version check'
+  desc 'verify that the packer binary is the correct version'
+  describe command('packer version') do
+   its('stdout') { should match packer_version }
   end
 end
 
@@ -193,7 +215,7 @@ control 'terraform-binary-version-1.0' do
   title 'terraform binary version check'
   desc 'verify that the terraform binary is the correct version'
   describe command('terraform version') do
-   its('stdout') { should match /v0.12.24/ }
+   its('stdout') { should match terraform_version }
   end
 end
 
@@ -211,7 +233,7 @@ control 'golang-version-1.0' do
   title 'golang version check'
   desc 'verify that golang is the correct version'
   describe command('/usr/local/go/bin/go version') do
-   its('stdout') { should match /go1.13/ }
+   its('stdout') { should match go_version }
   end
 end
 
@@ -228,34 +250,7 @@ control 'envoy-version-1.0' do
   impact 1.0                                
   title 'envoy version check'
   desc 'verify that envoy is the correct version'
-  describe command('/usr/bin/envoy --version') do
-   its('stdout') { should match /1.12.2/ }
-  end
-end
-
-control 'secret-id' do         
-  impact 1.0                      
-  title 'secret-id binary'
-  desc 'verify that secret-id is installed'
-  describe file('/usr/local/bin/VaultServiceIDFactory') do 
-    it { should exist }
-  end
-end
-
-control 'web-page-counter' do         
-  impact 1.0                      
-  title 'web-page-counter exists'
-  desc 'verify that web-page-counter is installed'
-  describe file('/usr/local/bin/webcounter') do 
-    it { should exist }
-  end
-end
-
-control 'web-front-end' do         
-  impact 1.0                      
-  title 'web front-end installed'
-  desc 'verify that the angular web front-end is installed'
-  describe file('/var/www/wpc-fe/index.html') do 
-    it { should exist }
+  describe command('apt list --installed | grep getenvoy-envoy') do
+   its('stdout') { should match envoy_proxy_version }
   end
 end
