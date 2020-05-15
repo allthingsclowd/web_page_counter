@@ -45,7 +45,12 @@ attributes:
   #   type: string
   #   description: 'Correct version of Go binary to test'
   #   value: <%= ENV['golang_version'] %>
-  # - name: envoy_proxy_version
-  #   description: 'Correct version of Envoy Proxy binary to test'
-  #   type: string
-  #   value: <%= ENV['envoy_proxy_version'] %>
+  - name: envoy_proxy_version
+    description: 'Correct version of Envoy Proxy binary to test'
+    type: string
+    value: <%= ENV['envoy_proxy_version'] %>
+  - name: nomad_autoscaler_version
+    description: 'Correct version of Nomad Autoscaler binary to test'
+    type: string
+    value: <%= ENV['nomad_autoscaler_version'] %>
+  
