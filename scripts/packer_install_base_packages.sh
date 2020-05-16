@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
 install_prereqs () {
+
+    set -x
+
     # Binary versions to check for
     [ -f /usr/local/bootstrap/var.env ] && {
         cat /usr/local/bootstrap/var.env
@@ -163,6 +166,7 @@ install_envoy () {
 }
 
 install_go () {
+
     echo "Start Golang installation"
     which /usr/local/go/bin/go &>/dev/null || {
         echo "Create a temporary directory"
@@ -179,7 +183,7 @@ install_go () {
         echo "Remove temporary directory"
         sudo rm -rf /tmp/go_src
         echo "Edit profile to include path for Go"
-        echo "export PATH=$PATH:/usr/local/go/bin" | sudo tee -a /etc/profile
+        echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" | sudo tee -a /etc/profile
         echo "Ensure others can execute the binaries"
         sudo chmod -R +x /usr/local/go/bin/
 
