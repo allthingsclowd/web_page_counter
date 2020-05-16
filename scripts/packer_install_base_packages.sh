@@ -1,14 +1,37 @@
 #!/usr/bin/env bash
 
-# Binary versions to check for
-[ -f /usr/local/bootstrap/var.env ] && {
-    cat /usr/local/bootstrap/var.env
-    source /usr/local/bootstrap/var.env
-}
-    
-[ -f ../var.env ] && {
-    cat ../var.env
-    source ../var.env
+install_prereqs () {
+    # Binary versions to check for
+    [ -f /usr/local/bootstrap/var.env ] && {
+        cat /usr/local/bootstrap/var.env
+        source /usr/local/bootstrap/var.env
+    }
+        
+    [ -f ../var.env ] && {
+        cat ../var.env
+        source ../var.env
+    }
+
+    sudo apt-get clean
+    sudo apt-get update
+    sudo apt-get upgrade -y
+
+    # Update to the latest kernel
+    sudo apt-get install -y linux-generic linux-image-generic
+
+    # Hide Ubuntu splash screen during OS Boot, so you can see if the boot hangs
+    sudo apt-get remove -y plymouth-theme-ubuntu-text
+    sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="quiet"/GRUB_CMDLINE_LINUX_DEFAULT=""/' /etc/default/grub
+    sudo update-grub
+
+    sudo apt-get install -y -q wget tmux unzip git redis-server nginx lynx jq curl net-tools
+
+    # disable services that are not used by all hosts
+    sudo systemctl stop redis-server
+    sudo systemctl disable redis-server
+    sudo systemctl stop nginx
+    sudo systemctl disable nginx
+
 }
 
 # TODO: Add checksums to ensure integrity of binaries downloaded
@@ -139,52 +162,35 @@ install_envoy () {
     envoy --version
 }
 
-sudo apt-get clean
-sudo apt-get update
-sudo apt-get upgrade -y
+install_go () {
+    echo "Start Golang installation"
+    which /usr/local/go/bin/go &>/dev/null || {
+        echo "Create a temporary directory"
+        sudo mkdir -p /tmp/go_src
+        pushd /tmp/go_src
+        [ -f go${golang_version}.linux-amd64.tar.gz ] || {
+            echo "Download Golang source"
+            sudo wget -qnv https://dl.google.com/go/go${golang_version}.linux-amd64.tar.gz
+        }
+        
+        echo "Extract Golang source"
+        sudo tar -C /usr/local -xzf go${golang_version}.linux-amd64.tar.gz
+        popd
+        echo "Remove temporary directory"
+        sudo rm -rf /tmp/go_src
+        echo "Edit profile to include path for Go"
+        echo "export PATH=$PATH:/usr/local/go/bin" | sudo tee -a /etc/profile
+        echo "Ensure others can execute the binaries"
+        sudo chmod -R +x /usr/local/go/bin/
 
-# Update to the latest kernel
-sudo apt-get install -y linux-generic linux-image-generic
-
-# Hide Ubuntu splash screen during OS Boot, so you can see if the boot hangs
-sudo apt-get remove -y plymouth-theme-ubuntu-text
-sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="quiet"/GRUB_CMDLINE_LINUX_DEFAULT=""/' /etc/default/grub
-sudo update-grub
-
-sudo apt-get install -y -q wget tmux unzip git redis-server nginx lynx jq curl net-tools
-
-# disable services that are not used by all hosts
-sudo systemctl stop redis-server
-sudo systemctl disable redis-server
-sudo systemctl stop nginx
-sudo systemctl disable nginx
-
-echo "Start Golang installation"
-which /usr/local/go &>/dev/null || {
-    echo "Create a temporary directory"
-    sudo mkdir -p /tmp/go_src
-    pushd /tmp/go_src
-    [ -f go${golang_version}.linux-amd64.tar.gz ] || {
-        echo "Download Golang source"
-        sudo wget -qnv https://dl.google.com/go/go${golang_version}.linux-amd64.tar.gz
+        source /etc/profile    
     }
-    
-    echo "Extract Golang source"
-    sudo tar -C /usr/local -xzf go${golang_version}.linux-amd64.tar.gz
-    popd
-    echo "Remove temporary directory"
-    sudo rm -rf /tmp/go_src
-    echo "Edit profile to include path for Go"
-    echo "export PATH=$PATH:/usr/local/go/bin" | sudo tee -a /etc/profile
-    echo "Ensure others can execute the binaries"
-    sudo chmod -R +x /usr/local/go/bin/
 
-    source /etc/profile
-
-    go version
-
+    echo "`go version` successfully installed!"
 }
 
+install_prereqs
+install_go
 install_hashicorp_binaries
 install_webpagecounter_binaries
 install_factory_secretid_binaries
