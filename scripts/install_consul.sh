@@ -132,7 +132,14 @@ install_terraform () {
 install_consul () {
   AGENT_CONFIG="-config-dir=/${ROOTCERTPATH}/consul.d -enable-script-checks=true"
 
-  sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} client
+  # sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} client
+  export BootStrapCertTool="https://raw.githubusercontent.com/allthingsclowd/BootstrapCertificateTool/0.0.1/scripts/Generate_PKI_Certificates_For_Lab.sh"
+  wget -O - ${BootStrapCertTool} | bash -s consul "server.node.global.consul" "client.node.global.consul" "${IP}"
+  
+  # move certificates back into the correct directories.... 
+  
+  
+  
   # Configure consul environment variables for use with certificates 
   export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
   export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem
@@ -149,7 +156,7 @@ install_consul () {
       if [ "${TRAVIS}" == "true" ]; then
 
         # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
-        sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} server
+        # sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} server
         # Travis-CI grant access to /tmp for all users
         sudo chmod -R 777 /${ROOTCERTPATH}
         sudo ls -al /${ROOTCERTPATH}/consul.d/pki/tls/certs/ /${ROOTCERTPATH}/consul.d/pki/tls/private/ /${ROOTCERTPATH}/ssl/certs /${ROOTCERTPATH}/ssl/private
