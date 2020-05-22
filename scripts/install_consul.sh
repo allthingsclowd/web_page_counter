@@ -133,7 +133,7 @@ install_consul () {
   AGENT_CONFIG="-config-dir=/${ROOTCERTPATH}/consul.d -enable-script-checks=true"
 
   # sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} client
-  export BootStrapCertTool="https://raw.githubusercontent.com/allthingsclowd/BootstrapCertificateTool/0.0.1/scripts/Generate_PKI_Certificates_For_Lab.sh"
+  export BootStrapCertTool="https://raw.githubusercontent.com/allthingsclowd/BootstrapCertificateTool/0.0.2/scripts/Generate_PKI_Certificates_For_Lab.sh"
   wget -O - ${BootStrapCertTool} | bash -s consul "server.node.global.consul" "client.node.global.consul" "${IP}"
   
   # move certificates back into the correct directories.... 
@@ -145,6 +145,8 @@ install_consul () {
   export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem
   export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem
   export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem
+  
+  echo "${TF_VAR_Int_CA_consul_intermediate_ca}" > /${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem
 
   # check for consul hostname or travis => server
   if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
