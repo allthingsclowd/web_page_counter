@@ -33,6 +33,8 @@ r-vmware
 *.nvram
 plan
 *plan
+.bootstrap
+
 
 
 

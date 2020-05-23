@@ -39,6 +39,7 @@ setup_environment () {
   set -x
   sleep 5
   source /usr/local/bootstrap/var.env
+  source /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/BootstrapCAs.sh
   
   IFACE=`route -n | awk '$1 == "192.168.9.0" {print $8;exit}'`
   CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.9" {print $2}'`
