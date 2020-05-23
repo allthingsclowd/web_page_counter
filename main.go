@@ -17,7 +17,7 @@ import (
 	"time"
 
 	"github.com/DataDog/datadog-go/statsd"
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis@7.2.0"
 	"github.com/gorilla/mux"
 	consul "github.com/hashicorp/consul/api"
 	vault "github.com/hashicorp/vault/api"
