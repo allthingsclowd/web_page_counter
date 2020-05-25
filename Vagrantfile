@@ -61,10 +61,10 @@ Vagrant.configure("2") do |config|
 
     config.vm.define "leader01" do |leader01|
         leader01.vm.hostname = ENV['LEADER_NAME']
-        leader01.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh", run: "always"
-        leader01.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_vault.sh", run: "always"
-        leader01.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_nomad.sh", run: "always"
-        leader01.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_SecretID_Factory.sh", run: "always"
+#        leader01.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh", run: "always"
+#        leader01.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_vault.sh", run: "always"
+#        leader01.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_nomad.sh", run: "always"
+#        leader01.vm.provision "shell", inline: "/usr/local/bootstrap/scripts/install_SecretID_Factory.sh", run: "always"
         leader01.vm.network "private_network", ip: ENV['LEADER_IP']
         leader01.vm.network "forwarded_port", guest: 4646, host: 8324
         leader01.vm.network "forwarded_port", guest: 8321, host: 8321
