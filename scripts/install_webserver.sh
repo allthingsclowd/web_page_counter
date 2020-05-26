@@ -30,7 +30,7 @@ export VAULT_SKIP_VERIFY=true
 
 # Configure consul environment variables for use with certificates 
 export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem
+export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem
 export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem
 export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem
 AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
@@ -76,7 +76,7 @@ EOF
   # Register the service in consul via the local Consul agent api
   curl \
     --request PUT \
-    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
     --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
     --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
@@ -85,7 +85,7 @@ EOF
 
   # List the locally registered services via local Consul api
   curl \
-    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
     --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
     --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
@@ -93,7 +93,7 @@ EOF
 
   # List the services regestered on the Consul server
   curl \
-    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
     --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
     --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
@@ -159,7 +159,7 @@ sudo /usr/local/bin/consul-template \
      -consul-token=${CONSUL_HTTP_TOKEN} \
      -consul-ssl-cert="/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
      -consul-ssl-key="/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
-     -consul-ssl-ca-cert="/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
+     -consul-ssl-ca-cert="/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
      -template "/usr/local/bootstrap/conf/nginx.ctpl:/etc/nginx/conf.d/goapp.conf:/usr/local/bootstrap/scripts/updateBackendCount.sh" &
    
 sleep 1

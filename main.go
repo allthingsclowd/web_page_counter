@@ -26,7 +26,7 @@ import (
 var (
 	ccertFile = flag.String("consulcert", "/etc/consul.d/pki/tls/certs/consul-client.pem", "A PEM eoncoded consul certificate file.")
 	ckeyFile  = flag.String("consulkey", "/etc/consul.d/pki/tls/private/consul-client-key.pem", "A PEM encoded consul private key file.")
-	ccaFile   = flag.String("consulCA", "/etc/ssl/certs/consul-agent-ca.pem", "A PEM eoncoded consul CA's certificate file.")
+	ccaFile   = flag.String("consulCA", "/etc/ssl/certs/consul-root-signed-intermediate-ca.pem", "A PEM eoncoded consul CA's certificate file.")
 )
 
 var (
