@@ -80,7 +80,7 @@ Vagrant.configure("2") do |config|
         redis01.vm.provision :shell, inline: "/usr/local/bootstrap/scripts/install_redis.sh"
     end
     
-    (1..4).each do |i|
+    (1..2).each do |i|
         config.vm.define "godev0#{i}" do |devsvr|
             devsvr.vm.hostname = "godev0#{i}"
             devsvr.vm.network "private_network", ip: "192.168.9.#{100+i*10}"

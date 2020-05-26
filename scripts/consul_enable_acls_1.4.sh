@@ -411,8 +411,8 @@ tls {
   rpc  = true
 
   ca_file   = "/${ROOTCERTPATH}/ssl/certs/nomad-ca-chain.pem"
-  cert_file = "/${ROOTCERTPATH}/nomad.d/pki/tls/certs/nomad-cli.pem"
-  key_file  = "/${ROOTCERTPATH}/nomad.d/pki/tls/private/nomad-cli-key.pem"
+  cert_file = "/${ROOTCERTPATH}/nomad.d/pki/tls/certs/nomad-peer.pem"
+  key_file  = "/${ROOTCERTPATH}/nomad.d/pki/tls/private/nomad-peer-key.pem"
 
   verify_server_hostname = true
   verify_https_client    = true
