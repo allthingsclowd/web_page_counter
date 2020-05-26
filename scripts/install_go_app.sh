@@ -43,7 +43,7 @@ EOF
   # Register the service in consul via the local Consul agent api
   sudo curl \
       --request PUT \
-      --with-ca-path "/${ROOTCERTPATH}/ssl/certs" \
+      --capath "/${ROOTCERTPATH}/ssl/certs" \
       --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
       --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
       --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
@@ -52,7 +52,7 @@ EOF
 
   # List the locally registered services via local Consul api
   sudo curl \
-    --with-ca-path "/${ROOTCERTPATH}/ssl/certs" \
+    --capath "/${ROOTCERTPATH}/ssl/certs" \
     --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
     --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
@@ -60,7 +60,7 @@ EOF
 
   # List the services regestered on the Consul server
   sudo curl \
-    --with-ca-path "/${ROOTCERTPATH}/ssl/certs" \
+    --capath "/${ROOTCERTPATH}/ssl/certs" \
     --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
     --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
@@ -114,7 +114,7 @@ EOF
   # Register the service in consul via the local Consul agent api
   sudo curl \
       --request PUT \
-      --with-ca-path "/${ROOTCERTPATH}/ssl/certs" \
+      --capath "/${ROOTCERTPATH}/ssl/certs" \
       --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
       --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
       --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
@@ -123,7 +123,7 @@ EOF
 
   # List the locally registered services via local Consul api
   sudo curl \
-    --with-ca-path "/${ROOTCERTPATH}/ssl/certs" \
+    --capath "/${ROOTCERTPATH}/ssl/certs" \
     --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
     --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
@@ -131,7 +131,7 @@ EOF
 
   # List the services regestered on the Consul server
   sudo curl \
-    --with-ca-path "/${ROOTCERTPATH}/ssl/certs" \
+    --capath "/${ROOTCERTPATH}/ssl/certs" \
     --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
     --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
