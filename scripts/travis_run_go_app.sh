@@ -14,9 +14,9 @@ export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
              -consulIP="127.0.0.1:8321" \
              -consulCA="/tmp/ssl/certs/consul-root-signed-intermediate-ca.pem" \
              -vaultCA="/tmp/ssl/certs/vault-agent-ca.pem" \
-             -consulcert="/tmp/consul.d/pki/tls/certs/consul-client.pem" \
+             -consulcert="/tmp/consul.d/pki/tls/certs/consul-cli.pem" \
              -vaultcert="/tmp/vault.d/pki/tls/certs/vault-client.pem" \
-             -consulkey="/tmp/consul.d/pki/tls/private/consul-client-key.pem" \
+             -consulkey="/tmp/consul.d/pki/tls/private/consul-cli-key.pem" \
              -vaultkey="/tmp/vault.d/pki/tls/private/vault-client-key.pem" &
 
 # delay added to allow webcounter startup

@@ -36,8 +36,8 @@ EOF
   sudo curl \
       --request PUT \
       --cacert "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
-      --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
-      --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
+      --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem" \
+      --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem" \
       --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
       --data @secretid_service.json \
       ${CONSUL_HTTP_ADDR}/v1/agent/service/register
@@ -45,16 +45,16 @@ EOF
   # List the locally registered services via local Consul api
   sudo curl \
     --cacert "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
-    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
-    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
+    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem" \
+    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     ${CONSUL_HTTP_ADDR}/v1/agent/services | jq -r .
 
   # List the services regestered on the Consul server
   sudo curl \
     --cacert "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
-    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
-    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
+    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem" \
+    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     ${CONSUL_HTTP_ADDR}/v1/catalog/services | jq -r .
    
@@ -133,8 +133,8 @@ start_envoy_proxy_service () {
   create_service "${1}" "${2}" "/usr/local/bin/consul connect envoy \
                                                         -http-addr=https://127.0.0.1:8321 \
                                                         -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem \
-                                                        -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem \
-                                                        -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem \
+                                                        -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem \
+                                                        -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem \
                                                         -token=${CONSUL_HTTP_TOKEN} \
                                                         -sidecar-for ${3} \
                                                         -admin-bind localhost:${4}"
@@ -189,8 +189,8 @@ setup_environment () {
     # Configure consul environment variables for use with certificates 
     export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
     export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem
-    export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem
-    export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem
+    export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem
+    export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem
     export CONSUL_HTTP_SSL=true
     export CONSUL_GRPC_ADDR=https://127.0.0.1:8502
 

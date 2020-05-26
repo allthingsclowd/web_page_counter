@@ -31,8 +31,8 @@ export VAULT_SKIP_VERIFY=true
 # Configure consul environment variables for use with certificates 
 export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
 export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem
-export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem
-export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem
+export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem
+export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem
 AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
 export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 
@@ -77,8 +77,8 @@ EOF
   curl \
     --request PUT \
     --cacert "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
-    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
-    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
+    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem" \
+    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     --data @nginx_service.json \
     ${CONSUL_HTTP_ADDR}/v1/agent/service/register
@@ -86,16 +86,16 @@ EOF
   # List the locally registered services via local Consul api
   curl \
     --cacert "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
-    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
-    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
+    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem" \
+    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     ${CONSUL_HTTP_ADDR}/v1/agent/services | jq -r .
 
   # List the services regestered on the Consul server
   curl \
     --cacert "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
-    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
-    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
+    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem" \
+    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     ${CONSUL_HTTP_ADDR}/v1/catalog/services | jq -r .
    
@@ -157,8 +157,8 @@ sudo /usr/local/bin/consul-template \
      -consul-addr=${CONSUL_HTTP_ADDR} \
      -consul-ssl \
      -consul-token=${CONSUL_HTTP_TOKEN} \
-     -consul-ssl-cert="/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
-     -consul-ssl-key="/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
+     -consul-ssl-cert="/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem" \
+     -consul-ssl-key="/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem" \
      -consul-ssl-ca-cert="/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
      -template "/usr/local/bootstrap/conf/nginx.ctpl:/etc/nginx/conf.d/goapp.conf:/usr/local/bootstrap/scripts/updateBackendCount.sh" &
    

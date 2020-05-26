@@ -3,8 +3,8 @@
     scheme = "https"
     path    = "vault/"
     tls_ca_file = "/etc/ssl/certs/consul-root-signed-intermediate-ca.pem"
-    tls_cert_file = "/etc/consul.d/pki/tls/certs/consul-client.pem"
-    tls_key_file = "/etc/consul.d/pki/tls/private/consul-client-key.pem"
+    tls_cert_file = "/etc/consul.d/pki/tls/certs/consul-cli.pem"
+    tls_key_file = "/etc/consul.d/pki/tls/private/consul-cli-key.pem"
     token = ""
   }
 

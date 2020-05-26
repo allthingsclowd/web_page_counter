@@ -41,8 +41,8 @@ setup_environment () {
     # Configure consul environment variables for use with certificates 
     export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
     export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem
-    export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem
-    export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem
+    export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem
+    export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem
     BOOTSTRAPACL=`cat /usr/local/bootstrap/.bootstrap_acl`
     export CONSUL_HTTP_TOKEN=${BOOTSTRAPACL}
 
@@ -556,7 +556,7 @@ install_vault () {
             # Travis-CI grant access to /tmp for all users
             sudo chmod -R 777 /${ROOTCERTPATH}        
 
-            sudo ls -al /${ROOTCERTPATH}/ssl/certs/ /${ROOTCERTPATH}/consul.d/pki/tls/private/ /${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem /${ROOTCERTPATH}/vault.d/pki/tls/private/vault-server-key.pem /${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-server.pem
+            sudo ls -al /${ROOTCERTPATH}/ssl/certs/ /${ROOTCERTPATH}/consul.d/pki/tls/private/ /${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem /${ROOTCERTPATH}/vault.d/pki/tls/private/vault-server-key.pem /${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-server.pem
             sudo cat /${ROOTCERTPATH}/vault.d/vault.hcl
             sudo /usr/local/bin/vault server -dev -dev-root-token-id="reallystrongpassword" -config=/${ROOTCERTPATH}/vault.d/vault.hcl &> ${LOG} &
             sleep 15

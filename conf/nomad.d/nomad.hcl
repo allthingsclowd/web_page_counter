@@ -2,8 +2,8 @@ consul {
   address = "127.0.0.1:8321"
   ssl       = true
   ca_file   = "/etc/ssl/certs/consul-root-signed-intermediate-ca.pem"
-  cert_file = "/etc/consul.d/pki/tls/certs/consul-client.pem"
-  key_file  = "/etc/consul.d/pki/tls/private/consul-client-key.pem"
+  cert_file = "/etc/consul.d/pki/tls/certs/consul-cli.pem"
+  key_file  = "/etc/consul.d/pki/tls/private/consul-cli-key.pem"
   token = "119343b5-4bcc-f0f0-9b21-1b06a125f528"
   }
 
