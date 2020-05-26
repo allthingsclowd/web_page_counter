@@ -71,7 +71,7 @@ EOF
 }
 
 create_intention_between_services () {
-    sudo /usr/local/bin/consul intention create -http-addr=https://127.0.0.1:8321 -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem -token=${CONSUL_HTTP_TOKEN} ${1} ${2}
+    sudo /usr/local/bin/consul intention create -http-addr=https://127.0.0.1:8321 -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem -token=${CONSUL_HTTP_TOKEN} ${1} ${2}
 }
 
 register_redis_client_proxy_service_with_consul () {
@@ -172,7 +172,7 @@ export VAULT_TOKEN=reallystrongpassword
 
 # Configure consul environment variables for use with certificates 
 export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem
+export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem
 export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem
 export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem
 AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
@@ -188,8 +188,8 @@ export NOMAD_ADDR=https://${LEADER_IP}:4646
 # Configure CA Certificates for APP on host OS
 sudo mkdir -p /usr/local/share/ca-certificates
 sudo apt-get install ca-certificates -y
-#sudo openssl x509 -outform der -in /etc/ssl/certs/consul-root-signed-intermediate-ca.pem -out /usr/local/bootstrap/certificate-config/hashistack-ca.crt
-sudo cp /etc/ssl/certs/consul-root-signed-intermediate-ca.pem /usr/local/share/ca-certificates/hashistack-ca.crt
+#sudo openssl x509 -outform der -in /etc/ssl/certs/consul-ca-chain.pem -out /usr/local/bootstrap/certificate-config/hashistack-ca.crt
+sudo cp /etc/ssl/certs/consul-ca-chain.pem /usr/local/share/ca-certificates/hashistack-ca.crt
 sudo update-ca-certificates
 
 

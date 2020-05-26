@@ -132,7 +132,7 @@ start_envoy_proxy_service () {
 
   create_service "${1}" "${2}" "/usr/local/bin/consul connect envoy \
                                                         -http-addr=https://127.0.0.1:8321 \
-                                                        -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem \
+                                                        -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem \
                                                         -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem \
                                                         -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem \
                                                         -token=${CONSUL_HTTP_TOKEN} \
@@ -188,7 +188,7 @@ setup_environment () {
 
     # Configure consul environment variables for use with certificates 
     export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-    export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem
+    export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem
     export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem
     export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem
     export CONSUL_HTTP_SSL=true
@@ -197,8 +197,8 @@ setup_environment () {
     # Configure CA Certificates for APP on host OS
     sudo mkdir -p /usr/local/share/ca-certificates
     sudo apt-get install ca-certificates -y
-    #sudo openssl x509 -outform der -in /etc/ssl/certs/consul-root-signed-intermediate-ca.pem -out /usr/local/bootstrap/certificate-config/hashistack-ca.crt
-    sudo cp /etc/ssl/certs/consul-root-signed-intermediate-ca.pem /usr/local/share/ca-certificates/consul-ca.crt
+    #sudo openssl x509 -outform der -in /etc/ssl/certs/consul-ca-chain.pem -out /usr/local/bootstrap/certificate-config/hashistack-ca.crt
+    sudo cp /etc/ssl/certs/consul-ca-chain.pem /usr/local/share/ca-certificates/consul-ca.crt
     sudo cp /etc/ssl/certs/nomad-agent-ca.pem /usr/local/share/ca-certificates/nomad-ca.crt
     sudo cp /etc/ssl/certs/vault-agent-ca.pem /usr/local/share/ca-certificates/vault-ca.crt
     sudo update-ca-certificates

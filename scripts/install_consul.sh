@@ -134,16 +134,16 @@ install_consul () {
   AGENT_CONFIG="-config-dir=/${ROOTCERTPATH}/consul.d -enable-script-checks=true"
 
   # sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} client
-  export BootStrapCertTool="https://raw.githubusercontent.com/allthingsclowd/BootstrapCertificateTool/0.0.6/scripts/Generate_PKI_Certificates_For_Lab.sh"
-  wget -O - ${BootStrapCertTool} | bash -s consul "server.node.global.consul" "client.node.global.consul" "${IP}"
+  export BootStrapCertTool="https://raw.githubusercontent.com/allthingsclowd/BootstrapCertificateTool/0.0.7/scripts/Generate_PKI_Certificates_For_Lab.sh"
+  wget -O - ${BootStrapCertTool} | sudo bash -s consul "server.node.global.consul" "client.node.global.consul" "${IP}"
   
   # move certificates back into the correct directories.... 
   
-  
+  # openssl verify -verbose -purpose sslserver -CAfile CAchain.pem name.pem
   
   # Configure consul environment variables for use with certificates 
   export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-  export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem
+  export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem
   export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem
   export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem
 
@@ -151,7 +151,7 @@ install_consul () {
   if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
     echo "Starting a Consul Agent in Server Mode"
 
-    generate_certificate_config true "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-server-key.pem" "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-server.pem" "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem"
+    generate_certificate_config true "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-server-key.pem" "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-server.pem" "/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem"
 
     /usr/local/bin/consul members 2>/dev/null || {
       if [ "${TRAVIS}" == "true" ]; then
@@ -193,7 +193,7 @@ install_consul () {
   else
     echo "Starting a Consul Agent in Client Mode"
     
-    generate_certificate_config false "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem"
+    generate_certificate_config false "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" "/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem"
 
     /usr/local/bin/consul members 2>/dev/null || {
         

@@ -27,7 +27,7 @@ setup_environment () {
 
     # Configure consul environment variables for use with certificates 
     export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-    export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem
+    export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem
     export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem
     export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem
     export CONSUL_GRPC_ADDR=https://127.0.0.1:8502
@@ -307,7 +307,7 @@ create_app_token () {
     address = "127.0.0.1:8321"
     scheme = "https"
     path    = "vault/"
-    tls_ca_file = "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem"
+    tls_ca_file = "/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem"
     tls_cert_file = "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem"
     tls_key_file = "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem"
     token = "${VAULTSESSIONTOKEN}"
@@ -331,7 +331,7 @@ EOF
 consul {
   address = "127.0.0.1:8321"
   ssl       = true
-  ca_file   = "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem"
+  ca_file   = "/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem"
   cert_file = "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem"
   key_file  = "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem"
   token = "${CONSUL_HTTP_TOKEN}"
@@ -379,7 +379,7 @@ step9_configure_nomad() {
 consul {
   address = "127.0.0.1:8321"
   ssl       = true
-  ca_file   = "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem"
+  ca_file   = "/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem"
   cert_file = "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem"
   key_file  = "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem"
   token = "${AGENTTOKEN}"

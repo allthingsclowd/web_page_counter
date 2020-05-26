@@ -30,7 +30,7 @@ export VAULT_SKIP_VERIFY=true
 
 # Configure consul environment variables for use with certificates 
 export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem
+export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem
 export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem
 export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem
 AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
@@ -159,7 +159,7 @@ sudo /usr/local/bin/consul-template \
      -consul-token=${CONSUL_HTTP_TOKEN} \
      -consul-ssl-cert="/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
      -consul-ssl-key="/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
-     -consul-ssl-ca-cert="/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
+     -consul-ssl-ca-cert="/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem" \
      -template "/usr/local/bootstrap/conf/nginx.ctpl:/etc/nginx/conf.d/goapp.conf:/usr/local/bootstrap/scripts/updateBackendCount.sh" &
    
 sleep 1
