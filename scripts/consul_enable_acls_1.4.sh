@@ -47,7 +47,7 @@ create_acl_policy () {
 
       curl \
       --request PUT \
-      --cacert "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
+      --with-ca-path "/${ROOTCERTPATH}/ssl/certs" \
       --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
       --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
       --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
@@ -89,7 +89,7 @@ step2_create_bootstrap_token_on_server () {
 
   curl -w "\n%{http_code}" \
         --request PUT \
-        --cacert "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
+        --with-ca-path "/${ROOTCERTPATH}/ssl/certs" \
         --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
         --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
         https://127.0.0.1:8321/v1/acl/bootstrap |  {
@@ -126,7 +126,7 @@ step4_create_an_agent_token () {
     
     AGENTTOKEN=$(curl -s \
       --request PUT \
-      --cacert "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
+      --with-ca-path "/${ROOTCERTPATH}/ssl/certs" \
       --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
       --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
       --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
@@ -194,7 +194,7 @@ EOF
 step6_verify_acl_config () {
 
     curl -s -w "\n%{http_code}" \
-      --cacert "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
+      --with-ca-path "/${ROOTCERTPATH}/ssl/certs" \
       --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
       --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
       --header "X-Consul-Token: ${AGENTTOKEN}" \
@@ -254,7 +254,7 @@ step8_verify_acl_config () {
     AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
 
     curl -w "\n%{http_code}" \
-      --cacert "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
+      --with-ca-path "/${ROOTCERTPATH}/ssl/certs" \
       --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
       --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
       --header "X-Consul-Token: ${AGENTTOKEN}" \
@@ -283,7 +283,7 @@ create_app_token () {
   
   VAULTSESSIONTOKEN=$(curl \
   --request PUT \
-  --cacert "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
+  --with-ca-path "/${ROOTCERTPATH}/ssl/certs" \
   --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
   --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
   --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
