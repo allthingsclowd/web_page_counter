@@ -28,8 +28,8 @@ setup_environment () {
     # Configure consul environment variables for use with certificates 
     export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
     export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem
-    export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem
-    export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem
+    export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem
+    export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem
     export CONSUL_GRPC_ADDR=https://127.0.0.1:8502
 
     export VAULT_TOKEN=reallystrongpassword
@@ -48,8 +48,8 @@ create_acl_policy () {
       curl \
       --request PUT \
       --cacert "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
-      --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem" \
-      --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem" \
+      --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
+      --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
       --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
       --data \
     "{
@@ -90,8 +90,8 @@ step2_create_bootstrap_token_on_server () {
   curl -w "\n%{http_code}" \
         --request PUT \
         --cacert "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
-        --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem" \
-        --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem" \
+        --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
+        --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
         https://127.0.0.1:8321/v1/acl/bootstrap |  {
             read body
             read result
@@ -127,8 +127,8 @@ step4_create_an_agent_token () {
     AGENTTOKEN=$(curl -s \
       --request PUT \
       --cacert "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
-      --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem" \
-      --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem" \
+      --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
+      --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
       --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
       --data \
     '{
@@ -195,8 +195,8 @@ step6_verify_acl_config () {
 
     curl -s -w "\n%{http_code}" \
       --cacert "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
-      --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem" \
-      --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem" \
+      --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
+      --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
       --header "X-Consul-Token: ${AGENTTOKEN}" \
       https://127.0.0.1:8321/v1/catalog/nodes | {
             read body
@@ -255,8 +255,8 @@ step8_verify_acl_config () {
 
     curl -w "\n%{http_code}" \
       --cacert "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
-      --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem" \
-      --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem" \
+      --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
+      --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
       --header "X-Consul-Token: ${AGENTTOKEN}" \
       https://127.0.0.1:8321/v1/catalog/nodes | {
             read body
@@ -284,8 +284,8 @@ create_app_token () {
   VAULTSESSIONTOKEN=$(curl \
   --request PUT \
   --cacert "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem" \
-  --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem" \
-  --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem" \
+  --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
+  --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
   --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
   --data \
 '{
@@ -308,8 +308,8 @@ create_app_token () {
     scheme = "https"
     path    = "vault/"
     tls_ca_file = "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem"
-    tls_cert_file = "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem"
-    tls_key_file = "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem"
+    tls_cert_file = "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem"
+    tls_key_file = "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem"
     token = "${VAULTSESSIONTOKEN}"
   }
 
@@ -332,8 +332,8 @@ consul {
   address = "127.0.0.1:8321"
   ssl       = true
   ca_file   = "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem"
-  cert_file = "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem"
-  key_file  = "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem"
+  cert_file = "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem"
+  key_file  = "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem"
   token = "${CONSUL_HTTP_TOKEN}"
   }
 
@@ -380,8 +380,8 @@ consul {
   address = "127.0.0.1:8321"
   ssl       = true
   ca_file   = "/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem"
-  cert_file = "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem"
-  key_file  = "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem"
+  cert_file = "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem"
+  key_file  = "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem"
   token = "${AGENTTOKEN}"
   }
 

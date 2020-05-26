@@ -50,8 +50,8 @@ script:
 # Configure consul environment variables for use with certificates 
 - export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
 - export CONSUL_CACERT=/tmp/ssl/certs/consul-root-signed-intermediate-ca.pem
-- export CONSUL_CLIENT_CERT=/tmp/consul.d/pki/tls/private/consul-cli-key.pem
-- export CONSUL_CLIENT_KEY=/tmp/consul.d/pki/tls/certs/consul-cli.pem
+- export CONSUL_CLIENT_CERT=/tmp/consul.d/pki/tls/private/consul-peer-key.pem
+- export CONSUL_CLIENT_KEY=/tmp/consul.d/pki/tls/certs/consul-peer.pem
 - consul version
 - go version
 - inspec exec --chef-license=accept test/ImageBuild-Packer-Test

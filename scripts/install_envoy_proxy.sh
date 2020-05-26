@@ -31,8 +31,8 @@ start_envoy_proxy_service () {
                                                         -grpc-addr=https://127.0.0.1:8502 \
                                                         -http-addr=https://127.0.0.1:8321 \
                                                         -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-root-signed-intermediate-ca.pem \
-                                                        -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem \
-                                                        -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem \
+                                                        -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem \
+                                                        -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem \
                                                         -token=${5} \
                                                         ${3} \
                                                         -admin-bind localhost:${4}"
