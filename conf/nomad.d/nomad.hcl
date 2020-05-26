@@ -4,7 +4,7 @@ consul {
   ca_file   = "/etc/ssl/certs/consul-ca-chain.pem"
   cert_file = "/etc/consul.d/pki/tls/certs/consul-peer.pem"
   key_file  = "/etc/consul.d/pki/tls/private/consul-peer-key.pem"
-  token = "820ce2dc-db49-8598-ac52-e6e6ae138510"
+  token = "f154c59c-ab61-cf9f-e61a-e30c86743ab9"
   }
 
 # Increase log verbosity
