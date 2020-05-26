@@ -39,7 +39,7 @@ setup_environment () {
   set -x
   sleep 5
   source /usr/local/bootstrap/var.env
-  source /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/BootstrapCAs.sh
+
   
   IFACE=`route -n | awk '$1 == "192.168.9.0" {print $8;exit}'`
   CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.9" {print $2}'`
@@ -134,7 +134,7 @@ install_consul () {
   AGENT_CONFIG="-config-dir=/${ROOTCERTPATH}/consul.d -enable-script-checks=true"
 
   # sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} client
-  export BootStrapCertTool="https://raw.githubusercontent.com/allthingsclowd/BootstrapCertificateTool/0.0.3/scripts/Generate_PKI_Certificates_For_Lab.sh"
+  export BootStrapCertTool="https://raw.githubusercontent.com/allthingsclowd/BootstrapCertificateTool/0.0.4/scripts/Generate_PKI_Certificates_For_Lab.sh"
   wget -O - ${BootStrapCertTool} | bash -s consul "server.node.global.consul" "client.node.global.consul" "${IP}"
   
   # move certificates back into the correct directories.... 
