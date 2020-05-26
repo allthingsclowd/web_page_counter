@@ -64,71 +64,71 @@ setup_environment () {
 
 }
 
-# install_prerequisite_binaries () {
+install_prerequisite_binaries () {
 
-#     # check consul binary
-#     [ -f /usr/local/bin/consul ] &>/dev/null || {
-#         pushd /usr/local/bin
-#         [ -f consul_${consul_version}_linux_amd64.zip ] || {
-#             sudo wget -q https://releases.hashicorp.com/consul/${consul_version}/consul_${consul_version}_linux_amd64.zip
-#         }
-#         sudo unzip consul_${consul_version}_linux_amd64.zip
-#         sudo chmod +x consul
-#         sudo rm consul_${consul_version}_linux_amd64.zip
-#         popd
-#     }
+    # check consul binary
+    [ -f /usr/local/bin/consul ] &>/dev/null || {
+        pushd /usr/local/bin
+        [ -f consul_${consul_version}_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/consul/${consul_version}/consul_${consul_version}_linux_amd64.zip
+        }
+        sudo unzip consul_${consul_version}_linux_amd64.zip
+        sudo chmod +x consul
+        sudo rm consul_${consul_version}_linux_amd64.zip
+        popd
+    }
 
-#     # check consul-template binary
-#     [ -f /usr/local/bin/consul-template ] &>/dev/null || {
-#         pushd /usr/local/bin
-#         [ -f consul-template_${consul_template_version}_linux_amd64.zip ] || {
-#             sudo wget -q https://releases.hashicorp.com/consul-template/${consul_template_version}/consul-template_${consul_template_version}_linux_amd64.zip
-#         }
-#         sudo unzip consul-template_${consul_template_version}_linux_amd64.zip
-#         sudo chmod +x consul-template
-#         sudo rm consul-template_${consul_template_version}_linux_amd64.zip
-#         popd
-#     }
+    # check consul-template binary
+    [ -f /usr/local/bin/consul-template ] &>/dev/null || {
+        pushd /usr/local/bin
+        [ -f consul-template_${consul_template_version}_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/consul-template/${consul_template_version}/consul-template_${consul_template_version}_linux_amd64.zip
+        }
+        sudo unzip consul-template_${consul_template_version}_linux_amd64.zip
+        sudo chmod +x consul-template
+        sudo rm consul-template_${consul_template_version}_linux_amd64.zip
+        popd
+    }
 
-#     # check envconsul binary
-#     [ -f /usr/local/bin/envconsul ] &>/dev/null || {
-#         pushd /usr/local/bin
-#         [ -f envconsul_${env_consul_version}_linux_amd64.zip ] || {
-#             sudo wget -q https://releases.hashicorp.com/envconsul/${env_consul_version}/envconsul_${env_consul_version}_linux_amd64.zip
-#         }
-#         sudo unzip envconsul_${env_consul_version}_linux_amd64.zip
-#         sudo chmod +x envconsul
-#         sudo rm envconsul_${env_consul_version}_linux_amd64.zip
-#         popd
-#     }
+    # check envconsul binary
+    [ -f /usr/local/bin/envconsul ] &>/dev/null || {
+        pushd /usr/local/bin
+        [ -f envconsul_${env_consul_version}_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/envconsul/${env_consul_version}/envconsul_${env_consul_version}_linux_amd64.zip
+        }
+        sudo unzip envconsul_${env_consul_version}_linux_amd64.zip
+        sudo chmod +x envconsul
+        sudo rm envconsul_${env_consul_version}_linux_amd64.zip
+        popd
+    }
 
-# }
+}
 
-# install_chef_inspec () {
+install_chef_inspec () {
     
-#     [ -f /usr/bin/inspec ] &>/dev/null || {
-#         pushd /tmp
-#         curl https://omnitruck.chef.io/install.sh | sudo bash -s -- -P inspec
-#         popd
-#     }    
+    [ -f /usr/bin/inspec ] &>/dev/null || {
+        pushd /tmp
+        curl https://omnitruck.chef.io/install.sh | sudo bash -s -- -P inspec
+        popd
+    }    
 
-# }
+}
 
-# install_terraform () {
+install_terraform () {
 
-#     # check terraform binary
-#     [ -f /usr/local/bin/terraform ] &>/dev/null || {
-#         pushd /usr/local/bin
-#         [ -f terraform_${terraform_version}_linux_amd64.zip ] || {
-#             sudo wget -q https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip
-#         }
-#         sudo unzip terraform_${terraform_version}_linux_amd64.zip
-#         sudo chmod +x terraform
-#         sudo rm terraform_${terraform_version}_linux_amd64.zip
-#         popd
-#     }
+    # check terraform binary
+    [ -f /usr/local/bin/terraform ] &>/dev/null || {
+        pushd /usr/local/bin
+        [ -f terraform_${terraform_version}_linux_amd64.zip ] || {
+            sudo wget -q https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip
+        }
+        sudo unzip terraform_${terraform_version}_linux_amd64.zip
+        sudo chmod +x terraform
+        sudo rm terraform_${terraform_version}_linux_amd64.zip
+        popd
+    }
 
-# }
+}
 
 install_consul () {
   AGENT_CONFIG="-config-dir=/${ROOTCERTPATH}/consul.d -enable-script-checks=true"
@@ -152,31 +152,21 @@ install_consul () {
     /usr/local/bin/consul members 2>/dev/null || {
       if [ "${TRAVIS}" == "true" ]; then
 
-        # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
-        # sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} server
         # Travis-CI grant access to /tmp for all users
         sudo chmod -R 777 /${ROOTCERTPATH}
-        sudo ls -al /${ROOTCERTPATH}/consul.d/pki/tls/certs/ /${ROOTCERTPATH}/consul.d/pki/tls/private/ /${ROOTCERTPATH}/ssl/certs /${ROOTCERTPATH}/ssl/private
-        # sudo ls -al /${ROOTCERTPATH}/consul.d/pki/tls/private/consul/
         sudo /usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${TRAVIS_BUILD_DIR}/${LOG} &
         sleep 5
         sudo ls -al ${TRAVIS_BUILD_DIR}/${LOG}
         sudo cat ${TRAVIS_BUILD_DIR}/${LOG}
       else
-        # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
-        #sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} server
-        # sudo chmod -R 755 /${ROOTCERTPATH}/consul.d
-        # sudo chown -R consul:consul /${ROOTCERTPATH}/consul.d
-        # sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
-        # sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
+
         sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -join=${IP} -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1" /etc/systemd/system/consul.service
-        #sudo -u consul cp -r /usr/local/bootstrap/conf/consul.d/* /${ROOTCERTPATH}/consul.d/.
         sudo systemctl enable consul
         sudo systemctl start consul
       fi
       sleep 15
       # upload vars to consul kv
-      ls -al /${ROOTCERTPATH}/consul.d/pki/tls/certs/ /${ROOTCERTPATH}/consul.d/pki/tls/private/ /${ROOTCERTPATH}/ssl/certs /${ROOTCERTPATH}/ssl/private
+      # ls -al /${ROOTCERTPATH}/consul.d/pki/tls/certs/ /${ROOTCERTPATH}/consul.d/pki/tls/private/ /${ROOTCERTPATH}/ssl/certs /${ROOTCERTPATH}/ssl/private
       echo "Quick test of the Consul KV store - upload the var.env parameters"
       while read a b; do
         k=${b%%=*}
@@ -194,10 +184,6 @@ install_consul () {
     /usr/local/bin/consul members 2>/dev/null || {
         
         sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/consul agent -log-level=debug -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -join=${LEADER_IP}" /etc/systemd/system/consul.service
-        # sudo chmod -R 755 /${ROOTCERTPATH}/consul.d
-        # sudo chown -R consul:consul /${ROOTCERTPATH}/consul.d
-        # sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
-        # sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
         sudo systemctl enable consul
         sudo systemctl start consul
         echo $HOSTNAME
@@ -206,13 +192,14 @@ install_consul () {
     }
   fi
 
+  /usr/local/bin/consul members
+
   echo "Consul Service Started"
 }
 
 setup_environment
-# install_prerequisite_binaries
-# install_chef_inspec # used for dev/test of scripts
-# install_terraform # used for testing only
+install_prerequisite_binaries
+install_chef_inspec # used for dev/test of scripts
+install_terraform # used for testing only
 install_consul
-/usr/local/bin/consul members
 exit 0

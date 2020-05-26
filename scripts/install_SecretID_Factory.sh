@@ -178,9 +178,9 @@ setup_environment () {
     echo 'Set environmental bootstrapping data in VAULT'
 
     export VAULT_ADDR=https://${VAULT_IP}:8322
-    export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem
-    export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem
-    export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem
+    export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-cli-key.pem
+    export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-cli.pem
+    export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-ca-chain.pem
     export VAULT_SKIP_VERIFY=true
 
     AGENTTOKEN=`VAULT_TOKEN=reallystrongpassword VAULT_ADDR="https://${LEADER_IP}:8322" vault kv get -field "value" kv/development/consulagentacl`
@@ -245,17 +245,17 @@ install_secret_id_application () {
                                "/usr/local/bin/VaultServiceIDFactory \
                                -ip=127.0.0.1 \
                                -vault=\"${VAULT_ADDR}\" \
-                               -vaultCA=\"/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem\" \
-                               -vaultcert=\"/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem\" \
-                               -vaultkey=\"/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem\""
+                               -vaultCA=\"/${ROOTCERTPATH}/ssl/certs/vault-ca-chain.pem\" \
+                               -vaultcert=\"/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-cli.pem\" \
+                               -vaultkey=\"/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-cli-key.pem\""
         sudo systemctl start factory
         #sudo systemctl status factory
         register_secret_id_service_with_consul
     else
         sudo /usr/local/bin/VaultServiceIDFactory -vault="${VAULT_ADDR}" \
-                                                  -vaultCA="/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
-                                                  -vaultcert="/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
-                                                  -vaultkey="/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" &> ${LOG} &
+                                                  -vaultCA="/${ROOTCERTPATH}/ssl/certs/vault-ca-chain.pem" \
+                                                  -vaultcert="/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-cli.pem" \
+                                                  -vaultkey="/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-cli-key.pem" &> ${LOG} &
     fi
 
 

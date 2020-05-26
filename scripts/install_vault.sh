@@ -48,9 +48,9 @@ setup_environment () {
 
     export VAULT_TOKEN=reallystrongpassword
     export VAULT_ADDR=https://${LEADER_IP}:8322
-    export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem
-    export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem
-    export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem
+    export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-cli-key.pem
+    export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-cli.pem
+    export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-ca-chain.pem
 
     echo 'End Setup of Vault Environment'
 }
@@ -247,9 +247,9 @@ EOF
     # Create the approle backend
     curl \
         --location \
-        --cacert "/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
-        --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
-        --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
+        --cacert "/${ROOTCERTPATH}/ssl/certs/vault-ca-chain.pem" \
+        --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-cli-key.pem" \
+        --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-cli.pem" \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
         --request POST \
         --data @approle.json \
@@ -265,9 +265,9 @@ EOF
     # Write the policy
     curl \
         --location \
-        --cacert "/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
-        --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
-        --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
+        --cacert "/${ROOTCERTPATH}/ssl/certs/vault-ca-chain.pem" \
+        --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-cli-key.pem" \
+        --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-cli.pem" \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
         --request PUT \
         --data @id-factory-secret-read.json \
@@ -276,9 +276,9 @@ EOF
     # List ACL policies
     sudo curl \
         --location \
-        --cacert "/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
-        --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
-        --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
+        --cacert "/${ROOTCERTPATH}/ssl/certs/vault-ca-chain.pem" \
+        --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-cli-key.pem" \
+        --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-cli.pem" \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
         --request LIST \
         ${VAULT_ADDR}/v1/sys/policy | jq .
@@ -286,9 +286,9 @@ EOF
     # Check if AppRole Exists
     APPROLEID=`curl  \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
-    --cacert "/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
-    --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
-    --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
+    --cacert "/${ROOTCERTPATH}/ssl/certs/vault-ca-chain.pem" \
+    --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-cli-key.pem" \
+    --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-cli.pem" \
     ${VAULT_ADDR}/v1/auth/approle/role/id-factory/role-id | jq -r .data.role_id`
 
     if [ "${APPROLEID}" == null ]; then
@@ -318,9 +318,9 @@ EOF
         # Create the AppRole role
         curl \
             --location \
-            --cacert "/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
-            --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
-            --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
+            --cacert "/${ROOTCERTPATH}/ssl/certs/vault-ca-chain.pem" \
+            --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-cli-key.pem" \
+            --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-cli.pem" \
             --header "X-Vault-Token: ${VAULT_TOKEN}" \
             --request POST \
             --data @id-factory-approle-role.json \
@@ -329,9 +329,9 @@ EOF
         # Update the static AppRole role-id
         curl \
             --location \
-            --cacert "/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
-            --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
-            --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
+            --cacert "/${ROOTCERTPATH}/ssl/certs/vault-ca-chain.pem" \
+            --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-cli-key.pem" \
+            --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-cli.pem" \
             --header "X-Vault-Token: ${VAULT_TOKEN}" \
             --request POST \
             --data @id-factory-static-role-id.json \
@@ -339,9 +339,9 @@ EOF
 
         APPROLEID=`curl  \
             --header "X-Vault-Token: ${VAULT_TOKEN}" \
-            --cacert "/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
-            --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
-            --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
+            --cacert "/${ROOTCERTPATH}/ssl/certs/vault-ca-chain.pem" \
+            --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-cli-key.pem" \
+            --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-cli.pem" \
             ${VAULT_ADDR}/v1/auth/approle/role/id-factory/role-id | jq -r .data.role_id`
 
     fi
@@ -374,9 +374,9 @@ get_approle_id () {
     # retrieve the appRole-id from the approle
     APPROLEID=`curl  \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
-    --cacert "/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
-    --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
-    --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
+    --cacert "/${ROOTCERTPATH}/ssl/certs/vault-ca-chain.pem" \
+    --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-cli-key.pem" \
+    --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-cli.pem" \
     ${VAULT_ADDR}/v1/auth/approle/role/id-factory/role-id | jq -r .data.role_id`
     echo 'Get APP-ROLE ID Complete'
 
@@ -387,9 +387,9 @@ bootstrap_secret_data () {
     echo 'Set environmental bootstrapping data in VAULT'
     export VAULT_TOKEN=reallystrongpassword
     export VAULT_ADDR=https://${LEADER_IP}:8322
-    export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem
-    export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem
-    export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem
+    export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-cli-key.pem
+    export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-cli.pem
+    export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-ca-chain.pem
     REDIS_MASTER_PASSWORD=`openssl rand -base64 32`
     APPROLEID=`cat /usr/local/bootstrap/.appRoleID`
     DB_VAULT_TOKEN=`cat /usr/local/bootstrap/.database-token`
@@ -413,9 +413,9 @@ create_browser_certificate () {
     echo 'Set environmental bootstrapping data in VAULT'
     export VAULT_TOKEN=reallystrongpassword
     export VAULT_ADDR=https://${LEADER_IP}:8322
-    export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem
-    export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem
-    export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem
+    export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-cli-key.pem
+    export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-cli.pem
+    export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-ca-chain.pem
 
     sudo rm -rf /usr/local/bootstrap/certificate-config/browser
     
@@ -468,9 +468,9 @@ get_secret_id () {
     # Generate a new secret-id
     SECRET_ID=`curl \
         --location \
-        --cacert "/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
-        --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
-        --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
+        --cacert "/${ROOTCERTPATH}/ssl/certs/vault-ca-chain.pem" \
+        --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-cli-key.pem" \
+        --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-cli.pem" \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
         --request POST \
         ${VAULT_ADDR}/v1/auth/approle/role/id-factory/secret-id | jq -r .data.secret_id`
@@ -490,9 +490,9 @@ EOF
 
     APPTOKEN=`curl \
         --request POST \
-        --cacert "/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
-        --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
-        --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
+        --cacert "/${ROOTCERTPATH}/ssl/certs/vault-ca-chain.pem" \
+        --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-cli-key.pem" \
+        --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-cli.pem" \
         --data @id-factory-secret-id-login.json \
         ${VAULT_ADDR}/v1/auth/approle/login | jq -r .auth.client_token`
 
@@ -505,9 +505,9 @@ EOF
 
     RESULT=`curl \
         --header "X-Vault-Token: ${APPTOKEN}" \
-        --cacert "/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem" \
-        --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem" \
-        --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem" \
+        --cacert "/${ROOTCERTPATH}/ssl/certs/vault-ca-chain.pem" \
+        --key "/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-cli-key.pem" \
+        --cert "/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-cli.pem" \
         ${VAULT_ADDR}/v1/kv/development/redispassword | jq -r .data.value`
 
     if [ "${RESULT}" != "${REDIS_MASTER_PASSWORD}" ];then
@@ -522,13 +522,9 @@ EOF
 
 install_vault () {
     
-    # create certificates - using consul helper :shrug:?
-    sudo /usr/local/bootstrap/scripts/create_certificate.sh vault hashistack1 30 ${IP} server
-    sudo /usr/local/bootstrap/scripts/create_certificate.sh vault hashistack1 30 ${IP} client
-    sudo chown -R vault:vault /${ROOTCERTPATH}/vault.d
-    sudo chmod -R 755 /${ROOTCERTPATH}/vault.d
-    sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
-    sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
+    # create certificates 
+    export BootStrapCertTool="https://raw.githubusercontent.com/allthingsclowd/BootstrapCertificateTool/folderperms/scripts/Generate_PKI_Certificates_For_Lab.sh"
+    wget -O - ${BootStrapCertTool} | sudo bash -s vault "server.global.vault" "client.global.vault" "${IP}"
 
     # verify it's either the TRAVIS server or the Vault server
     if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
@@ -547,9 +543,6 @@ install_vault () {
         #start vault
         if [ "${TRAVIS}" == "true" ]; then
 
-            # sudo -u vault mkdir --parents /${ROOTCERTPATH}/vault.d/pki/tls/private /${ROOTCERTPATH}/vault.d/pki/tls/certs
-            # sudo -u vault chmod -R 644 /${ROOTCERTPATH}/vault.d/pki/tls/certs
-            # sudo -u vault chmod -R 600 /${ROOTCERTPATH}/vault.d/pki/tls/private
 
             sudo cp -r /usr/local/bootstrap/conf/vault.d/* /${ROOTCERTPATH}/vault.d/.
 
@@ -583,6 +576,7 @@ install_vault () {
         get_secret_id
         get_approle_id
         verify_approle_credentials
+        /usr/local/bin/vault status
         echo 'Installation of Vault Finished'
 
     fi
@@ -591,8 +585,8 @@ install_vault () {
 }
 setup_environment
 install_vault
-create_browser_certificate
-/usr/local/bin/vault status
+#create_browser_certificate
+
 
 
 exit 0

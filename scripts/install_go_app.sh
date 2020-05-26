@@ -163,9 +163,9 @@ fi
 export ROOTCERTPATH
 
 # read redis database password from vault
-export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem
-export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem
-export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem
+export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-cli-key.pem
+export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-cli.pem
+export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-ca-chain.pem
 export VAULT_SKIP_VERIFY=true
 export VAULT_ADDR="https://${LEADER_IP}:8322"
 export VAULT_TOKEN=reallystrongpassword
@@ -180,9 +180,9 @@ export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 export CONSUL_HTTP_SSL=true
 export CONSUL_GRPC_ADDR=https://127.0.0.1:8502
 
-export NOMAD_CACERT=/${ROOTCERTPATH}/ssl/certs/nomad-agent-ca.pem
-export NOMAD_CLIENT_CERT=/${ROOTCERTPATH}/nomad.d/pki/tls/certs/nomad-client.pem
-export NOMAD_CLIENT_KEY=/${ROOTCERTPATH}/nomad.d/pki/tls/private/nomad-client-key.pem
+export NOMAD_CACERT=/${ROOTCERTPATH}/ssl/certs/nomad-ca-chain.pem
+export NOMAD_CLIENT_CERT=/${ROOTCERTPATH}/nomad.d/pki/tls/certs/nomad-cli.pem
+export NOMAD_CLIENT_KEY=/${ROOTCERTPATH}/nomad.d/pki/tls/private/nomad-cli-key.pem
 export NOMAD_ADDR=https://${LEADER_IP}:4646
 
 # Configure CA Certificates for APP on host OS

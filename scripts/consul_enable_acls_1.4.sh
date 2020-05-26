@@ -34,9 +34,9 @@ setup_environment () {
 
     export VAULT_TOKEN=reallystrongpassword
     export VAULT_ADDR=https://${LEADER_IP}:8322
-    export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem
-    export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem
-    export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem
+    export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-cli-key.pem
+    export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-cli.pem
+    export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-ca-chain.pem
     
 
     export AGENT_CONFIG="-config-dir=/${ROOTCERTPATH}/consul.d -enable-script-checks=true"
@@ -360,7 +360,7 @@ tls {
   http = true
   rpc  = true
 
-  ca_file   = "/${ROOTCERTPATH}/ssl/certs/nomad-agent-ca.pem"
+  ca_file   = "/${ROOTCERTPATH}/ssl/certs/nomad-ca-chain.pem"
   cert_file = "/${ROOTCERTPATH}/nomad.d/pki/tls/certs/nomad-server.pem"
   key_file  = "/${ROOTCERTPATH}/nomad.d/pki/tls/private/nomad-server-key.pem"
 
@@ -410,9 +410,9 @@ tls {
   http = true
   rpc  = true
 
-  ca_file   = "/${ROOTCERTPATH}/ssl/certs/nomad-agent-ca.pem"
-  cert_file = "/${ROOTCERTPATH}/nomad.d/pki/tls/certs/nomad-client.pem"
-  key_file  = "/${ROOTCERTPATH}/nomad.d/pki/tls/private/nomad-client-key.pem"
+  ca_file   = "/${ROOTCERTPATH}/ssl/certs/nomad-ca-chain.pem"
+  cert_file = "/${ROOTCERTPATH}/nomad.d/pki/tls/certs/nomad-cli.pem"
+  key_file  = "/${ROOTCERTPATH}/nomad.d/pki/tls/private/nomad-cli-key.pem"
 
   verify_server_hostname = true
   verify_https_client    = true
