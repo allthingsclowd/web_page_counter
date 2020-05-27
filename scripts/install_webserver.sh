@@ -73,13 +73,26 @@ download_and_configure_frontend() {
   echo "Check web frontend changes"
   sudo cat /var/www/wpc-fe/env.js
 
+  # Set webserver directory permissions
+  sudo chmod -R 755 /var/www/wpc-fe
 
   # This line causes the entire inline not to run
   #     "sudo sh -c \"sed 's/api_key:.*/api_key: ${dd_api_key}' /etc/dd-agent/datadog.conf.example > /etc/dd-agent/datadog.conf\""
-  sudo cp /usr/local/bootstrap/conf/wpc-fe.conf /etc/nginx/conf.d/wpc-fe.conf
+  
+  # Create a new nginx server block for the frontend
+  sudo cp /usr/local/bootstrap/conf/frontend.conf /etc/nginx/sites-available/frontend.conf
 
   # remove nginx default website
+  [ -f /etc/nginx/sites-available/default ] && sudo rm -f /etc/nginx/sites-available/default
   [ -f /etc/nginx/sites-enabled/default ] && sudo rm -f /etc/nginx/sites-enabled/default
+
+  # Enable the front-end
+  sudo ln -s /etc/nginx/sites-available/frontend.conf /etc/nginx/sites-enabled/
+
+  # test the new config
+  sudo nginx -t
+
+
 }
 
 enable_nginx_service () {
@@ -168,6 +181,7 @@ install_lets_encrypt_certs() {
 setup_environment
 enable_nginx_service
 register_nginx_service_with_consul
+install_lets_encrypt_certs
 download_and_configure_frontend
 
 # make consul reload conf
@@ -185,12 +199,18 @@ sudo /usr/local/bin/consul-template \
      -consul-ssl-cert="/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
      -consul-ssl-key="/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
      -consul-ssl-ca-cert="/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem" \
-     -template "/usr/local/bootstrap/conf/nginx.ctpl:/etc/nginx/conf.d/goapp.conf:/usr/local/bootstrap/scripts/updateBackendCount.sh" &
-   
+     -template "/usr/local/bootstrap/conf/backend.ctpl:/etc/nginx/sites-available/backend.conf:/usr/local/bootstrap/scripts/updateBackendCount.sh" &
+
+# Enable the front-end
+sudo ln -s /etc/nginx/sites-available/backend.conf /etc/nginx/sites-enabled/
+
+# test the new config
+sudo nginx -t   
+
 sleep 1
 
 echo "Verifiy the backend is accessible through nginx service"
-sudo cat /etc/nginx/conf.d/goapp.conf
+sudo cat /etc/nginx/sites-available/backend.conf
 
 echo "Verifiy the backend is accessible through nginx service"
 curl http://${IP}:9090
