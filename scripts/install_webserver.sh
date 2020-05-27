@@ -83,15 +83,14 @@ download_and_configure_frontend() {
   sudo cp /usr/local/bootstrap/conf/frontend.conf /etc/nginx/sites-available/frontend.conf
 
   # remove nginx default website
-  [ -f /etc/nginx/sites-available/default ] && sudo rm -f /etc/nginx/sites-available/default
-  [ -f /etc/nginx/sites-enabled/default ] && sudo rm -f /etc/nginx/sites-enabled/default
+  # [ -f /etc/nginx/sites-available/default ] && sudo rm -f /etc/nginx/sites-available/default
+  # [ -f /etc/nginx/sites-enabled/default ] && sudo rm -f /etc/nginx/sites-enabled/default
 
   # Enable the front-end
   sudo ln -s /etc/nginx/sites-available/frontend.conf /etc/nginx/sites-enabled/
 
   # test the new config
-  sudo nginx -t
-
+  sudo nginx -c /etc/nginx/sites-enabled/frontend.conf -t
 
 }
 
@@ -168,14 +167,12 @@ install_lets_encrypt_certs() {
 
   chmod -R 755 /etc/nginx/conf.d/frontend
 
-  cp /usr/local/bootstrap/.bootstrap/live/hashistack.ie/cert.pem /etc/nginx/conf.d/frontend/pki/tls/certs/hashistack.pem
+  cp /usr/local/bootstrap/.bootstrap/live/hashistack.ie/fullchain.pem /etc/nginx/conf.d/frontend/pki/tls/certs/hashistack.pem
   cp /usr/local/bootstrap/.bootstrap/live/hashistack.ie/privkey.pem /etc/nginx/conf.d/frontend/pki/tls/private/hashistack-key.pem
 
   chmod -R 644 /etc/nginx/conf.d/frontend/pki/tls/certs/
   chmod -R 644 /etc/nginx/conf.d/frontend/pki/tls/private/
 }
-
-
 
 
 setup_environment
@@ -205,7 +202,7 @@ sudo /usr/local/bin/consul-template \
 sudo ln -s /etc/nginx/sites-available/backend.conf /etc/nginx/sites-enabled/
 
 # test the new config
-sudo nginx -t   
+sudo nginx -c /etc/nginx/sites-enabled/backend.conf -t   
 
 sleep 1
 
