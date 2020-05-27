@@ -12,12 +12,12 @@ job "webpagecounter" {
                       "-ip=0.0.0.0", 
                       "-consulACL=9507d4cd-b9ff-178d-ed3c-33ce194e0095", 
                       "-consulIP=192.168.9.11:8321",
-                      "-consulcert=${CONSUL_CLIENT_CERT}",
-                      "-consulkey=${CONSUL_CLIENT_KEY}",
-                      "-consulCA=${CONSUL_CACERT}",
-                      "-vaultcert=${VAULT_CLIENT_CERT}",
-                      "-vaultkey=${VAULT_CLIENT_KEY}",
-                      "-vaultCA=${VAULT_CACERT}"]
+                      "-consulcert=<DEPLOYMENT SCRIPTS PUT CORRECT VALUE HERE>",
+                      "-consulkey=<DEPLOYMENT SCRIPTS PUT CORRECT VALUE HERE>",
+                      "-consulCA=<DEPLOYMENT SCRIPTS PUT CORRECT VALUE HERE>",
+                      "-vaultcert=<DEPLOYMENT SCRIPTS PUT CORRECT VALUE HERE>",
+                      "-vaultkey=<DEPLOYMENT SCRIPTS PUT CORRECT VALUE HERE>",
+                      "-vaultCA=<DEPLOYMENT SCRIPTS PUT CORRECT VALUE HERE>"]
         }
         resources {
           cpu    = 20
