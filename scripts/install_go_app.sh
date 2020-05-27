@@ -71,7 +71,14 @@ EOF
 }
 
 create_intention_between_services () {
-    sudo /usr/local/bin/consul intention create -http-addr=https://127.0.0.1:8321 -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem -token=${CONSUL_HTTP_TOKEN} ${1} ${2}
+
+    # Check to see if the intention is required
+    echo "Checking if a new Intention is required between ${1} and ${2}"
+    if ! /usr/local/bin/consul intention check -http-addr=https://127.0.0.1:8321 -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem -token=${CONSUL_HTTP_TOKEN} ${1} ${2} ;
+    then
+      echo "Configuring access between ${1} and ${2}"
+      /usr/local/bin/consul intention create -http-addr=https://127.0.0.1:8321 -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem -token=${CONSUL_HTTP_TOKEN} ${1} ${2}
+    fi
 }
 
 register_redis_client_proxy_service_with_consul () {
