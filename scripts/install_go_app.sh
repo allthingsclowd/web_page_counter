@@ -185,12 +185,12 @@ export NOMAD_CLIENT_CERT=/${ROOTCERTPATH}/nomad.d/pki/tls/certs/nomad-cli.pem
 export NOMAD_CLIENT_KEY=/${ROOTCERTPATH}/nomad.d/pki/tls/private/nomad-cli-key.pem
 export NOMAD_ADDR=https://${LEADER_IP}:4646
 
-# Configure CA Certificates for APP on host OS
-sudo mkdir -p /usr/local/share/ca-certificates
-sudo apt-get install ca-certificates -y
-#sudo openssl x509 -outform der -in /etc/ssl/certs/consul-ca-chain.pem -out /usr/local/bootstrap/certificate-config/hashistack-ca.crt
-sudo cp /etc/ssl/certs/consul-ca-chain.pem /usr/local/share/ca-certificates/hashistack-ca.crt
-sudo update-ca-certificates
+# # Configure CA Certificates for APP on host OS
+# sudo mkdir -p /usr/local/share/ca-certificates
+# sudo apt-get install ca-certificates -y
+# #sudo openssl x509 -outform der -in /etc/ssl/certs/consul-ca-chain.pem -out /usr/local/bootstrap/certificate-config/hashistack-ca.crt
+# sudo cp /etc/ssl/certs/consul-ca-chain.pem /usr/local/share/ca-certificates/hashistack-ca.crt
+# sudo update-ca-certificates
 
 
 # Create new envoy proxy services
@@ -211,7 +211,7 @@ sudo /usr/local/bootstrap/scripts/install_envoy_proxy.sh goclientproxy "SecretID
 create_intention_between_services "secret-host-tunnel" "approle"
 
 # FORCE DOWNLOAD OF NEW WEBCOUNTER Binary
-sudo rm -rf /usr/local/bin/webcounter
+# sudo rm -rf /usr/local/bin/webcounter
 
 # Added loop below to overcome Travis-CI/Github download issue
 RETRYDOWNLOAD="1"

@@ -30,9 +30,9 @@ var (
 )
 
 var (
-	vcertFile = flag.String("vaultcert", "/etc/vault.d/pki/tls/certs/vault-client.pem", "A PEM eoncoded vault certificate file.")
-	vkeyFile  = flag.String("vaultkey", "/etc/vault.d/pki/tls/private/vault-client-key.pem", "A PEM encoded vault private key file.")
-	vcaFile   = flag.String("vaultCA", "/etc/ssl/certs/vault-agent-ca.pem", "A PEM eoncoded CA's vault certificate file.")
+	vcertFile = flag.String("vaultcert", "/etc/vault.d/pki/tls/certs/vault-cli.pem", "A PEM eoncoded vault certificate file.")
+	vkeyFile  = flag.String("vaultkey", "/etc/vault.d/pki/tls/private/vault-cli-key.pem", "A PEM encoded vault private key file.")
+	vcaFile   = flag.String("vaultCA", "/etc/ssl/certs/vault-ca-chain.pem", "A PEM eoncoded CA's vault certificate file.")
 )
 
 var templates *template.Template
