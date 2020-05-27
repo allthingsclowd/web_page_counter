@@ -11,13 +11,13 @@ job "webpagecounter" {
             args = [  "-port=${NOMAD_PORT_http}", 
                       "-ip=0.0.0.0", 
                       "-consulACL=9507d4cd-b9ff-178d-ed3c-33ce194e0095", 
-                      "-consulIP=192.168.9.11:8321",
-                      "-consulcert=<DEPLOYMENT SCRIPTS PUT CORRECT VALUE HERE>",
-                      "-consulkey=<DEPLOYMENT SCRIPTS PUT CORRECT VALUE HERE>",
-                      "-consulCA=<DEPLOYMENT SCRIPTS PUT CORRECT VALUE HERE>",
-                      "-vaultcert=<DEPLOYMENT SCRIPTS PUT CORRECT VALUE HERE>",
-                      "-vaultkey=<DEPLOYMENT SCRIPTS PUT CORRECT VALUE HERE>",
-                      "-vaultCA=<DEPLOYMENT SCRIPTS PUT CORRECT VALUE HERE>"]
+                      "-consulIP=192.168.9.11:8321",,
+                      "-consulcert=/etc/consul.d/pki/tls/certs/consul-cli.pem",
+                      "-consulkey=/etc/consul.d/pki/tls/private/consul-cli-key.pem",
+                      "-consulCA=/etc/ssl/certs/consul-ca-chain.pem",
+                      "-vaultcert=/etc/vault.d/pki/tls/certs/vault-cli.pem",
+                      "-vaultkey=/etc/vault.d/pki/tls/private/vault-cli-key.pem",
+                      "-vaultCA=/etc/ssl/certs/vault-ca-chain.pem"]
         }
         resources {
           cpu    = 20

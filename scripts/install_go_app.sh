@@ -242,14 +242,14 @@ cp /usr/local/bootstrap/scripts/consul_goapp_verify.sh /usr/local/bin/.
 nomad job stop webpagecounter &>/dev/null
 killall webcounter &>/dev/null
 
-sed -i 's/consulACL=.*",/consulACL='${CONSUL_HTTP_TOKEN}'",/g' /usr/local/bootstrap/scripts/nomad_job.hcl
-sed -i 's/consulIP=.*"/consulIP='${LEADER_IP}':8321"/g' /usr/local/bootstrap/scripts/nomad_job.hcl
-sed -i 's/consulcert=.*"/consulcert='${CONSUL_CLIENT_CERT}'"/g' /usr/local/bootstrap/scripts/nomad_job.hcl
-sed -i 's/consulkey=.*"/consulkey='${CONSUL_CLIENT_KEY}'"/g' /usr/local/bootstrap/scripts/nomad_job.hcl
-sed -i 's/consulCA=.*"/consulCA='${CONSUL_CACERT}'"/g' /usr/local/bootstrap/scripts/nomad_job.hcl
-sed -i 's/vaultcert=.*"/vaultcert='${VAULT_CLIENT_CERT}'"/g' /usr/local/bootstrap/scripts/nomad_job.hcl
-sed -i 's/vaultkey=.*"/vaultkey='${VAULT_CLIENT_KEY}'"/g' /usr/local/bootstrap/scripts/nomad_job.hcl
-sed -i 's/vaultCA=.*"/vaultCA='${VAULT_CACERT}'"/g' /usr/local/bootstrap/scripts/nomad_job.hcl
+sed -i 's#consulACL=.*",#consulACL='${CONSUL_HTTP_TOKEN}'",#g' /usr/local/bootstrap/scripts/nomad_job.hcl
+sed -i 's#consulIP=.*",#consulIP='${LEADER_IP}':8321",#g' /usr/local/bootstrap/scripts/nomad_job.hcl
+sed -i 's#consulcert=.*",#consulcert='${CONSUL_CLIENT_CERT}'",#g' /usr/local/bootstrap/scripts/nomad_job.hcl
+sed -i 's#consulkey=.*",#consulkey='${CONSUL_CLIENT_KEY}'",#g' /usr/local/bootstrap/scripts/nomad_job.hcl
+sed -i 's#consulCA=.*",#consulCA='${CONSUL_CACERT}'",#g' /usr/local/bootstrap/scripts/nomad_job.hcl
+sed -i 's#vaultcert=.*",#vaultcert='${VAULT_CLIENT_CERT}'",#g' /usr/local/bootstrap/scripts/nomad_job.hcl
+sed -i 's#vaultkey=.*",#vaultkey='${VAULT_CLIENT_KEY}'",#g' /usr/local/bootstrap/scripts/nomad_job.hcl
+sed -i 's#vaultCA=.*"#vaultCA='${VAULT_CACERT}'"#g' /usr/local/bootstrap/scripts/nomad_job.hcl
 
 
 
