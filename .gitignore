@@ -10,7 +10,8 @@ main
 .database-token
 .wrapped-provisioner-token
 .DS_Store
-*.json
+secretid_service.json
+envoy-bootstrap.json
 .agenttoken_acl
 .bootstrap_acl
 .vaulttoken_acl
