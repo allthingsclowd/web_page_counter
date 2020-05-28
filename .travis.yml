@@ -43,9 +43,9 @@ script:
 - echo 'Set environmental bootstrapping data in VAULT'
 - export VAULT_TOKEN=reallystrongpassword
 - export VAULT_ADDR=https://127.0.0.1:8322
-- export VAULT_CLIENT_KEY=/tmp/vault.d/pki/tls/private/vault-client-key.pem
-- export VAULT_CLIENT_CERT=/tmp/vault.d/pki/tls/certs/vault-client.pem
-- export VAULT_CACERT=/tmp/ssl/certs/vault-agent-ca.pem
+- export VAULT_CLIENT_KEY=/tmp/vault.d/pki/tls/private/vault-cli-key.pem
+- export VAULT_CLIENT_CERT=/tmp/vault.d/pki/tls/certs/vault-cli.pem
+- export VAULT_CACERT=/tmp/ssl/certs/vault-ca-chain.pem
 - vault status
 # Configure consul environment variables for use with certificates 
 - export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
