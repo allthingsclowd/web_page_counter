@@ -1,0 +1,20 @@
+{
+    "CN": "Hashistack.ie's Root Certificate Authority",
+    "hosts": [
+        "hashistack.ie",
+        "www.hashistack.ie"
+    ],
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": [
+        {
+            "C": "IE",
+            "ST": "DN",
+            "L": "Dublin",
+            "O": "Hashistack.ie Training Lab"
+        }
+    ]
+}
+
