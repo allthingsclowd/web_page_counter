@@ -162,16 +162,13 @@ EOF
 
 install_lets_encrypt_certs() {
 
-  mkdir -p /etc/nginx/conf.d/frontend/pki/tls/private/
-  mkdir -p /etc/nginx/conf.d/frontend/pki/tls/certs/
+  [ ! -d /etc/nginx/conf.d/frontend/pki/tls/private ] && mkdir -p /etc/nginx/conf.d/frontend/pki/tls/private/
+  [ ! -d /etc/nginx/conf.d/frontend/pki/tls/certs ] && mkdir -p /etc/nginx/conf.d/frontend/pki/tls/certs/
+  [ -f /usr/local/bootstrap/.bootstrap/live/hashistack.ie/fullchain.pem ] && cp /usr/local/bootstrap/.bootstrap/live/hashistack.ie/fullchain.pem /etc/nginx/conf.d/frontend/pki/tls/certs/hashistack.pem
+  [ -f /usr/local/bootstrap/.bootstrap/live/hashistack.ie/privkey.pem ] && cp /usr/local/bootstrap/.bootstrap/live/hashistack.ie/privkey.pem /etc/nginx/conf.d/frontend/pki/tls/private/hashistack-key.pem
 
-  chmod -R 755 /etc/nginx/conf.d/frontend
+  chmod -R ug=rwX,o=rX /etc/nginx/conf.d/frontend
 
-  cp /usr/local/bootstrap/.bootstrap/live/hashistack.ie/fullchain.pem /etc/nginx/conf.d/frontend/pki/tls/certs/hashistack.pem
-  cp /usr/local/bootstrap/.bootstrap/live/hashistack.ie/privkey.pem /etc/nginx/conf.d/frontend/pki/tls/private/hashistack-key.pem
-
-  chmod -R 644 /etc/nginx/conf.d/frontend/pki/tls/certs/
-  chmod -R 644 /etc/nginx/conf.d/frontend/pki/tls/private/
 }
 
 

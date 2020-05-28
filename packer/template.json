@@ -241,7 +241,9 @@
         "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/ssh",
         "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/bastion",
         "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/wpc",
-        "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/Certificates && sudo chmod -R 755 /usr/local/bootstrap/.bootstrap/Outputs/"
+        "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/Certificates && sudo chmod -R 755 /usr/local/bootstrap/.bootstrap/Outputs/",
+        "sudo mkdir -p /etc/nginx/conf.d/frontend/pki/tls/private/",
+        "sudo mkdir -p /etc/nginx/conf.d/frontend/pki/tls/certs/ && sudo chmod -R 755 /etc/nginx/conf.d/frontend"
       ],
       "type": "shell",
       "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
@@ -328,6 +330,12 @@
     {
       "destination": "/usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/wpc/wpc-root-signed-intermediate-ca.pem",
       "source": "../.bootstrap/Outputs/IntermediateCAs/wpc/wpc-root-signed-intermediate-ca.pem",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },
+    {
+      "destination": "/etc/nginx/conf.d/frontend/pki/tls/certs/hashistack.pem",
+      "source": "../.bootstrap/live/hashistack.ie/fullchain.pem",
       "type": "file",
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },
