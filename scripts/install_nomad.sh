@@ -78,7 +78,7 @@ install_nomad() {
   echo "Installing Nomad"
   
   # create certificates 
-  export BootStrapCertTool="https://raw.githubusercontent.com/allthingsclowd/BootstrapCertificateTool/folderperms/scripts/Generate_PKI_Certificates_For_Lab.sh"
+  export BootStrapCertTool="https://raw.githubusercontent.com/allthingsclowd/BootstrapCertificateTool/0.0.9/scripts/Generate_PKI_Certificates_For_Lab.sh"
   wget -O - ${BootStrapCertTool} | sudo bash -s nomad "server.global.nomad" "client.global.nomad" "${IP}"
 
   # check for nomad hostname => server
