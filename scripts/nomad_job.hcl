@@ -10,7 +10,7 @@ job "webpagecounter" {
             command = "/usr/local/bin/webcounter"
             args = [  "-port=${NOMAD_PORT_http}", 
                       "-ip=0.0.0.0", 
-                      "-consulACL=ee06a5fc-331f-3c4e-f6ba-ea9c2df6503d", 
+                      "-consulACL=a6784196-768c-4eb2-8da0-d5658ca066be", 
                       "-consulIP=192.168.9.11:8321",,
                       "-consulcert=/etc/consul.d/pki/tls/certs/consul-cli.pem",
                       "-consulkey=/etc/consul.d/pki/tls/private/consul-cli-key.pem",
