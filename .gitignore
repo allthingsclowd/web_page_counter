@@ -34,7 +34,8 @@ r-vmware
 plan
 *plan
 .bootstrap
-
+scripts/*.json
+Outputs
 
 
 
