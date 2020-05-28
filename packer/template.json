@@ -232,7 +232,16 @@
     },
     {
       "inline": [
-        "sudo mkdir -p /usr/local/bootstrap && sudo chmod 777 /usr/local/bootstrap"
+        "sudo mkdir -p /usr/local/bootstrap && sudo chmod 777 /usr/local/bootstrap",
+        "sudo mkdir -p /usr/local/bootstrap/.bootstrap/live/hashistack.ie && sudo chmod 755 /usr/local/bootstrap/.bootstrap/live/hashistack.ie",
+        "sudo mkdir -p /usr/local/bootstrap/conf/certificates && sudo chmod 755 /usr/local/bootstrap/conf/certificates",
+        "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/consul",
+        "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/vault",
+        "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/nomad",
+        "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/ssh",
+        "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/bastion",
+        "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/wpc",
+        "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/Certificates && sudo chmod -R 755 /usr/local/bootstrap/.bootstrap/Outputs/"
       ],
       "type": "shell",
       "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
@@ -251,8 +260,74 @@
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },
     {
-      "destination": "/usr/local/bootstrap",
-      "source": "../certificate-config",
+      "destination": "/usr/local/share/ca-certificates/nomad-ca-chain.pem",
+      "source": "../.bootstrap/Outputs/IntermediateCAs/nomad/nomad-ca-chain.pem",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },    
+    {
+      "destination": "/usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/nomad/nomad-root-signed-intermediate-ca.pem",
+      "source": "../.bootstrap/Outputs/IntermediateCAs/nomad/nomad-root-signed-intermediate-ca.pem",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },
+    {
+      "destination": "/usr/local/share/ca-certificates/ssh-ca-chain.pem",
+      "source": "../.bootstrap/Outputs/IntermediateCAs/ssh/ssh-ca-chain.pem",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },    
+    {
+      "destination": "/usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/ssh/ssh-root-signed-intermediate-ca.pem",
+      "source": "../.bootstrap/Outputs/IntermediateCAs/ssh/ssh-root-signed-intermediate-ca.pem",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },
+    {
+      "destination": "/usr/local/share/ca-certificates/consul-ca-chain.pem",
+      "source": "../.bootstrap/Outputs/IntermediateCAs/consul/consul-ca-chain.pem",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },    
+    {
+      "destination": "/usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/consul/consul-root-signed-intermediate-ca.pem",
+      "source": "../.bootstrap/Outputs/IntermediateCAs/consul/consul-root-signed-intermediate-ca.pem",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },
+    {
+      "destination": "/usr/local/share/ca-certificates/vault-ca-chain.pem",
+      "source": "../.bootstrap/Outputs/IntermediateCAs/vault/vault-ca-chain.pem",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },    
+    {
+      "destination": "/usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/vault/vault-root-signed-intermediate-ca.pem",
+      "source": "../.bootstrap/Outputs/IntermediateCAs/vault/vault-root-signed-intermediate-ca.pem",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },
+    {
+      "destination": "/usr/local/share/ca-certificates/bastion-ca-chain.pem",
+      "source": "../.bootstrap/Outputs/IntermediateCAs/bastion/bastion-ca-chain.pem",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },    
+    {
+      "destination": "/usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/bastion/bastion-root-signed-intermediate-ca.pem",
+      "source": "../.bootstrap/Outputs/IntermediateCAs/bastion/bastion-root-signed-intermediate-ca.pem",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },
+    {
+      "destination": "/usr/local/share/ca-certificates/wpc-ca-chain.pem",
+      "source": "../.bootstrap/Outputs/IntermediateCAs/wpc/wpc-ca-chain.pem",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },    
+    {
+      "destination": "/usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/wpc/wpc-root-signed-intermediate-ca.pem",
+      "source": "../.bootstrap/Outputs/IntermediateCAs/wpc/wpc-root-signed-intermediate-ca.pem",
       "type": "file",
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },

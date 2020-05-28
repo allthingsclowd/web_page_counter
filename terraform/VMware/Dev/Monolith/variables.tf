@@ -49,3 +49,75 @@ variable "ssh_private_key" {
 variable "ssh_host_key" {
   description = "SSH Host CA Signing Public Key"
 }
+
+variable "consul_intermediate_ca_key" {
+  description = "Consul Intermediate CA Private Key"
+}
+
+variable "consul_intermediate_ca_cert" {
+  description = "Consul Signed Intermediate CA Certificate"
+}
+
+variable "consul_intermediate_ca_cert_chain" {
+  description = "Consul Root-Intermediate CA Certificate Chain"
+}
+
+variable "vault_intermediate_ca_key" {
+  description = "Vault Intermediate CA Private Key"
+}
+
+variable "vault_intermediate_ca_cert" {
+  description = "Vault Signed Intermediate CA Certificate"
+}
+
+variable "vault_intermediate_ca_cert_chain" {
+  description = "Vault Root-Intermediate CA Certificate Chain"
+}
+
+variable "nomad_intermediate_ca_key" {
+  description = "Vault Intermediate CA Private Key"
+}
+
+variable "nomad_intermediate_ca_cert" {
+  description = "Vault Signed Intermediate CA Certificate"
+}
+
+variable "nomad_intermediate_ca_cert_chain" {
+  description = "Vault Root-Intermediate CA Certificate Chain"
+}
+
+variable "ssh_intermediate_ca_key" {
+  description = "Vault Intermediate CA Private Key"
+}
+
+variable "ssh_intermediate_ca_cert" {
+  description = "Vault Signed Intermediate CA Certificate"
+}
+
+variable "ssh_intermediate_ca_cert_chain" {
+  description = "Vault Root-Intermediate CA Certificate Chain"
+}
+
+variable "bastion_intermediate_ca_key" {
+  description = "Vault Intermediate CA Private Key"
+}
+
+variable "bastion_intermediate_ca_cert" {
+  description = "Vault Signed Intermediate CA Certificate"
+}
+
+variable "bastion_intermediate_ca_cert_chain" {
+  description = "Vault Root-Intermediate CA Certificate Chain"
+}
+
+variable "wpc_intermediate_ca_key" {
+  description = "Vault Intermediate CA Private Key"
+}
+
+variable "wpc_intermediate_ca_cert" {
+  description = "Vault Signed Intermediate CA Certificate"
+}
+
+variable "wpc_intermediate_ca_cert_chain" {
+  description = "Vault Root-Intermediate CA Certificate Chain"
+}

@@ -105,6 +105,7 @@ resource "vsphere_virtual_machine" "leader01vm" {
 
     inline = [
         "touch /tmp/cloudinit-start.txt",
+        
         "sudo /usr/local/bootstrap/scripts/install_consul.sh",
         "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
         "sudo /usr/local/bootstrap/scripts/install_vault.sh",

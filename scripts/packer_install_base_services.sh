@@ -104,41 +104,16 @@ EOF
 
 }
 
-# create_root_CA_certificate () {
-
-#   # ${1} - domain name - e.g. consul
-#   # ${2} - duration in days that CA is valid for
-  
-#   # create file layout for the certs
-#   [ -d /${ROOTCERTPATH}/ssl/CA ] &>/dev/null || {
-#     sudo mkdir --parent /${ROOTCERTPATH}/ssl/CA /${ROOTCERTPATH}/ssl/certs /${ROOTCERTPATH}/ssl/private
-#   }
-#   pushd /${ROOTCERTPATH}/ssl/CA
-#   sudo /usr/local/bin/consul tls ca create -domain=${1} -days=${2}
-#   sudo mv /${ROOTCERTPATH}/ssl/CA/${1}-agent-ca.pem /${ROOTCERTPATH}/ssl/certs/.
-#   sudo mv /${ROOTCERTPATH}/ssl/CA/${1}-agent-ca-key.pem /${ROOTCERTPATH}/ssl/private/.
-#   sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
-#   sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
-#   sudo ls -al /${ROOTCERTPATH}/ssl/certs /${ROOTCERTPATH}/ssl/private
-#   popd
-
-# }
-
 configure_certificates () {
 
-    # create nomad directories
-    sudo -u nomad mkdir --parents /${ROOTCERTPATH}/nomad.d/pki/tls/private /${ROOTCERTPATH}/nomad.d/pki/tls/certs
-    sudo -u nomad chmod -R 644 /${ROOTCERTPATH}/nomad.d/pki/tls/certs
-    sudo -u nomad chmod -R 644 /${ROOTCERTPATH}/nomad.d/pki/tls/private
+    sudo update-ca-certificates
+    sudo openssl rehash /etc/ssl/certs
 
-    sudo -u consul mkdir --parents /${ROOTCERTPATH}/consul.d/pki/tls/private /${ROOTCERTPATH}/consul.d/pki/tls/certs
-    sudo -u consul chmod -R 644 /${ROOTCERTPATH}/consul.d/pki/tls/certs
-    sudo -u consul chmod -R 644 /${ROOTCERTPATH}/consul.d/pki/tls/private
+    # if this is the final target system a user matching application name will exist
+    if id -u "${1}" >/dev/null 2>&1; then
+        chown -R ${1}:${1} /${ROOTCERTPATH}/${1}.d
+    fi
 
-    sudo -u vault mkdir --parents /${ROOTCERTPATH}/vault.d/pki/tls/private /${ROOTCERTPATH}/vault.d/pki/tls/certs
-    sudo -u vault chmod -R 644 /${ROOTCERTPATH}/vault.d/pki/tls/certs
-    sudo -u vault chmod -R 644 /${ROOTCERTPATH}/vault.d/pki/tls/private
-  
     # copy ssh CA certificate onto host
     sudo cp -r /usr/local/bootstrap/certificate-config/ssh_host/ssh_host_rsa_key.pub /etc/ssh/ssh_host_rsa_key.pub
     sudo chmod 644 /etc/ssh/ssh_host_rsa_key.pub
@@ -209,7 +184,4 @@ create_vault_service
 create_nomad_service
 create_envoy_service
 
-# create_root_CA_certificate consul 365
-# create_root_CA_certificate vault 365
-# create_root_CA_certificate nomad 365
 configure_certificates
