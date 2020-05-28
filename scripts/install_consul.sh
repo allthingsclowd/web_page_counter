@@ -134,7 +134,7 @@ install_consul () {
   AGENT_CONFIG="-config-dir=/${ROOTCERTPATH}/consul.d -enable-script-checks=true"
 
   # sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} client
-  export BootStrapCertTool="https://raw.githubusercontent.com/allthingsclowd/BootstrapCertificateTool/0.0.9/scripts/Generate_PKI_Certificates_For_Lab.sh"
+  export BootStrapCertTool="https://raw.githubusercontent.com/allthingsclowd/BootstrapCertificateTool/${certbootstrap_version}/scripts/Generate_PKI_Certificates_For_Lab.sh"
   wget -O - ${BootStrapCertTool} | sudo bash -s consul "server.node.global.consul" "client.node.global.consul" "${IP}"
   
   # Configure consul environment variables for use with certificates 

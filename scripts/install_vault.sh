@@ -523,7 +523,7 @@ EOF
 install_vault () {
     
     # create certificates 
-    export BootStrapCertTool="https://raw.githubusercontent.com/allthingsclowd/BootstrapCertificateTool/0.0.9/scripts/Generate_PKI_Certificates_For_Lab.sh"
+    export BootStrapCertTool="https://raw.githubusercontent.com/allthingsclowd/BootstrapCertificateTool/${certbootstrap_version}/scripts/Generate_PKI_Certificates_For_Lab.sh"
     wget -O - ${BootStrapCertTool} | sudo bash -s vault "server.global.vault" "client.global.vault" "${IP}"
 
     # verify it's either the TRAVIS server or the Vault server
