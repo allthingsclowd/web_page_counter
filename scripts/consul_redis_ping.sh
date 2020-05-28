@@ -14,9 +14,9 @@ fi
 export ROOTCERTPATH
 
 # read redis database password from vault
-export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem
-export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem
-export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem
+export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-cli-key.pem
+export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-cli.pem
+export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-ca-chain.pem
 export VAULT_SKIP_VERIFY=true
 export VAULT_ADDR="https://${LEADER_IP}:8322"
 export VAULT_TOKEN=reallystrongpassword

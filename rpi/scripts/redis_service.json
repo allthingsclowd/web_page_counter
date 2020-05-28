@@ -1,0 +1,22 @@
+    {
+      "Name": "redis",
+      "Tags": [
+        "primary",
+        "v1"
+      ],
+      "Port": 6379,
+      "Meta": {
+        "redis_version": "4.0"
+      },
+      "EnableTagOverride": false,
+      "Checks": [
+          {
+            "args": ["/usr/local/bootstrap/scripts/consul_redis_ping.sh"],
+            "interval": "10s"
+          },
+          {
+              "args": ["/usr/local/bootstrap/scripts/consul_redis_verify.sh"],
+              "interval": "10s"
+          }
+        ]
+    }

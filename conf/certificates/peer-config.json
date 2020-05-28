@@ -1,0 +1,12 @@
+{
+    "CN": "Peer",
+    "hosts": [
+        "127.0.0.1",
+        "app-specific-dns-hostname",
+        "add-ip-address",
+        "localhost",
+        "*.hashistack.ie",
+        "hostname",
+        "81.143.215.2"
+    ]
+}

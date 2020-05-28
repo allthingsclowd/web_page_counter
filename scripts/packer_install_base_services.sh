@@ -104,25 +104,25 @@ EOF
 
 }
 
-create_root_CA_certificate () {
+# create_root_CA_certificate () {
 
-  # ${1} - domain name - e.g. consul
-  # ${2} - duration in days that CA is valid for
+#   # ${1} - domain name - e.g. consul
+#   # ${2} - duration in days that CA is valid for
   
-  # create file layout for the certs
-  [ -d /${ROOTCERTPATH}/ssl/CA ] &>/dev/null || {
-    sudo mkdir --parent /${ROOTCERTPATH}/ssl/CA /${ROOTCERTPATH}/ssl/certs /${ROOTCERTPATH}/ssl/private
-  }
-  pushd /${ROOTCERTPATH}/ssl/CA
-  sudo /usr/local/bin/consul tls ca create -domain=${1} -days=${2}
-  sudo mv /${ROOTCERTPATH}/ssl/CA/${1}-agent-ca.pem /${ROOTCERTPATH}/ssl/certs/.
-  sudo mv /${ROOTCERTPATH}/ssl/CA/${1}-agent-ca-key.pem /${ROOTCERTPATH}/ssl/private/.
-  sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
-  sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
-  sudo ls -al /${ROOTCERTPATH}/ssl/certs /${ROOTCERTPATH}/ssl/private
-  popd
+#   # create file layout for the certs
+#   [ -d /${ROOTCERTPATH}/ssl/CA ] &>/dev/null || {
+#     sudo mkdir --parent /${ROOTCERTPATH}/ssl/CA /${ROOTCERTPATH}/ssl/certs /${ROOTCERTPATH}/ssl/private
+#   }
+#   pushd /${ROOTCERTPATH}/ssl/CA
+#   sudo /usr/local/bin/consul tls ca create -domain=${1} -days=${2}
+#   sudo mv /${ROOTCERTPATH}/ssl/CA/${1}-agent-ca.pem /${ROOTCERTPATH}/ssl/certs/.
+#   sudo mv /${ROOTCERTPATH}/ssl/CA/${1}-agent-ca-key.pem /${ROOTCERTPATH}/ssl/private/.
+#   sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
+#   sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
+#   sudo ls -al /${ROOTCERTPATH}/ssl/certs /${ROOTCERTPATH}/ssl/private
+#   popd
 
-}
+# }
 
 configure_certificates () {
 
@@ -209,7 +209,7 @@ create_vault_service
 create_nomad_service
 create_envoy_service
 
-create_root_CA_certificate consul 365
-create_root_CA_certificate vault 365
-create_root_CA_certificate nomad 365
+# create_root_CA_certificate consul 365
+# create_root_CA_certificate vault 365
+# create_root_CA_certificate nomad 365
 configure_certificates

@@ -43,26 +43,26 @@ EOF
   # Register the service in consul via the local Consul agent api
   sudo curl \
       --request PUT \
-      --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
-      --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
-      --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
+      --capath "/${ROOTCERTPATH}/ssl/certs" \
+      --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
+      --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
       --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
       --data @secret_id_client_service.json \
       ${CONSUL_HTTP_ADDR}/v1/agent/service/register
 
   # List the locally registered services via local Consul api
   sudo curl \
-    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
-    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
-    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
+    --capath "/${ROOTCERTPATH}/ssl/certs" \
+    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
+    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     ${CONSUL_HTTP_ADDR}/v1/agent/services | jq -r .
 
   # List the services regestered on the Consul server
   sudo curl \
-    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
-    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
-    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
+    --capath "/${ROOTCERTPATH}/ssl/certs" \
+    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
+    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     ${CONSUL_HTTP_ADDR}/v1/catalog/services | jq -r .
    
@@ -71,7 +71,14 @@ EOF
 }
 
 create_intention_between_services () {
-    sudo /usr/local/bin/consul intention create -http-addr=https://127.0.0.1:8321 -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem -token=${CONSUL_HTTP_TOKEN} ${1} ${2}
+
+    # Check to see if the intention is required
+    echo "Checking if a new Intention is required between ${1} and ${2}"
+    if ! /usr/local/bin/consul intention check -http-addr=https://127.0.0.1:8321 -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem -token=${CONSUL_HTTP_TOKEN} ${1} ${2} ;
+    then
+      echo "Configuring access between ${1} and ${2}"
+      /usr/local/bin/consul intention create -http-addr=https://127.0.0.1:8321 -ca-file=/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem -client-cert=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem -client-key=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem -token=${CONSUL_HTTP_TOKEN} ${1} ${2}
+    fi
 }
 
 register_redis_client_proxy_service_with_consul () {
@@ -114,26 +121,26 @@ EOF
   # Register the service in consul via the local Consul agent api
   sudo curl \
       --request PUT \
-      --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
-      --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
-      --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
+      --capath "/${ROOTCERTPATH}/ssl/certs" \
+      --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
+      --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
       --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
       --data @redis_client_service.json \
       ${CONSUL_HTTP_ADDR}/v1/agent/service/register
 
   # List the locally registered services via local Consul api
   sudo curl \
-    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
-    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
-    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
+    --capath "/${ROOTCERTPATH}/ssl/certs" \
+    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
+    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     ${CONSUL_HTTP_ADDR}/v1/agent/services | jq -r .
 
   # List the services regestered on the Consul server
   sudo curl \
-    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
-    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
-    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
+    --capath "/${ROOTCERTPATH}/ssl/certs" \
+    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
+    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     ${CONSUL_HTTP_ADDR}/v1/catalog/services | jq -r .
    
@@ -163,34 +170,34 @@ fi
 export ROOTCERTPATH
 
 # read redis database password from vault
-export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem
-export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem
-export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem
+export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-cli-key.pem
+export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-cli.pem
+export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-ca-chain.pem
 export VAULT_SKIP_VERIFY=true
 export VAULT_ADDR="https://${LEADER_IP}:8322"
 export VAULT_TOKEN=reallystrongpassword
 
 # Configure consul environment variables for use with certificates 
 export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem
-export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem
-export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem
+export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem
+export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem
+export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem
 AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
 export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 export CONSUL_HTTP_SSL=true
 export CONSUL_GRPC_ADDR=https://127.0.0.1:8502
 
-export NOMAD_CACERT=/${ROOTCERTPATH}/ssl/certs/nomad-agent-ca.pem
-export NOMAD_CLIENT_CERT=/${ROOTCERTPATH}/nomad.d/pki/tls/certs/nomad-client.pem
-export NOMAD_CLIENT_KEY=/${ROOTCERTPATH}/nomad.d/pki/tls/private/nomad-client-key.pem
+export NOMAD_CACERT=/${ROOTCERTPATH}/ssl/certs/nomad-ca-chain.pem
+export NOMAD_CLIENT_CERT=/${ROOTCERTPATH}/nomad.d/pki/tls/certs/nomad-cli.pem
+export NOMAD_CLIENT_KEY=/${ROOTCERTPATH}/nomad.d/pki/tls/private/nomad-cli-key.pem
 export NOMAD_ADDR=https://${LEADER_IP}:4646
 
-# Configure CA Certificates for APP on host OS
-sudo mkdir -p /usr/local/share/ca-certificates
-sudo apt-get install ca-certificates -y
-#sudo openssl x509 -outform der -in /etc/ssl/certs/consul-agent-ca.pem -out /usr/local/bootstrap/certificate-config/hashistack-ca.crt
-sudo cp /etc/ssl/certs/consul-agent-ca.pem /usr/local/share/ca-certificates/hashistack-ca.crt
-sudo update-ca-certificates
+# # Configure CA Certificates for APP on host OS
+# sudo mkdir -p /usr/local/share/ca-certificates
+# sudo apt-get install ca-certificates -y
+# #sudo openssl x509 -outform der -in /etc/ssl/certs/consul-ca-chain.pem -out /usr/local/bootstrap/certificate-config/hashistack-ca.crt
+# sudo cp /etc/ssl/certs/consul-ca-chain.pem /usr/local/share/ca-certificates/hashistack-ca.crt
+# sudo update-ca-certificates
 
 
 # Create new envoy proxy services
@@ -211,7 +218,7 @@ sudo /usr/local/bootstrap/scripts/install_envoy_proxy.sh goclientproxy "SecretID
 create_intention_between_services "secret-host-tunnel" "approle"
 
 # FORCE DOWNLOAD OF NEW WEBCOUNTER Binary
-sudo rm -rf /usr/local/bin/webcounter
+# sudo rm -rf /usr/local/bin/webcounter
 
 # Added loop below to overcome Travis-CI/Github download issue
 RETRYDOWNLOAD="1"
@@ -242,8 +249,16 @@ cp /usr/local/bootstrap/scripts/consul_goapp_verify.sh /usr/local/bin/.
 nomad job stop webpagecounter &>/dev/null
 killall webcounter &>/dev/null
 
-sed -i 's/consulACL=.*",/consulACL='${CONSUL_HTTP_TOKEN}'",/g' /usr/local/bootstrap/scripts/nomad_job.hcl
-sed -i 's/consulIP=.*"/consulIP='${LEADER_IP}':8321"/g' /usr/local/bootstrap/scripts/nomad_job.hcl
+sed -i 's#consulACL=.*",#consulACL='${CONSUL_HTTP_TOKEN}'",#g' /usr/local/bootstrap/scripts/nomad_job.hcl
+sed -i 's#consulIP=.*",#consulIP='${LEADER_IP}':8321",#g' /usr/local/bootstrap/scripts/nomad_job.hcl
+sed -i 's#consulcert=.*",#consulcert='${CONSUL_CLIENT_CERT}'",#g' /usr/local/bootstrap/scripts/nomad_job.hcl
+sed -i 's#consulkey=.*",#consulkey='${CONSUL_CLIENT_KEY}'",#g' /usr/local/bootstrap/scripts/nomad_job.hcl
+sed -i 's#consulCA=.*",#consulCA='${CONSUL_CACERT}'",#g' /usr/local/bootstrap/scripts/nomad_job.hcl
+sed -i 's#vaultcert=.*",#vaultcert='${VAULT_CLIENT_CERT}'",#g' /usr/local/bootstrap/scripts/nomad_job.hcl
+sed -i 's#vaultkey=.*",#vaultkey='${VAULT_CLIENT_KEY}'",#g' /usr/local/bootstrap/scripts/nomad_job.hcl
+sed -i 's#vaultCA=.*"#vaultCA='${VAULT_CACERT}'"#g' /usr/local/bootstrap/scripts/nomad_job.hcl
+
+
 
 echo 'Review Nomad Job File'
 cat /usr/local/bootstrap/scripts/nomad_job.hcl

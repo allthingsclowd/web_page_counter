@@ -10,7 +10,8 @@ main
 .database-token
 .wrapped-provisioner-token
 .DS_Store
-*.json
+secretid_service.json
+envoy-bootstrap.json
 .agenttoken_acl
 .bootstrap_acl
 .vaulttoken_acl
@@ -21,7 +22,6 @@ terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
 /packer_cache/
 /output-*/*
-/certificate-config/browser
 *.box
 *.iso
 *.tfstate
@@ -33,6 +33,9 @@ r-vmware
 *.nvram
 plan
 *plan
+.bootstrap
+scripts/*.json
+Outputs
 
 
 

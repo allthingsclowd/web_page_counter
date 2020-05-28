@@ -12,12 +12,12 @@ export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
 ./webcounter -consulACL=${CONSUL_HTTP_TOKEN} \
              -ip="0.0.0.0" \
              -consulIP="127.0.0.1:8321" \
-             -consulCA="/tmp/ssl/certs/consul-agent-ca.pem" \
-             -vaultCA="/tmp/ssl/certs/vault-agent-ca.pem" \
-             -consulcert="/tmp/consul.d/pki/tls/certs/consul-client.pem" \
-             -vaultcert="/tmp/vault.d/pki/tls/certs/vault-client.pem" \
-             -consulkey="/tmp/consul.d/pki/tls/private/consul-client-key.pem" \
-             -vaultkey="/tmp/vault.d/pki/tls/private/vault-client-key.pem" &
+             -consulCA="/tmp/ssl/certs/consul-ca-chain.pem" \
+             -vaultCA="/tmp/ssl/certs/vault-ca-chain.pem" \
+             -consulcert="/tmp/consul.d/pki/tls/certs/consul-cli.pem" \
+             -vaultcert="/tmp/vault.d/pki/tls/certs/vault-cli.pem" \
+             -consulkey="/tmp/consul.d/pki/tls/private/consul-cli-key.pem" \
+             -vaultkey="/tmp/vault.d/pki/tls/private/vault-cli-key.pem" &
 
 # delay added to allow webcounter startup
 sleep 2

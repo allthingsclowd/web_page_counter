@@ -1,40 +1,98 @@
 #!/usr/bin/env bash
 
-set -x
+setup_environment() {
 
-source /usr/local/bootstrap/var.env
+  set -x
 
-echo 'Start Setup of Webtier Deployment Environment'
-IFACE=`route -n | awk '$1 == "192.168.9.0" {print $8}'`
-CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.9" {print $2}'`
-IP=${CIDR%%/24}
+  source /usr/local/bootstrap/var.env
 
-if [ "${TRAVIS}" == "true" ]; then
-  ROOTCERTPATH=tmp
-  IP=${IP:-127.0.0.1}
-  LEADER_IP=${IP}
-else
-  ROOTCERTPATH=etc
-fi
+  echo 'Start Setup of Webtier Deployment Environment'
+  IFACE=`route -n | awk '$1 == "192.168.9.0" {print $8}'`
+  CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.9" {print $2}'`
+  IP=${CIDR%%/24}
 
-export ROOTCERTPATH
+  if [ "${TRAVIS}" == "true" ]; then
+    ROOTCERTPATH=tmp
+    IP=${IP:-127.0.0.1}
+    LEADER_IP=${IP}
+  else
+    ROOTCERTPATH=etc
+  fi
 
-echo 'Set environmental bootstrapping data in VAULT'
+  export ROOTCERTPATH
 
-export VAULT_ADDR=https://${LEADER_IP}:8322
-export VAULT_TOKEN=reallystrongpassword
-export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-client-key.pem
-export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-client.pem
-export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-agent-ca.pem
-export VAULT_SKIP_VERIFY=true
+  echo 'Set environmental bootstrapping data in VAULT'
 
-# Configure consul environment variables for use with certificates 
-export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem
-export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem
-export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem
-AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
-export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
+  export VAULT_ADDR=https://${LEADER_IP}:8322
+  export VAULT_TOKEN=reallystrongpassword
+  export VAULT_CLIENT_KEY=/${ROOTCERTPATH}/vault.d/pki/tls/private/vault-cli-key.pem
+  export VAULT_CLIENT_CERT=/${ROOTCERTPATH}/vault.d/pki/tls/certs/vault-cli.pem
+  export VAULT_CACERT=/${ROOTCERTPATH}/ssl/certs/vault-ca-chain.pem
+  export VAULT_SKIP_VERIFY=true
+
+  # Configure consul environment variables for use with certificates 
+  export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
+  export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem
+  export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem
+  export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem
+  AGENTTOKEN=`vault kv get -field "value" kv/development/consulagentacl`
+  export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
+
+}
+
+download_and_configure_frontend() {
+  
+  # Added loop below to overcome Travis-CI download issue
+  RETRYDOWNLOAD="1"
+  sudo mkdir -p /tmp/wpc-fe
+  pushd /tmp/wpc-fe
+  while [ ${RETRYDOWNLOAD} -lt 10 ] && [ ! -f /var/www/wpc-fe/index.html ]
+  do 
+      echo "Web Front End Download - Take ${RETRYDOWNLOAD}"
+      # download binary and template file from latest release
+      sudo bash -c 'curl -s -L https://api.github.com/repos/allthingsclowd/wep_page_counter_front-end/releases/latest \
+      | grep "browser_download_url" \
+      | cut -d : -f 2,3 \
+      | tr -d \" | wget -q -i - '
+      [ -f webcounterpagefrontend.tar.gz ] && sudo tar -xvf webcounterpagefrontend.tar.gz -C /var/www
+      RETRYDOWNLOAD=$[${RETRYDOWNLOAD}+1]
+      sleep 5
+  done
+
+  popd
+
+  [  -f /var/www/wpc-fe/index.html  ] &>/dev/null || {
+      echo 'Web Front End Download Failed'
+      exit 1
+  } 
+
+  # Configure LBaaS Public IP for WebFrontend
+  sudo sed -i 's/window.__env.apiUrl =.*;/window.__env.apiUrl = "'${DNSNAME}'";/g' /var/www/wpc-fe/env.js
+
+  # debug 
+  echo "Check web frontend changes"
+  sudo cat /var/www/wpc-fe/env.js
+
+  # Set webserver directory permissions
+  sudo chmod -R 755 /var/www/wpc-fe
+
+  # This line causes the entire inline not to run
+  #     "sudo sh -c \"sed 's/api_key:.*/api_key: ${dd_api_key}' /etc/dd-agent/datadog.conf.example > /etc/dd-agent/datadog.conf\""
+  
+  # Create a new nginx server block for the frontend
+  sudo cp /usr/local/bootstrap/conf/frontend.conf /etc/nginx/sites-available/frontend.conf
+
+  # remove nginx default website
+  # [ -f /etc/nginx/sites-available/default ] && sudo rm -f /etc/nginx/sites-available/default
+  # [ -f /etc/nginx/sites-enabled/default ] && sudo rm -f /etc/nginx/sites-enabled/default
+
+  # Enable the front-end
+  sudo ln -s /etc/nginx/sites-available/frontend.conf /etc/nginx/sites-enabled/
+
+  # test the new config
+  sudo nginx -c /etc/nginx/sites-enabled/frontend.conf -t
+
+}
 
 enable_nginx_service () {
   # start and enable nginx service
@@ -76,74 +134,52 @@ EOF
   # Register the service in consul via the local Consul agent api
   curl \
     --request PUT \
-    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
-    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
-    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
+    --capath "/${ROOTCERTPATH}/ssl/certs" \
+    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
+    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     --data @nginx_service.json \
     ${CONSUL_HTTP_ADDR}/v1/agent/service/register
 
   # List the locally registered services via local Consul api
   curl \
-    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
-    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
-    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
+    --capath "/${ROOTCERTPATH}/ssl/certs" \
+    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
+    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     ${CONSUL_HTTP_ADDR}/v1/agent/services | jq -r .
 
   # List the services regestered on the Consul server
   curl \
-    --cacert "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
-    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
-    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
+    --capath "/${ROOTCERTPATH}/ssl/certs" \
+    --key "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
+    --cert "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
     --header "X-Consul-Token: ${CONSUL_HTTP_TOKEN}" \
     ${CONSUL_HTTP_ADDR}/v1/catalog/services | jq -r .
    
     echo 'Register nginx service with Consul Service Discovery Complete'
 }
 
-# Added loop below to overcome Travis-CI download issue
-RETRYDOWNLOAD="1"
-sudo mkdir -p /tmp/wpc-fe
-pushd /tmp/wpc-fe
-while [ ${RETRYDOWNLOAD} -lt 10 ] && [ ! -f /var/www/wpc-fe/index.html ]
-do 
-    echo "Web Front End Download - Take ${RETRYDOWNLOAD}"
-    # download binary and template file from latest release
-    sudo bash -c 'curl -s -L https://api.github.com/repos/allthingsclowd/wep_page_counter_front-end/releases/latest \
-    | grep "browser_download_url" \
-    | cut -d : -f 2,3 \
-    | tr -d \" | wget -q -i - '
-    [ -f webcounterpagefrontend.tar.gz ] && sudo tar -xvf webcounterpagefrontend.tar.gz -C /var/www
-    RETRYDOWNLOAD=$[${RETRYDOWNLOAD}+1]
-    sleep 5
-done
+install_lets_encrypt_certs() {
 
-popd
+  mkdir -p /etc/nginx/conf.d/frontend/pki/tls/private/
+  mkdir -p /etc/nginx/conf.d/frontend/pki/tls/certs/
 
-[  -f /var/www/wpc-fe/index.html  ] &>/dev/null || {
-    echo 'Web Front End Download Failed'
-    exit 1
-} 
+  chmod -R 755 /etc/nginx/conf.d/frontend
 
-# Configure LBaaS Public IP for WebFrontend
-sudo sed -i 's/window.__env.apiUrl =.*;/window.__env.apiUrl = "'${DNSNAME}'";/g' /var/www/wpc-fe/env.js
+  cp /usr/local/bootstrap/.bootstrap/live/hashistack.ie/fullchain.pem /etc/nginx/conf.d/frontend/pki/tls/certs/hashistack.pem
+  cp /usr/local/bootstrap/.bootstrap/live/hashistack.ie/privkey.pem /etc/nginx/conf.d/frontend/pki/tls/private/hashistack-key.pem
 
-# debug 
-echo "Check web frontend changes"
-sudo cat /var/www/wpc-fe/env.js
+  chmod -R 644 /etc/nginx/conf.d/frontend/pki/tls/certs/
+  chmod -R 644 /etc/nginx/conf.d/frontend/pki/tls/private/
+}
 
 
- # This line causes the entire inline not to run
- #     "sudo sh -c \"sed 's/api_key:.*/api_key: ${dd_api_key}' /etc/dd-agent/datadog.conf.example > /etc/dd-agent/datadog.conf\""
-sudo cp /usr/local/bootstrap/conf/wpc-fe.conf /etc/nginx/conf.d/wpc-fe.conf
-
-# remove nginx default website
-[ -f /etc/nginx/sites-enabled/default ] && sudo rm -f /etc/nginx/sites-enabled/default
-
+setup_environment
 enable_nginx_service
-
 register_nginx_service_with_consul
+install_lets_encrypt_certs
+download_and_configure_frontend
 
 # make consul reload conf
 sudo killall -1 consul
@@ -157,20 +193,26 @@ sudo /usr/local/bin/consul-template \
      -consul-addr=${CONSUL_HTTP_ADDR} \
      -consul-ssl \
      -consul-token=${CONSUL_HTTP_TOKEN} \
-     -consul-ssl-cert="/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" \
-     -consul-ssl-key="/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" \
-     -consul-ssl-ca-cert="/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem" \
-     -template "/usr/local/bootstrap/conf/nginx.ctpl:/etc/nginx/conf.d/goapp.conf:/usr/local/bootstrap/scripts/updateBackendCount.sh" &
-   
+     -consul-ssl-cert="/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" \
+     -consul-ssl-key="/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" \
+     -consul-ssl-ca-cert="/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem" \
+     -template "/usr/local/bootstrap/conf/backend.ctpl:/etc/nginx/sites-available/backend.conf:/usr/local/bootstrap/scripts/updateBackendCount.sh" &
+
+# Enable the front-end
+sudo ln -s /etc/nginx/sites-available/backend.conf /etc/nginx/sites-enabled/
+
+# test the new config
+sudo nginx -c /etc/nginx/sites-enabled/backend.conf -t   
+
 sleep 1
 
 echo "Verifiy the backend is accessible through nginx service"
-sudo cat /etc/nginx/conf.d/goapp.conf
+sudo cat /etc/nginx/sites-available/backend.conf
 
 echo "Verifiy the backend is accessible through nginx service"
 curl http://${IP}:9090
 
 echo "Verifiy the frontend is accessible through nginx service"
-curl http://${IP}:9091
+curl https://${IP}:9091
 
 exit 0

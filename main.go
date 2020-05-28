@@ -24,15 +24,15 @@ import (
 )
 
 var (
-	ccertFile = flag.String("consulcert", "/etc/consul.d/pki/tls/certs/consul-client.pem", "A PEM eoncoded consul certificate file.")
-	ckeyFile  = flag.String("consulkey", "/etc/consul.d/pki/tls/private/consul-client-key.pem", "A PEM encoded consul private key file.")
-	ccaFile   = flag.String("consulCA", "/etc/ssl/certs/consul-agent-ca.pem", "A PEM eoncoded consul CA's certificate file.")
+	ccertFile = flag.String("consulcert", "/etc/consul.d/pki/tls/certs/consul-peer.pem", "A PEM eoncoded consul certificate file.")
+	ckeyFile  = flag.String("consulkey", "/etc/consul.d/pki/tls/private/consul-peer-key.pem", "A PEM encoded consul private key file.")
+	ccaFile   = flag.String("consulCA", "/etc/ssl/certs/consul-ca-chain.pem", "A PEM eoncoded consul CA's certificate file.")
 )
 
 var (
-	vcertFile = flag.String("vaultcert", "/etc/vault.d/pki/tls/certs/vault-client.pem", "A PEM eoncoded vault certificate file.")
-	vkeyFile  = flag.String("vaultkey", "/etc/vault.d/pki/tls/private/vault-client-key.pem", "A PEM encoded vault private key file.")
-	vcaFile   = flag.String("vaultCA", "/etc/ssl/certs/vault-agent-ca.pem", "A PEM eoncoded CA's vault certificate file.")
+	vcertFile = flag.String("vaultcert", "/etc/vault.d/pki/tls/certs/vault-cli.pem", "A PEM eoncoded vault certificate file.")
+	vkeyFile  = flag.String("vaultkey", "/etc/vault.d/pki/tls/private/vault-cli-key.pem", "A PEM encoded vault private key file.")
+	vcaFile   = flag.String("vaultCA", "/etc/ssl/certs/vault-ca-chain.pem", "A PEM eoncoded CA's vault certificate file.")
 )
 
 var templates *template.Template

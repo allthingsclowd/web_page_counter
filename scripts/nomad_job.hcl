@@ -8,7 +8,16 @@ job "webpagecounter" {
         driver = "raw_exec"
         config {
             command = "/usr/local/bin/webcounter"
-            args = ["-port=${NOMAD_PORT_http}", "-ip=0.0.0.0", "-consulACL=5ce6df8e-746a-61be-a0f1-0f484d7db7e6", "-consulIP=192.168.9.11:8321"]
+            args = [  "-port=${NOMAD_PORT_http}", 
+                      "-ip=0.0.0.0", 
+                      "-consulACL=ee06a5fc-331f-3c4e-f6ba-ea9c2df6503d", 
+                      "-consulIP=192.168.9.11:8321",,
+                      "-consulcert=/etc/consul.d/pki/tls/certs/consul-cli.pem",
+                      "-consulkey=/etc/consul.d/pki/tls/private/consul-cli-key.pem",
+                      "-consulCA=/etc/ssl/certs/consul-ca-chain.pem",
+                      "-vaultcert=/etc/vault.d/pki/tls/certs/vault-cli.pem",
+                      "-vaultkey=/etc/vault.d/pki/tls/private/vault-cli-key.pem",
+                      "-vaultCA=/etc/ssl/certs/vault-ca-chain.pem"]
         }
         resources {
           cpu    = 20

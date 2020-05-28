@@ -39,6 +39,7 @@ setup_environment () {
   set -x
   sleep 5
   source /usr/local/bootstrap/var.env
+
   
   IFACE=`route -n | awk '$1 == "192.168.9.0" {print $8;exit}'`
   CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.9" {print $2}'`
@@ -132,47 +133,40 @@ install_terraform () {
 install_consul () {
   AGENT_CONFIG="-config-dir=/${ROOTCERTPATH}/consul.d -enable-script-checks=true"
 
-  sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} client
+  # sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} client
+  export BootStrapCertTool="https://raw.githubusercontent.com/allthingsclowd/BootstrapCertificateTool/${certbootstrap_version}/scripts/Generate_PKI_Certificates_For_Lab.sh"
+  wget -O - ${BootStrapCertTool} | sudo bash -s consul "server.node.global.consul" "client.node.global.consul" "${IP}"
+  
   # Configure consul environment variables for use with certificates 
   export CONSUL_HTTP_ADDR=https://127.0.0.1:8321
-  export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem
-  export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem
-  export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem
+  export CONSUL_CACERT=/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem
+  export CONSUL_CLIENT_CERT=/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-cli.pem
+  export CONSUL_CLIENT_KEY=/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-cli-key.pem
 
   # check for consul hostname or travis => server
   if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
     echo "Starting a Consul Agent in Server Mode"
 
-    generate_certificate_config true "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-server-key.pem" "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-server.pem" "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem"
+    generate_certificate_config true "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-server-key.pem" "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-server.pem" "/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem"
 
     /usr/local/bin/consul members 2>/dev/null || {
       if [ "${TRAVIS}" == "true" ]; then
 
-        # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
-        sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} server
         # Travis-CI grant access to /tmp for all users
         sudo chmod -R 777 /${ROOTCERTPATH}
-        sudo ls -al /${ROOTCERTPATH}/consul.d/pki/tls/certs/ /${ROOTCERTPATH}/consul.d/pki/tls/private/ /${ROOTCERTPATH}/ssl/certs /${ROOTCERTPATH}/ssl/private
-        # sudo ls -al /${ROOTCERTPATH}/consul.d/pki/tls/private/consul/
         sudo /usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${TRAVIS_BUILD_DIR}/${LOG} &
         sleep 5
         sudo ls -al ${TRAVIS_BUILD_DIR}/${LOG}
         sudo cat ${TRAVIS_BUILD_DIR}/${LOG}
       else
-        # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
-        sudo /usr/local/bootstrap/scripts/create_certificate.sh consul hashistack1 30 ${IP} server
-        sudo chmod -R 755 /${ROOTCERTPATH}/consul.d
-        sudo chown -R consul:consul /${ROOTCERTPATH}/consul.d
-        sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
-        sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
+
         sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -join=${IP} -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1" /etc/systemd/system/consul.service
-        #sudo -u consul cp -r /usr/local/bootstrap/conf/consul.d/* /${ROOTCERTPATH}/consul.d/.
         sudo systemctl enable consul
         sudo systemctl start consul
       fi
       sleep 15
       # upload vars to consul kv
-      ls -al /${ROOTCERTPATH}/consul.d/pki/tls/certs/ /${ROOTCERTPATH}/consul.d/pki/tls/private/ /${ROOTCERTPATH}/ssl/certs /${ROOTCERTPATH}/ssl/private
+      # ls -al /${ROOTCERTPATH}/consul.d/pki/tls/certs/ /${ROOTCERTPATH}/consul.d/pki/tls/private/ /${ROOTCERTPATH}/ssl/certs /${ROOTCERTPATH}/ssl/private
       echo "Quick test of the Consul KV store - upload the var.env parameters"
       while read a b; do
         k=${b%%=*}
@@ -185,15 +179,11 @@ install_consul () {
   else
     echo "Starting a Consul Agent in Client Mode"
     
-    generate_certificate_config false "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-client-key.pem" "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-client.pem" "/${ROOTCERTPATH}/ssl/certs/consul-agent-ca.pem"
+    generate_certificate_config false "/${ROOTCERTPATH}/consul.d/pki/tls/private/consul-peer-key.pem" "/${ROOTCERTPATH}/consul.d/pki/tls/certs/consul-peer.pem" "/${ROOTCERTPATH}/ssl/certs/consul-ca-chain.pem"
 
     /usr/local/bin/consul members 2>/dev/null || {
         
         sudo sed -i "/ExecStart=/c\ExecStart=/usr/local/bin/consul agent -log-level=debug -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -join=${LEADER_IP}" /etc/systemd/system/consul.service
-        sudo chmod -R 755 /${ROOTCERTPATH}/consul.d
-        sudo chown -R consul:consul /${ROOTCERTPATH}/consul.d
-        sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
-        sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
         sudo systemctl enable consul
         sudo systemctl start consul
         echo $HOSTNAME
@@ -201,6 +191,8 @@ install_consul () {
         sleep 15
     }
   fi
+
+  /usr/local/bin/consul members
 
   echo "Consul Service Started"
 }
@@ -210,5 +202,4 @@ install_prerequisite_binaries
 install_chef_inspec # used for dev/test of scripts
 install_terraform # used for testing only
 install_consul
-/usr/local/bin/consul members
 exit 0
