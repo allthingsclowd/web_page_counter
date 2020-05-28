@@ -213,6 +213,6 @@ echo "Verifiy the backend is accessible through nginx service"
 curl http://${IP}:9090
 
 echo "Verifiy the frontend is accessible through nginx service"
-curl https://${IP}:9091
+curl --insecure https://${IP}:9091
 
 exit 0
