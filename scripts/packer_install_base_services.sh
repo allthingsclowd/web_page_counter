@@ -106,6 +106,12 @@ EOF
 
 configure_certificates () {
 
+    echo "CONFIGURING CA PUBLIC CERTS"
+    for cert in `ls /usr/local/bootstrap/*.crt`;
+    do
+      sudo mv ${cert} /usr/local/share/ca-certificates/. ;
+    done
+
     sudo update-ca-certificates
     sudo openssl rehash /etc/ssl/certs
 

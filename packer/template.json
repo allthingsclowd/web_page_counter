@@ -262,7 +262,7 @@
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },
     {
-      "destination": "/usr/local/share/ca-certificates/nomad-ca-chain.pem",
+      "destination": "/usr/local/bootstrap/nomad-ca-chain.crt",
       "source": "../.bootstrap/Outputs/IntermediateCAs/nomad/nomad-ca-chain.pem",
       "type": "file",
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
@@ -274,7 +274,7 @@
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },
     {
-      "destination": "/usr/local/share/ca-certificates/ssh-ca-chain.pem",
+      "destination": "/usr/local/bootstrap/ssh-ca-chain.crt",
       "source": "../.bootstrap/Outputs/IntermediateCAs/ssh/ssh-ca-chain.pem",
       "type": "file",
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
@@ -286,7 +286,7 @@
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },
     {
-      "destination": "/usr/local/share/ca-certificates/consul-ca-chain.pem",
+      "destination": "/usr/local/bootstrap/consul-ca-chain.crt",
       "source": "../.bootstrap/Outputs/IntermediateCAs/consul/consul-ca-chain.pem",
       "type": "file",
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
@@ -298,7 +298,7 @@
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },
     {
-      "destination": "/usr/local/share/ca-certificates/vault-ca-chain.pem",
+      "destination": "/usr/local/bootstrap/vault-ca-chain.crt",
       "source": "../.bootstrap/Outputs/IntermediateCAs/vault/vault-ca-chain.pem",
       "type": "file",
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
@@ -310,7 +310,7 @@
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },
     {
-      "destination": "/usr/local/share/ca-certificates/bastion-ca-chain.pem",
+      "destination": "/usr/local/bootstrap/bastion-ca-chain.crt",
       "source": "../.bootstrap/Outputs/IntermediateCAs/bastion/bastion-ca-chain.pem",
       "type": "file",
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
@@ -322,7 +322,7 @@
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },
     {
-      "destination": "/usr/local/share/ca-certificates/wpc-ca-chain.pem",
+      "destination": "/usr/local/bootstrap/wpc-ca-chain.crt",
       "source": "../.bootstrap/Outputs/IntermediateCAs/wpc/wpc-ca-chain.pem",
       "type": "file",
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
