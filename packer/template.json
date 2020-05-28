@@ -340,8 +340,8 @@
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },
     {
-      "destination": "/usr/local/bootstrap",
-      "source": "../conf",
+      "destination": "/usr/local/bootstrap/conf",
+      "source": "../conf/",
       "type": "file",
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },
