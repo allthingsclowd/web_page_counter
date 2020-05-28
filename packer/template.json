@@ -233,8 +233,10 @@
     {
       "inline": [
         "sudo mkdir -p /usr/local/bootstrap && sudo chmod 777 /usr/local/bootstrap",
-        "sudo mkdir -p /usr/local/bootstrap/.bootstrap/live/hashistack.ie && sudo chmod 755 /usr/local/bootstrap/.bootstrap/live/hashistack.ie",
+        "sudo mkdir -p /usr/local/bootstrap/.bootstrap/live/hashistack.ie && sudo chmod 777 /usr/local/bootstrap/.bootstrap/live/hashistack.ie",
         "sudo mkdir -p /usr/local/bootstrap/conf/certificates && sudo chmod 777 /usr/local/bootstrap/conf/certificates",
+        "sudo mkdir -p /usr/local/bootstrap/conf/nomad.d && sudo chmod 777 /usr/local/bootstrap/conf/certificates",
+        "sudo mkdir -p /usr/local/bootstrap/conf/vault.d && sudo chmod 777 /usr/local/bootstrap/conf/certificates",
         "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/consul",
         "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/vault",
         "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/nomad",
@@ -336,6 +338,24 @@
     {
       "destination": "/etc/nginx/conf.d/frontend/pki/tls/certs/hashistack.pem",
       "source": "../.bootstrap/live/hashistack.ie/fullchain.pem",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },
+    {
+      "destination": "/usr/local/bootstrap/conf/certificates",
+      "source": "../conf/certificates/",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },
+    {
+      "destination": "/usr/local/bootstrap/conf/nomad.d",
+      "source": "../conf/nomad.d/",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },
+    {
+      "destination": "/usr/local/bootstrap/conf/vault.d",
+      "source": "../conf/vault.d/",
       "type": "file",
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },
