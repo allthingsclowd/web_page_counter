@@ -66,8 +66,6 @@ variable "ssh_intermediate_ca_key" {
   description = "SSH Intermediate CA Private Key"
 }
 
-}
-
 variable "bastion_intermediate_ca_key" {
   description = "Bastion Intermediate CA Private Key"
 }
