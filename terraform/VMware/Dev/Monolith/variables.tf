@@ -70,45 +70,9 @@ variable "bastion_intermediate_ca_key" {
   description = "Bastion Intermediate CA Private Key"
 }
 
-
-
 variable "wpc_intermediate_ca_key" {
   description = "Web-Page-Counter Application Intermediate CA Private Key"
 }
 
-variable "ca_keys" {
-  default = [
-    {
-      app_name   = "consul"
-      key_name = "consul-intermediate-ca-key.pem"
-      key_value = var.consul_intermediate_ca_key
-    },
-    {
-      app_name   = "vault"
-      key_name = "vault-intermediate-ca-key.pem"
-      key_value = var.vault_intermediate_ca_key
-    },
-    {
-      app_name   = "nomad"
-      key_name = "nomad-intermediate-ca-key.pem"
-      key_value = var.nomad_intermediate_ca_key
-    },
-    {
-      app_name   = "ssh"
-      key_name = "ssh-intermediate-ca-key.pem"
-      key_value = var.ssh_intermediate_ca_key
-    },
-    {
-      app_name   = "bastion"
-      key_name = "bastion-intermediate-ca-key.pem"
-      key_value = var.bastion_intermediate_ca_key
-    },
-    {
-      app_name   = "wpc"
-      key_name = "wpc-intermediate-ca-key.pem"
-      key_value = var.wpc_intermediate_ca_key
-    },        
-  ]
-}
 
 
