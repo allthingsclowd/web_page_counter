@@ -109,7 +109,7 @@ resource "vsphere_virtual_machine" "leader01vm" {
     for_each = var.ca_keys
     content {
       inline = [
-                'sudo /usr/local/bootstrap/scripts/tf_cloud_cert_bootstrap.sh upload_ca_key.value["key_value"] upload_ca_key.value["app_name"] upload_ca_key.value["key_name"]'
+                'sudo /usr/local/bootstrap/scripts/tf_cloud_cert_bootstrap.sh ${upload_ca_key.value["key_value"]} ${upload_ca_key.value["app_name"]} ${upload_ca_key.value["key_name"]}'
         ]
 
       }
