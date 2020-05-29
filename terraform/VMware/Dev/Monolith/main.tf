@@ -105,15 +105,17 @@ resource "vsphere_virtual_machine" "leader01vm" {
         host = self.default_ip_address
     }
     
-    dynamic "upload_ca_key" {
-    for_each = var.ca_keys
-    content {
-      inline = [
-                "sudo /usr/local/bootstrap/scripts/tf_cloud_cert_bootstrap.sh ${upload_ca_key.value['key_value']} ${upload_ca_key.value['app_name']} ${upload_ca_key.value['key_name']}"
+    inline = [
+                "sudo /usr/local/bootstrap/scripts/tf_cloud_cert_bootstrap.sh ${var.bastion_intermediate_ca_key} bastion bastion-intermediate-ca-key.pem",
+                "sudo /usr/local/bootstrap/scripts/tf_cloud_cert_bootstrap.sh ${var.ssh_intermediate_ca_key} ssh ssh-intermediate-ca-key.pem",
+                "sudo /usr/local/bootstrap/scripts/tf_cloud_cert_bootstrap.sh ${var.consul_intermediate_ca_key} consul consul-intermediate-ca-key.pem",
+                "sudo /usr/local/bootstrap/scripts/tf_cloud_cert_bootstrap.sh ${var.vault_intermediate_ca_key} vault vault-intermediate-ca-key.pem",
+                "sudo /usr/local/bootstrap/scripts/tf_cloud_cert_bootstrap.sh ${var.nomad_intermediate_ca_key} nomad nomad-intermediate-ca-key.pem",
+                "sudo /usr/local/bootstrap/scripts/tf_cloud_cert_bootstrap.sh ${var.wpc_intermediate_ca_key} wpc wpc-intermediate-ca-key.pem",
         ]
 
-      }
-    }
+  
+    
 
 
   }
