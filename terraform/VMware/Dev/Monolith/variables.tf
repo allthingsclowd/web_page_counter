@@ -54,70 +54,63 @@ variable "consul_intermediate_ca_key" {
   description = "Consul Intermediate CA Private Key"
 }
 
-variable "consul_intermediate_ca_cert" {
-  description = "Consul Signed Intermediate CA Certificate"
-}
-
-variable "consul_intermediate_ca_cert_chain" {
-  description = "Consul Root-Intermediate CA Certificate Chain"
-}
-
 variable "vault_intermediate_ca_key" {
   description = "Vault Intermediate CA Private Key"
-}
-
-variable "vault_intermediate_ca_cert" {
-  description = "Vault Signed Intermediate CA Certificate"
-}
-
-variable "vault_intermediate_ca_cert_chain" {
-  description = "Vault Root-Intermediate CA Certificate Chain"
 }
 
 variable "nomad_intermediate_ca_key" {
   description = "Vault Intermediate CA Private Key"
 }
 
-variable "nomad_intermediate_ca_cert" {
-  description = "Vault Signed Intermediate CA Certificate"
-}
-
-variable "nomad_intermediate_ca_cert_chain" {
-  description = "Vault Root-Intermediate CA Certificate Chain"
-}
-
 variable "ssh_intermediate_ca_key" {
-  description = "Vault Intermediate CA Private Key"
+  description = "SSH Intermediate CA Private Key"
 }
 
-variable "ssh_intermediate_ca_cert" {
-  description = "Vault Signed Intermediate CA Certificate"
-}
-
-variable "ssh_intermediate_ca_cert_chain" {
-  description = "Vault Root-Intermediate CA Certificate Chain"
 }
 
 variable "bastion_intermediate_ca_key" {
-  description = "Vault Intermediate CA Private Key"
+  description = "Bastion Intermediate CA Private Key"
 }
 
-variable "bastion_intermediate_ca_cert" {
-  description = "Vault Signed Intermediate CA Certificate"
-}
 
-variable "bastion_intermediate_ca_cert_chain" {
-  description = "Vault Root-Intermediate CA Certificate Chain"
-}
 
 variable "wpc_intermediate_ca_key" {
-  description = "Vault Intermediate CA Private Key"
+  description = "Web-Page-Counter Application Intermediate CA Private Key"
 }
 
-variable "wpc_intermediate_ca_cert" {
-  description = "Vault Signed Intermediate CA Certificate"
+variable "ca_keys" {
+  default = [
+    {
+      app_name   = "consul"
+      key_name = "consul-intermediate-ca-key.pem"
+      key_value = var.consul_intermediate_ca_key
+    },
+    {
+      app_name   = "vault"
+      key_name = "vault-intermediate-ca-key.pem"
+      key_value = var.vault_intermediate_ca_key
+    },
+    {
+      app_name   = "nomad"
+      key_name = "nomad-intermediate-ca-key.pem"
+      key_value = var.nomad_intermediate_ca_key
+    },
+    {
+      app_name   = "ssh"
+      key_name = "ssh-intermediate-ca-key.pem"
+      key_value = var.ssh_intermediate_ca_key
+    },
+    {
+      app_name   = "bastion"
+      key_name = "bastion-intermediate-ca-key.pem"
+      key_value = var.bastion_intermediate_ca_key
+    },
+    {
+      app_name   = "wpc"
+      key_name = "wpc-intermediate-ca-key.pem"
+      key_value = var.wpc_intermediate_ca_key
+    },        
+  ]
 }
 
-variable "wpc_intermediate_ca_cert_chain" {
-  description = "Vault Root-Intermediate CA Certificate Chain"
-}
+
