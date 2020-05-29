@@ -276,8 +276,44 @@
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },
     {
-      "destination": "/usr/local/bootstrap/ssh-ca-chain.crt",
-      "source": "../.bootstrap/Outputs/IntermediateCAs/ssh/ssh-ca-chain.pem",
+      "destination": "/usr/local/bootstrap/bastion-host-ca.pub",
+      "source": "../.bootstrap/Outputs/IntermediateCAs/bastion/bastion-host-ca.pub",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    }, 
+    {
+      "destination": "/usr/local/bootstrap/bastion-client-ca.pub",
+      "source": "../.bootstrap/Outputs/IntermediateCAs/bastion/bastion-client-ca.pub",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },
+    {
+      "destination": "/usr/local/bootstrap/ssh-host-ca.pub",
+      "source": "../.bootstrap/Outputs/IntermediateCAs/ssh/ssh-host-ca.pub",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },
+    {
+      "destination": "/usr/local/bootstrap/ssh-host-ca-cert.pub",
+      "source": "../.bootstrap/Outputs/IntermediateCAs/ssh/ssh-host-ca.pub",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },     
+    {
+      "destination": "/usr/local/bootstrap/ssh-client-ca.pub",
+      "source": "../.bootstrap/Outputs/IntermediateCAs/ssh/ssh-client-ca.pub",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },
+    {
+      "destination": "/usr/local/bootstrap/ssh_host_rsa_key-cert.pub",
+      "source": "../.bootstrap/Outputs/Certificates/ssh_host_rsa_key-cert.pub",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },    
+    {
+      "destination": "/usr/local/bootstrap/ssh_host_rsa_key.pub",
+      "source": "../.bootstrap/Outputs/Certificates/ssh_host_rsa_key.pub",
       "type": "file",
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },    

@@ -106,7 +106,7 @@ EOF
 
 configure_certificates () {
 
-    echo "CONFIGURING CA PUBLIC CERTS"
+    echo "CONFIGURING OpenSSL CA PUBLIC CERTS"
     for cert in `ls /usr/local/bootstrap/*.crt`;
     do
       sudo mv ${cert} /usr/local/share/ca-certificates/. ;
@@ -120,18 +120,29 @@ configure_certificates () {
         chown -R ${1}:${1} /${ROOTCERTPATH}/${1}.d
     fi
 
-    # copy ssh CA certificate onto host
-    sudo cp -r /usr/local/bootstrap/certificate-config/ssh_host/ssh_host_rsa_key.pub /etc/ssh/ssh_host_rsa_key.pub
+}
+
+configure_ssh_CAs () {
+
+    # copy HOST CA certificate onto host
+    sudo cp /usr/local/bootstrap/ssh_host_rsa_key.pub /etc/ssh/ssh_host_rsa_key.pub
     sudo chmod 644 /etc/ssh/ssh_host_rsa_key.pub
-    sudo cp -r /usr/local/bootstrap/certificate-config/ssh_host/ssh_host_rsa_key-cert.pub /etc/ssh/ssh_host_rsa_key-cert.pub
+    sudo cp /usr/local/bootstrap/ssh_host_rsa_key-cert.pub /etc/ssh/ssh_host_rsa_key-cert.pub
     sudo chmod 644 /etc/ssh/ssh_host_rsa_key-cert.pub
-    sudo cp -r /usr/local/bootstrap/certificate-config/ssh_host/client-ca.pub /etc/ssh/client-ca.pub
-    sudo chmod 644 /etc/ssh/client-ca.pub
-    sudo cp -r /usr/local/bootstrap/certificate-config/ssh_host/ssh_host_rsa_key /etc/ssh/ssh_host_rsa_key
-    sudo chmod 600 /etc/ssh/ssh_host_rsa_key
-    # enable ssh CA certificate
-    grep -qxF 'TrustedUserCAKeys /etc/ssh/client-ca.pub' /etc/ssh/sshd_config || echo 'TrustedUserCAKeys /etc/ssh/client-ca.pub' | sudo tee -a /etc/ssh/sshd_config
+    sudo cp /usr/local/bootstrap/ssh-client-ca.pub /etc/ssh/ssh-client-ca.pub
+    sudo chmod 644 /etc/ssh/ssh-client-ca.pub
+
+    # enable SSH Client CA certificate
+    grep -qxF 'TrustedUserCAKeys /etc/ssh/ssh-client-ca.pub' /etc/ssh/sshd_config || echo 'TrustedUserCAKeys /etc/ssh/ssh-client-ca.pub' | sudo tee -a /etc/ssh/sshd_config
+    # enable SSH HOST CA certificate
     grep -qxF 'HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub' /etc/ssh/sshd_config || echo 'HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub' | sudo tee -a /etc/ssh/sshd_config
+    
+    # configure /etc/ssh_known_hosts
+    HOSTS_CERT=`cat /usr/local/bootstrap/ssh-host-ca.pub`
+    grep -qxF "@cert-authority * ${HOSTS_CERT}" /etc/ssh_known_hosts || echo "@cert-authority * ${HOSTS_CERT}" | sudo tee -a /etc/ssh_known_hosts
+    sudo chmod 644 /etc/ssh_known_hosts
+    
+
 }
 
 create_service_user () {
@@ -191,3 +202,4 @@ create_nomad_service
 create_envoy_service
 
 configure_certificates
+configure_ssh_CAs
