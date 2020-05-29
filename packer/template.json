@@ -307,22 +307,16 @@
     },
     {
       "destination": "/usr/local/bootstrap/ssh_host_rsa_key-cert.pub",
-      "source": "../.bootstrap/Outputs/Certificates/ssh_host_rsa_key-cert.pub",
+      "source": "../.bootstrap/Outputs/Certificates/ssh/ssh_host_rsa_key-cert.pub",
       "type": "file",
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },    
     {
       "destination": "/usr/local/bootstrap/ssh_host_rsa_key.pub",
-      "source": "../.bootstrap/Outputs/Certificates/ssh_host_rsa_key.pub",
+      "source": "../.bootstrap/Outputs/Certificates/ssh/ssh_host_rsa_key.pub",
       "type": "file",
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },    
-    {
-      "destination": "/usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/ssh/ssh-root-signed-intermediate-ca.pem",
-      "source": "../.bootstrap/Outputs/IntermediateCAs/ssh/ssh-root-signed-intermediate-ca.pem",
-      "type": "file",
-      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
-    },
     {
       "destination": "/usr/local/bootstrap/consul-ca-chain.crt",
       "source": "../.bootstrap/Outputs/IntermediateCAs/consul/consul-ca-chain.pem",
@@ -346,19 +340,7 @@
       "source": "../.bootstrap/Outputs/IntermediateCAs/vault/vault-root-signed-intermediate-ca.pem",
       "type": "file",
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
-    },
-    {
-      "destination": "/usr/local/bootstrap/bastion-ca-chain.crt",
-      "source": "../.bootstrap/Outputs/IntermediateCAs/bastion/bastion-ca-chain.pem",
-      "type": "file",
-      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },    
-    {
-      "destination": "/usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/bastion/bastion-root-signed-intermediate-ca.pem",
-      "source": "../.bootstrap/Outputs/IntermediateCAs/bastion/bastion-root-signed-intermediate-ca.pem",
-      "type": "file",
-      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
-    },
     {
       "destination": "/usr/local/bootstrap/wpc-ca-chain.crt",
       "source": "../.bootstrap/Outputs/IntermediateCAs/wpc/wpc-ca-chain.pem",
