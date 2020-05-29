@@ -83,6 +83,41 @@ resource "vsphere_virtual_machine" "leader01vm" {
     }    
 
   }
+  
+    
+
+  provisioner "remote-exec" {
+    
+    connection {
+        bastion_host = var.bastion_host
+        bastion_port = var.bastion_port
+        bastion_user = var.bastion_user
+        // bastion_password = var.bastion_password
+        bastion_private_key = var.bastion_private_key
+        bastion_certificate = var.bastion_certificate
+        bastion_host_key = var.bastion_host_key
+        type     = "ssh"
+        user     = "vagrant"
+        // password = "vagrant"
+        private_key = var.ssh_private_key
+        certificate = var.ssh_certificate
+        host_key = var.ssh_host_key
+        host = self.default_ip_address
+    }
+    
+    dynamic "upload_ca_key" {
+    for_each = var.ca_keys
+    content {
+      inline = [
+                "sudo /usr/local/bootstrap/scripts/tf_cloud_cert_bootstrap.sh upload_ca_key.value["key_value"] upload_ca_key.value["app_name"] upload_ca_key.value["key_name"]
+        ]
+
+      }
+    }
+
+
+  }
+
 
   provisioner "remote-exec" {
     
@@ -105,7 +140,6 @@ resource "vsphere_virtual_machine" "leader01vm" {
 
     inline = [
         "touch /tmp/cloudinit-start.txt",
-        
         "sudo /usr/local/bootstrap/scripts/install_consul.sh",
         "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
         "sudo /usr/local/bootstrap/scripts/install_vault.sh",
