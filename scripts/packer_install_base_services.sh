@@ -168,9 +168,9 @@ create_ssh_user () {
     sudo useradd --create-home --home-dir /home/${1} --shell /bin/bash ${1}
     sudo usermod -aG sudo ${1}
     sudo mkdir -p /home/${1}/.ssh
-    echo "${AUTHORISED_CERT}" >> /home/${1}/.ssh/authorized_keys
+    echo "${AUTHORISED_CERT}" | sudo tee -a /home/${1}/.ssh/authorized_keys
     sudo chown -R ${1}:${1} /home/${1}/
-    sudo chmod -R go-rwx /home/${1}/authorized_keys
+    sudo chmod -R go-rwx /home/${1}/.ssh/authorized_keys
 
   fi
 
