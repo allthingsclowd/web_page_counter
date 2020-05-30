@@ -170,7 +170,7 @@ create_ssh_user () {
     sudo chown -R ${1}:${1} /opt/${1} /usr/local/${1} /etc/${1}.d
     sudo usermod -aG sudo ${1}
     sudo mkdir -p /home/${1}/.ssh
-    echo ${AUTHORISED_CERT} | sudo tee -a /home/${1}/.ssh/authorized_keys
+    echo "${AUTHORISED_CERT}" | sudo tee -a /home/${1}/.ssh/authorized_keys
     sudo chown -R ${1}:${1} /home/${1}/
     sudo chmod -R go-rwx /home/${1}/authorized_keys
 
