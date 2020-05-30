@@ -218,10 +218,10 @@ create_vault_service
 create_nomad_service
 create_envoy_service
 
-[ ! -z ${TRAVIS} ] && configure_certificates
-[ ! -z ${TRAVIS} ] && configure_ssh_CAs
+[ ! -z ${TRAVIS} ] || configure_certificates
+[ ! -z ${TRAVIS} ] || configure_ssh_CAs
 
 # External DC Account Use
-[ ! -z ${TRAVIS} ] && create_ssh_user iac4me /usr/local/bootstrap/iac4me_bastion_user_rsa_key.pub
+[ ! -z ${TRAVIS} ] || create_ssh_user iac4me /usr/local/bootstrap/iac4me_bastion_user_rsa_key.pub
 
 
