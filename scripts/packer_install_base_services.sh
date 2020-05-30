@@ -165,7 +165,7 @@ create_ssh_user () {
     
     echo "Creating ${1} user with ssh access"
     AUTHORISED_CERT=`cat ${2}`
-    sudo useradd -g ${1} --create-home --home-dir /home/${1} --shell /bin/bash ${1}
+    sudo useradd --create-home --home-dir /home/${1} --shell /bin/bash ${1}
     sudo mkdir --parents /opt/${1} /usr/local/${1} /etc/${1}.d
     sudo chown -R ${1}:${1} /opt/${1} /usr/local/${1} /etc/${1}.d
     sudo usermod -aG sudo ${1}
