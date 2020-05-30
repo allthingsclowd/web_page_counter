@@ -65,7 +65,7 @@
       "iso_checksum": "{{user `iso_checksum`}}",
       "iso_checksum_type": "{{user `iso_checksum_type`}}",
       "iso_url": "{{user `iso_url`}}",
-      "ssh_password": "{{user `ssh_username`}}",
+      "ssh_username": "{{user `ssh_username`}}",
       "ssh_private_key_file": "{{user `ssh_private_key_file`}}",
       "ssh_port": 22,
       "ssh_wait_timeout": "10000s",
@@ -158,7 +158,7 @@
       "guest_additions_url": "{{user `guest_additions_url`}}",
       "guest_additions_sha256": "{{user `guest_additions_sha256`}}",
       "shutdown_command": "sudo -S poweroff",
-      "ssh_password": "{{user `ssh_username`}}",
+      "ssh_username": "{{user `ssh_username`}}",
       "ssh_private_key_file": "{{user `ssh_private_key_file`}}",
       "ssh_wait_timeout": "20m",
       "vboxmanage": [
