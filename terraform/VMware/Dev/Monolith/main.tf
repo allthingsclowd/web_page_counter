@@ -95,7 +95,7 @@ resource "vsphere_virtual_machine" "leader01vm" {
         bastion_certificate = var.bastion_certificate
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
-        user     = "vagrant"
+        user     = var.ssh_username
         // password = "vagrant"
         private_key = var.ssh_private_key
         certificate = var.ssh_certificate
@@ -174,7 +174,7 @@ resource "vsphere_virtual_machine" "redis01vm" {
         bastion_certificate = var.bastion_certificate
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
-        user     = "vagrant"
+        user     = var.ssh_username
         // password = "vagrant"
         private_key = var.ssh_private_key
         certificate = var.ssh_certificate
@@ -252,7 +252,7 @@ resource "vsphere_virtual_machine" "godevvms" {
         bastion_certificate = var.bastion_certificate
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
-        user     = "vagrant"
+        user     = var.ssh_username
         // password = "vagrant"
         private_key = var.ssh_private_key
         certificate = var.ssh_certificate
@@ -330,7 +330,7 @@ resource "vsphere_virtual_machine" "web01vm" {
         bastion_certificate = var.bastion_certificate
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
-        user     = "vagrant"
+        user     = var.ssh_username
         // password = "vagrant"
         private_key = var.ssh_private_key
         certificate = var.ssh_certificate
@@ -350,7 +350,7 @@ resource "vsphere_virtual_machine" "web01vm" {
         bastion_certificate = var.bastion_certificate
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
-        user     = "vagrant"
+        user     = var.ssh_username
         // password = "vagrant"
         private_key = var.ssh_private_key
         certificate = var.ssh_certificate

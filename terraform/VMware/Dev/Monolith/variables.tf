@@ -46,6 +46,10 @@ variable "ssh_private_key" {
   description = "SSH Private Key"
 }
 
+variable "ssh_username" {
+  description = "SSH Deployment Username"
+}
+
 variable "ssh_host_key" {
   description = "SSH Host CA Signing Public Key"
 }
