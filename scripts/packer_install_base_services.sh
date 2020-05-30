@@ -159,6 +159,25 @@ create_service_user () {
 
 }
 
+create_ssh_user () {
+  
+  if ! grep ${1} /etc/passwd >/dev/null 2>&1; then
+    
+    echo "Creating ${1} user with ssh access"
+    AUTHORISED_CERT=`cat ${2}`
+    sudo useradd -g ${1} --create-home --home-dir /home/${1} --shell /bin/bash ${1}
+    sudo mkdir --parents /opt/${1} /usr/local/${1} /etc/${1}.d
+    sudo chown -R ${1}:${1} /opt/${1} /usr/local/${1} /etc/${1}.d
+    sudo usermod -aG sudo ${1}
+    sudo mkdir -p /home/${1}/.ssh
+    echo ${AUTHORISED_CERT} | sudo tee -a /home/${1}/.ssh/authorized_keys
+    sudo chown -R ${1}:${1} /home/${1}/
+    sudo chmod -R go-rwx /home/${1}/authorized_keys
+
+  fi
+
+}
+
 create_consul_service () {
     
     create_service consul "HashiCorp Consul Server SD & KV Service" "/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} -join=${IP} -config-dir=/${ROOTCERTPATH}/consul.d -enable-script-checks=true -data-dir=/usr/local/consul -bootstrap-expect=1" notify
@@ -203,3 +222,8 @@ create_envoy_service
 
 configure_certificates
 configure_ssh_CAs
+
+# External DC Account Use
+create_ssh_user iac4me /usr/local/bootstrap/.bootstrap/Outputs/Certificates/bastion/iac4me_bastion_user_rsa_key.pub
+
+

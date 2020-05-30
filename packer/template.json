@@ -13,8 +13,8 @@
     "iso_url": "http://cdimage.ubuntu.com/ubuntu/releases/bionic/release/ubuntu-18.04.3-server-amd64.iso",
     "guest_additions_url": "http://download.virtualbox.org/virtualbox/6.0.4/VBoxGuestAdditions_6.0.4.iso",
     "guest_additions_sha256": "749b0c76aa6b588e3310d718fc90ea472fdc0b7c8953f7419c20be7e7fa6584a",
-    "ssh_username": "vagrant",
-    "ssh_password": "vagrant",
+    "ssh_username": "grazzer",
+    "ssh_private_key_file": "/Users/grazzer/vagrant_workspace/pipeline/.bootstrap/Outputs/Certificates/ssh/grazzer_ssh_user_rsa_key",
     "version": "0.2.{{timestamp}}",
     "cloud_token": "{{ env `TF_VAR_vagrant_cloud_token` }}",
     "remote_user": "{{ env `TF_VAR_vmware_user` }}",
@@ -65,8 +65,8 @@
       "iso_checksum": "{{user `iso_checksum`}}",
       "iso_checksum_type": "{{user `iso_checksum_type`}}",
       "iso_url": "{{user `iso_url`}}",
-      "ssh_username": "vagrant",
-      "ssh_password": "vagrant",
+      "ssh_password": "{{user `ssh_username`}}",
+      "ssh_private_key_file": "{{user `ssh_private_key_file`}}",
       "ssh_port": 22,
       "ssh_wait_timeout": "10000s",
       "shutdown_command": "sudo /sbin/shutdown -h now",
@@ -157,9 +157,9 @@
       "iso_url": "{{user `iso_url`}}",
       "guest_additions_url": "{{user `guest_additions_url`}}",
       "guest_additions_sha256": "{{user `guest_additions_sha256`}}",
-      "shutdown_command": "echo 'vagrant' | sudo -S poweroff",
+      "shutdown_command": "sudo -S poweroff",
       "ssh_password": "{{user `ssh_username`}}",
-      "ssh_username": "{{user `ssh_password`}}",
+      "ssh_private_key_file": "{{user `ssh_private_key_file`}}",
       "ssh_wait_timeout": "20m",
       "vboxmanage": [
         [
@@ -193,7 +193,7 @@
     }
   ],
   "provisioners": [
-    {
+   {
       "inline": [
         "sudo mkdir -p /usr/local/bootstrap && sudo chmod 777 /usr/local/bootstrap"
       ],
@@ -248,7 +248,7 @@
         "sudo mkdir -p /etc/nginx/conf.d/frontend/pki/tls/certs/ && sudo chmod -R 777 /etc/nginx/conf.d/frontend"
       ],
       "type": "shell",
-      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
+      "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },
     {
@@ -405,7 +405,7 @@
       "only": ["azure-arm"]
     },
     {
-      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
+      "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
       "scripts": [
         "../scripts/packer_install_guest_additions.sh"
       ],
@@ -416,11 +416,10 @@
     },
     
     {
-      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
+      "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
       "scripts": [
         "../scripts/packer_install_base_packages.sh",
         "../scripts/packer_install_base_services.sh",
-        "../scripts/packer_configure_vagrant_user.sh",
         "../scripts/packer_virtualbox_cleanup.sh"
       ],
       "type": "shell",
@@ -429,11 +428,10 @@
       "only": ["{{ user `build_name` }}-vbox"]
     },
     {
-      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
+      "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
       "scripts": [
         "../scripts/packer_install_base_packages.sh",
         "../scripts/packer_install_base_services.sh",
-        "../scripts/packer_configure_vagrant_user.sh",
         "../scripts/packer_install_vmtools.sh"
       ],
       "type": "shell",
@@ -446,7 +444,7 @@
       "profile": "../test/ImageBuild-Packer-Test"
     },
     {
-      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
+      "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
       "scripts": [
         "../scripts/packer_remove_build_user.sh"
       ],

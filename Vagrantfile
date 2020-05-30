@@ -47,6 +47,9 @@ Vagrant.configure("2") do |config|
     ENV['DD_API_KEY']||="ONLY REQUIRED FOR DATADOG IMPLEMENTATION"
     
     #global config
+    config.ssh.username = "vagrant"
+    config.ssh.private_key_path = "/Users/grazzer/vagrant_workspace/pipeline/.bootstrap/Outputs/Certificates/ssh/grazzer_ssh_user_rsa_key"
+
     config.vm.synced_folder ".", "/vagrant"
     config.vm.synced_folder ".", "/usr/local/bootstrap"
     config.vm.box = "allthingscloud/web-page-counter"
