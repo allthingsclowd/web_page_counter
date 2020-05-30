@@ -224,6 +224,6 @@ configure_certificates
 configure_ssh_CAs
 
 # External DC Account Use
-create_ssh_user iac4me /usr/local/bootstrap/.bootstrap/Outputs/Certificates/bastion/iac4me_bastion_user_rsa_key.pub
+create_ssh_user iac4me /usr/local/bootstrap/iac4me_bastion_user_rsa_key.pub
 
 

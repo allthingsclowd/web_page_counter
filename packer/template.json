@@ -316,7 +316,13 @@
       "source": "../.bootstrap/Outputs/Certificates/ssh/ssh_host_rsa_key.pub",
       "type": "file",
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
-    },    
+    },
+    {
+      "destination": "/usr/local/bootstrap/iac4me_bastion_user_rsa_key.pub",
+      "source": "../.bootstrap/Outputs/Certificates/bastion/iac4me_bastion_user_rsa_key.pub",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },        
     {
       "destination": "/usr/local/bootstrap/consul-ca-chain.crt",
       "source": "../.bootstrap/Outputs/IntermediateCAs/consul/consul-ca-chain.pem",
