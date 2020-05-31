@@ -276,13 +276,13 @@
     },
     {
       "destination": "/usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/hashistack/hashistack-ssh-host-rsa-ca.pub",
-      "source": "../.bootstrap/Outputs/IntermediateCAs/Outputs/IntermediateCAs/hashistack/hashistack-ssh-host-rsa-ca.pub",
+      "source": "../.bootstrap/Outputs/IntermediateCAs/hashistack/hashistack-ssh-host-rsa-ca.pub",
       "type": "file",
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },
     {
       "destination": "/usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/hashistack/hashistack-ssh-user-rsa-ca.pub",
-      "source": "../.bootstrap/Outputs/IntermediateCAs/Outputs/IntermediateCAs/hashistack/hashistack-ssh-user-rsa-ca.pub",
+      "source": "../.bootstrap/Outputs/IntermediateCAs/hashistack/hashistack-ssh-user-rsa-ca.pub",
       "type": "file",
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },       
