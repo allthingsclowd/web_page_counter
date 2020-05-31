@@ -240,8 +240,7 @@
         "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/consul",
         "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/vault",
         "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/nomad",
-        "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/ssh",
-        "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/bastion",
+        "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/hashistack",
         "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/wpc",
         "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/Certificates && sudo chmod -R 777 /usr/local/bootstrap/.bootstrap/Outputs/",
         "sudo mkdir -p /etc/nginx/conf.d/frontend/pki/tls/private/",
@@ -276,53 +275,17 @@
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },
     {
-      "destination": "/usr/local/bootstrap/bastion-host-ca.pub",
-      "source": "../.bootstrap/Outputs/IntermediateCAs/bastion/bastion-host-ca.pub",
-      "type": "file",
-      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
-    }, 
-    {
-      "destination": "/usr/local/bootstrap/bastion-client-ca.pub",
-      "source": "../.bootstrap/Outputs/IntermediateCAs/bastion/bastion-client-ca.pub",
+      "destination": "/usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/hashistack/hashistack-ssh-host-rsa-ca.pub",
+      "source": "../.bootstrap/Outputs/IntermediateCAs/Outputs/IntermediateCAs/hashistack/hashistack-ssh-host-rsa-ca.pub",
       "type": "file",
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },
     {
-      "destination": "/usr/local/bootstrap/ssh-host-ca.pub",
-      "source": "../.bootstrap/Outputs/IntermediateCAs/ssh/ssh-host-ca.pub",
+      "destination": "/usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/hashistack/hashistack-ssh-user-rsa-ca.pub",
+      "source": "../.bootstrap/Outputs/IntermediateCAs/Outputs/IntermediateCAs/hashistack/hashistack-ssh-user-rsa-ca.pub",
       "type": "file",
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
-    },
-    {
-      "destination": "/usr/local/bootstrap/ssh-host-ca-cert.pub",
-      "source": "../.bootstrap/Outputs/IntermediateCAs/ssh/ssh-host-ca.pub",
-      "type": "file",
-      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
-    },     
-    {
-      "destination": "/usr/local/bootstrap/ssh-client-ca.pub",
-      "source": "../.bootstrap/Outputs/IntermediateCAs/ssh/ssh-client-ca.pub",
-      "type": "file",
-      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
-    },
-    {
-      "destination": "/usr/local/bootstrap/ssh_host_rsa_key-cert.pub",
-      "source": "../.bootstrap/Outputs/Certificates/ssh/ssh_host_rsa_key-cert.pub",
-      "type": "file",
-      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
-    },    
-    {
-      "destination": "/usr/local/bootstrap/ssh_host_rsa_key.pub",
-      "source": "../.bootstrap/Outputs/Certificates/ssh/ssh_host_rsa_key.pub",
-      "type": "file",
-      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
-    },
-    {
-      "destination": "/usr/local/bootstrap/iac4me_bastion_user_rsa_key.pub",
-      "source": "../.bootstrap/Outputs/Certificates/bastion/iac4me_bastion_user_rsa_key.pub",
-      "type": "file",
-      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
-    },        
+    },       
     {
       "destination": "/usr/local/bootstrap/consul-ca-chain.crt",
       "source": "../.bootstrap/Outputs/IntermediateCAs/consul/consul-ca-chain.pem",
