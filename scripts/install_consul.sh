@@ -64,69 +64,13 @@ setup_environment () {
 
 }
 
-install_prerequisite_binaries () {
+configure_ssh_CAs () {
 
-    # check consul binary
-    [ -f /usr/local/bin/consul ] &>/dev/null || {
-        pushd /usr/local/bin
-        [ -f consul_${consul_version}_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/consul/${consul_version}/consul_${consul_version}_linux_amd64.zip
-        }
-        sudo unzip consul_${consul_version}_linux_amd64.zip
-        sudo chmod +x consul
-        sudo rm consul_${consul_version}_linux_amd64.zip
-        popd
-    }
+  export BootstrapSSHTool="https://raw.githubusercontent.com/allthingsclowd/BootstrapCertificateTool/${certbootstrap_version}/scripts/Generate_Access_Certificates.sh"
 
-    # check consul-template binary
-    [ -f /usr/local/bin/consul-template ] &>/dev/null || {
-        pushd /usr/local/bin
-        [ -f consul-template_${consul_template_version}_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/consul-template/${consul_template_version}/consul-template_${consul_template_version}_linux_amd64.zip
-        }
-        sudo unzip consul-template_${consul_template_version}_linux_amd64.zip
-        sudo chmod +x consul-template
-        sudo rm consul-template_${consul_template_version}_linux_amd64.zip
-        popd
-    }
-
-    # check envconsul binary
-    [ -f /usr/local/bin/envconsul ] &>/dev/null || {
-        pushd /usr/local/bin
-        [ -f envconsul_${env_consul_version}_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/envconsul/${env_consul_version}/envconsul_${env_consul_version}_linux_amd64.zip
-        }
-        sudo unzip envconsul_${env_consul_version}_linux_amd64.zip
-        sudo chmod +x envconsul
-        sudo rm envconsul_${env_consul_version}_linux_amd64.zip
-        popd
-    }
-
-}
-
-install_chef_inspec () {
+  # Generate OpenSSH Certs
+  wget -O - ${BootstrapSSHTool} | bash -s "hashistack" "iac4me" ",81.143.215.2"
     
-    [ -f /usr/bin/inspec ] &>/dev/null || {
-        pushd /tmp
-        curl https://omnitruck.chef.io/install.sh | sudo bash -s -- -P inspec
-        popd
-    }    
-
-}
-
-install_terraform () {
-
-    # check terraform binary
-    [ -f /usr/local/bin/terraform ] &>/dev/null || {
-        pushd /usr/local/bin
-        [ -f terraform_${terraform_version}_linux_amd64.zip ] || {
-            sudo wget -q https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip
-        }
-        sudo unzip terraform_${terraform_version}_linux_amd64.zip
-        sudo chmod +x terraform
-        sudo rm terraform_${terraform_version}_linux_amd64.zip
-        popd
-    }
 
 }
 
@@ -198,8 +142,6 @@ install_consul () {
 }
 
 setup_environment
-install_prerequisite_binaries
-install_chef_inspec # used for dev/test of scripts
-install_terraform # used for testing only
+[ ! -z ${TRAVIS} ] ||  configure_ssh_CAs
 install_consul
 exit 0

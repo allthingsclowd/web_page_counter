@@ -124,23 +124,10 @@ configure_certificates () {
 
 configure_ssh_CAs () {
 
-    # copy HOST CA certificate onto host
-    sudo cp /usr/local/bootstrap/ssh_host_rsa_key.pub /etc/ssh/ssh_host_rsa_key.pub
-    sudo chmod 644 /etc/ssh/ssh_host_rsa_key.pub
-    sudo cp /usr/local/bootstrap/ssh_host_rsa_key-cert.pub /etc/ssh/ssh_host_rsa_key-cert.pub
-    sudo chmod 644 /etc/ssh/ssh_host_rsa_key-cert.pub
-    sudo cp /usr/local/bootstrap/ssh-client-ca.pub /etc/ssh/ssh-client-ca.pub
-    sudo chmod 644 /etc/ssh/ssh-client-ca.pub
+  export BootstrapSSHTool="https://raw.githubusercontent.com/allthingsclowd/BootstrapCertificateTool/${certbootstrap_version}/scripts/Generate_Access_Certificates.sh"
 
-    # enable SSH Client CA certificate
-    grep -qxF 'TrustedUserCAKeys /etc/ssh/ssh-client-ca.pub' /etc/ssh/sshd_config || echo 'TrustedUserCAKeys /etc/ssh/ssh-client-ca.pub' | sudo tee -a /etc/ssh/sshd_config
-    # enable SSH HOST CA certificate
-    grep -qxF 'HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub' /etc/ssh/sshd_config || echo 'HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub' | sudo tee -a /etc/ssh/sshd_config
-    
-    # configure /etc/ssh_known_hosts
-    HOSTS_CERT=`cat /usr/local/bootstrap/ssh-host-ca.pub`
-    grep -qxF "@cert-authority * ${HOSTS_CERT}" /etc/ssh_known_hosts || echo "@cert-authority * ${HOSTS_CERT}" | sudo tee -a /etc/ssh_known_hosts
-    sudo chmod 644 /etc/ssh_known_hosts
+  # Generate OpenSSH Certs
+  wget -O - ${BootstrapSSHTool} | bash -s "hashistack" "iac4me" ",81.143.215.2"
     
 
 }
@@ -220,8 +207,3 @@ create_envoy_service
 
 [ ! -z ${TRAVIS} ] || configure_certificates
 [ ! -z ${TRAVIS} ] || configure_ssh_CAs
-
-# External DC Account Use
-[ ! -z ${TRAVIS} ] || create_ssh_user iac4me /usr/local/bootstrap/iac4me_bastion_user_rsa_key.pub
-
-
