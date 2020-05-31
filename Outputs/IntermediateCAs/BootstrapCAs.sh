@@ -1,2 +1,0 @@
-export TF_VAR_Int_CA_consul_root_signed_intermediate_ca=''
-export TF_VAR_Int_CA_consul_intermediate_ca_key=''
