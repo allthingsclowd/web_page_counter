@@ -197,6 +197,16 @@ setup_environment (){
   fi
 
   export ROOTCERTPATH
+  
+  # Binary versions to check for
+  [ -f /usr/local/bootstrap/var.env ] && {
+      source /usr/local/bootstrap/var.env
+  }
+      
+  [ -f ../var.env ] && {
+      source ../var.env
+  }
+  
 }
 
 setup_environment
