@@ -66,35 +66,35 @@ curl   \
     --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
     --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
     --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
-    https://127.0.0.1:8314/health
+    http://127.0.0.1:8314/health
 
 curl \
     --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
     --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
     --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
-    https://localhost:8080/health
+    http://localhost:8080/health
 
 curl \
     --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
     --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
     --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
-    https://localhost:8080
+    http://localhost:8080
 
 curl \
     --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
     --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
     --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
-    https://127.0.0.1:8080/health
+    http://127.0.0.1:8080/health
 
 curl \
     --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
     --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
     --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
-    https://127.0.0.1:8080
+    http://127.0.0.1:8080
 
-page_hit_counter=`lynx -accept_all_cookies --dump https://127.0.0.1:8080`
+page_hit_counter=`lynx -accept_all_cookies --dump http://127.0.0.1:8080`
 echo $page_hit_counter
-next_page_hit_counter=`lynx -accept_all_cookies --dump https://127.0.0.1:8080`
+next_page_hit_counter=`lynx -accept_all_cookies --dump http://127.0.0.1:8080`
 
 echo $next_page_hit_counter
 if (( next_page_hit_counter > page_hit_counter )); then
