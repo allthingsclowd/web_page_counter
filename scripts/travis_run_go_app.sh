@@ -65,6 +65,12 @@ echo "APPLICATION HEALTH"
 curl   \
     http://127.0.0.1:8314/health
 
+openssl s_client -connect localhost:8080 -CAfile /${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem
+
+openssl s_client -connect localhost:8080/health -CAfile /${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem
+
+openssl s_client -connect localhost:8080/health -CAfile /tmp/ssl/CA.crt
+
 curl \
     --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
     --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
