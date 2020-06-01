@@ -287,6 +287,12 @@
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },
     {
+      "destination": "/usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/BootstrapCAs.sh",
+      "source": "../.bootstrap/Outputs/IntermediateCAs/BootstrapCAs.sh",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    }, 
+    {
       "destination": "/usr/local/bootstrap/.bootstrap/Outputs/Certificates/ssh_host_rsa_key-cert.pub",
       "source": "../.bootstrap/Outputs/Certificates/hashistack-host-keys/cert-server01/ssh_host_rsa_key-cert.pub",
       "type": "file",
@@ -389,7 +395,15 @@
       "pause_before": "10s",
       "only": ["{{ user `build_name` }}-vbox"]
     },
-    
+    {
+      "inline": [
+        "sudo cp /usr/local/bootstrap/.bootstrap/Outputs/Certificates/ssh_host_rsa_key-cert.pub /etc/ssh/ssh_host_rsa_key-cert.pub && chmod 644 /etc/ssh/ssh_host_rsa_key-cert.pub",
+        "sudo cp /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/hashistack/hashistack-ssh-user-rsa-ca.pub /etc/ssh/hashistack-ssh-user-rsa-ca.pub && chmod 644 /etc/ssh/ssh_host_rsa_key-cert.pub"
+      ],
+      "type": "shell",
+      "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },
     {
       "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
       "scripts": [
@@ -416,8 +430,7 @@
     },
     {
       "inline": [
-        "sudo cp /usr/local/bootstrap/.bootstrap/Outputs/Certificates/ssh_host_rsa_key-cert.pub /etc/ssh/ssh_host_rsa_key-cert.pub && chmod 644 /etc/ssh/ssh_host_rsa_key-cert.pub",
-        "sudo cp /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/hashistack/hashistack-ssh-user-rsa-ca.pub /etc/ssh/hashistack-ssh-user-rsa-ca.pub && chmod 644 /etc/ssh/ssh_host_rsa_key-cert.pub"
+        "sudo rm -f /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/BootstrapCAs.sh"
       ],
       "type": "shell",
       "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
