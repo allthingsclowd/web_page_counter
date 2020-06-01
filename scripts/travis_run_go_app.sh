@@ -63,45 +63,46 @@ ls -al /${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem
 # check health
 echo "APPLICATION HEALTH"
 curl   \
-    --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
-    --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
-    --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
     http://127.0.0.1:8314/health
 
 curl \
     --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
     --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
     --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
-    http://localhost:8080/health
+    --verbose \
+    https://localhost:8080/health
 
 curl \
     --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
     --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
     --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
-    http://localhost:8080
+    --verbose \
+    https://localhost:8080
 
 curl \
     --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
     --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
     --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
-    http://127.0.0.1:8080/health
+    --verbose \
+    https://127.0.0.1:8080/health
 
 curl \
     --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
     --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
     --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
-    http://127.0.0.1:8080
+    --verbose \
+    https://127.0.0.1:8080
 
-page_hit_counter=`lynx -accept_all_cookies --dump http://127.0.0.1:8080`
-echo $page_hit_counter
-next_page_hit_counter=`lynx -accept_all_cookies --dump http://127.0.0.1:8080`
+# page_hit_counter=`lynx -accept_all_cookies --dump http://127.0.0.1:8080`
+# echo $page_hit_counter
+# next_page_hit_counter=`lynx -accept_all_cookies --dump http://127.0.0.1:8080`
 
-echo $next_page_hit_counter
-if (( next_page_hit_counter > page_hit_counter )); then
- echo "Successful Page Hit Update"
- exit 0
-else
- echo "Failed Page Hit Update"
- exit 1
-fi
+# echo $next_page_hit_counter
+# if (( next_page_hit_counter > page_hit_counter )); then
+# echo "Successful Page Hit Update"
+# exit 0
+# else
+#  echo "Failed Page Hit Update"
+# exit 1
+# fi
 # The End
