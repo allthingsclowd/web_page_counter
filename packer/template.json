@@ -244,7 +244,9 @@
         "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/wpc",
         "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/Certificates && sudo chmod -R 777 /usr/local/bootstrap/.bootstrap/Outputs/",
         "sudo mkdir -p /etc/nginx/conf.d/frontend/pki/tls/private/",
-        "sudo mkdir -p /etc/nginx/conf.d/frontend/pki/tls/certs/ && sudo chmod -R 777 /etc/nginx/conf.d/frontend"
+        "sudo mkdir -p /etc/nginx/conf.d/frontend/pki/tls/certs/ && sudo chmod -R 777 /etc/nginx/conf.d/frontend",
+        "sudo mkdir -p /etc/wpc.d/pki/tls/private/",
+        "sudo mkdir -p /etc/wpc.d/pki/tls/certs/ && sudo chmod -R 644 /etc/wpc.d/pki/tls"
       ],
       "type": "shell",
       "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
@@ -334,6 +336,12 @@
       "type": "file",
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },
+    {
+      "destination": "/usr/local/bootstrap/wpc-server-key.pem",
+      "source": "../.bootstrap/Outputs/Certificates/wpc/wpc-server-key.pem",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },    
     {
       "destination": "/etc/nginx/conf.d/frontend/pki/tls/certs/hashistack.pem",
       "source": "../.bootstrap/live/hashistack.ie/fullchain.pem",

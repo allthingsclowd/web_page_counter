@@ -1,8 +1,37 @@
 #!/usr/bin/env bash
+
 set -x
+source /usr/local/bootstrap/var.env
+echo 'Start Setup of Go App Deployment Environment'
+
+IFACE=`route -n | awk '$1 == "192.168.9.0" {print $8;exit}'`
+CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.9" {print $2}'`
+IP=${CIDR%%/24}
+
+if [ -d /vagrant ]; then
+  LOG="/vagrant/logs/go_app_${HOSTNAME}.log"
+else
+  LOG="go_app_${HOSTNAME}.log"
+fi
+
+if [ "${TRAVIS}" == "true" ]; then
+  ROOTCERTPATH=tmp
+  IP=${IP:-127.0.0.1}
+  LEADER_IP=${IP}
+else
+  ROOTCERTPATH=etc
+fi
+
+export ROOTCERTPATH
+
 
 # delayed added to ensure consul has started on host - intermittent failures
 sleep 2
+
+export BootStrapCertTool="https://raw.githubusercontent.com/allthingsclowd/BootstrapCertificateTool/${certbootstrap_version}/scripts/Generate_PKI_Certificates_For_Lab.sh"
+
+wget -O - ${BootStrapCertTool} | sudo bash -s wpc "server.node.global.wpc" "client.node.global.wpc" "${IP}"
+
 
 AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="https://${LEADER_IP}:8322" vault kv get -field "value" kv/development/consulagentacl`
 export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
@@ -17,6 +46,8 @@ export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
              -consulcert="/tmp/consul.d/pki/tls/certs/consul-cli.pem" \
              -vaultcert="/tmp/vault.d/pki/tls/certs/vault-cli.pem" \
              -consulkey="/tmp/consul.d/pki/tls/private/consul-cli-key.pem" \
+             -appcert="/tmp/ssl/certs/wpc-ca-chain.pem" \
+             -appkey="/tmp/wpc.d/pki/tls/private/wpc-server-key.pem" \
              -vaultkey="/tmp/vault.d/pki/tls/private/vault-cli-key.pem" &
 
 # delay added to allow webcounter startup
@@ -26,19 +57,39 @@ ps -ef | grep webcounter
 
 # check health
 echo "APPLICATION HEALTH"
-curl -s http://127.0.0.1:8314/health
+curl   \
+    --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
+    --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
+    --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
+    -s https://127.0.0.1:8314/health
 
-curl -s http://localhost:8080/health
+curl \
+    --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
+    --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
+    --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
+    -s https://localhost:8080/health
 
-curl -s http://localhost:8080
+curl \
+    --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
+    --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
+    --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
+    -s https://localhost:8080
 
-curl -s http://127.0.0.1:8080/health
+curl \
+    --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
+    --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
+    --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
+    -s https://127.0.0.1:8080/health
 
-curl -s http://127.0.0.1:8080
+curl \
+    --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
+    --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
+    --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
+    -s https://127.0.0.1:8080
 
-page_hit_counter=`lynx --dump http://127.0.0.1:8080`
+page_hit_counter=`lynx -accept_all_cookies --dump https://127.0.0.1:8080`
 echo $page_hit_counter
-next_page_hit_counter=`lynx --dump http://127.0.0.1:8080`
+next_page_hit_counter=`lynx -accept_all_cookies --dump https://127.0.0.1:8080`
 
 echo $next_page_hit_counter
 if (( next_page_hit_counter > page_hit_counter )); then

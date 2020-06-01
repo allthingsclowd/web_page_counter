@@ -25,9 +25,6 @@ setup_environment () {
 
   export ROOTCERTPATH
 
-  # debug certs issue
-  sudo ls -al /${ROOTCERTPATH}/vault.d /${ROOTCERTPATH}/consul.d /${ROOTCERTPATH}/nomad.d /${ROOTCERTPATH}/ssl/private /${ROOTCERTPATH}/certs
-
   echo 'Set environmental bootstrapping data in VAULT'
 
   export VAULT_ADDR=https://${LEADER_IP}:8322

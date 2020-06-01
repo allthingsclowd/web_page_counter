@@ -23,14 +23,21 @@ import (
 	vault "github.com/hashicorp/vault/api"
 )
 
+
 var (
-	ccertFile = flag.String("consulcert", "/etc/consul.d/pki/tls/certs/consul-peer.pem", "A PEM eoncoded consul certificate file.")
+	appcertFile = flag.String("appcert", "/etc/ssl/certs/wpc-ca-chain.pem", "A PEM encoded application chain certificate file.")
+	appkeyFile  = flag.String("appkey", "/etc/wpc.d/pki/tls/private/wpc-server-key.pem", "A PEM encoded application private key file.")
+
+)
+
+var (
+	ccertFile = flag.String("consulcert", "/etc/consul.d/pki/tls/certs/consul-peer.pem", "A PEM encoded consul certificate file.")
 	ckeyFile  = flag.String("consulkey", "/etc/consul.d/pki/tls/private/consul-peer-key.pem", "A PEM encoded consul private key file.")
 	ccaFile   = flag.String("consulCA", "/etc/ssl/certs/consul-ca-chain.pem", "A PEM eoncoded consul CA's certificate file.")
 )
 
 var (
-	vcertFile = flag.String("vaultcert", "/etc/vault.d/pki/tls/certs/vault-cli.pem", "A PEM eoncoded vault certificate file.")
+	vcertFile = flag.String("vaultcert", "/etc/vault.d/pki/tls/certs/vault-cli.pem", "A PEM encoded vault certificate file.")
 	vkeyFile  = flag.String("vaultkey", "/etc/vault.d/pki/tls/private/vault-cli-key.pem", "A PEM encoded vault private key file.")
 	vcaFile   = flag.String("vaultCA", "/etc/ssl/certs/vault-ca-chain.pem", "A PEM eoncoded CA's vault certificate file.")
 )
@@ -100,7 +107,8 @@ func main() {
 	r.HandleFunc("/crash", crashHandler).Methods("POST")
 	r.HandleFunc("/crash", optionsHandler).Methods("OPTIONS")
 	http.Handle("/", r)
-	http.ListenAndServe(portDetail.String(), r)
+	// http.ListenAndServe(portDetail.String(), r)
+	http.ListenAndServeTLS(portDetail.String(), appcertFile, appkeyFile, r);
 
 }
 
