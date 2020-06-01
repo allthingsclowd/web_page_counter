@@ -285,7 +285,13 @@
       "source": "../.bootstrap/Outputs/IntermediateCAs/hashistack/hashistack-ssh-user-rsa-ca.pub",
       "type": "file",
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
-    },       
+    },
+    {
+      "destination": "/usr/local/bootstrap/.bootstrap/Outputs/Certificates/ssh_host_rsa_key-cert.pub",
+      "source": "../.bootstrap/Outputs/Certificates/hashistack-host-keys/cert-server01/ssh_host_rsa_key-cert.pub",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },     
     {
       "destination": "/usr/local/bootstrap/consul-ca-chain.crt",
       "source": "../.bootstrap/Outputs/IntermediateCAs/consul/consul-ca-chain.pem",
@@ -409,18 +415,17 @@
       "only": ["{{ user `build_name` }}-vmware"]
     },
     {
-      "type": "inspec",
-      "profile": "../test/ImageBuild-Packer-Test"
-    },
-    {
-      "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
-      "scripts": [
-        "../scripts/packer_remove_build_user.sh"
+      "inline": [
+        "sudo cp /usr/local/bootstrap/.bootstrap/Outputs/Certificates/ssh_host_rsa_key-cert.pub /etc/ssh/ssh_host_rsa_key-cert.pub && chmod 644 /etc/ssh/ssh_host_rsa_key-cert.pub",
+        "sudo cp /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/hashistack/hashistack-ssh-user-rsa-ca.pub /etc/ssh/hashistack-ssh-user-rsa-ca.pub && chmod 644 /etc/ssh/ssh_host_rsa_key-cert.pub"
       ],
       "type": "shell",
-      "expect_disconnect": true,
-      "pause_before": "10s",
-      "only": ["{{ user `build_name` }}-vmware"]
+      "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },
+    {
+      "type": "inspec",
+      "profile": "../test/ImageBuild-Packer-Test"
     }
   ],
   "post-processors": [
