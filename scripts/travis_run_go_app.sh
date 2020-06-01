@@ -32,6 +32,13 @@ export BootStrapCertTool="https://raw.githubusercontent.com/allthingsclowd/Boots
 
 wget -O - ${BootStrapCertTool} | sudo bash -s wpc "server.node.global.wpc" "client.node.global.wpc" "${IP}"
 
+chmod 644 /${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem
+chmod 644 /${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-peer-key.pem
+chmod 644 /${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-peer.pem
+
+ls -al /${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem
+ls -al /${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-peer-key.pem
+ls -al /${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-peer.pem
 
 AGENTTOKEN=`sudo VAULT_TOKEN=reallystrongpassword VAULT_ADDR="https://${LEADER_IP}:8322" vault kv get -field "value" kv/development/consulagentacl`
 export CONSUL_HTTP_TOKEN=${AGENTTOKEN}
@@ -55,47 +62,42 @@ sleep 2
 
 ps -ef | grep webcounter 
 
-ls -al /${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem
-ls -al /${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem
-ls -al /${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem
-
-
 # check health
 echo "APPLICATION HEALTH"
 curl   \
     http://127.0.0.1:8314/health
 
-openssl s_client -connect localhost:8080 -CAfile /${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem
+openssl s_client -connect localhost:8080
 
-openssl s_client -connect localhost:8080/health -CAfile /${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem
+openssl s_client -connect localhost:8080/health
 
-openssl s_client -connect localhost:8080/health -CAfile /tmp/ssl/CA.crt
+openssl s_client -connect localhost:8080/health -CAfile /etc/ssl/CA.crt
 
 curl \
     --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
-    --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
-    --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
+    --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-peer-key.pem" \
+    --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-peer.pem" \
     --verbose \
     https://localhost:8080/health
 
 curl \
     --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
-    --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
-    --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
+    --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-peer-key.pem" \
+    --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-peer.pem" \
     --verbose \
     https://localhost:8080
 
 curl \
     --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
-    --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
-    --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
+    --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-peer-key.pem" \
+    --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-peer.pem" \
     --verbose \
     https://127.0.0.1:8080/health
 
 curl \
     --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
-    --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
-    --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
+    --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-peer-key.pem" \
+    --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-peer.pem" \
     --verbose \
     https://127.0.0.1:8080
 
