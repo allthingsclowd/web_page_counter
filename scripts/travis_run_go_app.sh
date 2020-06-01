@@ -55,37 +55,42 @@ sleep 2
 
 ps -ef | grep webcounter 
 
+ls -al /${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem
+ls -al /${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem
+ls -al /${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem
+
+
 # check health
 echo "APPLICATION HEALTH"
 curl   \
     --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
     --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
     --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
-    -s https://127.0.0.1:8314/health
+    https://127.0.0.1:8314/health
 
 curl \
     --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
     --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
     --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
-    -s https://localhost:8080/health
+    https://localhost:8080/health
 
 curl \
     --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
     --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
     --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
-    -s https://localhost:8080
+    https://localhost:8080
 
 curl \
     --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
     --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
     --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
-    -s https://127.0.0.1:8080/health
+    https://127.0.0.1:8080/health
 
 curl \
     --cacert "/${ROOTCERTPATH}/ssl/certs/wpc-ca-chain.pem" \
     --key "/${ROOTCERTPATH}/wpc.d/pki/tls/private/wpc-cli-key.pem" \
     --cert "/${ROOTCERTPATH}/wpc.d/pki/tls/certs/wpc-cli.pem" \
-    -s https://127.0.0.1:8080
+    https://127.0.0.1:8080
 
 page_hit_counter=`lynx -accept_all_cookies --dump https://127.0.0.1:8080`
 echo $page_hit_counter
