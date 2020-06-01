@@ -14,7 +14,7 @@
     "guest_additions_url": "http://download.virtualbox.org/virtualbox/6.0.4/VBoxGuestAdditions_6.0.4.iso",
     "guest_additions_sha256": "749b0c76aa6b588e3310d718fc90ea472fdc0b7c8953f7419c20be7e7fa6584a",
     "ssh_username": "iac4me",
-    "ssh_private_key_file": "/Users/grazzer/vagrant_workspace/pipeline/.bootstrap/Outputs/Certificates/hashistack-user-keys/127.0.0.1/iac4me/id_rsa",
+    "ssh_private_key_file": "/Users/grazzer/vagrant_workspace/lab_certificate_creation/.bootstrap/Outputs/Certificates/hashistack-user-keys/127.0.0.1/iac4me/id_rsa",
     "version": "0.2.{{timestamp}}",
     "cloud_token": "{{ env `TF_VAR_vagrant_cloud_token` }}",
     "remote_user": "{{ env `TF_VAR_vmware_user` }}",
