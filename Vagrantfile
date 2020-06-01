@@ -48,7 +48,7 @@ Vagrant.configure("2") do |config|
     
     #global config
     config.ssh.username = "iac4me"
-    config.ssh.private_key_path = "/Users/grazzer/vagrant_workspace/pipeline/.bootstrap/Outputs/Certificates/hashistack-user-keys/127.0.0.1/iac4me/id_rsa"
+    config.ssh.private_key_path = "/Users/grazzer/vagrant_workspace/lab_certificate_creation/.bootstrap/Outputs/Certificates/hashistack-user-keys/127.0.0.1/iac4me/id_rsa"
 
     config.vm.synced_folder ".", "/vagrant"
     config.vm.synced_folder ".", "/usr/local/bootstrap"
