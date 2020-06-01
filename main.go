@@ -108,7 +108,7 @@ func main() {
 	r.HandleFunc("/crash", optionsHandler).Methods("OPTIONS")
 	http.Handle("/", r)
 	// http.ListenAndServe(portDetail.String(), r)
-	http.ListenAndServeTLS(portDetail.String(), appcertFile, appkeyFile, r);
+	http.ListenAndServeTLS(portDetail.String(), *appcertFile, *appkeyFile, r);
 
 }
 
