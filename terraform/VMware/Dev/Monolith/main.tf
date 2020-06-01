@@ -83,7 +83,7 @@ resource "vsphere_virtual_machine" "leader01vm" {
     }    
 
   }
-
+  
   provisioner "remote-exec" {
     
     connection {
@@ -95,7 +95,7 @@ resource "vsphere_virtual_machine" "leader01vm" {
         bastion_certificate = var.bastion_certificate
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
-        user     = "vagrant"
+        user     = var.ssh_username
         // password = "vagrant"
         private_key = var.ssh_private_key
         certificate = var.ssh_certificate
@@ -105,6 +105,12 @@ resource "vsphere_virtual_machine" "leader01vm" {
 
     inline = [
         "touch /tmp/cloudinit-start.txt",
+        "sudo /usr/local/bootstrap/scripts/tf_cloud_cert_bootstrap.sh ${var.bastion_intermediate_ca_key} bastion bastion-intermediate-ca-key.pem",
+        "sudo /usr/local/bootstrap/scripts/tf_cloud_cert_bootstrap.sh ${var.ssh_intermediate_ca_key} ssh ssh-intermediate-ca-key.pem",
+        "sudo /usr/local/bootstrap/scripts/tf_cloud_cert_bootstrap.sh ${var.consul_intermediate_ca_key} consul consul-intermediate-ca-key.pem",
+        "sudo /usr/local/bootstrap/scripts/tf_cloud_cert_bootstrap.sh ${var.vault_intermediate_ca_key} vault vault-intermediate-ca-key.pem",
+        "sudo /usr/local/bootstrap/scripts/tf_cloud_cert_bootstrap.sh ${var.nomad_intermediate_ca_key} nomad nomad-intermediate-ca-key.pem",
+        "sudo /usr/local/bootstrap/scripts/tf_cloud_cert_bootstrap.sh ${var.wpc_intermediate_ca_key} wpc wpc-intermediate-ca-key.pem",
         "sudo /usr/local/bootstrap/scripts/install_consul.sh",
         "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
         "sudo /usr/local/bootstrap/scripts/install_vault.sh",
@@ -168,7 +174,7 @@ resource "vsphere_virtual_machine" "redis01vm" {
         bastion_certificate = var.bastion_certificate
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
-        user     = "vagrant"
+        user     = var.ssh_username
         // password = "vagrant"
         private_key = var.ssh_private_key
         certificate = var.ssh_certificate
@@ -246,7 +252,7 @@ resource "vsphere_virtual_machine" "godevvms" {
         bastion_certificate = var.bastion_certificate
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
-        user     = "vagrant"
+        user     = var.ssh_username
         // password = "vagrant"
         private_key = var.ssh_private_key
         certificate = var.ssh_certificate
@@ -324,7 +330,7 @@ resource "vsphere_virtual_machine" "web01vm" {
         bastion_certificate = var.bastion_certificate
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
-        user     = "vagrant"
+        user     = var.ssh_username
         // password = "vagrant"
         private_key = var.ssh_private_key
         certificate = var.ssh_certificate
@@ -344,7 +350,7 @@ resource "vsphere_virtual_machine" "web01vm" {
         bastion_certificate = var.bastion_certificate
         bastion_host_key = var.bastion_host_key
         type     = "ssh"
-        user     = "vagrant"
+        user     = var.ssh_username
         // password = "vagrant"
         private_key = var.ssh_private_key
         certificate = var.ssh_certificate

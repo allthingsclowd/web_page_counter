@@ -46,6 +46,37 @@ variable "ssh_private_key" {
   description = "SSH Private Key"
 }
 
+variable "ssh_username" {
+  description = "SSH Deployment Username"
+}
+
 variable "ssh_host_key" {
   description = "SSH Host CA Signing Public Key"
 }
+
+variable "consul_intermediate_ca_key" {
+  description = "Consul Intermediate CA Private Key"
+}
+
+variable "vault_intermediate_ca_key" {
+  description = "Vault Intermediate CA Private Key"
+}
+
+variable "nomad_intermediate_ca_key" {
+  description = "Vault Intermediate CA Private Key"
+}
+
+variable "ssh_intermediate_ca_key" {
+  description = "SSH Intermediate CA Private Key"
+}
+
+variable "bastion_intermediate_ca_key" {
+  description = "Bastion Intermediate CA Private Key"
+}
+
+variable "wpc_intermediate_ca_key" {
+  description = "Web-Page-Counter Application Intermediate CA Private Key"
+}
+
+
+

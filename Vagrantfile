@@ -47,6 +47,9 @@ Vagrant.configure("2") do |config|
     ENV['DD_API_KEY']||="ONLY REQUIRED FOR DATADOG IMPLEMENTATION"
     
     #global config
+    config.ssh.username = "iac4me"
+    config.ssh.private_key_path = "/Users/grazzer/vagrant_workspace/lab_certificate_creation/.bootstrap/Outputs/Certificates/hashistack-user-keys/127.0.0.1/iac4me/id_rsa"
+
     config.vm.synced_folder ".", "/vagrant"
     config.vm.synced_folder ".", "/usr/local/bootstrap"
     config.vm.box = "allthingscloud/web-page-counter"
@@ -57,6 +60,7 @@ Vagrant.configure("2") do |config|
     config.vm.provider "virtualbox" do |v|
         v.memory = 1024
         v.cpus = 1
+        v.customize ["modifyvm", :id, "--vram", "16"]
     end
 
     config.vm.define "leader01" do |leader01|

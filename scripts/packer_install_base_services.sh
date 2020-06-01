@@ -104,53 +104,32 @@ EOF
 
 }
 
-# create_root_CA_certificate () {
-
-#   # ${1} - domain name - e.g. consul
-#   # ${2} - duration in days that CA is valid for
-  
-#   # create file layout for the certs
-#   [ -d /${ROOTCERTPATH}/ssl/CA ] &>/dev/null || {
-#     sudo mkdir --parent /${ROOTCERTPATH}/ssl/CA /${ROOTCERTPATH}/ssl/certs /${ROOTCERTPATH}/ssl/private
-#   }
-#   pushd /${ROOTCERTPATH}/ssl/CA
-#   sudo /usr/local/bin/consul tls ca create -domain=${1} -days=${2}
-#   sudo mv /${ROOTCERTPATH}/ssl/CA/${1}-agent-ca.pem /${ROOTCERTPATH}/ssl/certs/.
-#   sudo mv /${ROOTCERTPATH}/ssl/CA/${1}-agent-ca-key.pem /${ROOTCERTPATH}/ssl/private/.
-#   sudo chmod -R 755 /${ROOTCERTPATH}/ssl/certs
-#   sudo chmod -R 755 /${ROOTCERTPATH}/ssl/private
-#   sudo ls -al /${ROOTCERTPATH}/ssl/certs /${ROOTCERTPATH}/ssl/private
-#   popd
-
-# }
-
 configure_certificates () {
 
-    # create nomad directories
-    sudo -u nomad mkdir --parents /${ROOTCERTPATH}/nomad.d/pki/tls/private /${ROOTCERTPATH}/nomad.d/pki/tls/certs
-    sudo -u nomad chmod -R 644 /${ROOTCERTPATH}/nomad.d/pki/tls/certs
-    sudo -u nomad chmod -R 644 /${ROOTCERTPATH}/nomad.d/pki/tls/private
+    echo "CONFIGURING OpenSSL CA PUBLIC CERTS"
+    for cert in `ls /usr/local/bootstrap/*.crt`;
+    do
+      sudo mv ${cert} /usr/local/share/ca-certificates/. ;
+    done
 
-    sudo -u consul mkdir --parents /${ROOTCERTPATH}/consul.d/pki/tls/private /${ROOTCERTPATH}/consul.d/pki/tls/certs
-    sudo -u consul chmod -R 644 /${ROOTCERTPATH}/consul.d/pki/tls/certs
-    sudo -u consul chmod -R 644 /${ROOTCERTPATH}/consul.d/pki/tls/private
+    sudo update-ca-certificates
+    sudo openssl rehash /etc/ssl/certs
 
-    sudo -u vault mkdir --parents /${ROOTCERTPATH}/vault.d/pki/tls/private /${ROOTCERTPATH}/vault.d/pki/tls/certs
-    sudo -u vault chmod -R 644 /${ROOTCERTPATH}/vault.d/pki/tls/certs
-    sudo -u vault chmod -R 644 /${ROOTCERTPATH}/vault.d/pki/tls/private
-  
-    # copy ssh CA certificate onto host
-    sudo cp -r /usr/local/bootstrap/certificate-config/ssh_host/ssh_host_rsa_key.pub /etc/ssh/ssh_host_rsa_key.pub
-    sudo chmod 644 /etc/ssh/ssh_host_rsa_key.pub
-    sudo cp -r /usr/local/bootstrap/certificate-config/ssh_host/ssh_host_rsa_key-cert.pub /etc/ssh/ssh_host_rsa_key-cert.pub
-    sudo chmod 644 /etc/ssh/ssh_host_rsa_key-cert.pub
-    sudo cp -r /usr/local/bootstrap/certificate-config/ssh_host/client-ca.pub /etc/ssh/client-ca.pub
-    sudo chmod 644 /etc/ssh/client-ca.pub
-    sudo cp -r /usr/local/bootstrap/certificate-config/ssh_host/ssh_host_rsa_key /etc/ssh/ssh_host_rsa_key
-    sudo chmod 600 /etc/ssh/ssh_host_rsa_key
-    # enable ssh CA certificate
-    grep -qxF 'TrustedUserCAKeys /etc/ssh/client-ca.pub' /etc/ssh/sshd_config || echo 'TrustedUserCAKeys /etc/ssh/client-ca.pub' | sudo tee -a /etc/ssh/sshd_config
-    grep -qxF 'HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub' /etc/ssh/sshd_config || echo 'HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub' | sudo tee -a /etc/ssh/sshd_config
+    # if this is the final target system a user matching application name will exist
+    if id -u "${1}" >/dev/null 2>&1; then
+        chown -R ${1}:${1} /${ROOTCERTPATH}/${1}.d
+    fi
+
+}
+
+configure_ssh_CAs () {
+
+  export BootstrapSSHTool="https://raw.githubusercontent.com/allthingsclowd/BootstrapCertificateTool/${certbootstrap_version}/scripts/Generate_Access_Certificates.sh"
+
+  # Generate OpenSSH Certs
+  wget -O - ${BootstrapSSHTool} | bash -s "hashistack" "iac4me" ",81.143.215.2"
+    
+
 }
 
 create_service_user () {
@@ -162,6 +141,23 @@ create_service_user () {
     sudo useradd -g ${1} --system --home-dir /etc/${1}.d --create-home --shell /bin/false ${1}
     sudo mkdir --parents /opt/${1} /usr/local/${1} /etc/${1}.d
     sudo chown -R ${1}:${1} /opt/${1} /usr/local/${1} /etc/${1}.d
+
+  fi
+
+}
+
+create_ssh_user () {
+  
+  if ! grep ${1} /etc/passwd >/dev/null 2>&1; then
+    
+    echo "Creating ${1} user with ssh access"
+    AUTHORISED_CERT=`cat ${2}`
+    sudo useradd --create-home --home-dir /home/${1} --shell /bin/bash ${1}
+    sudo usermod -aG sudo ${1}
+    sudo mkdir -p /home/${1}/.ssh
+    echo "${AUTHORISED_CERT}" | sudo tee -a /home/${1}/.ssh/authorized_keys
+    sudo chown -R ${1}:${1} /home/${1}/
+    sudo chmod -R go-rwx /home/${1}/.ssh/authorized_keys
 
   fi
 
@@ -201,6 +197,16 @@ setup_environment (){
   fi
 
   export ROOTCERTPATH
+  
+  # Binary versions to check for
+  [ -f /usr/local/bootstrap/var.env ] && {
+      source /usr/local/bootstrap/var.env
+  }
+      
+  [ -f ../var.env ] && {
+      source ../var.env
+  }
+  
 }
 
 setup_environment
@@ -209,7 +215,5 @@ create_vault_service
 create_nomad_service
 create_envoy_service
 
-# create_root_CA_certificate consul 365
-# create_root_CA_certificate vault 365
-# create_root_CA_certificate nomad 365
-configure_certificates
+[ ! -z ${TRAVIS} ] || configure_certificates
+[ ! -z ${TRAVIS} ] || configure_ssh_CAs
