@@ -237,6 +237,8 @@
         "sudo mkdir -p /usr/local/bootstrap/conf/certificates",
         "sudo mkdir -p /usr/local/bootstrap/conf/nomad.d",
         "sudo mkdir -p /usr/local/bootstrap/conf/vault.d && sudo chmod -R 777 /usr/local/bootstrap",
+        "sudo mkdir -p /usr/local/bootstrap/.bootstrap/CA",
+        "sudo chmod -R 777 /usr/local/bootstrap",
         "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/consul",
         "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/vault",
         "sudo mkdir -p /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/nomad",
@@ -256,6 +258,12 @@
       "type": "file",
       "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
     },
+    {
+      "destination": "/usr/local/bootstrap/.bootstrap/CA/BootstrapCAs.sh",
+      "source": "../.bootstrap/CA/BootstrapCAs.sh",
+      "type": "file",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    }, 
     {
       "destination": "/usr/local/bootstrap/",
       "source": "../.appRoleID",
@@ -431,6 +439,14 @@
     {
       "inline": [
         "sudo rm -f /usr/local/bootstrap/.bootstrap/Outputs/IntermediateCAs/BootstrapCAs.sh"
+      ],
+      "type": "shell",
+      "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
+      "only": ["{{ user `build_name` }}-vmware","{{ user `build_name` }}-vbox"]
+    },
+    {
+      "inline": [
+        "sudo rm -f /usr/local/bootstrap/.bootstrap/CA/BootstrapCAs.sh"
       ],
       "type": "shell",
       "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
