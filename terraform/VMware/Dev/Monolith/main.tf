@@ -105,12 +105,8 @@ resource "vsphere_virtual_machine" "leader01vm" {
 
     inline = [
         "touch /tmp/cloudinit-start.txt",
-        "sudo /usr/local/bootstrap/scripts/tf_cloud_cert_bootstrap.sh ${var.bastion_intermediate_ca_key} bastion bastion-intermediate-ca-key.pem",
-        "sudo /usr/local/bootstrap/scripts/tf_cloud_cert_bootstrap.sh ${var.ssh_intermediate_ca_key} ssh ssh-intermediate-ca-key.pem",
-        "sudo /usr/local/bootstrap/scripts/tf_cloud_cert_bootstrap.sh ${var.consul_intermediate_ca_key} consul consul-intermediate-ca-key.pem",
-        "sudo /usr/local/bootstrap/scripts/tf_cloud_cert_bootstrap.sh ${var.vault_intermediate_ca_key} vault vault-intermediate-ca-key.pem",
-        "sudo /usr/local/bootstrap/scripts/tf_cloud_cert_bootstrap.sh ${var.nomad_intermediate_ca_key} nomad nomad-intermediate-ca-key.pem",
-        "sudo /usr/local/bootstrap/scripts/tf_cloud_cert_bootstrap.sh ${var.wpc_intermediate_ca_key} wpc wpc-intermediate-ca-key.pem",
+        "sudo /usr/local/bootstrap/scripts/SSH_Certify.sh",
+        "sudo /usr/local/bootstrap/scripts/SSL_Certify.sh",
         "sudo /usr/local/bootstrap/scripts/install_consul.sh",
         "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
         "sudo /usr/local/bootstrap/scripts/install_vault.sh",
@@ -184,6 +180,8 @@ resource "vsphere_virtual_machine" "redis01vm" {
 
     inline = [
         "touch /tmp/cloudinit-start.txt",
+        "sudo /usr/local/bootstrap/scripts/SSH_Certify.sh",
+        "sudo /usr/local/bootstrap/scripts/SSL_Certify.sh",
         "sudo /usr/local/bootstrap/scripts/install_consul.sh",
         "sudo /usr/local/bootstrap/scripts/install_vault.sh",
         "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
@@ -262,6 +260,8 @@ resource "vsphere_virtual_machine" "godevvms" {
 
     inline = [
         "touch /tmp/cloudinit-start.txt",
+        "sudo /usr/local/bootstrap/scripts/SSH_Certify.sh",
+        "sudo /usr/local/bootstrap/scripts/SSL_Certify.sh",
         "sudo /usr/local/bootstrap/scripts/install_consul.sh",
         "sudo /usr/local/bootstrap/scripts/install_vault.sh",
         "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
@@ -360,6 +360,8 @@ resource "vsphere_virtual_machine" "web01vm" {
 
     inline = [
         "touch /tmp/cloudinit-start.txt",
+        "sudo /usr/local/bootstrap/scripts/SSH_Certify.sh",
+        "sudo /usr/local/bootstrap/scripts/SSL_Certify.sh",
         "sudo /usr/local/bootstrap/scripts/install_consul.sh",
         "sudo /usr/local/bootstrap/scripts/install_vault.sh",
         "sudo /usr/local/bootstrap/scripts/consul_enable_acls_1.4.sh",
