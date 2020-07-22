@@ -47,8 +47,8 @@ Vagrant.configure("2") do |config|
     ENV['DD_API_KEY']||="ONLY REQUIRED FOR DATADOG IMPLEMENTATION"
     
     #global config
-    config.ssh.username = "iac4me"
-    config.ssh.private_key_path = "/Users/grazzer/vagrant_workspace/lab_certificate_creation/.bootstrap/Outputs/Certificates/hashistack-user-keys/127.0.0.1/iac4me/id_rsa"
+    config.ssh.username = "packman"
+    config.ssh.private_key_path = "/Users/grazzer/.ssh/packman-id_rsa"
 
     config.vm.synced_folder ".", "/vagrant"
     config.vm.synced_folder ".", "/usr/local/bootstrap"
